@@ -1,13 +1,13 @@
-# All 318 named source identities
+# All 319 named source identities
 
 **Acceptance policy:** apply the owner's [game-fidelity policy](../../delivery-workflow.md#game-fidelity) and [float comparison and effort rules](../../testing-guidance.md#float-comparison-and-effort-rules) to all linked element criteria. Historical ticks, trajectories and micrometre observations do not create new precision gates. Preserve each intended behavior and requirement identity; exact timing needs a deliberate gameplay contract.
 
 Navigation and preservation ledger only: every EL/TH/RAD/GAP identity and element behaviour fact is kept; the entries do not define the system.
 Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
-Declaration readiness specs are indexed in the [element spec index](../elements/README.md): one per identity adopted on 24 October 2026; EL-217 to EL-241 have none yet and each gets its spec when its slice is planned.
+Declaration readiness specs are indexed in the [element spec index](../elements/README.md): one per identity adopted on 24 October 2026 and one per identity EL-217 to EL-241 (EL-239's is the delivered Baseball's) and one for EL-242, written on 23 November 2026.
 Each element is delivered by declaration data (generic capability families, parameters, art, animation bindings) under those authorities; an entry's wording never prescribes a mechanism inside the solver or the animation engine.
 
-241 EL + 37 TH + 22 RAD + 18 GAP remain explicit (EL-217 to EL-241 were ledgered on 21 November 2026 by owner decision; see [campaign-taught parts](#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)). Retained umbrellas forward to separate named elements, not combined parts. Every actual named element is required by the owner's 24 October 2026 adoption decision below. Conditional behavior remains tied to its stated inputs; unnamed alternative designs remain explicit decisions, not exclusions. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
+242 EL + 37 TH + 19 RAD + 11 GAP identities remain explicit; the 22 `radiation-` and 18 `gap-` headings below also hold 3 and 7 scope indexes that forward to EL identities (EL-217 to EL-241 were ledgered on 21 November 2026 by owner decision, see [campaign-taught parts](#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241); EL-242 was ledgered on 23 November 2026 by coordinator decision 27, see [EL-242](#element-242)). A declared companion package (owner decision 15) is recorded in its parent identity's entry and is not an identity; it is declared not placeable, has no palette entry and appears only with its parent (owner decision 24b, 23 November 2026). Retained umbrellas forward to separate named elements, not combined parts. Every actual named element is required by the owner's 24 October 2026 adoption decision below. Conditional behavior remains tied to its stated inputs; unnamed alternative designs remain explicit decisions, not exclusions. All original source criteria and technical/stage prerequisites remain mandatory. These are scoped labels under existing canonical IDs, not new work orders. A bounded label is not readiness or a Pass. Read the full linked body, including surviving historical checkpoint obligations; old process status, prototypes, schemas and 75-level scene-owned targets are history. At cutover name the sole target owner, update affected callers/content/tests together, delete/reject the obsolete route and prove it unreachable. Choices within the fixed architecture remain negotiable; unknown model/parameter questions end in one bounded decision with the same named implementation next. Positive/control/boundary and all required build/Chrome/Reset/save/performance/publication proof remain at the original stage.
 
 [Family model/controls](profiles.md) and [explicit multi-action refinements](refinements.md) apply. Current-part engine migration and future missing behavior are separate stages; no duplicate implementation inferred from similar names.
 
@@ -15,11 +15,11 @@ Each element is delivered by declaration data (generic capability families, para
 
 Future slices follow [AGENTS delivery speed rules](../../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): bmad-build-auto's four independent review layers, one slice at a time from published main, incremental builds, one full native suite per round, CI-owned Release/publish and light committed-SHA evidence. Do not add a redundant review or manifest workflow.
 
-This ledger supplies the detailed contracts for the `named-*` sprint keys. Canonical S owners and requirement anchors are unchanged. Owner direction adopts all **301 actual named identities** (276 adopted on 24 October 2026 plus EL-217 to EL-241 added on 21 November 2026), including formerly potential thermal/radiation elements. The 10 umbrella rows forward to children; seven GAP product features retain separate owners. The 72 CAT specs overlap this inventory: “refines CAT” links source acceptance, not automatic package equivalence. Reuse a verified existing identity and its applicable independent proof; implement missing behavior without duplicating its package. TH-05 adds thermal behavior to EL-055's one brake; EL-173 diverging and TH-06 converging lenses remain distinct.
+This ledger supplies the detailed contracts for the `named-*` sprint keys. Canonical S owners and requirement anchors are unchanged. Owner direction adopts **302 actual named identities**: 276 adopted on 24 October 2026, EL-217 to EL-241 added on 21 November 2026 (301), and EL-242, ledgered on 23 November 2026 by coordinator decision 27 under the owner's standing delegation (overridable by the owner), as the 302nd; this includes formerly potential thermal/radiation elements. The 10 umbrella rows forward to children; seven GAP product features retain separate owners. The 72 CAT specs overlap this inventory: “refines CAT” links source acceptance, not automatic package equivalence. Reuse a verified existing identity and its applicable independent proof; implement missing behavior without duplicating its package. TH-05 adds thermal behavior to EL-055's one brake; EL-173 diverging and TH-06 converging lenses remain distinct.
 
 **Entry/dependencies.** Complete the bounded [stabilization plan](../../../_bmad-output/planning-artifacts/epics.md#current-execution-plan), then select the first ready identity in the family order below. Read that identity's linked Declaration, Engine capabilities, Acceptance outline, Open questions and exact requirement body. Its canonical S owner resolves each finite model/admission question before implementation, recording selected parameters, typed domains, native oracle and first consumer. Questions requiring owner input remain explicit blockers, never exclusions. A missing engine, abstraction, wire or shared-presentation capability is delivered first by its own engine-first slice, under the [capability-cluster order](vertical-delivery.md#capability-cluster-order) and the loop protocol's capability probe; it is not built inside its first consumer's slice.
 
-**Order (owner, 21 November 2026).** Follow the [capability-cluster order](vertical-delivery.md#capability-cluster-order): registration derivation; identities that need no new engine capability, with duplicate closures; then, cluster by cluster, the engine-first story followed by the identities it unblocks — gas network, optics, acoustics, the small single-law clusters, liquid, thermal, radiation. Thermal and radiation stay in the first release. Entry order in this ledger, identity numbers and sprint key order are not dependencies. Within a cluster use identity order subject to actual capability prerequisites. Named obligations refining a current CAT slice travel with that slice. Which identities may share a slice, and which close without a slice of their own, is decided only by AGENTS.md's **Family slice** and **Duplicate closure** rules as written there; the groupings are in [delivery batches](delivery-batches.md). Every other distinct variant gets its own slice.
+**Order (owner decisions 3a, 18, 22 and 24a, 22–23 November 2026).** The roadmap's [delivery order](vertical-delivery.md#capability-cluster-order) governs: before the engine programme only the visible-solid repair parts A, B, B2 and C, the Baseball repair and structural stories S3, S5 and S6 run; then the engine programme of owner decision 3a; then the gas network, liquid and thermal engines (owner decision 18); then every remaining identity in the order the campaign levels first teach it, each after its own *Depends on* engine stories (owner decision 24a). Thermal and radiation stay in the first release. Entry order in this ledger, identity numbers and sprint key order are not dependencies. Within a cluster use identity order subject to actual capability prerequisites. Named obligations refining a current CAT slice travel with that slice. Which identities may share a slice, and which close without a slice of their own, is decided only by AGENTS.md's **Family slice** and **Duplicate closure** rules as written there; the groupings are in [delivery batches](delivery-batches.md). Every other distinct variant gets its own slice.
 
 **Collaborator cycles.** Separate build prerequisites from later integration fixtures in the same slice record. Deliver and independently close a generic capability prerequisite using the real production engine and declared qualification fixtures before selecting the first named consumer. Every named slice must finish its intrinsic and required-now acceptance, review and publication before the next named element starts. Assign genuinely later cross-element criteria explicitly to the later consuming slice below; record their original source owner and exact criterion there, without waiving them or claiming catalogue closure early. Reservoir/tap/basin use a completed generic finite-liquid/advection qualification fixture under S416 → S418, head → S419 and a mouth-topology decision owned by S422; EL-001 proves depletion/empty behavior through committed volume/flow, EL-003 owns reservoir→tap controls and EL-004 owns collection/miss/overflow integration. Original source acceptance remains required at those owners. Balloon 12.1b first establishes and natively qualifies the bounded S470 finite sealed-store, compliant ambient-boundary and puncture-loss prerequisite within its consuming slice. EL-125 explicitly permits an unbounded ambient reservoir; this does not require finite ambient inventory. EL-039 authored initial pressure still requires the connected-volume/valve S471 qualification before its gas-network consumers; S471 and S697 are not completed by Balloon's bounded store.  EL-037 owns compressor→reservoir integration after EL-038 hose and EL-043 gauge. TH-04 first closes native temperature/store behavior under a completed sensible-heat IX-43 prerequisite; TH-21 owns plate→sensor integration after its temperature-sensing IX-17 entry decision. RAD-01 first closes source emission/occlusion/finite-inventory behavior under completed S605 photon → S606 proof; RAD-08 owns source→meter integration, using committed native emission as the earlier observable. TH-05 follows EL-055; RAD-20 follows TH-30, TH-10 and finite startup supply. These are concrete cycle-breaking proof stages, not waivers.
 
@@ -471,7 +471,7 @@ Owner **S536**. Individual named outcome, modes, proof and publication retained.
 [Full specification and all variants](../requirements.md#element-049).
 
 <a id="element-050"></a>
-### element-050 · EL-050 · Acoustic screen. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Material surface attenuates or reflects sound according to its declared properties.
+### element-050 · EL-050 · Acoustic screen. Type: Sound. Scope/evidence source: [existing record](../requirements.md#todo-352). Material surface blocks and attenuates sound according to its declared properties; it does not reflect (owner decision of 21 November 2026).
 
 Owner **S537**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A geometric gap permits transmission; no universal mute field. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
@@ -601,7 +601,7 @@ Owner **S334**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S332**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected rope carries no anchored tension. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Current candidate:** 10.2b supplies the fixed Anchor/Tie outcome and straight-rope native proof; independent review/publication pending, browser qualification later. [Candidate evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md).
+**Candidate Duplicate closure** of `rope_anchor` ([CAT-058](../elements/CAT-058-rope_anchor.md)), closure-review group "Rope parts" after the engine programme (owner decision 22, 23 November 2026; [delivery batches 2a](delivery-batches.md#2-duplicate-closures)). 10.2b supplies the fixed Anchor/Tie outcome and straight-rope native proof, published at `d2862ebe`; browser qualification later. [Evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md). `ENGINE-CONNECTION-MATERIALS` re-runs the check when the strand gains its collider (owner decision 1); the closure citation replaces this paragraph when the review runs.
 
 **Delivery slice:** `named-el-064` under canonical **S332**. [EL-064 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-064-metal-loop-anchor.md). Also retains [CAT-058 acceptance](../elements/CAT-058-rope_anchor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
@@ -648,7 +648,7 @@ Owner **S357**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S369**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Tipping spills through the real opening; a missed object is not captured. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-069` under canonical **S369**. [EL-069 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-069-moving-bucket.md). Also retains [CAT-004 acceptance](../elements/CAT-004-basket.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-069` under canonical **S369**. [EL-069 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-069-moving-bucket.md). Related: [CAT-004](../elements/CAT-004-basket.md) (open-container geometry). The bucket declares no capture sensor; goal capture belongs to the goal engine slices (Batch I readiness, coordinator decisions). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-069).
 
@@ -675,7 +675,7 @@ Owner **S360**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S361**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-072` under canonical **S361**. [EL-072 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-072-curved-metal-ball-pipe.md). Also retains [CAT-049 acceptance](../elements/CAT-049-pipe_bend_45.md), [CAT-050 acceptance](../elements/CAT-050-pipe_bend_90.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-072` under canonical **S361**. [EL-072 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-072-curved-metal-ball-pipe.md). Also retains [CAT-050 acceptance](../elements/CAT-050-pipe_bend_90.md); the 45° angle and CAT-049 acceptance belong to [EL-242](#element-242) (coordinator decision 27, 23 November 2026). A refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-072).
 
@@ -702,7 +702,7 @@ Owner **S644**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S645**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unpowered request emits none; held input follows the explicit retrigger rule. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-075` under canonical **S645**. [EL-075 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-075-toy-pulse-emitter.md). Also retains [CAT-036 acceptance](../elements/CAT-036-laser.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-075` under canonical **S645**. [EL-075 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-075-toy-pulse-emitter.md). Also retains [CAT-036 acceptance](../elements/CAT-036-laser.md) for the shared optical emission only (light only while enabled and `PowerIn` is powered); the Laser's Activation trigger is not retained, because a remembered request would let an unpowered request emit later, against this entry's outcome, so the control is an electrical level ([EL-075 spec](../elements/EL-075-toy-pulse-emitter.md), row L4). A refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-075).
 
@@ -729,7 +729,7 @@ Owner **S647**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S648**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Misalignment and missing supply leave the seal intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-078` under canonical **S648**. [EL-078 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-078-can-opener.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-078` under canonical **S648**. [EL-078 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-078-can-opener.md). **Companion package:** `sealed_can`, delivered in this identity's slice with its own acceptance rows; it is not an identity (owner decision 15, 22 November 2026). It is not placeable and has no palette order (owner decision 24b); the opener seats it, and the player may delete it alone in Build and restore it from its opener (coordinator decisions 33 and 34). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-078).
 
@@ -783,7 +783,7 @@ Owner **S653**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S654**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Subthreshold impact retains contents. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-084` under canonical **S654**. [EL-084 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-084-fragile-fish-bowl.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-084` under canonical **S654**. [EL-084 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-084-fragile-fish-bowl.md). **Fracture fragments:** the seven shards are declared fracture fragments of this identity's package (owner decision 15, 22 November 2026; `ENGINE-FRACTURE`); they are not identities. The fish companion `toy_fish` is a declared companion package of this identity, not placeable: it has no palette entry and appears only with its parent (owner decisions 15 and 24b, 22–23 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-084).
 
@@ -819,7 +819,7 @@ Owner **S657**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S658**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occlusion affects perception and intact walls retain contents. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-088` under canonical **S658**. [EL-088 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-088-fish-tank-lure.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-088` under canonical **S658**. [EL-088 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-088-fish-tank-lure.md). **Fracture fragments:** the four panes are declared fracture fragments of this identity's package (owner decision 15, 22 November 2026; `ENGINE-FRACTURE`); they are not identities. The fish companion `glow_fish` is a declared companion package of this identity, not placeable: it has no palette entry and appears only with its parent (owner decisions 15 and 24b, 22–23 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-088).
 
@@ -1152,7 +1152,7 @@ Owner **S678**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S679**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Unsupported presets are rejected; a visual sky change alone cannot affect physics. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-125` under canonical **S679**. [EL-125 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-125-authored-atmosphere-preset.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-125` under canonical **S679**. [EL-125 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-125-authored-atmosphere-preset.md). Partly delivered as scene data (the `Standard` and `Vacuum` atmosphere rows); the residual is the declared-row form, the level field, the Run plaque and level 79, and the delivered rows' closure check runs after the engine programme (owner decision 22, 23 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-125).
 
@@ -1269,7 +1269,7 @@ Owner **S409**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S510**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-138` under canonical **S510**. [EL-138 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-138-optical-and-gate.md). Also retains [CAT-043 acceptance](../elements/CAT-043-optical_and.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-138` under canonical **S510**. [EL-138 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-138-optical-and-gate.md). **Candidate Duplicate closure** of [CAT-043](../elements/CAT-043-optical_and.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-138).
 
@@ -1278,7 +1278,7 @@ Owner **S510**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S511**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-139` under canonical **S511**. [EL-139 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-139-optical-or-gate.md). Also retains [CAT-046 acceptance](../elements/CAT-046-optical_or.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-139` under canonical **S511**. [EL-139 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-139-optical-or-gate.md). **Candidate Duplicate closure** of [CAT-046](../elements/CAT-046-optical_or.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-139).
 
@@ -1287,7 +1287,7 @@ Owner **S511**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S512**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-140` under canonical **S512**. [EL-140 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-140-optical-xor-gate.md). Also retains [CAT-047 acceptance](../elements/CAT-047-optical_xor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-140` under canonical **S512**. [EL-140 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-140-optical-xor-gate.md). **Candidate Duplicate closure** of [CAT-047](../elements/CAT-047-optical_xor.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-140).
 
@@ -1296,7 +1296,7 @@ Owner **S512**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S513**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-141` under canonical **S513**. [EL-141 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-141-optical-nor-gate.md). Also retains [CAT-045 acceptance](../elements/CAT-045-optical_nor.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-141` under canonical **S513**. [EL-141 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-141-optical-nor-gate.md). **Candidate Duplicate closure** of [CAT-045](../elements/CAT-045-optical_nor.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-141).
 
@@ -1305,7 +1305,7 @@ Owner **S513**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S514**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Prove every input combination plus absent carrier; logically true cannot create power. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-142` under canonical **S514**. [EL-142 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-142-optical-nand-gate.md). Also retains [CAT-044 acceptance](../elements/CAT-044-optical_nand.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-142` under canonical **S514**. [EL-142 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-142-optical-nand-gate.md). **Candidate Duplicate closure** of [CAT-044](../elements/CAT-044-optical_nand.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-142).
 
@@ -1314,7 +1314,7 @@ Owner **S514**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S498**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent red input cannot be recoloured into red; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-143` under canonical **S498**. [EL-143 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-143-red-optical-filter.md). Also retains [CAT-055 acceptance](../elements/CAT-055-red_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-143` under canonical **S498**. [EL-143 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-143-red-optical-filter.md). **Candidate Duplicate closure** of [CAT-055](../elements/CAT-055-red_filter.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-143).
 
@@ -1323,7 +1323,7 @@ Owner **S498**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S499**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent green input cannot be recoloured into green; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-144` under canonical **S499**. [EL-144 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-144-green-optical-filter.md). Also retains [CAT-031 acceptance](../elements/CAT-031-green_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-144` under canonical **S499**. [EL-144 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-144-green-optical-filter.md). **Candidate Duplicate closure** of [CAT-031](../elements/CAT-031-green_filter.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-144).
 
@@ -1332,7 +1332,7 @@ Owner **S499**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S500**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Absent blue input cannot be recoloured into blue; opaque frame blocks rays. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-145` under canonical **S500**. [EL-145 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-145-blue-optical-filter.md). Also retains [CAT-011 acceptance](../elements/CAT-011-blue_filter.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-145` under canonical **S500**. [EL-145 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-145-blue-optical-filter.md). **Candidate Duplicate closure** of [CAT-011](../elements/CAT-011-blue_filter.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-145).
 
@@ -1341,7 +1341,7 @@ Owner **S500**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S501**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-146` under canonical **S501**. [EL-146 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-146-red-selective-receiver.md). Also retains [CAT-056 acceptance](../elements/CAT-056-red_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-146` under canonical **S501**. [EL-146 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-146-red-selective-receiver.md). **Candidate Duplicate closure** of [CAT-056](../elements/CAT-056-red_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-146).
 
@@ -1350,7 +1350,7 @@ Owner **S501**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S502**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-147` under canonical **S502**. [EL-147 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-147-green-selective-receiver.md). Also retains [CAT-032 acceptance](../elements/CAT-032-green_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-147` under canonical **S502**. [EL-147 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-147-green-selective-receiver.md). **Candidate Duplicate closure** of [CAT-032](../elements/CAT-032-green_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-147).
 
@@ -1359,7 +1359,7 @@ Owner **S502**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S503**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-148` under canonical **S503**. [EL-148 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-148-blue-selective-receiver.md). Also retains [CAT-012 acceptance](../elements/CAT-012-blue_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-148` under canonical **S503**. [EL-148 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-148-blue-selective-receiver.md). **Candidate Duplicate closure** of [CAT-012](../elements/CAT-012-blue_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-148).
 
@@ -1368,7 +1368,7 @@ Owner **S503**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S504**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-149` under canonical **S504**. [EL-149 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-149-yellow-selective-receiver.md). Also retains [CAT-072 acceptance](../elements/CAT-072-yellow_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-149` under canonical **S504**. [EL-149 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-149-yellow-selective-receiver.md). **Candidate Duplicate closure** of [CAT-072](../elements/CAT-072-yellow_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-149).
 
@@ -1377,7 +1377,7 @@ Owner **S504**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S505**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-150` under canonical **S505**. [EL-150 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-150-cyan-selective-receiver.md). Also retains [CAT-021 acceptance](../elements/CAT-021-cyan_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-150` under canonical **S505**. [EL-150 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-150-cyan-selective-receiver.md). **Candidate Duplicate closure** of [CAT-021](../elements/CAT-021-cyan_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-150).
 
@@ -1386,7 +1386,7 @@ Owner **S505**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S506**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-151` under canonical **S506**. [EL-151 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-151-magenta-selective-receiver.md). Also retains [CAT-040 acceptance](../elements/CAT-040-magenta_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-151` under canonical **S506**. [EL-151 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-151-magenta-selective-receiver.md). **Candidate Duplicate closure** of [CAT-040](../elements/CAT-040-magenta_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-151).
 
@@ -1395,7 +1395,7 @@ Owner **S506**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S507**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing required channel, wrong channel and absent supply remain independent negative controls. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-152` under canonical **S507**. [EL-152 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-152-white-selective-receiver.md). Also retains [CAT-068 acceptance](../elements/CAT-068-white_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-152` under canonical **S507**. [EL-152 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-152-white-selective-receiver.md). **Candidate Duplicate closure** of [CAT-068](../elements/CAT-068-white_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-152).
 
@@ -1512,7 +1512,7 @@ Owner **S375**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S458**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Closed aperture stops flow; opening cannot supply water without a connected reservoir. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-165` under canonical **S458**. [EL-165 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-165-manual-tap.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Duplicate closure** of [EL-003 Tap](#element-003): no package, catalogue entry or slice of its own ([D8](delivery-batches.md#3-family-level-decisions)). It closes inside the `named-el-003` slice under canonical **S458** once that slice's check passes: `TapTests` rows T2, T4, T5, T7 and T9 (`TapTests.TheOpeningIsFixedDuringRun`) prove this entry's outcome through the `tap` package, and this entry then cites them. [EL-165 closure check](../elements/EL-165-manual-tap.md). **Open:** not closed until those tests are executed.
 
 [Full specification and all variants](../requirements.md#element-165).
 
@@ -1647,7 +1647,7 @@ Owner **S531**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S532**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Held input follows its edge contract and cannot create infinite pulse energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-180` under canonical **S532**. [EL-180 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-180-pulse-speaker.md). Also retains [CAT-061 acceptance](../elements/CAT-061-speaker.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Duplicate closure** of [CAT-061 Speaker](../elements/CAT-061-speaker.md), the single declaration of the `speaker` package (coordinator decisions 16 and 27, 22–23 November 2026): no package or catalogue entry of its own. It closes inside the Speaker slice (Story 14.3) under canonical **S532** by [CAT-061 rows 1–14](../elements/CAT-061-speaker.md#6-acceptance), and this entry then cites them. [EL-180 closure record](../elements/EL-180-pulse-speaker.md). **Open:** not closed until those rows are executed.
 
 [Full specification and all variants](../requirements.md#element-180).
 
@@ -1710,7 +1710,7 @@ Owner **S365**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S294**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Equal drop height produces reproducible material-dependent rebound. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-187` under canonical **S294**. [EL-187 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-187-basketball.md). Also retains [CAT-001 acceptance](../elements/CAT-001-ball.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-187` under canonical **S294**. [EL-187 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-187-basketball.md). A refinement of [CAT-001](../elements/CAT-001-ball.md), delivered through `ball`; open rows: two drop heights (tests only) and buoyancy as the declared ambient lift, closed by one test (owner decision 24, 23 November 2026); the R-N3 reference is retired (owner decision 8, 22 November 2026) ([delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-187).
 
@@ -1719,7 +1719,7 @@ Owner **S294**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S295**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its visual size alone cannot supply added work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-188` under canonical **S295**. [EL-188 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-188-bowling-ball.md). Also retains [CAT-014 acceptance](../elements/CAT-014-bowling.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-188` under canonical **S295**. [EL-188 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-188-bowling-ball.md). A refinement of [CAT-014](../elements/CAT-014-bowling.md), delivered through `bowling`; open rows: the matched-Basketball lever control (tests only) and buoyancy as the declared ambient lift, closed by one test (owner decision 24, 23 November 2026) ([delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-188).
 
@@ -1728,7 +1728,7 @@ Owner **S295**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S297**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Its bounce differs from the bowling ball because of declared material, not IDs. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-189` under canonical **S297**. [EL-189 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-189-tennis-ball.md). Also retains [CAT-064 acceptance](../elements/CAT-064-tennis.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-189` under canonical **S297**. [EL-189 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-189-tennis-ball.md). **Candidate Duplicate closure** of `tennis` ([CAT-064](../elements/CAT-064-tennis.md)), closure-review group "Cargo": one added Tennis row (`bounce` 0.14, `drag` 0); the review runs after the engine programme (owner decision 22, 23 November 2026) and seam repair part B2 may run before it ([delivery batches 2a](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-189).
 
@@ -1737,7 +1737,7 @@ Owner **S297**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S293**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Wrong-facing slope cannot accelerate cargo uphill. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-190` under canonical **S293**. [EL-190 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-190-ramp.md). Also retains [CAT-054 acceptance](../elements/CAT-054-ramp.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-190` under canonical **S293**. [EL-190 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-190-ramp.md). A refinement of [CAT-054](../elements/CAT-054-ramp.md), delivered through `ramp`; open rows: uphill, misaligned and minimum-length tests (tests only), and assistance under Story 15.0 ([delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-190).
 
@@ -1746,7 +1746,7 @@ Owner **S293**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S298**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A geometric gap allows passage; invisible silhouette bounds do not block it. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-191` under canonical **S298**. [EL-191 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-191-wall.md). Also retains [CAT-066 acceptance](../elements/CAT-066-wall.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-191` under canonical **S298**. [EL-191 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-191-wall.md). A refinement of [CAT-066](../elements/CAT-066-wall.md), delivered through `wall`; open rows: gap, resize-in-Run and thin-wall tests (tests only), and light and sound occlusion by the same box after `ENGINE-OPTICAL` and Story 14.0 ([delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-191).
 
@@ -1755,7 +1755,7 @@ Owner **S298**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S296**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A ball beside or passing over it does not satisfy capture. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-192` under canonical **S296**. [EL-192 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-192-receiving-basket.md). Also retains [CAT-004 acceptance](../elements/CAT-004-basket.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-192` under canonical **S296**. [EL-192 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-192-receiving-basket.md). A refinement of [CAT-004](../elements/CAT-004-basket.md), delivered through `basket`; open rows: the halo rebinding, and residence and guide in a moving frame (`ENGINE-SENSOR-VOLUMES`) ([delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-192).
 
@@ -1773,7 +1773,7 @@ Owner **S299**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S300**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Uncharged or missed contact cannot impart a free launch. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-194` under canonical **S300**. [EL-194 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-194-springboard.md). Also retains [CAT-062 acceptance](../elements/CAT-062-spring.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-194` under canonical **S300**. [EL-194 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-194-springboard.md). A refinement of CAT-062, not a Duplicate closure: it gets its own typed signal output that fires on launch (a declared sensor and port on general capabilities), with new acceptance rows, and keeps its two open level criteria (owner decision 7, 22 November 2026). Also retains [CAT-062 acceptance](../elements/CAT-062-spring.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-194).
 
@@ -1827,7 +1827,7 @@ Owner **S305**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S310**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Missing tension or disconnected endpoints prevent full drive transfer. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-200` under canonical **S310**. [EL-200 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-200-drive-belt.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-200` under canonical **S310**. [EL-200 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-200-drive-belt.md). A new declared connection material the player chooses; the delivered rigid mechanical connection is unchanged and stays the default (owner decision 2, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-200).
 
@@ -1836,7 +1836,7 @@ Owner **S310**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S358**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Incompatible attachment fails rather than inheriting belt behaviour. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-201` under canonical **S358**. [EL-201 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-201-drive-chain.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-201` under canonical **S358**. [EL-201 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-201-drive-chain.md). A new declared connection material the player chooses; the delivered rigid mechanical connection is unchanged and stays the default (owner decision 2, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-201).
 
@@ -1854,7 +1854,7 @@ Owner **S311**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S312**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** It cannot reverse by duplicating input work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-203` under canonical **S312**. [EL-203 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-203-reverse-transmission.md). Also retains [CAT-057 acceptance](../elements/CAT-057-reverse_transmission.md); a refinement does not waive distinct behavior. **Native implementation complete:** [Story 11.2b implementation and native evidence](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) implements the fixed reversing package and necessary shared link/reaction repair. Independent native review and the full local round passed (6,191/0/0); normal commit/publication checks follow; browser qualification remains at the post-catalogue gate. Entry decisions and collaborator integration remain owned by this slice.
+**Delivery slice:** `named-el-203` under canonical **S312**. [EL-203 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-203-reverse-transmission.md). Also retains [CAT-057 acceptance](../elements/CAT-057-reverse_transmission.md); a refinement does not waive distinct behavior. **Native implementation complete:** [Story 11.2b implementation and native evidence](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) implements the fixed reversing package and necessary shared link/reaction repair. Independent native review and the full local round passed (6,191/0/0); published at `c34f6390` (on published main); browser qualification remains at the post-catalogue gate. Entry decisions and collaborator integration remain owned by this slice.
 
 [Full specification and all variants](../requirements.md#element-203).
 
@@ -1863,7 +1863,7 @@ Owner **S312**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S306**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Raising it requires actual work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-204` under canonical **S306**. [EL-204 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-204-weight.md). Also retains [CAT-067 acceptance](../elements/CAT-067-weight.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-204` under canonical **S306**. [EL-204 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-204-weight.md). **Candidate Duplicate closure** of `weight` ([CAT-067](../elements/CAT-067-weight.md)), closure-review group "Rope parts", with no delta; `ENGINE-CONNECTION-MATERIALS` re-runs the check when the strand gains its collider (owner decision 1, 22 November 2026) ([delivery batches 2a](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-204).
 
@@ -1872,7 +1872,7 @@ Owner **S306**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S307**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Slack rope cannot push or pull until tension develops. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Current candidate:** 10.2b supplies straight tensile rope, slack/cut/lifecycle and native proof; independent review/publication pending. Finite-radius pulley routing remains 10.2c, comprehensive pendulum/mass-ratio qualification 10.4 and browser qualification post-catalogue. [Candidate evidence](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md).
+**Disposition:** the declared rope material of the connection-material record, not a closure and not a placeable part. It is delivered in the Family slice "Rope materials" with [EL-067](#element-067) after `ENGINE-CONNECTION-MATERIALS` (solid strand), which converts the delivered rope of Stories 10.2b, 10.2c and 10.4 in the same change. Ropes are solid (owner decision 1, 22 November 2026): the delivered rope is drawn with no collider, a recorded visible-solid defect owned by that story.
 
 **Delivery slice:** `named-el-205` under canonical **S307**. [EL-205 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-205-rope.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
@@ -1883,7 +1883,7 @@ Owner **S307**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S308**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Disconnected or misrouted rope receives no invisible coupling. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-206` under canonical **S308**. [EL-206 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-206-fixed-pulley.md). Also retains [CAT-053 acceptance](../elements/CAT-053-pulley.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-206` under canonical **S308**. [EL-206 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-206-fixed-pulley.md). **Candidate Duplicate closure** of `pulley` ([CAT-053](../elements/CAT-053-pulley.md)), closure-review group "Rope parts"; `ENGINE-CONNECTION-MATERIALS` re-runs the check when the strand gains its collider (owner decision 1, 22 November 2026) ([delivery batches 2a](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-206).
 
@@ -1901,7 +1901,7 @@ Owner **S309**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S479**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Tether force opposes ascent; lost contents alter buoyancy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-208` under canonical **S479**. [EL-208 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-208-balloon.md). Also retains [CAT-003 acceptance](../elements/CAT-003-balloon.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-208` under canonical **S479**. [EL-208 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-208-balloon.md). **Candidate Duplicate closure** of `balloon` ([CAT-003](../elements/CAT-003-balloon.md)), closure-review group "Cargo": two added rows, an occluded jet on a Balloon and a heavier Balloon that ruptures on the ceiling that holds the default; repair part C may run before it ([delivery batches 2a](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-208).
 
@@ -1910,7 +1910,7 @@ Owner **S479**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S313**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Blocked flow or absent supply prevents remote force. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-209` under canonical **S313**. [EL-209 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-209-fan.md). Also retains [CAT-028 acceptance](../elements/CAT-028-fan.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-209` under canonical **S313**. [EL-209 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-209-fan.md). **Candidate Duplicate closure**: delivered as the Electrical and Shaft modes of `fan` ([CAT-028](../elements/CAT-028-fan.md)), closure-review group "Fan modes" ([delivery batches 2a](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-209).
 
@@ -1919,7 +1919,7 @@ Owner **S313**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S495**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Occluding geometry blocks coverage and no supply means no emission. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-210` under canonical **S495**. [EL-210 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-210-flashlight.md). Also retains [CAT-029 acceptance](../elements/CAT-029-flashlight.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-210` under canonical **S495**. [EL-210 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-210-flashlight.md). A refinement delivered in the slice of [CAT-029](../elements/CAT-029-flashlight.md) by the rows that spec names (F7, F10, F12 and F13); the CAT spec is the package's single declaration (coordinator decision 27, 23 November 2026; [delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-210).
 
@@ -1928,7 +1928,7 @@ Owner **S495**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S508**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Darkness yields no power; output never exceeds absorbed energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
-**Delivery slice:** `named-el-211` under canonical **S508**. [EL-211 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-211-solar-panel.md). Also retains [CAT-059 acceptance](../elements/CAT-059-solar_panel.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-211` under canonical **S508**. [EL-211 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-211-solar-panel.md). A refinement delivered in the slice of [CAT-059](../elements/CAT-059-solar_panel.md) by the rows that spec names (P5, P6 and P10); the CAT spec is the package's single declaration (coordinator decision 27, 23 November 2026; [delivery batches 2c](delivery-batches.md#2-duplicate-closures)). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-211).
 
@@ -1937,7 +1937,7 @@ Owner **S508**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S496**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Rear incidence and occluded paths do not reflect through the housing. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 
-**Delivery slice:** `named-el-212` under canonical **S496**. [EL-212 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-212-flat-mirror.md). Also retains [CAT-041 acceptance](../elements/CAT-041-mirror.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-212` under canonical **S496**. [EL-212 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-212-flat-mirror.md). **Candidate Duplicate closure** of [CAT-041](../elements/CAT-041-mirror.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-212).
 
@@ -1946,7 +1946,7 @@ Owner **S496**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S509**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** A missing channel is not synthesized, and crossing unrelated beams does not combine by object identity. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 
-**Delivery slice:** `named-el-213` under canonical **S509**. [EL-213 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-213-optical-combiner.md). Also retains [CAT-006 acceptance](../elements/CAT-006-beam_combiner.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-213` under canonical **S509**. [EL-213 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-213-optical-combiner.md). **Candidate Duplicate closure** of [CAT-006](../elements/CAT-006-beam_combiner.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-213).
 
@@ -1955,7 +1955,7 @@ Owner **S509**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S497**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Back-face, insufficient incident power and missing electrical supply are separate negative controls. Apply the individual register's shared visual, generic-process and per-element proof requirements. **Campaign:** 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 
-**Delivery slice:** `named-el-214` under canonical **S497**. [EL-214 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-214-broadband-beam-detector.md). Also retains [CAT-038 acceptance](../elements/CAT-038-light_receiver.md); a refinement does not waive distinct behavior. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-el-214` under canonical **S497**. [EL-214 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-214-broadband-beam-detector.md). **Candidate Duplicate closure** of [CAT-038](../elements/CAT-038-light_receiver.md): closed inside that part's slice, whose acceptance rows are the single acceptance authority (coordinator decision 16, 22 November 2026; [delivery batches 2b](delivery-batches.md#2-duplicate-closures)); no package of its own. Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#element-214).
 
@@ -2004,27 +2004,27 @@ Owner: slice `named-el-218` (no earlier S owner). **Source outcome, summarised (
 <a id="element-219"></a>
 ### element-219 · EL-219 · Rack-and-pinion slide. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-425). A signed shaft drives a finite toothed rail with an attachment carriage and end stops.
 
-Owner: slice `named-el-219` (no earlier S owner). **Source outcome, summarised (the linked row governs):** travel per turn, reversal and end stops hold; the source row distinguishes a prescribed-speed prototype from the load-aware final behaviour, and the load-aware behaviour is the one required. **Needs:** to be probed at planning. Revolute-to-prismatic ratio coupling exists (mechanical transmission, used by the Wound spring); the finite rail's end stops and carried attachment are the parts to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-219` (no earlier S owner). **Source outcome, summarised (the linked row governs):** travel per turn, reversal and end stops hold; the source row distinguishes a prescribed-speed prototype from the load-aware final behaviour, and the load-aware behaviour is the one required. **Needs:** to be probed at planning. Revolute-to-prismatic ratio coupling exists (mechanical transmission, used by the Wound spring); the finite rail's end stops and carried attachment are the parts to confirm. Its delta over [EL-053](#element-053) is the attachment carriage (`ENGINE-ASSEMBLY-JOINTS`); if the probe finds no other delta it is a variant of the EL-053 package or a Duplicate closure candidate ([delivery batches 1b](delivery-batches.md#1-family-slices-and-runs), "Couplings"). **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
 
 <a id="element-220"></a>
 ### element-220 · EL-220 · Docking lift. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-429). A guided supplied tray with upper and lower dock outputs, loading interlocks and an explicit holding brake.
 
-Owner: slice `named-el-220` (no earlier S owner). **Source outcome, summarised (the linked row governs):** cargo stays physically supported through travel; power loss and blocked travel are handled by the brake, not by teleport. **Needs:** to be probed at planning. Supplied prismatic drive and residence sensing exist, and a prismatic holding brake exists as `PrismaticInactiveResponse.SelfLock` (used by the Linear pusher); confirm the lift's brake against it. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-220` (no earlier S owner). **Source outcome, summarised (the linked row governs):** cargo stays physically supported through travel; power loss and blocked travel are handled by the brake, not by teleport. **Needs:** supplied prismatic drive and its endpoint contacts (present); the lift's holding brake is the slider's `SelfLock` (`PrismaticInactiveResponse.SelfLock`, the Linear pusher's; present). No sensor rides on the tray: a contact-load sensor must sit on a static frame today (`SignalBundleValidation.cs:190`), so the dock interlock is a Ball detector at the dock ([EL-220 spec](../elements/EL-220-docking-lift.md), decision 2). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
 
 <a id="element-221"></a>
 ### element-221 · EL-221 · Parallel gripper. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-430). Supplied opposing jaws with a bounded aperture, a close command and an object-held output.
 
-Owner: slice `named-el-221` (no earlier S owner). **Source outcome, summarised (the linked row governs):** capture requires actual two-sided contact; the supported shapes are defined; this variant releases on power loss. **Needs:** to be probed at planning. Supplied prismatic drive and contact-load sensing exist; holding a carried object by two-sided contact while the gripper moves is the gap to confirm. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-221` (no earlier S owner). **Source outcome, summarised (the linked row governs):** capture requires actual two-sided contact; the supported shapes are defined; this variant releases on power loss. **Needs:** to be probed at planning. The supplied prismatic drive exists. The held output is not a sensor on the moving jaws (a contact-load sensor must sit on a static frame today, `SignalBundleValidation.cs:190`): it is the `HeldOut` contact of `ENGINE-SIGNAL-NODES`, closed while the drive is Blocked, reading the Blocked observation `ENGINE-JOINT-KINDS` publishes; mounting the gripper on a moving carrier is the socket of `ENGINE-ASSEMBLY-JOINTS` ([EL-221 spec](../elements/EL-221-parallel-gripper.md)). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
 
 <a id="element-222"></a>
 ### element-222 · EL-222 · Supplied pinball flipper. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-410). A battery-supplied pivoted paddle strikes or holds on a signal and a spring returns it.
 
-Owner: slice `named-el-222` (no earlier S owner). **Source outcome, summarised (the linked row governs):** distinct from the radial bumper and the linear boxing glove; missing supply or a blocked paddle gives no strike. **Needs:** to be probed at planning. The revolute drive is supplied and takes a run-control target speed; a signal-commanded strike-and-hold revolute drive and a spring return on a revolute coordinate do not exist. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-222` (no earlier S owner). **Source outcome, summarised (the linked row governs):** distinct from the radial bumper and the linear boxing glove; missing supply or a blocked paddle gives no strike. **Needs:** to be probed at planning. The revolute drive is supplied and takes a run-control target speed; strike-and-hold is the supplied velocity drive pressing the limited hinge's stop within its torque bound, and the return is the constant hinge spring; both are admitted today but untested, to be checked at planning, and `ENGINE-JOINT-KINDS` owns the gap if either check fails (owner decision 3a). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
 
 <a id="element-223"></a>
 ### element-223 · EL-223 · Passive impact scoop. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-412). An arriving ball's momentum rotates a shallow hinged cup that carries the same ball upward before release.
 
-Owner: slice `named-el-223` (no earlier S owner). **Source outcome, summarised (the linked row governs):** no counterweight or boost; below the minimum approach energy the cup stalls; no teleport between mouths. **Needs:** revolute constraint and contact (present). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-223` (no earlier S owner). **Source outcome, summarised (the linked row governs):** no counterweight or boost; below the minimum approach energy the cup stalls; no teleport between mouths. **Paused** until the engine programme lands (owner decision 24g, 23 November 2026); orders 223 and 323 stay reserved while it is paused (coordinator decision 36). **Needs:** revolute constraint and contact (present). **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
 
 <a id="element-224"></a>
 ### element-224 · EL-224 · Counterweighted scoop catapult. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-395). A raised physical weight drives a loaded hinged cup and the same ball leaves on a free trajectory.
@@ -2082,14 +2082,14 @@ Owner: slice `named-el-233` (no earlier S owner). **Source outcome, summarised (
 Owner **S349** (run duration and retrigger policy), slice `named-el-234`. **Source outcome, summarised (the linked row governs):** a distinct mechanical source, not a disguised electrical switch; the wheel is animated; run duration and retrigger policy are authored. **Needs:** to be probed at planning. Impact sensing, timers and a supplied revolute drive exist; starting a finite-duration shaft drive from an impact is the composition to confirm. **Campaign:** first use 31–40. **Backlog:** implementation and native proof must be established.
 
 <a id="element-235"></a>
-### element-235 · EL-235 · Jack-in-the-box. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-195). A belt-wound launcher that accumulates mechanical input before release.
+### element-235 · EL-235 · Jack-in-the-box. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-195). A launcher wound through a Mechanical link that accumulates mechanical input before release.
 
 Owner: slice `named-el-235` (no earlier S owner). **Source outcome, summarised (the linked row governs):** winding, lid opening and launch are shown; no launch without a drive connection. **Needs:** to be probed at planning. A finite energy store charged through a shaft exists (Wound spring); the lid release is the gap to confirm. **Campaign:** first use 41–50. **Backlog:** implementation and native proof must be established.
 
 <a id="element-236"></a>
 ### element-236 · EL-236 · Egg timer. Type: Control. Scope/evidence source: [existing record](../requirements.md#todo-213). A readable countdown actuator for delayed triggering.
 
-Owner: slice `named-el-236` (no earlier S owner). **Source outcome, summarised (the linked row governs):** zero delay, pause and Reset behave as authored; author configuration stays separate from difficulty assistance. **Needs:** to be probed at planning. Declared timers exist (Delay box, Hold timer); the readable countdown and its actuation output are the parts to confirm. **Campaign:** first use 91–100. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-236` (no earlier S owner). **Source outcome, summarised (the linked row governs):** zero delay, pause and Reset behave as authored; author configuration stays separate from difficulty assistance. **Needs:** to be probed at planning. Declared timers exist (Delay box, Hold timer); the readable countdown and its actuation output are the parts to confirm. A rearming timer that emits an elapsed activation is refused by today's validator; its admission is the rearming-timer row of `ENGINE-SIGNAL-NODES` (owner decision 3a; coordinator decision 16). Zero delay is admitted and adds no countdown: the timer emits its one pulse at the first tick boundary after its start pulse, which the same `ENGINE-SIGNAL-NODES` row admits with zero durations ([EL-236 spec](../elements/EL-236-egg-timer.md), behaviour item 5 and row E9). **Campaign:** first use 91–100. **Backlog:** implementation and native proof must be established.
 
 <a id="element-237"></a>
 ### element-237 · EL-237 · Boxing glove. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-194). A triggered punch: a directional actuator with an explicit contact face and cooldown.
@@ -2109,12 +2109,19 @@ Owner **S636** (conditional design decision), slice `named-el-239`. **Source out
 <a id="element-240"></a>
 ### element-240 · EL-240 · Waterwheel. Type: Water. Scope/evidence source: [existing record](../requirements.md#sequence-task-386). Flowing water drives a wheel with signed mechanical output.
 
-Owner: slice `named-el-240` (no earlier S owner). **Source outcome, summarised (the linked row governs):** signed output to belts and conveyors, reusable discharge, and no wheel-and-pump loop that gains energy. **Needs:** ENGINE-LIQUID. **Campaign:** first use 61–70. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-240` (no earlier S owner). **Source outcome, summarised (the linked row governs):** signed output to belts and conveyors, reusable discharge, and no wheel-and-pump loop that gains energy. **Needs:** ENGINE-LIQUID. **Campaign:** first use 61–70. **Acceptance anchor:** `sequence-task-386` alone; the requirement source has no `todo` anchor ([new identities readiness](../elements/readiness/new-identities.md)). **Backlog:** implementation and native proof must be established.
 
 <a id="element-241"></a>
 ### element-241 · EL-241 · Ball hopper with one-ball escapement. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#sequence-task-351). A hopper stores a visible queue and releases exactly one ball per accepted trigger.
 
-Owner: slice `named-el-241` (no earlier S owner). **Source outcome, summarised (the linked row governs):** a held input, an empty hopper or a blocked outlet cannot dump or duplicate the queue. It is a separate identity from [EL-057](#element-057) Escapement, which steps a loaded mechanism. **Needs:** to be probed at planning. Residence sensing and a commanded gate exist; one-per-trigger release under queue pressure is the behaviour to confirm. **Campaign:** first use 21–30. **Backlog:** implementation and native proof must be established.
+Owner: slice `named-el-241` (no earlier S owner). **Source outcome, summarised (the linked row governs):** a held input, an empty hopper or a blocked outlet cannot dump or duplicate the queue. It is a separate identity from [EL-057](#element-057) Escapement, which steps a loaded mechanism. **Needs:** to be probed at planning. Residence sensing and a commanded gate exist; one-per-trigger release under queue pressure is the behaviour to confirm. **Campaign:** first use 21–30. **Acceptance anchor:** `sequence-task-351` alone; the requirement source has no `todo` anchor ([new identities readiness](../elements/readiness/new-identities.md)). **Backlog:** implementation and native proof must be established.
+
+<a id="element-242"></a>
+### element-242 · EL-242 · 45° metal ball pipe bend. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces.
+
+Owner **S361**, shared with [EL-072](#element-072) (coordinator decision 24l, 23 November 2026), slice `named-el-242`. Requirement anchor [element-242](../requirements.md#element-242), sequence task `sequence-task-800` (coordinator decision 24l). Ledgered on 23 November 2026 by coordinator decision 27 (overridable by the owner): a 45° bend is a placeable palette part, so it is its own identity, not a companion package of [EL-072](#element-072). **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-242`. Also retains [CAT-049 acceptance](../elements/CAT-049-pipe_bend_45.md); a refinement does not waive distinct behavior. Family slice "Metal bends" with EL-072. [EL-242 declaration, prerequisites, controls, boundaries and decisions](../elements/EL-242-45-metal-ball-pipe-bend.md). **Backlog:** implementation and native proof must be established.
 
 <a id="gap-01"></a>
 ### gap-01 · Scope index — individual element specifications: [EL-112](../requirements.md#element-112), [EL-113](../requirements.md#element-113). This former umbrella is navigation only; each linked element is independently specified and verified. Retain the original priority/adoption status and campaign reservations; interaction examples are separate proof tasks below.
@@ -2170,7 +2177,7 @@ Owner **S735**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S639**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Discharged plus retained material equals initial feed within the explicit representation tolerance. Empty feed stops, a blocked aperture jams, and opening the physical route clears it. Verify interaction with buckets and weighing controls. Apply the common completion requirements above.
 
-**Delivery slice:** `named-gap-06` under canonical **S639**. [GAP-06 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-06-granular-dispenser.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-gap-06` under canonical **S639**. [GAP-06 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-06-granular-dispenser.md). One package, `granular_dispenser`; it waits for `ENGINE-GRANULAR`, with no rigid-grain substitute (owner decision 14, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#gap-06).
 
@@ -2179,7 +2186,7 @@ Owner **S639**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S640**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Small grains pass and oversize grains remain; an all-oversize control blocks and finite mixed feed conserves both fractions. Verify either gravity-only operation or every separately adopted powered-shake mode before using it. Apply the common completion requirements above.
 
-**Delivery slice:** `named-gap-07` under canonical **S640**. [GAP-07 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-07-granular-sieve.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-gap-07` under canonical **S640**. [GAP-07 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-07-granular-sieve.md). One package, `granular_sieve`: gravity-fed only (the powered-shake mode is not adopted) with a typed Narrow/Wide aperture preset; it waits for `ENGINE-GRANULAR` (owner decision 14, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#gap-07).
 
@@ -2198,7 +2205,7 @@ Owner **S736**. Retained umbrella; execute each child. **Exact source outcome:**
 
 Owner **S641**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Insufficient impact leaves cargo intact; adequate supplied work creates finite fragments that can pass a smaller route. Blocked/unsupplied controls fail appropriately; fragments cannot create extra feed or lose inherited state on save/Reset. Apply the common completion requirements above.
 
-**Delivery slice:** `named-gap-09` under canonical **S641**. [GAP-09 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-09-fragmentation-station.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-gap-09` under canonical **S641**. [GAP-09 declaration, prerequisites, controls, boundaries and decisions](../elements/GAP-09-fragmentation-station.md). **Companion package:** `breakable_block`, the input the station breaks, with its declared fracture fragments, delivered in this identity's slice with its own acceptance rows; it is not an identity (owner decision 15, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#gap-09).
 
@@ -2414,7 +2421,7 @@ Owner **S624**. Individual named outcome, modes, proof and publication retained.
 [Full specification and all variants](../requirements.md#radiation-14).
 
 <a id="radiation-15"></a>
-### radiation-15 · RAD-15 · P3 potential: Track chamber. A readable detector volume displays persistent short trails from the simulated charged trajectories; an explicitly supplied segmented readout can select an exit region. Proposed campaign teaching: 120, 121.
+### radiation-15 · RAD-15 · P3 potential: Track chamber. A readable detector volume displays persistent short trails from the simulated charged trajectories; an explicitly supplied segmented readout can select an exit region. Proposed campaign teaching: 119, 121 (introduction moved from the chapter 12 finale 120 by coordinator decision 35).
 
 Owner **S625**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** The selected exit segment triggers only for a traversing track; a decorative trail or a miss cannot trigger it. Neutral photons make no direct charged track in the initial abstraction.
 
@@ -2707,7 +2714,7 @@ Owner **S587**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S588**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Excess load or cooling prevents ascent; no fixed rising velocity or balloon-specific levitation rule. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
-**Delivery slice:** `named-th-25` under canonical **S588**. [TH-25 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-25-hot-air-balloon.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-th-25` under canonical **S588**. [TH-25 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-25-hot-air-balloon.md). **Companion package:** `balloon_cargo`, a light cargo part the balloon lifts at its declared size and burner power, delivered in this identity's slice with its own acceptance rows; it is not an identity (owner decisions 15 and 23, 22–23 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-25).
 
@@ -2788,7 +2795,7 @@ Owner **S595**. Individual named outcome, modes, proof and publication retained.
 
 Owner **S599**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** No supply cannot warm; an obstructed carriage cannot teleport the payload; time alone is not proof of temperature. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
-**Delivery slice:** `named-th-34` under canonical **S599**. [TH-34 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-34-timed-toaster-ejector.md). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
+**Delivery slice:** `named-th-34` under canonical **S599**. [TH-34 declaration, prerequisites, controls, boundaries and decisions](../elements/TH-34-timed-toaster-ejector.md). **Companion package:** `toast_slice`, delivered in this identity's slice with its own acceptance rows; it is not an identity (owner decision 15, 22 November 2026). Entry decisions and collaborator integration remain owned by this slice under the execution contract. **Backlog:** implementation and native proof must be established; declaration readiness alone is not completion.
 
 [Full specification and all variants](../requirements.md#thermal-34).
 

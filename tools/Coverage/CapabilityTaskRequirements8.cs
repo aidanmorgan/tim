@@ -514,5 +514,10 @@ public static partial class CapabilityTaskRequirements
             [
 
             ]),
+        new(new("sequence-task-800"),ObligationKind.FutureProduct,
+            [EngineCapability.ContactImpulse,EngineCapability.EnvironmentState,EngineCapability.FiniteLedger,EngineCapability.GeometryQuery,EngineCapability.JointConstraint,EngineCapability.RigidBodyDynamics,EngineCapability.SlidingFriction,EngineCapability.StateTransaction],RequiredTaskScope.NamedSources,
+            [
+                new(RequirementOrigin.Element,new("element-242")),
+            ]),
     ];
 }

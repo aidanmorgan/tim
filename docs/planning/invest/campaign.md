@@ -1,4 +1,4 @@
-# 150 level scopes and 1800 retained placement cells
+# Campaign level scopes: the 150 numbered slots of the 244-level plan, and 1800 retained placement cells
 
 Navigation and preservation ledger only: every LEVEL/MATRIX identity, level name and reservation is kept; the entries do not define the system.
 Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
@@ -6,7 +6,7 @@ Where an entry's wording prescribes an obsolete mechanism, ordering or tolerance
 
 Current staging: each LEVEL freezes only its own chapter/reservations, typed brief and genuinely taught/implemented prerequisites before its playable change, in the roadmap's CAMPAIGN slices (10 levels each) after LEGACY-0 and required component coverage; P0-035 is the release-checklist gate enforced there, not a per-level prerequisite. S793/S794/S797 are final all150 conjunctions, not prerequisites to every individual level. No code is authorized by this plan. Exact reservations and human teaching/150×3×4 qualification remain unchanged.
 
-The target is 150 progressively taught challenge levels plus an unlimited free-play workshop that is always available; 62 levels are currently authored.15 chapter checks and450 level×profile groups with four cells each remain mandatory. Each LEVEL is one bounded allocation/authoring/proof owner. Unknown final allocation is an explicit decision, never fabricated readiness. Resolve one exact first-use/combination objective and inventory/goals/control/prerequisites, then author/prove that same named LEVEL. Pilot a crowded objective before reviewed reallocation; preserve every source reservation and all 150 slots.136–150 introduce no new required element/mode.
+The target is 244 progressively taught challenge levels (owner decisions 24c to 24f and coordinator decisions 35 and 36, 23 November 2026: the 150 slots below plus 94 lettered levels, at most three new parts in any level, each part's prerequisites taught before it, listed with every kept authored level's new place in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f); a lettered level's `LEVEL-` entry is added when it is authored) plus an unlimited free-play workshop that is always available; 63 levels are currently authored, of which 29 are to be removed and 2 converted as repeats of an already introduced mechanic ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)); an entry below whose authored level is removed keeps its slot and reservations.15 chapter checks and450 level×profile groups with four cells each remain mandatory. Each LEVEL is one bounded allocation/authoring/proof owner. Unknown final allocation is an explicit decision, never fabricated readiness. Resolve one exact first-use/combination objective and inventory/goals/control/prerequisites, then author/prove that same named LEVEL. Pilot a crowded objective before reviewed reallocation; preserve every source reservation and every planned slot.136–150 introduce no new required element/mode.
 
 [Chapter plan](../requirements.md#campaign-plan) · [Every element/mode reservation](../requirements.md#campaign-element-coverage) · [Thermal](../requirements.md#thermal-campaign-allocation) · [GAP](../requirements.md#campaign-gap-allocation). Source constraints and individual part publication precede teaching. Each level retains actual UI success/control/alternatives, exact Reset/save/unlock; chapter human clarity/enjoyment/agency/comfort is separate from browser success. Each profile group retains reference, measured positive error, measured negative error, outside-window; Precise has zero assistance. Difficulty sweeps remain after component coverage, without delaying mandatory individual part proof.
 
@@ -14,6 +14,8 @@ The target is 150 progressively taught challenge levels plus an unlimited free-p
 ### LEVEL-001
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `first_principles` stays at this slot. This slot's planned authored content: `first_principles` (authored position 1). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position1:** first_principles — First principles. Guide the orange ball into the green receiver. Place the two ramps to build a path through the air. This is current content, not the final ordering.
 
@@ -26,6 +28,8 @@ All original criteria: LEVEL-001. **Retained profile groups:** MATRIX-001-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `power_trip` moves to plan level 11 (chapter 2). This slot's planned authored content: `spring_forward` (authored position 4). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position2:** power_trip — A little lightbulb moment. Use a switch to turn on the signal lamp. Place it under the bowling ball, then connect the switch to the lamp. This is current content, not the final ordering.
 
 All original criteria: LEVEL-002. **Retained profile groups:** MATRIX-002-BALANCED, MATRIX-002-FORGIVING, MATRIX-002-PRECISE.
@@ -36,6 +40,8 @@ All original criteria: LEVEL-002. **Retained profile groups:** MATRIX-002-BALANC
 ### LEVEL-003
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `air_mail` moves to plan level 11a (chapter 2). This slot's planned authored content: `a_gentle_rebound` (authored position 61). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 3a `ready_to_rebound` (authored position 62). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position3:** air_mail — Air mail. Carry the little tennis ball into the receiver with a fan. Air pushes a light ball much more than a heavy one. This is current content, not the final ordering.
 
@@ -48,6 +54,8 @@ All original criteria: LEVEL-003. **Retained profile groups:** MATRIX-003-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `spring_forward` moves to plan level 2 (chapter 1). This slot's planned authored content: `domino_effect` (authored position 6). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position4:** spring_forward — Spring forward. Catch the falling ball's energy in a springboard and return it toward the basket. This is current content, not the final ordering.
 
 All original criteria: LEVEL-004. **Retained profile groups:** MATRIX-004-BALANCED, MATRIX-004-FORGIVING, MATRIX-004-PRECISE.
@@ -58,6 +66,8 @@ All original criteria: LEVEL-004. **Retained profile groups:** MATRIX-004-BALANC
 ### LEVEL-005
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `third_dimension` moves to plan level 11b (chapter 2). This slot's planned authored content: `bumper_sidekick` (authored position 10). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position5:** third_dimension — A different perspective. The receiver is in front of the ball. Orbit the camera, change the work plane, and rotate a fan to move the ball through depth. This is current content, not the final ordering.
 
@@ -70,6 +80,8 @@ All original criteria: LEVEL-005. **Retained profile groups:** MATRIX-005-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `domino_effect` moves to plan level 4 (chapter 1), re-authored without its signal lamp (owner decision 24f), keeping a Captured goal: the last domino knocks a ball into a Receiving basket (coordinator decision 41). This slot's planned authored content: `bumper_depth` (authored position 11). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position6:** domino_effect — The domino effect. Make the fixed end domino fall. Fill the gap with four dominoes. This is current content, not the final ordering.
 
 All original criteria: LEVEL-006. **Retained profile groups:** MATRIX-006-BALANCED, MATRIX-006-FORGIVING, MATRIX-006-PRECISE.
@@ -80,6 +92,8 @@ All original criteria: LEVEL-006. **Retained profile groups:** MATRIX-006-BALANC
 ### LEVEL-007
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `spring_signal` moves to plan level 11c (chapter 2). This slot's planned authored content: `wall_and_bumper` (authored position 13). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position7:** spring_signal — Spring-loaded signal. Return the falling ball toward the lower switch and light the lamp. This is current content, not the final ordering.
 
@@ -92,6 +106,8 @@ All original criteria: LEVEL-007. **Retained profile groups:** MATRIX-007-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `wind_signal` is removed: it repeats `spring_signal` and `cold_start` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position8:** wind_signal — A breath of electricity. Use moving air to strike the switch and power the lamp. This is current content, not the final ordering.
 
 All original criteria: LEVEL-008. **Retained profile groups:** MATRIX-008-BALANCED, MATRIX-008-FORGIVING, MATRIX-008-PRECISE.
@@ -102,6 +118,8 @@ All original criteria: LEVEL-008. **Retained profile groups:** MATRIX-008-BALANC
 ### LEVEL-009
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `cold_start` moves to plan level 11d (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 9a `burst_of_motion` (authored position 63). The new lettered level 9b (no authored content) introduces the Structural brace after this slot's pivot (coordinator decision 36; GAP-01). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position9:** cold_start — Cold start. The fan starts off. Use the bowling ball to power it before the tennis ball falls past. This is current content, not the final ordering.
 
@@ -114,6 +132,8 @@ All original criteria: LEVEL-009. **Retained profile groups:** MATRIX-009-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `bumper_sidekick` moves to plan level 5 (chapter 1). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position10:** bumper_sidekick — A little sidekick. Use the pinball bumper to bounce the orange ball into the receiver. This is current content, not the final ordering.
 
 All original criteria: LEVEL-010. **Retained profile groups:** MATRIX-010-BALANCED, MATRIX-010-FORGIVING, MATRIX-010-PRECISE.
@@ -124,6 +144,8 @@ All original criteria: LEVEL-010. **Retained profile groups:** MATRIX-010-BALANC
 ### LEVEL-011
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `bumper_depth` moves to plan level 6 (chapter 1). This slot's planned authored content: `power_trip` (authored position 2). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 11a `air_mail` (authored position 3), 11b `third_dimension` (authored position 5), 11c `spring_signal` (authored position 7), 11d `cold_start` (authored position 9). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position11:** bumper_depth — Bounce into depth. Send the ball across the workbench's depth with a round bumper. This is current content, not the final ordering.
 
@@ -136,6 +158,8 @@ All original criteria: LEVEL-011. **Retained profile groups:** MATRIX-011-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `wall_return` is removed: it repeats `wall_and_bumper` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: `battery_motor` (authored position 14). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 12a `switched_motor` (authored position 15), 12b `counterweight` (authored position 19), 12c `pulley_depth` (authored position 20). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position12:** wall_return — Return to sender. The fixed bumper launches the ball away from the basket. Build a wall that sends it back. This is current content, not the final ordering.
 
 All original criteria: LEVEL-012. **Retained profile groups:** MATRIX-012-BALANCED, MATRIX-012-FORGIVING, MATRIX-012-PRECISE.
@@ -146,6 +170,8 @@ All original criteria: LEVEL-012. **Retained profile groups:** MATRIX-012-BALANC
 ### LEVEL-013
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `wall_and_bumper` moves to plan level 7 (chapter 1). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position13:** wall_and_bumper — Build the rebound. Place both the launcher and its return wall to deliver the ball into the basket on the left. This is current content, not the final ordering.
 
@@ -158,6 +184,8 @@ All original criteria: LEVEL-013. **Retained profile groups:** MATRIX-013-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `battery_motor` moves to plan level 12 (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 14a `conveyor_courier` (authored position 16), 14b `belt_relay` (authored position 17), 14c `reverse_belt` (authored position 18). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position14:** battery_motor — A turn for the better. Make the motor complete a full turn. It needs a battery, not an activation signal. This is current content, not the final ordering.
 
 All original criteria: LEVEL-014. **Retained profile groups:** MATRIX-014-BALANCED, MATRIX-014-FORGIVING, MATRIX-014-PRECISE.
@@ -168,6 +196,8 @@ All original criteria: LEVEL-014. **Retained profile groups:** MATRIX-014-BALANC
 ### LEVEL-015
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `switched_motor` moves to plan level 12a (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position15:** switched_motor — Close the circuit. The motor must wait for the falling ball to trigger its supply switch, then complete a turn. This is current content, not the final ordering.
 
@@ -180,6 +210,8 @@ All original criteria: LEVEL-015. **Retained profile groups:** MATRIX-015-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `conveyor_courier` moves to plan level 14a (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position16:** conveyor_courier — Conveyor courier. Carry the ball on a motor-driven conveyor. A belt needs rotation, not an activation signal. This is current content, not the final ordering.
 
 All original criteria: LEVEL-016. **Retained profile groups:** MATRIX-016-BALANCED, MATRIX-016-FORGIVING, MATRIX-016-PRECISE.
@@ -190,6 +222,8 @@ All original criteria: LEVEL-016. **Retained profile groups:** MATRIX-016-BALANC
 ### LEVEL-017
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `belt_relay` moves to plan level 14b (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position17:** belt_relay — Pass the rotation. Use the high conveyor's output pulley to drive the delivery conveyor below. This is current content, not the final ordering.
 
@@ -202,6 +236,8 @@ All original criteria: LEVEL-017. **Retained profile groups:** MATRIX-017-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `reverse_belt` moves to plan level 14c (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position18:** reverse_belt — The other way round. The basket is to the left. Reverse the drive so the conveyor carries the ball back toward it. This is current content, not the final ordering.
 
 All original criteria: LEVEL-018. **Retained profile groups:** MATRIX-018-BALANCED, MATRIX-018-FORGIVING, MATRIX-018-PRECISE.
@@ -212,6 +248,8 @@ All original criteria: LEVEL-018. **Retained profile groups:** MATRIX-018-BALANC
 ### LEVEL-019
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `counterweight` moves to plan level 12b (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 19a `two_deliveries` (authored position 29), 19b `double_cold_start` (authored position 49). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position19:** counterweight — A helping weight. Lift the small load into the overhead switch to light the lamp. A heavier weight can pull it upward. This is current content, not the final ordering.
 
@@ -224,6 +262,8 @@ All original criteria: LEVEL-019. **Retained profile groups:** MATRIX-019-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `pulley_depth` moves to plan level 12c (chapter 2). This slot's planned authored content: `grand_contraption` (authored position 58). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position20:** pulley_depth — Around the corner. The counterweight belongs in the front depth lane. Add a pulley above it and route the rope back to the small load. This is current content, not the final ordering.
 
 All original criteria: LEVEL-020. **Retained profile groups:** MATRIX-020-BALANCED, MATRIX-020-FORGIVING, MATRIX-020-PRECISE.
@@ -234,6 +274,8 @@ All original criteria: LEVEL-020. **Retained profile groups:** MATRIX-020-BALANC
 ### LEVEL-021
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `solar_motor` moves to plan level 51a (chapter 6). This slot's planned authored content: `clear_pipe` (authored position 25). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 21a `gentle_bend` (authored position 26). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position21:** solar_motor — A little sunshine. Use the flashlight to supply the motor through a solar panel. The falling ball presses the torch's button. This is current content, not the final ordering.
 
@@ -246,6 +288,8 @@ All original criteria: LEVEL-021. **Retained profile groups:** MATRIX-021-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `solar_shadow` moves to plan level 51b (chapter 6). This slot's planned authored content: `quarter_bend` (authored position 27). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 22a `joined_pipe` (authored position 28). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position22:** solar_shadow — Out of the shade. The wooden wall blocks the flashlight. Find a lit position for the panel and turn the motor. This is current content, not the final ordering.
 
 All original criteria: LEVEL-022. **Retained profile groups:** MATRIX-022-BALANCED, MATRIX-022-FORGIVING, MATRIX-022-PRECISE.
@@ -256,6 +300,8 @@ All original criteria: LEVEL-022. **Retained profile groups:** MATRIX-022-BALANC
 ### LEVEL-023
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `delayed_signal` moves to plan level 23a (chapter 3). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 23a `delayed_signal` (authored position 23). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position23:** delayed_signal — Wait for it. Light the lamp only after the delay box finishes its countdown. This is current content, not the final ordering.
 
@@ -268,6 +314,8 @@ All original criteria: LEVEL-023. **Retained profile groups:** MATRIX-023-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `delayed_solar` moves to plan level 51c (chapter 6). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position24:** delayed_solar — A later sunrise. Wait for the countdown before lighting the torch and turning the motor. This is current content, not the final ordering.
 
 All original criteria: LEVEL-024. **Retained profile groups:** MATRIX-024-BALANCED, MATRIX-024-FORGIVING, MATRIX-024-PRECISE.
@@ -278,6 +326,8 @@ All original criteria: LEVEL-024. **Retained profile groups:** MATRIX-024-BALANC
 ### LEVEL-025
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `clear_pipe` moves to plan level 21 (chapter 3). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position25:** clear_pipe — Through the looking tube. Catch the falling ball inside the clear pipe and guide it down to the basket. This is current content, not the final ordering.
 
@@ -290,6 +340,8 @@ All original criteria: LEVEL-025. **Retained profile groups:** MATRIX-025-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `gentle_bend` moves to plan level 21a (chapter 3). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position26:** gentle_bend — A gentle turn. Guide the falling ball toward the basket with a 45-degree bend. This is current content, not the final ordering.
 
 All original criteria: LEVEL-026. **Retained profile groups:** MATRIX-026-BALANCED, MATRIX-026-FORGIVING, MATRIX-026-PRECISE.
@@ -300,6 +352,8 @@ All original criteria: LEVEL-026. **Retained profile groups:** MATRIX-026-BALANC
 ### LEVEL-027
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `quarter_bend` moves to plan level 22 (chapter 3). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position27:** quarter_bend — Around the corner. Use a 90-degree bend to turn a vertical fall into a sideways delivery. This is current content, not the final ordering.
 
@@ -312,6 +366,8 @@ All original criteria: LEVEL-027. **Retained profile groups:** MATRIX-027-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `joined_pipe` moves to plan level 22a (chapter 3). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position28:** joined_pipe — Meet in the middle. Join a short straight tube to the fixed bend so the falling ball reaches the receiver. This is current content, not the final ordering.
 
 All original criteria: LEVEL-028. **Retained profile groups:** MATRIX-028-BALANCED, MATRIX-028-FORGIVING, MATRIX-028-PRECISE.
@@ -322,6 +378,8 @@ All original criteria: LEVEL-028. **Retained profile groups:** MATRIX-028-BALANC
 ### LEVEL-029
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `two_deliveries` moves to plan level 19a (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position29:** two_deliveries — Two deliveries. Catch both balls, one with ramps and one with air. The receivers are in separate depth planes. This is current content, not the final ordering.
 
@@ -334,6 +392,8 @@ All original criteria: LEVEL-029. **Retained profile groups:** MATRIX-029-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `bounce_and_roll` is removed: it repeats `two_deliveries` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position30:** bounce_and_roll — Bounce and roll. Complete the ramp route and the elevated spring catch. This is current content, not the final ordering.
 
 All original criteria: LEVEL-030. **Retained profile groups:** MATRIX-030-BALANCED, MATRIX-030-FORGIVING, MATRIX-030-PRECISE.
@@ -344,6 +404,8 @@ All original criteria: LEVEL-030. **Retained profile groups:** MATRIX-030-BALANC
 ### LEVEL-031
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `air_and_belt` is removed: it repeats `two_deliveries` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position31:** air_and_belt — Air and belt. Deliver one ball with air and carry the other on a conveyor. This is current content, not the final ordering.
 
@@ -356,6 +418,8 @@ All original criteria: LEVEL-031. **Retained profile groups:** MATRIX-031-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `catch_and_signal` is removed: it repeats `first_principles` and `power_trip` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position32:** catch_and_signal — Catch and signal. Catch the orange ball and activate the lamp in the other plane. This is current content, not the final ordering.
 
 All original criteria: LEVEL-032. **Retained profile groups:** MATRIX-032-BALANCED, MATRIX-032-FORGIVING, MATRIX-032-PRECISE.
@@ -366,6 +430,8 @@ All original criteria: LEVEL-032. **Retained profile groups:** MATRIX-032-BALANC
 ### LEVEL-033
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `wind_and_dominoes` is removed: it repeats `air_mail` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position33:** wind_and_dominoes — Wind and dominoes. Catch the tennis ball and topple the end domino. This is current content, not the final ordering.
 
@@ -378,6 +444,8 @@ All original criteria: LEVEL-033. **Retained profile groups:** MATRIX-033-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `powered_post` is removed: it repeats `cold_start` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position34:** powered_post — Powered post. Start the cold fan, deliver its ball, and complete the separate ramp route. This is current content, not the final ordering.
 
 All original criteria: LEVEL-034. **Retained profile groups:** MATRIX-034-BALANCED, MATRIX-034-FORGIVING, MATRIX-034-PRECISE.
@@ -388,6 +456,8 @@ All original criteria: LEVEL-034. **Retained profile groups:** MATRIX-034-BALANC
 ### LEVEL-035
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `spring_and_chain` is removed: it repeats `spring_forward` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position35:** spring_and_chain — Spring and chain. Land the spring-launched ball and finish the domino chain. This is current content, not the final ordering.
 
@@ -400,6 +470,8 @@ All original criteria: LEVEL-035. **Retained profile groups:** MATRIX-035-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `two_signals` is removed: it repeats `power_trip` and `spring_signal` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position36:** two_signals — Two signals. Light both lamps, using a ramp path and a spring path. This is current content, not the final ordering.
 
 All original criteria: LEVEL-036. **Retained profile groups:** MATRIX-036-BALANCED, MATRIX-036-FORGIVING, MATRIX-036-PRECISE.
@@ -410,6 +482,8 @@ All original criteria: LEVEL-036. **Retained profile groups:** MATRIX-036-BALANC
 ### LEVEL-037
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `mixed_signals` is removed: it repeats `conveyor_courier` and `cold_start` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position37:** mixed_signals — Belt and signal. Deliver the conveyor ball while air drives the other ball onto a switch. This is current content, not the final ordering.
 
@@ -422,6 +496,8 @@ All original criteria: LEVEL-037. **Retained profile groups:** MATRIX-037-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `start_and_topple` is removed: it repeats `cold_start` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position38:** start_and_topple — Start and topple. Power the cold fan, catch its ball, and finish the domino chain. This is current content, not the final ordering.
 
 All original criteria: LEVEL-038. **Retained profile groups:** MATRIX-038-BALANCED, MATRIX-038-FORGIVING, MATRIX-038-PRECISE.
@@ -433,27 +509,33 @@ All original criteria: LEVEL-038. **Retained profile groups:** MATRIX-038-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `deep_routes` is removed: it repeats `first_principles` in depth ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position39:** deep_routes — Deep routes. Guide two balls along depth-oriented ramp routes. This is current content, not the final ordering.
 
 All original criteria: LEVEL-039. **Retained profile groups:** MATRIX-039-BALANCED, MATRIX-039-FORGIVING, MATRIX-039-PRECISE.
 
-**Bounded decision inputs:** [Chapter 4, Gears of an Idea: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-04). Exact numeric source reservations for this slot: [gap-15](../requirements.md#gap-15), [thermal-05](../requirements.md#thermal-05), [thermal-scenario-10](../requirements.md#thermal-scenario-10).
+**Bounded decision inputs:** [Chapter 4, Gears of an Idea: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-04). Exact numeric source reservations for this slot: [gap-15](../requirements.md#gap-15), [thermal-05](../requirements.md#thermal-05), [thermal-10](../requirements.md#thermal-10), [thermal-scenario-10](../requirements.md#thermal-scenario-10).
 
 <a id="level-040"></a>
 ### LEVEL-040
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `cross_breezes` is removed: it repeats `third_dimension` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position40:** cross_breezes — Cross breezes. Two fans must send their balls in opposite depth directions. This is current content, not the final ordering.
 
 All original criteria: LEVEL-040. **Retained profile groups:** MATRIX-040-BALANCED, MATRIX-040-FORGIVING, MATRIX-040-PRECISE.
 
-**Bounded decision inputs:** [Chapter 4, Gears of an Idea: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-04). Exact numeric source reservations for this slot: [thermal-05](../requirements.md#thermal-05), [thermal-10](../requirements.md#thermal-10), [thermal-scenario-08](../requirements.md#thermal-scenario-08), [thermal-scenario-10](../requirements.md#thermal-scenario-10).
+**Bounded decision inputs:** [Chapter 4, Gears of an Idea: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-04). Exact numeric source reservations for this slot: [thermal-05](../requirements.md#thermal-05), [thermal-scenario-08](../requirements.md#thermal-scenario-08), [thermal-scenario-10](../requirements.md#thermal-scenario-10).
 
 <a id="level-041"></a>
 ### LEVEL-041
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `deep_springs` is removed: it repeats `spring_forward` in depth ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: `wind_then_release` (authored position 59). Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 41a `saved_for_later` (authored position 60). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position41:** deep_springs — Deep springs. Launch two balls through depth into elevated receivers. This is current content, not the final ordering.
 
@@ -466,6 +548,8 @@ All original criteria: LEVEL-041. **Retained profile groups:** MATRIX-041-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `spatial_signals` is removed: it repeats `spring_signal` in depth ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position42:** spatial_signals — Spatial signals. Send a rolling ball and an airborne ball onto switches in depth-oriented lanes. This is current content, not the final ordering.
 
 All original criteria: LEVEL-042. **Retained profile groups:** MATRIX-042-BALANCED, MATRIX-042-FORGIVING, MATRIX-042-PRECISE.
@@ -476,6 +560,8 @@ All original criteria: LEVEL-042. **Retained profile groups:** MATRIX-042-BALANC
 ### LEVEL-043
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `three_deliveries` is removed: it repeats `two_deliveries` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position43:** three_deliveries — Three deliveries. Complete three captures with ramps, air, and a spring. This is current content, not the final ordering.
 
@@ -488,6 +574,8 @@ All original criteria: LEVEL-043. **Retained profile groups:** MATRIX-043-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `triple_signal` is removed: it repeats `spring_signal` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position44:** triple_signal — Triple signal. Light three lamps using ramps, a spring, and air. This is current content, not the final ordering.
 
 All original criteria: LEVEL-044. **Retained profile groups:** MATRIX-044-BALANCED, MATRIX-044-FORGIVING, MATRIX-044-PRECISE.
@@ -498,6 +586,8 @@ All original criteria: LEVEL-044. **Retained profile groups:** MATRIX-044-BALANC
 ### LEVEL-045
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `cold_front` is removed: it repeats `cold_start` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position45:** cold_front — Cold front. Start a cold fan while a ramp route and a spring route deliver their balls. This is current content, not the final ordering.
 
@@ -510,6 +600,8 @@ All original criteria: LEVEL-045. **Retained profile groups:** MATRIX-045-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `chain_mail` is removed: it repeats `air_mail`, `conveyor_courier` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position46:** chain_mail — Chain mail. Catch the wind-driven ball, deliver the conveyor ball, and topple the end domino. This is current content, not the final ordering.
 
 All original criteria: LEVEL-046. **Retained profile groups:** MATRIX-046-BALANCED, MATRIX-046-FORGIVING, MATRIX-046-PRECISE.
@@ -520,6 +612,8 @@ All original criteria: LEVEL-046. **Retained profile groups:** MATRIX-046-BALANC
 ### LEVEL-047
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `bounce_mail` is removed: it repeats `spring_forward`, `spring_signal` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position47:** bounce_mail — Bounce mail. Combine a spring catch, a wind-triggered lamp, and a domino chain. This is current content, not the final ordering.
 
@@ -532,6 +626,8 @@ All original criteria: LEVEL-047. **Retained profile groups:** MATRIX-047-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `relay_workshop` is removed: it repeats `cold_start`, `spring_signal` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position48:** relay_workshop — Relay workshop. Start the cold fan, light the ramp-triggered lamp, and complete the chain. This is current content, not the final ordering.
 
 All original criteria: LEVEL-048. **Retained profile groups:** MATRIX-048-BALANCED, MATRIX-048-FORGIVING, MATRIX-048-PRECISE.
@@ -542,6 +638,8 @@ All original criteria: LEVEL-048. **Retained profile groups:** MATRIX-048-BALANC
 ### LEVEL-049
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `double_cold_start` is converted into one switch-started conveyor chain and moves to plan level 19b (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position49:** double_cold_start — Double cold start. Start a stopped conveyor and a cold fan, then finish a spring catch in a third lane. This is current content, not the final ordering.
 
@@ -554,6 +652,8 @@ All original criteria: LEVEL-049. **Retained profile groups:** MATRIX-049-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `triple_chain` is removed: it repeats `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position50:** triple_chain — Triple chain. Finish three separate domino chains with twelve movable dominoes. This is current content, not the final ordering.
 
 All original criteria: LEVEL-050. **Retained profile groups:** MATRIX-050-BALANCED, MATRIX-050-FORGIVING, MATRIX-050-PRECISE.
@@ -564,6 +664,8 @@ All original criteria: LEVEL-050. **Retained profile groups:** MATRIX-050-BALANC
 ### LEVEL-051
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `signals_and_chain` is removed: it repeats `spring_signal` and `domino_effect` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Lettered levels after this slot that hold authored content (no `LEVEL-` entry yet): 51a `solar_motor` (authored position 21), 51b `solar_shadow` (authored position 22), 51c `delayed_solar` (authored position 24). Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position51:** signals_and_chain — Signals and chain. Light the ramp and spring lamps while a third lane topples its end domino. This is current content, not the final ordering.
 
@@ -576,6 +678,8 @@ All original criteria: LEVEL-051. **Retained profile groups:** MATRIX-051-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `cold_signals` is removed: it repeats `cold_start` and `spring_signal` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position52:** cold_signals — Cold signals. Power the fan and capture its ball, then light both motion-triggered lamps. This is current content, not the final ordering.
 
 All original criteria: LEVEL-052. **Retained profile groups:** MATRIX-052-BALANCED, MATRIX-052-FORGIVING, MATRIX-052-PRECISE.
@@ -586,6 +690,8 @@ All original criteria: LEVEL-052. **Retained profile groups:** MATRIX-052-BALANC
 ### LEVEL-053
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `depth_delivery` is removed: it repeats three earlier lanes in depth ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position53:** depth_delivery — Depth delivery office. Complete three differently powered deliveries along depth-oriented lanes. This is current content, not the final ordering.
 
@@ -598,6 +704,8 @@ All original criteria: LEVEL-053. **Retained profile groups:** MATRIX-053-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `depth_telegraph` is removed: it repeats `spring_signal` in depth ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position54:** depth_telegraph — Depth telegraph. Light three lamps using depth-oriented rolling, spring, and wind routes. This is current content, not the final ordering.
 
 All original criteria: LEVEL-054. **Retained profile groups:** MATRIX-054-BALANCED, MATRIX-054-FORGIVING, MATRIX-054-PRECISE.
@@ -608,6 +716,8 @@ All original criteria: LEVEL-054. **Retained profile groups:** MATRIX-054-BALANC
 ### LEVEL-055
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `double_bridge` is removed: it repeats `domino_effect` and `conveyor_courier` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position55:** double_bridge — Double bridge. Build two domino bridges and complete the central conveyor delivery. This is current content, not the final ordering.
 
@@ -620,6 +730,8 @@ All original criteria: LEVEL-055. **Retained profile groups:** MATRIX-055-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `bridges_and_signal` is removed: it repeats `domino_effect` and `spring_signal` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position56:** bridges_and_signal — Bridges and signal. Complete two domino bridges and light the central spring-triggered lamp. This is current content, not the final ordering.
 
 All original criteria: LEVEL-056. **Retained profile groups:** MATRIX-056-BALANCED, MATRIX-056-FORGIVING, MATRIX-056-PRECISE.
@@ -630,6 +742,8 @@ All original criteria: LEVEL-056. **Retained profile groups:** MATRIX-056-BALANC
 ### LEVEL-057
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `cold_bridges` is removed: it repeats `domino_effect` and `cold_start` ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position57:** cold_bridges — Cold bridges. Two domino chains frame a cold-start fan delivery. Complete all four objectives. This is current content, not the final ordering.
 
@@ -642,6 +756,8 @@ All original criteria: LEVEL-057. **Retained profile groups:** MATRIX-057-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `grand_contraption` is converted into chapter 2's chained finale, retitled *One Thing Leads to Another* and moves to plan level 20 (chapter 2). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position58:** grand_contraption — The grand contraption. Complete the ramp signal, conveyor signal, and domino chain; all three must succeed in one run. This is current content, not the final ordering.
 
 All original criteria: LEVEL-058. **Retained profile groups:** MATRIX-058-BALANCED, MATRIX-058-FORGIVING, MATRIX-058-PRECISE.
@@ -652,6 +768,8 @@ All original criteria: LEVEL-058. **Retained profile groups:** MATRIX-058-BALANC
 ### LEVEL-059
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `wind_then_release` moves to plan level 41 (chapter 5). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position59:** wind_then_release — Wind, then release. Wind the spring, then release it to send the orange ball into the basket. This is current content, not the final ordering.
 
@@ -664,6 +782,8 @@ All original criteria: LEVEL-059. **Retained profile groups:** MATRIX-059-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `saved_for_later` moves to plan level 41a (chapter 5). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position60:** saved_for_later — Saved for later. Use a brief burst of motor power to wind the spring. Its stored energy can deliver the ball after the motor stops. This is current content, not the final ordering.
 
 All original criteria: LEVEL-060. **Retained profile groups:** MATRIX-060-BALANCED, MATRIX-060-FORGIVING, MATRIX-060-PRECISE.
@@ -675,6 +795,8 @@ All original criteria: LEVEL-060. **Retained profile groups:** MATRIX-060-BALANC
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
+**Placement under owner decisions 24d to 24f:** `a_gentle_rebound` moves to plan level 3 (chapter 1). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+
 **Currently authored at position61:** a_gentle_rebound — A gentle rebound. Bounce the orange ball into the basket with one trampoline. This is current content, not the final ordering.
 
 All original criteria: LEVEL-061. **Retained profile groups:** MATRIX-061-BALANCED, MATRIX-061-FORGIVING, MATRIX-061-PRECISE.
@@ -685,6 +807,8 @@ All original criteria: LEVEL-061. **Retained profile groups:** MATRIX-061-BALANC
 ### LEVEL-062
 
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
+
+**Placement under owner decisions 24d to 24f:** `ready_to_rebound` moves to plan level 3a (chapter 1). This slot's planned authored content: none; the slot is authored in its CAMPAIGN slice. Every level's new parts: [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Currently authored at position62:** ready_to_rebound — Ready to rebound. This springboard is already compressed. Place a basket to catch the ball when its stored energy is released. This is current content, not the final ordering.
 
@@ -767,7 +891,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-069. **Retained profile groups:** MATRIX-069-BALANCED, MATRIX-069-FORGIVING, MATRIX-069-PRECISE.
 
-**Bounded decision inputs:** [Chapter 7, Go with the Flow: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-07). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [thermal-07](../requirements.md#thermal-07), [thermal-11](../requirements.md#thermal-11), [thermal-15](../requirements.md#thermal-15).
+**Bounded decision inputs:** [Chapter 7, Go with the Flow: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-07). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [thermal-07](../requirements.md#thermal-07), [thermal-11](../requirements.md#thermal-11), [thermal-15](../requirements.md#thermal-15). Lettered level 69c after this slot (no `LEVEL-` entry yet): [thermal-17](../requirements.md#thermal-17) introduction (coordinator decision 35).
 
 <a id="level-070"></a>
 ### LEVEL-070
@@ -778,7 +902,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-070. **Retained profile groups:** MATRIX-070-BALANCED, MATRIX-070-FORGIVING, MATRIX-070-PRECISE.
 
-**Bounded decision inputs:** [Chapter 7, Go with the Flow: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-07). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [thermal-04](../requirements.md#thermal-04), [thermal-11](../requirements.md#thermal-11), [thermal-17](../requirements.md#thermal-17), [thermal-21](../requirements.md#thermal-21), [thermal-scenario-01](../requirements.md#thermal-scenario-01).
+**Bounded decision inputs:** [Chapter 7, Go with the Flow: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-07). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [thermal-04](../requirements.md#thermal-04), [thermal-11](../requirements.md#thermal-11), [thermal-21](../requirements.md#thermal-21), [thermal-scenario-01](../requirements.md#thermal-scenario-01).
 
 <a id="level-071"></a>
 ### LEVEL-071
@@ -786,6 +910,8 @@ All original criteria: LEVEL-070. **Retained profile groups:** MATRIX-070-BALANC
 Decision boundary: assign this slot's exact source-reserved lesson and its prerequisites, then implement this same LEVEL outcome; final allocation is not yet frozen.
 
 **Current content:** no authored level at this position.
+
+**New parts:** Bellows, the Pneumatic hose (EL-038) and the Air reservoir (EL-039), taught in that order: the hose before the reservoir (coordinator decision 37; [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)).
 
 All original criteria: LEVEL-071. **Retained profile groups:** MATRIX-071-BALANCED, MATRIX-071-FORGIVING, MATRIX-071-PRECISE.
 
@@ -877,7 +1003,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-079. **Retained profile groups:** MATRIX-079-BALANCED, MATRIX-079-FORGIVING, MATRIX-079-PRECISE.
 
-**Bounded decision inputs:** [Chapter 8, Sounds Like a Plan: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-08). Exact numeric source reservations for this slot: [element-213](../requirements.md#element-213), [element-214](../requirements.md#element-214), [gap-18](../requirements.md#gap-18), [thermal-12](../requirements.md#thermal-12), [thermal-13](../requirements.md#thermal-13), [thermal-29](../requirements.md#thermal-29), [thermal-scenario-02](../requirements.md#thermal-scenario-02).
+**Bounded decision inputs:** [Chapter 8, Sounds Like a Plan: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-08). Exact numeric source reservations for this slot: [element-213](../requirements.md#element-213), [element-214](../requirements.md#element-214), [gap-18](../requirements.md#gap-18), [thermal-12](../requirements.md#thermal-12), [thermal-13](../requirements.md#thermal-13), [thermal-29](../requirements.md#thermal-29), [thermal-scenario-02](../requirements.md#thermal-scenario-02). Lettered level 79b after this slot (no `LEVEL-` entry yet): [thermal-25](../requirements.md#thermal-25) introduction (coordinator decision 35).
 
 <a id="level-080"></a>
 ### LEVEL-080
@@ -888,7 +1014,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-080. **Retained profile groups:** MATRIX-080-BALANCED, MATRIX-080-FORGIVING, MATRIX-080-PRECISE.
 
-**Bounded decision inputs:** [Chapter 8, Sounds Like a Plan: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-08). Exact numeric source reservations for this slot: [element-213](../requirements.md#element-213), [element-214](../requirements.md#element-214), [gap-14](../requirements.md#gap-14), [gap-18](../requirements.md#gap-18), [thermal-13](../requirements.md#thermal-13), [thermal-25](../requirements.md#thermal-25), [thermal-scenario-02](../requirements.md#thermal-scenario-02).
+**Bounded decision inputs:** [Chapter 8, Sounds Like a Plan: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-08). Exact numeric source reservations for this slot: [element-213](../requirements.md#element-213), [element-214](../requirements.md#element-214), [gap-14](../requirements.md#gap-14), [gap-18](../requirements.md#gap-18), [thermal-13](../requirements.md#thermal-13), [thermal-scenario-02](../requirements.md#thermal-scenario-02).
 
 <a id="level-081"></a>
 ### LEVEL-081
@@ -1317,7 +1443,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-119. **Retained profile groups:** MATRIX-119-BALANCED, MATRIX-119-FORGIVING, MATRIX-119-PRECISE.
 
-**Bounded decision inputs:** [Chapter 12, Particle Manners: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-12). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [radiation-04](../requirements.md#radiation-04), [radiation-14](../requirements.md#radiation-14).
+**Bounded decision inputs:** [Chapter 12, Particle Manners: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-12). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [radiation-04](../requirements.md#radiation-04), [radiation-14](../requirements.md#radiation-14), [radiation-15](../requirements.md#radiation-15).
 
 <a id="level-120"></a>
 ### LEVEL-120
@@ -1328,7 +1454,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-120. **Retained profile groups:** MATRIX-120-BALANCED, MATRIX-120-FORGIVING, MATRIX-120-PRECISE.
 
-**Bounded decision inputs:** [Chapter 12, Particle Manners: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-12). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212), [radiation-15](../requirements.md#radiation-15).
+**Bounded decision inputs:** [Chapter 12, Particle Manners: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-12). Exact numeric source reservations for this slot: [element-212](../requirements.md#element-212).
 
 <a id="level-121"></a>
 ### LEVEL-121
@@ -1416,7 +1542,7 @@ Decision boundary: assign this slot's exact source-reserved lesson and its prere
 
 All original criteria: LEVEL-128. **Retained profile groups:** MATRIX-128-BALANCED, MATRIX-128-FORGIVING, MATRIX-128-PRECISE.
 
-**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-17](../requirements.md#radiation-17).
+**Bounded decision inputs:** [Chapter 13, Half the Battle: actual scope, reservation set and decision oracle](campaign-reservations.md#chapter-13). Exact numeric source reservations for this slot: [radiation-17](../requirements.md#radiation-17), [element-130](../requirements.md#element-130) (coordinator decision 36).
 
 <a id="level-129"></a>
 ### LEVEL-129

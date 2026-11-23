@@ -21,7 +21,7 @@ inputDocuments:
 
 ## Overview
 
-This document provides the complete, authoritative BMAD epic and story breakdown for Curious Contraptions, decomposing the engineering requirements, INVEST vertical roadmap, element catalogue (CAT-001 through CAT-072 across all 7 families), and 150 campaign challenge levels into implementable vertical slices.
+This document provides the complete, authoritative BMAD epic and story breakdown for Curious Contraptions, decomposing the engineering requirements, INVEST vertical roadmap, element catalogue (CAT-001 through CAT-072 across all 7 families), and the campaign challenge levels (at least 150; 244 planned) into implementable vertical slices.
 
 Every story is an INVEST vertical slice: delivering one player-observable behavior through real UI, adding generic data-driven capability, naming the legacy it deletes, and requiring independent adversarial review with pure TypeScript Playwright verification in Chrome.
 
@@ -38,13 +38,13 @@ Every story is an INVEST vertical slice: delivering one player-observable behavi
 - **FR-05 (Speculative Contacts Anti-Tunneling):** Fast-moving bodies allocate speculative contacts in narrowphase with target velocity absorption to prevent discrete tunneling through barriers of arbitrary thickness.
 - **FR-06 (Decoupled Animation Pipeline):** Cosmetic animations (e.g. halo pulse, switch depression, spring squash) evaluate at 60 Hz on a dedicated animation worker fed one-way by physics events.
 - **FR-07 (Catalogue Puzzle Elements):** 72 distinct catalogue elements implemented purely as declarative capability data without bespoke solver branches.
-- **FR-08 (150 Campaign Levels):** 150 progressively taught challenge levels structured as 15 chapters of 10 levels, as [requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define them, covering every adopted element family.
+- **FR-08 (Campaign Levels):** at least 150 progressively taught challenge levels (244 planned: the 150 numbered slots and 94 lettered levels, owner decisions 24c to 24f) in 15 chapters, as [requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define them, covering every adopted element family.
 - **FR-09 (Deterministic Save/Load):** Constructions can be saved to and loaded from JSON preserving exact IEEE-754 `f32` coordinates and connection graphs.
 
 ### Non-Functional Requirements
 
 - **NFR-01 (Zero External Physics Dependencies):** 100% in-engine custom C# and TypeScript algorithms incorporating Quad-BVH, TGS Soft, and speculative contacts. No Box2D, Jolt, Rapier, or PhysX libraries.
-- **NFR-02 (Universal Browser Graphics):** Presentation executes universally on both WebGL 2.0 and WebGPU via instanced draw batches from a lock-free `SharedArrayBuffer` triple pose ring.
+- **NFR-02 (Universal Browser Graphics):** Presentation executes universally on both WebGL 2.0 and WebGPU via instanced draw batches from a lock-free `SharedArrayBuffer` pose ring, multi-buffered with its depth derived from tick rate and render delay (owner decision 24k; target, delivered by `ENGINE-WIRE-ABI`).
 - **NFR-03 (Forward-Only Refactoring):** Zero backwards-compatibility shims, legacy flags, or CPU fallback paths. Superseded code is deleted in the slice that replaces it.
 - **NFR-04 (Game-Grade Numerical Envelope):** Clamp-or-continue numerical policy. Residuals clamp; non-finite states preserve prior poses; ticks never fault.
 - **NFR-05 (Strict Type Safety):** Closed sets are enums end-to-end; extensible identities use strongly typed IDs; string conversions exist only at external boundaries.
@@ -70,7 +70,7 @@ Every single story across all epics must formally satisfy the following mandator
 
 **Future slice workflow:** follow [AGENTS delivery speed rules](../../AGENTS.md#delivery-speed-rules-owner-24-october-2026-these-take-precedence-over-conflicting-wording-below): one bmad-build-auto loop with Blind Hunter, Edge Case Hunter, Verification Gap, Intent Alignment and the Forward-Only Auditor (AGENTS.md "Refactor forward", review gate, owner 25 Oct 2026: any fallback, backwards compatibility, retained deprecated slot or second rule for the same behaviour is a Fail), no duplicate review system; fresh implementer per slice, fixes to that implementer; incremental builds, full native suite once per round, CI-owned Release/publish; no mutation testing until the post-catalogue E2E phase (owner, 25 Oct 2026); review Pass on committed SHA and short exact-SHA terminal receipts. New rules apply from the next slice. These rules refine the proof statements below without weakening native behavior or complete-catalogue coverage.
 
-**Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [318-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 301 actual named-element contracts (276 adopted on 24 October 2026 plus 25 campaign-taught parts ledgered as EL-217 to EL-241 by owner decision, 21 November 2026), 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
+**Owner direction, 24 October 2026.** Stabilize the existing game, then implement **every named element and variant**, then qualify through browsers. This section supersedes older lane alternation, positional numbers and first-undone dispatch. Source behaviors and named requirement IDs remain intact. The [319-identity ledger](../../docs/planning/invest/named-elements.md#execution-contract--complete-named-catalogue-24-october-2026) supplies 302 actual named-element contracts (276 adopted on 24 October 2026, 25 campaign-taught parts ledgered as EL-217 to EL-241 by owner decision, 21 November 2026, and EL-242 ledgered by coordinator decision 27, 23 November 2026), 10 umbrella child dispositions and 7 product-feature contracts. The72 CAT specifications overlap those identities; all 104 current mode records and source-required variants remain obligations. “Potential” no longer excludes an actual named element.
 
 **Current owner follow-ups (27 October):** comparison adoption, synthetic warm-up removal (`822317c`), support coverage (`a98ef86c`) and orientation levelling (`bb35e8c4`) are published. The [owner-approved cap-block completion](../implementation-artifacts/spec-engine-cap-block-game-grade.md) is in progress: replace only the invalid one-substep rod ratio with per-impact non-increasing mechanical energy including small impacts. Retain the active-set candidate, whole-manifold warm-start correction and all settling/Weight/energy bounds. Historical failed attempts remain evidence. Catalogue order is unchanged.
 
@@ -78,10 +78,10 @@ Every single story across all epics must formally satisfy the following mandator
 
 1. Delivered at main d87b6a1e (CI 40181624977: 3,952 tests, 0 failed, 0 skipped; deployment 7311595713): 9A.44 Part A, the axial-creep slice `engine-cylinder-axial-creep`, and the 9A.23+9A.25b and 10.2a terminal receipts ([delivered slices](../../docs/planning/delivered-slices.md)).
 2. Stabilize in this order (coordinator, 26 Oct 2026; current cap-settling prerequisite and retained orientation retry): delivered `elements-visible-solid` / `elements-visible-solid-sweep` → delivered `engine-hollow-shapes` → delivered `engine-single-point-penetration` → delivered `engine-two-point-friction` → delivered `engine-cap-settling` (`a98ef86c`) → delivered `engine-orientation-levelling` (`bb35e8c4`) → delivered `engine-cap-block` (`6ed1a3e03e94786be964a429d87a6d4a25d9b90c`, full4606/0/0, hooks126/0/0; terminal receipt in current cap-block spec) → delivered `engine-multi-collider-dynamic` (`28a2d302e6c0e1a0e361bfe62beea9b332d6b9f9`, local4822/0/0, hooks126/0/0; terminal receipt in its spec) → delivered `bumper-cap-solid` (`057df5ae99cc8e620ee88cc161bd1497a5e1b980`, local4831/0/0, hooks126/0/0; terminal receipt in its spec) → delivered `face-markings-flush` (`6125040efa3becf31c6a5957f35571735f04972c`, local4845/0/0, hooks126/0/0; terminal receipt in its spec) → delivered9A.44B (`6e0e0ee1799d31211e1769b8883f6bedb3fae396`, local4884/0/0, hooks126/0/0; terminal receipt in its spec) → delivered harness A (`db90de9b231e218025ef72a1007f953e214baee6`, local4901/0/0, hooks126/0/0 and exact-SHA approval; CI/deployment unverified, owner29October says continue without waiting) → delivered harness B (`318d514fba18eae71fa3f9663edb2d13a3cde016`, local4982/0/0, hooks126/0/0 and exact-SHA approval; remote deployment unverified) → delivered TypeScript conversion (`2dae218024ab260cc1797d967b13f2a5ea70d01e`, local4985/0/0, hooks126/0/0 and exact-SHA approval; remote deployment unverified) → test hygiene → 9A.24 → 9A.45. Detailed contracts and [engine and collider stories](#engine-and-collider-slices) below bound this work.
-3. Continue individual CAT slices 10.2b, 10.2c, supported-impact prerequisite before 10.3, 10.4, 10.5, split 11.x/12.x/13.x, then 14.0, 14.2, 14.1, 14.3, 14.4. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
-4. Complete every remaining `named-*` slice in the [capability-cluster order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order) (owner, 21 November 2026): each missing engine capability is delivered first by its [engine-first story](#engine-first-capability-stories-21-november-2026), then the identities it unblocks. Historical row, key and family order is not a dependency. AGENTS.md's **Family slice** and **Duplicate closure** rules govern which identities may share a slice; the groupings are in [delivery batches](../../docs/planning/invest/delivery-batches.md). Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
+3. **Engine programme first (owner decisions 3a and 22, 22–23 November 2026).** Before it, only repairs and tooling run: visible-solid repair parts A, B, B2 and C, the Baseball repair, and structural stories S3, S5 and S6. Then the [engine programme](#engine-first-capability-stories-21-november-2026) runs in its stated order (DOC-ENGINE-STATUS to ENGINE-SOA-SIMD), then ENGINE-GAS-NETWORK, ENGINE-LIQUID and ENGINE-THERMAL (owner decision 18). The goal slices, Early level proofs, tests-only patches, closure reviews and new elements wait for the programme; after it and the gas, liquid and thermal engines, element slices follow the order in which the campaign levels first teach them (owner decision 24a; the roadmap's [delivery order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order)), whichever engine capability they need, each also waiting for the engine stories its *Depends on* lines name. The remaining CAT slices follow their engine stories: Story 12.4 (Bellows) after ENGINE-GAS-NETWORK; the Epic 13 children after ENGINE-OPTICAL; 14.2, 14.1, 14.3, 14.4 after Story 14.0. Resolve CAT-023 offset-COM and its motion-piece origin/tick obligations before its complete claim; attach all F.16 catalogue remainders and required F.4 collider behavior to their actual first consumer rather than leaving them after catalogue qualification.
+4. Complete every remaining `named-*` slice in the roadmap's [delivery order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order): after the repairs and tooling of owner decision 22, the programme (owner decision 3a) and the gas, liquid and thermal engines (owner decision 18), element slices are delivered in the order the campaign levels first teach them, whichever engine capability they need (owner decision 24a; first-use reservations in [requirements, campaign element coverage](../../docs/planning/requirements.md#campaign-element-coverage), chapters in [campaign plan](../../docs/planning/requirements.md#campaign-plan)). Each missing engine capability is delivered by its [engine-first story](#engine-first-capability-stories-21-november-2026) before the first element that needs it. Historical row, key and family order is not a dependency. AGENTS.md's **Family slice** and **Duplicate closure** rules govern which identities may share a slice; the groupings are in [delivery batches](../../docs/planning/invest/delivery-batches.md). Its source spec/requirement and canonical S owner are the detailed contract; its native entry decisions stay within the slice. Carry remaining CAT modes/fixtures with their owners. A feature/umbrella cannot stand in for a physical element.
 5. After all named intrinsic element implementations, complete the bounded native stage of [Story 15.0](#story-150-physical-placement-nudging--difficulty-assistance) and all remaining required native mode/collaborator integrations under their existing owners. Story 15.0 owns the CAT-049/CAT-050 assistance clauses retained by Stories 6.9/6.10. This native behavior precedes catalogue closure; exhaustive difficulty/campaign sweeps and browser proof do not.
-6. Verify full catalogue closure: every CAT obligation and all 301 named contracts have actual implementation and passing unit AND integration proof, including Story 15.0 native assistance and later collaborator cases. Only then expand the 150-level campaign, deliver retained product features, re-enable the explicit browser deferral list and run post-catalogue Chrome E2E, exhaustive difficulty/campaign, device/performance and release gates. AGENTS.md's **Early level proof** rule is the one exception: a planned level that uses only delivered parts may be authored and proven natively before closure; its browser proof stays in the post-catalogue phase.
+6. Verify full catalogue closure: every CAT obligation and all 302 named contracts have actual implementation and passing unit AND integration proof, including Story 15.0 native assistance and later collaborator cases. Only then expand the campaign (at least 150 levels; 244 planned), deliver retained product features, re-enable the explicit browser deferral list and run post-catalogue Chrome E2E, exhaustive difficulty/campaign, device/performance and release gates. AGENTS.md's **Early level proof** rule is the one exception: after the engine programme (owner decision 22), a planned level that uses only delivered parts may be authored and proven natively before closure; its browser proof stays in the post-catalogue phase.
 
 **Required-now proof:** production C# unit and shared native integration tests; node harnesses test shipped compiler output at genuine browser/worker boundaries. Given each source construction, when the real production system advances bounded ticks, then independently derived outcomes, controls, boundaries, Reset/save/load and ordinary lifecycle hold. All required native tests run with Skipped: 0. No browser test writing, execution or provisioning is a prerequisite now. Existing story Chrome clauses are retained in the final-phase backlog; they do not govern implementation completion before catalogue closure. One matching build, then `--no-build --no-restore`; no output hashes/private reach-ins. Separate implementer/reviewer and individual publication remain required.
 
@@ -104,7 +104,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 |`test-behavioral-hygiene`|Game C# tests and node harnesses, including WorkshopActivationAnimationTests and the save re-encode asserts at `CuriousContraptions.tests/ContactWorkInstanceTests.cs:102` and `CuriousContraptions.tests/SliderInstanceTests.cs:145` (about 57 test files used hash or byte-identity patterns on 25 Oct 2026); delete output-hash/byte pins and private reach-ins after equivalent behavior coverage exists.|Given each replaced assertion, then an interface-level positive/control/boundary test asserts the behaviour directly, so that a plausible defect would fail it (judged by reading the assertions; no mutation runs before the post-catalogue E2E phase). Preserve legacy input fixture files without hash pins. Inventory every removed assertion and replacement; all required tests pass with zero skips.|
 |9A.24 / `9a-24-typed-observation-port`|Existing story's typed read-only port and console-channel deletions.|Given typed observation requests, when read against committed state, then values/refusals are correct without mutation; validate through native/node tests. Browser consumers stay deferred.|
 |9A.45 / `9a-45-compile-time-isolation-gate`|Existing assembly split/build scan, remaining Pipe generic arms and unused TimerObservation. Delete known-violation list only when empty.|Given normal builds and planted source violations, when gate runs, then clean source passes and forbidden element coupling fails at file:line. Pipe geometry/joins/lifecycle pass native behavior tests; no declaration deletion.|
-|`engine-supported-impact-restitution`|Generic island/manifold restitution plus native simulation tests; delete incorrect supported-impact work transfer if replaced.|Before10.3 or another dynamic support consumer: reproduce recorded ball-on-resting-dynamic-box loss; independently bound momentum/work and rebound for light/heavy support, e=0 and nonzero controls, no energy gain. Resolve the supported-impact model before consumer completion; detailed cost profiling remains release work.|
+|`engine-supported-impact-restitution` (published at `a39014f4`, 30 October 2026; receipt `3df93f14`; both on published main)|`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs` restitution pass and `CuriousContraptions.tests/WorkshopPhysicsLawRestitutionTests.cs`; the per-manifold restitution that omitted the supporting contacts was replaced.|Delivered: a bounce is solved together with the active supporting contacts of the dynamic bodies it touches, so a ball dropped on a resting dynamic box rebounds at its supported limit ([spec](../implementation-artifacts/spec-engine-supported-impact-restitution.md); tests `ABallDroppedOntoARestingDynamicBoxReboundsAtItsSupportedLimit`, `AnInelasticBallOnARestingBoxDoesNotRebound`, `ABallDroppedOntoATwoBoxDynamicStackReboundsWithoutCollapsing`). Remaining defect, not a reopening: a restitution group of more than eight points is silently cut to eight (`WorkshopConstraintSolver.cs:685-688`); `ENGINE-ISLANDS-SLEEP` removes the cut. The deferred-work entry that still calls the supported-impact loss open (`deferred-work.md:135-137`) is stale.|
 
 **Owner-requested child (26 October 2026):** [`test-semantic-digests`](../implementation-artifacts/spec-test-semantic-digests.md) replaces replay fingerprints and legacy fixture digest pins first: 12 methods, 57 literal cases. [Replacement inventory and remaining groups](../implementation-artifacts/test-behavioral-hygiene-inventory.md). Terminal publication Pass at `b3905fcda3df89b38140c9610b8ff2034e4078a8`: CI 40249169834 passed 4,212 tests with zero failures/skips, artifact 12620546696 and deployment 7321697410 verified; [terminal receipt](../implementation-artifacts/spec-test-semantic-digests.md). The broader hygiene row now has its remaining defined-interface replacements implemented; final local verification and independent Auto review remain pending in the [current spec](../implementation-artifacts/spec-test-behavioral-hygiene.md). Historical child proof does not qualify the changed tests. This cleanup imports no solver changes.
 
@@ -112,7 +112,7 @@ Each item is one bounded native slice with its current source paths, deletion sc
 
 **27 October owner sizing amendment:** current `engine-multi-collider-dynamic` includes actual-demand storage with no arbitrary scene ceilings, sparse interaction pairs, all declared child visuals/drives, multiple receivers, and atomic event/animation growth. The [revised spec](../implementation-artifacts/spec-engine-multi-collider-dynamic.md#actual-demand-sizing-and-sparse-interaction-ownership--owner-amendment) is the current handoff. This supersedes the temporary9A.45 presentation deferral and one-guide-per-payload restriction; no new catalogue element or aggregate battery-debit model is added. Browser/performance qualification remains at its named gate.
 
-**Stabilization exit:** every row above except `engine-supported-impact-restitution` has terminal scoped native/publication Pass (or independently applicable existing proof), zero unresolved ordinary correctness regressions, no unsupported Half/double game path, strict compiled TS at every changed boundary, current integration matrix passing and isolation list empty. Then select 10.2b. Supported-impact restitution is a genuine just-in-time dependency of 10.3, not an unrelated global audit. Existing stress/performance follow-ups retain their named later gates.
+**Stabilization exit:** every row above has terminal scoped native/publication Pass (or independently applicable existing proof), zero unresolved ordinary correctness regressions, no unsupported Half/double game path, strict compiled TS at every changed boundary, current integration matrix passing and isolation list empty. Supported-impact restitution, the just-in-time dependency of 10.3, was published at `a39014f4` (30 October 2026) before 10.3; its remaining eight-point group cut belongs to `ENGINE-ISLANDS-SLEEP`. Existing stress/performance follow-ups retain their named later gates.
 
 <a id="engine-and-collider-slices"></a>
 ### Engine and collider slices (owner decisions 24–25 Oct 2026)
@@ -257,12 +257,12 @@ The existing13.1b/c/d RGB laser stories now depend on13.1e, not the old grouped1
 ### CAT-023c: Domino offset centre of mass and presentation origin
 *Sprint key: `cat-023c-offset-centre-of-mass`; canonical CAT-023 obligation, before the next Domino-dependent level and before complete catalogue closure. Depends on stabilized f32 body/motion ABI and existing Domino package.*
 
-Given the [CAT-023 source declaration](../../docs/planning/elements/CAT-023-domino.md) with its nonzero centre of mass, when the production solver advances and the presentation samples its motion, then inertia, world centre of mass, body origin and pips follow the declared mass frame within independent analytic/game-grade tolerances. Given a zero-offset control, when run identically, then existing Domino behavior remains; invalid/nonfinite/out-of-range offsets reject atomically. Given an end-of-substep motion sample, when observed at its declared ordinal, then it neither leads physics by a substep nor subtracts the COM twice. Retain cascade, threshold, matched-ball loading, Reset and supported Save/Load source criteria. Files: elements/Domino, generic mass-property/compiler/ABI/motion-read callers and native simulation/presentation tests; delete zero-COM assumptions and stale sample-origin/ordinal paths. Resolve source offset-range/art decisions before runtime implementation; no Domino solver branch. This is a behavior slice, not a completion-only audit.
+The declared centre of mass is (0, −0.05, 0) m in the body frame (owner decision 8, 22 November 2026). The slice re-authors `CuriousContraptions.tests/WorkshopDominoTests.cs:46`, which today asserts a zero local centre of mass, to that value, and re-runs `DominoGuardTests`. Given the [CAT-023 source declaration](../../docs/planning/elements/CAT-023-domino.md) with its nonzero centre of mass, when the production solver advances and the presentation samples its motion, then inertia, world centre of mass, body origin and pips follow the declared mass frame within independent analytic/game-grade tolerances. Given a zero-offset control, when run identically, then existing Domino behavior remains; invalid/nonfinite/out-of-range offsets reject atomically. Given an end-of-substep motion sample, when observed at its declared ordinal, then it neither leads physics by a substep nor subtracts the COM twice. Retain cascade, threshold, matched-ball loading, Reset and supported Save/Load source criteria. Files: elements/Domino, generic mass-property/compiler/ABI/motion-read callers and native simulation/presentation tests; delete zero-COM assumptions and stale sample-origin/ordinal paths. Resolve the source offset-range and art decisions before runtime implementation; the offset value itself is decided above. No Domino solver branch. This is a behavior slice, not a completion-only audit.
 
 ### Catalogue native closure (aggregate)
 *Sprint key: `catalogue-native-closure`; dispatches no new implementation.*
 
-Given all 72 CAT source contracts, 104 current mode records and all 301 named element contracts, when their independently reviewed implementation/unit/integration evidence is reconciled against exact relevant inputs, then every identity, variant, required collaborator and ordinary lifecycle criterion has a terminal applicable Pass, or closure fails naming its existing owner. Given a missing child or stale proof, when checking an umbrella/shared CAT refinement, then the aggregate remains incomplete. Preserve the 10 umbrella and 7 product-feature dispositions, without counting features as elements. No hash count, package count or readiness-doc count establishes behavior. Required now includes the completed native stage of Story 15.0 (closing the CAT-049/CAT-050 assistance clauses from Stories 6.9/6.10), CAT-023c, assigned F.4/F.16 native remainders and other actual first-consumer obligations; browser cases remain pending until this conjunction passes. The existing reviewer records the result; no new framework or recursive audit story is introduced.
+Given all 72 CAT source contracts, 104 current mode records and all 302 named element contracts, when their independently reviewed implementation/unit/integration evidence is reconciled against exact relevant inputs, then every identity, variant, required collaborator and ordinary lifecycle criterion has a terminal applicable Pass, or closure fails naming its existing owner. Given a missing child or stale proof, when checking an umbrella/shared CAT refinement, then the aggregate remains incomplete. Preserve the 10 umbrella and 7 product-feature dispositions, without counting features as elements. No hash count, package count or readiness-doc count establishes behavior. Required now includes the completed native stage of Story 15.0 (closing the CAT-049/CAT-050 assistance clauses from Stories 6.9/6.10), CAT-023c, assigned F.4/F.16 native remainders and other actual first-consumer obligations; browser cases remain pending until this conjunction passes. The existing reviewer records the result; no new framework or recursive audit story is introduced.
 
 ## Delivery order (coordinator, 21 Oct 2026, owner-authorised re-examination)
 
@@ -483,12 +483,12 @@ These done stories still have open clauses, each recorded with its owner:
 9. **Epic 9: Activation, Timing & Electrical Logic** (Pressure Plate, Pulse Counter, System Clock, State Latch, Hold Timer, Dual-Supply Both, Electrical Logic Gates Nand/Nor/Or/Xor) — *[Backlog]*
    - **Epic 9R: Retro-Verification Repair** (Stories 9R.0–9R.18: real C# static gate, exact Run/Reset snapshots, collider table sized at Run, own-supply gate routes, per-plate load rows, plate ActivationOut, typed mouth snapping, `joined_pipe` and `spring_forward` playable, cat-002 and cat-017 proofs, seven missing element suites, independent re-verification with dated review addenda). Delivered after Story 9.4b and before Story 9.4c (coordinator decision under owner delegation, 18 Oct 2026). Its section precedes Epic 9A. — *[Backlog]*
    - **Epic 9A: Sole Architecture Conformance (Project-per-Element, Command/Query, Event Disruptor)** (Stories 9A.0–9A.45: authority docs, legacy purge, single codec, typed transport controls, lossless bundle, nine missing element packages, bundle as the sole catalogue/collider/port/icon source, declared drive and load sensor, event ring producer and consumers, typed observation port, package presentation bindings, lessons as data, one generic-instance conversion per element, f32 lane completion, compile-time isolation gate). Delivered after Stories 9.4 and 9.4b and before Story 9.5 (owner decision, 18 Oct 2026); Story 9.4c precedes it by coordinator placement. Its section follows Epic 9. — *[Backlog]*
-10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Elements delivered natively; `engine-resting-stack-settling` open]*
+10. **Epic 10: Constrained Mechanics & Elastic Fixtures** (Solid Cylinder Collider & Inertia, Pulley, Rope Anchor, Impact Lever, Counterweight, Trampoline) — *[Elements delivered natively; resting-stack settling is owned by ENGINE-ISLANDS-SLEEP]*
 11. **Epic 11: Rotary Drive & Mechanical Actuators** (Electric Motor, Conveyor Belt, Mechanical Clutch, Reverse Transmission, Linear Pusher, Wound Spring Motor, Toy Cannon) — *[Done natively; browser pending]*
 12. **Epic 12: Conserved Airflow, Pneumatics & Buoyancy** (Tennis Ball, Floating Balloon, Electric Fan, Windmill, Pneumatic Bellows) — *[In-Progress: Bellows 12.4 remains]*
 13. **Epic 13: Optical Propagation, Routing & Sensing** (Torch, Laser, Red/Green/Blue Lasers, Tuned Optical Receivers, Beam Shutter, Spectral Color Filters, Flat Mirror, Beam Splitter & Combiner, Secondary Receivers, Solar Panel, Optical Logic Gates) — *[Backlog]*
 14. **Epic 14: Acoustic Emission & Reception** (Sound Level Meter, Service Bell, Audio Speaker, Wind Chimes) — *[Backlog]*
-15. **Epic 15: 150 Progressively Taught Campaign Levels** (Stories 15.1–15.15, one story per chapter: 15 chapters of 10 levels as [requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define them, with verified UI solutions and retry loops) — *[Backlog]*
+15. **Epic 15: Progressively Taught Campaign (at least 150 levels)** (Stories 15.1–15.15, one story per chapter: 15 chapters as the [requirements campaign plan](../../docs/planning/requirements.md#campaign-plan) defines them, 244 levels planned, with verified UI solutions and retry loops) — *[Backlog]*
 16. **Epic 16: Release Qualification, Performance Audits & Production Packaging** (Cross-platform headless/browser performance audit, WebGL2/WebGPU qualification, 60 FPS display pacing, memory leak audits, and release candidate bundle) — *[Backlog]*
 
 Story order follows the owner re-ordering of 9 Oct 2026 (dependencies): each story comes after what it needs, except the open scheduling items listed in epics.md (below). Every moved story carries a "Depends on" line naming its former number. The old-to-new mapping is in [vertical-delivery.md](../../docs/planning/invest/vertical-delivery.md#owner-reordering-dependencies).
@@ -580,7 +580,7 @@ All items are decided and applied below. The owner decided items (b), (c), (e), 
 
 ## Epic 1: Engine Core Foundation
 
-**Goal:** Establish the WebAssembly SIMD multi-body execution core, lock-free `SharedArrayBuffer` triple pose ring, Box2D v3 TGS Soft solver, Dynamic AABB BVH with 15-axis SAT narrowphase, and speculative contacts anti-tunneling, delivering reliable real-time physics on the workbench.
+**Goal:** Establish the WebAssembly SIMD multi-body execution core, lock-free multi-buffered `SharedArrayBuffer` pose ring (depth derived from tick rate and render delay), Box2D v3 TGS Soft solver, Dynamic AABB BVH with 15-axis SAT narrowphase, and speculative contacts anti-tunneling, delivering reliable real-time physics on the workbench.
 
 ### Story 1.1: Game-Grade Contact & Per-Substep Normalization (ENGINE-CORE-1)
 *Status: Done*
@@ -605,7 +605,7 @@ I want to place and simulate multiple basketballs simultaneously,
 So that multi-body interactions render smoothly with independent trajectories.
 
 **Acceptance Criteria:**
-- **Given** the Free Workshop with 16 body slots in the `SharedArrayBuffer` triple pose ring,
+- **Given** the Free Workshop with 16 body slots in the multi-buffered `SharedArrayBuffer` pose ring,
 - **When** the player drops two Basketballs from different heights via real UI controls,
 - **Then** both balls simulate concurrently in WASM SIMD and render via universal instanced batches.
 - **And** empty construction and single-ball control baselines pass cleanly.
@@ -639,7 +639,8 @@ So that complex contraptions can be constructed and solved.
 - **When** the simulation executes using Dynamic AABB BVH with velocity fattening and 15-axis SAT narrowphase,
 - **Then** the basketball rolls smoothly along the ramp and deflects accurately off walls into the receiver.
 - **And** local-axis Wall resizing and arbitrary ramp angles are supported generically.
-- **And** brute-force bounding loops and ad-hoc box collision branches are permanently deleted.
+- **And** ad-hoc box collision branches are permanently deleted.
+- *Correction (23 November 2026):* this criterion also claimed that brute-force bounding loops were permanently deleted. That is false. The tree serves contact pairs only and is cleared and refilled every substep and trial replay; guides, compliant surfaces, airflow line of sight, chambers and gas mass still scan every body ([engine design audit](../../docs/planning/elements/readiness/engine-design-gap.md), section 1). `ENGINE-SPATIAL-QUERIES` owns their removal.
 - **And** tests across suites 2a1, 2a2, and 2a3 pass 100% serially in Playwright.
 
 ### Story 1.5: Speculative Contacts Anti-Tunneling for High-Speed Impacts (ENGINE-CORE-2a4)
@@ -670,7 +671,7 @@ I want simulation poses published directly through the lock-free `SharedArrayBuf
 So that execution latency and memory bandwidth overhead are minimized.
 
 **Acceptance Criteria:**
-- **Given** the dedicated WASM simulation worker publishing poses to the triple ring,
+- **Given** the dedicated WASM simulation worker publishing poses to the multi-buffered ring,
 - **When** the browser client consumes poses for rendering,
 - **Then** poses render directly without host per-tick byte validation or motion-piece error lanes.
 - **And** Chrome ball drop and ramp solve pass cleanly with zero shadow verification code in `BrowserWorkshopClient`.
@@ -936,7 +937,7 @@ I want `WorkshopPhysicsCompiler` to extract collision shapes and socket anchors 
 So that physical geometry and connection ports are defined purely by 3D artist assets without hardcoded C# tables.
 
 **Acceptance Criteria:**
-- **Given** an instantiated `.glb` scene hierarchy with collision proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull` / `-convcol`) or `KHR_physics_rigid_bodies`,
+- **Given** an instantiated `.glb` scene hierarchy with collision proxy nodes of the admitted kinds (`col_box`, `col_sphere`, `col_cylinder` and the hollow tube, frustum and torus proxies of [hollow geometry](../../docs/hollow-geometry-design.md#declaration-data)) or `KHR_physics_rigid_bodies`; capsule and hull proxies (`col_capsule`, `col_hull`, `-convcol`) are refused with a typed reason, as `docs/gpu-f32-physics.md:59` states, until a story admits them (a convex extruded profile is `ENGINE-PROFILE-COLLIDER`'s; index C29),
 - **When** `WorkshopPhysicsCompiler` compiles the physics graph at Run start,
 - **Then** it traverses the scene graph and extracts `ColliderDeclaration` records generically based solely on node transforms and geometry without element-specific branching.
 - **And** 3D socket anchor points for electrical, activation, and mechanical connections are resolved dynamically from named empty locator nodes (`Loc_Port_<Id>`) matching declared `PortDefinition.Id` values.
@@ -1104,7 +1105,7 @@ So that loosely aimed balls are gathered into a pipe route by gravity and contac
 - **When** a ball drops into the 2.6-unit mouth, including off-centre, fast and rotated entries,
 - **Then** the physically hollow frustum walls guide it to the 1.3-unit outlet and on into the joined tube, with no attraction or scripted transport.
 - **And** inlet, wall, outlet and rim contacts, oversize payloads and straight/bend joins are qualified, an outside drop is blocked by the solid shell, and mesh and contact geometry match.
-- **And** two integration proofs are owed, and CAT-030 stays open until they pass: the solid shell blocks air at Story 12.2 (Electric Fan), and the clear wall transmits light except at the opaque collar at Story 13.1 (Flashlight and Laser).
+- **And** two integration proofs are owed, and CAT-030 stays open until they pass: the solid shell blocks air at Story 12.2 (Electric Fan), and the clear wall transmits light except at the opaque collar, proved by [ENGINE-OPTICAL](#story-engine-optical-beam-emission-transport-surface-interaction-and-reception), which lists and tests every delivered package that declares Transmit.
 - **And** the element is built from its declaration spec `docs/planning/elements/CAT-030-funnel.md`, with exact Reset and Save/Load.
 - **And** `tools/e2e/cat-030.test.ts` passes 100% in Chrome serially.
 
@@ -2450,10 +2451,16 @@ So that `done` means proven.
 *Status: Backlog. Runs immediately before Story 9R.19. Coordinator decision, 21 Oct 2026: the PKG-2 review (F15-8) found that each tube story still has clauses that no repair touched, so the re-verification addenda came out Incomplete.*
 
 **Acceptance Criteria:**
-- **Given** each clause the five PKG-2 addenda list as unproven, **Then** it gets an actual-UI Chrome proof with a negative control, or it is fixed. The addenda list these clauses: the oversized-ball stop, the entry speed and angle bounds, the rim and sidewall controls, and the parity at non-default pipe lengths (F15-9).
+- **Given** each clause the five PKG-2 addenda list as unproven, **Then** it gets a native production-simulation test with a control, or it is fixed; the Chrome proof is queued for the post-catalogue E2E phase. The addenda list these clauses: the oversized-ball stop, the entry speed and angle bounds, the rim and sidewall controls, and the parity at non-default pipe lengths (F15-9).
+- **And** the clauses already proven natively are cited, not re-proven: Story 6.7's entry speed and edge angles by `FastAxialLaunchPassesOnlyTheBoreOrClearAir` and `ActualPackageWallsPassAFittingPayloadAndStopAnOversizedPayload`; the 1,200-tick bound of the earlier addendum is not carried. The residual tests this story adds are the planned rows of each CAT spec's section 5:
+  - CAT-030 (Story 6.11): `WorkshopPhysicsLawHollowTests.AFastAxialLaunchCrossesTheRotatedFunnelPackage`.
+  - CAT-048 (Stories 6.6 and 6.7): `TubeMouthSnapTests.ASnapIsRefusedWhileRunningOrPausedAndReturnsAfterReset` and `WorkshopPipeLengthTests.AResizeIsRefusedWhileRunningOrPausedWithoutChangingTheConstruction`.
+  - CAT-049 (Story 6.9): `TubeMouthSnapTests.AnUnsnappedBend45DoesNotReceiveTheBall`.
+  - CAT-050 (Story 6.10): a `Bend45ToBend90` case of `TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging` and a `Bend90` case of `FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream`.
+- **And** the story waits for the engine programme (owner decisions 3a and 22: tests-only patches run after it).
 - **And** the pipe and funnel colliders match their art (F15-7). Since the owner's "true hollow shapes" decision (25 Oct 2026), [Story engine-hollow-shapes](#story-engine-hollow-shapes) replaces their box approximations with true hollow kinds; this story's behaviour proofs run on those kinds, and no box collider is re-authored.
 - **And** each of Stories 6.6, 6.7, 6.9, 6.10 and 6.11 gets a dated Pass addendum, and `sprint-status.yaml` marks it done.
-- **Excluded:** the art clauses belong to 9R.19, nudging to 15.0, air to 12.2 and light to 13.1.
+- **Excluded:** the art clauses belong to 9R.19, nudging to 15.0, air to 12.2 and light to ENGINE-OPTICAL.
 
 ### Story 9R.19: Tube Glass Art Repair (Funnel, Clear Pipe, Pipe Bends, Gate and Detector Collars)
 *Status: Backlog*
@@ -2461,12 +2468,12 @@ So that `done` means proven.
 *Repairs the art acceptance of Stories 6.6, 6.9, 6.10 and 6.11 (visual review #1–#4 and #10).*
 
 **Acceptance Criteria:**
-- **Given** the Funnel, **When** it is placed, **Then** its glass narrows from the wide 1.3 inlet collar to the 0.65 outlet collar. The `funnel.tscn` top and bottom radii are swapped, and a native test checks that the visual and collider radii agree at both ends.
+- **Given** the Funnel, **When** it is placed, **Then** its glass narrows from the wide 1.3 inlet collar to the 0.65 outlet collar (delivered: 64 segments, wide end at the inlet), and a native test checks that the visual and collider radii agree at both ends.
 - **And** every open glass mesh (funnel, pipe, `pipe_bend_45`, `pipe_bend_90`, the powered-gate collars, the ball-detector collar) is double-sided (`cull_mode = 2`), so the far wall and inner faces render.
   - The gate and detector collars get real wall thickness (a torus or walled tube) and no longer render as "C" half-arcs.
-  - Transparency sorting where a funnel outlet meets a pipe is checked in Chrome from outside and inside.
-- **And** the pipe, both bends and the funnel carry the navy rails that DESIGN.md:349, :353 and :354 require.
-- **And** the bends use a swept torus-segment mesh, with no seam bands. The funnel has 48 sides.
+  - Transparency sorting where a funnel outlet meets a pipe is checked in Chrome from outside and inside, in the post-catalogue E2E phase.
+- **And** the pipe, both bends and the funnel carry the navy rails that DESIGN.md:353, :357 and :358 require: navy `#293954` cylinders of radius 0.018 m centred 0.675 m from the bore axis, wholly inside the 0.65 to 0.70 m glass wall, so they are enclosed and decorative (flush within the wall satisfies visible = solid).
+- **And** the bends use a swept torus-segment mesh, with no seam bands.
 - **And** the Chrome screenshots, taken through actual UI placement, show each part from the front, from 45° and from above, and are kept as evidence. Their suites (cat-030, cat-048a/b, cat-049, cat-050, cat-062b and cat-002) pass.
 
 ### Story 9R.20: Live State Cues During Run (Clock Lamp, Counter Dots, Gate Indicator, Pressure Plate Studs)
@@ -3463,7 +3470,7 @@ So that `MachinePart` applies every element's presentation generically.
 
 As a player,  
 I want every lesson to play exactly as before while being loaded as data,  
-So that the 150 campaign levels can be authored without engine code.
+So that every campaign level (at least 150; 244 planned) can be authored without engine code.
 
 **Acceptance Criteria:**
 - **Given** `content/puzzles.json`, extended with a typed schema with no version field (owner, 21 Oct 2026), **When** a lesson loads, **Then** the lesson is built entirely from that data:
@@ -4084,7 +4091,7 @@ So that aerodynamic and buoyant contraptions are possible.
 - **Then** buoyant forces overcome gravity and the balloon rises vertically until contacting a ceiling or wall.
 - **And** a Tennis Ball rebounds with high restitution ($e = 0.85$) and decelerates under aerodynamic drag.
 - **And** each part has its own authored `.tscn` scene. The Balloon is a pink gas envelope with a tied neck and a string, and the Tennis Ball is a felt-yellow ball with a seam curve. Neither uses `parts/scenes/ball.tscn`. The palette icon and the 3D model match (owner report, 19 Oct 2026: the Balloon looked like a basketball).
-- **And** `tools/e2e/cat-064-003.test.ts` passes 100% in Chrome serially.
+- *Browser qualification:* pending at the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-064-003.test.ts` is run only then and gates nothing before it.
 
 ### Story 12.2: Fan with Selectable Supply and Conical Airflow (CAT-028 / EL-209)
 *Status: Done natively and published (4378410e; status b5b9b233); final diff scope PASS, browser qualification pending. [Evidence](../implementation-artifacts/spec-12-2-fan.md).*
@@ -4122,7 +4129,7 @@ So that airflow can be converted into mechanical shaft work.
 ### Story 12.4: Pneumatic Bellows Compression Pulse (CAT-010)
 *Status: Backlog*
 
-*Depends on: Stories 6.4 (slider and return spring), 11.1 (Conveyor), 12.2 (airflow) and 12.3 (Windmill); CAT-010 §3 and §4 fact 5. Moved from Story 12.3 (owner decision, 9 Oct 2026: after Windmill and Conveyor).*
+*Depends on: Stories 6.4, 11.1, 12.2 and 12.3 (delivered); the engine programme (owner decision 3a); `ENGINE-GAS-NETWORK`, the one owner of the chamber and nozzle law (the axial gas chamber on a prismatic coordinate, the directional nozzle with ambient refill, prismatic directional damping and the prismatic stroke observation); `ENGINE-CAPABILITY-INSTANCES` (the continuous prismatic-travel presentation driver, coordinator decision 29); and `ENGINE-JOINT-KINDS` (the declared spring rest position, owner decision 6). CAT-010 §3 and §4. Moved from Story 12.3 (owner decision, 9 Oct 2026: after Windmill and Conveyor).*
 
 As a player,  
 I want a Pneumatic Bellows to emit a focused gust of air when compressed,  
@@ -4133,7 +4140,8 @@ So that impacting bodies can trigger secondary pneumatic launches.
 - **When** the plates compress,
 - **Then** a high-velocity directional air jet discharges from the nozzle, propelling an adjacent balloon or tennis ball.
 - **And** uncompressed bellows discharge zero airflow.
-- **And** `tools/e2e/cat-010.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-010.test.ts` is written and run only then and gates nothing before it.
 
 ---
 
@@ -4151,9 +4159,10 @@ So that optical puzzles have both wide-area and pinpoint illumination sources.
 **Acceptance Criteria:**
 - **Given** a Flashlight and Laser placed in the Workshop,
 - **When** powered,
-- **Then** the laser projects an infinite collimated beam; the flashlight projects an attenuated $35^\circ$ cone.
+- **Then** the laser projects a collimated beam of 16 m range ([CAT-036](../../docs/planning/elements/CAT-036-laser.md)); the flashlight projects a cone of 15° half-angle and 8 m range whose strength falls with distance ([CAT-029](../../docs/planning/elements/CAT-029-flashlight.md)).
 - **And** opaque obstacles (walls, bodies) cast crisp geometric shadows blocking downstream transmission.
-- **And** `tools/e2e/cat-029-036.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-029-036.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.1b: Red Laser Emitter (EL-176)
 *Status: Backlog*
@@ -4171,7 +4180,8 @@ So that I can send a pure red beam to a matching receiver or filter.
 - **And** the red channel is a declared emission variant of the shared laser emission capability. No new solver code is added, and `rg` finds no channel- or element-specific branch in the optical solver.
 - **And** an unpowered or disabled supply produces no beam, and an opaque Wall blocks the beam (negative controls).
 - **And** Run/Reset restores the unpowered emitter exactly, and Save/Load preserves pose, channel and wiring.
-- **And** `tools/e2e/el-176.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/el-176.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.1c: Green Laser Emitter (EL-177)
 *Status: Backlog*
@@ -4189,7 +4199,8 @@ So that I can send a pure green beam to a matching receiver or filter.
 - **And** the package reuses Story 13.1b's declared emission-variant mechanism with the green channel value. No optical solver or emission-capability source file changes.
 - **And** a Red Laser on the same bench keeps its red channel (control), and an unpowered supply or an opaque Wall leaves no beam downstream (negative controls).
 - **And** Run/Reset restores the unpowered emitter exactly, and Save/Load preserves pose, channel and wiring.
-- **And** `tools/e2e/el-177.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/el-177.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.1d: Blue Laser Emitter (EL-178)
 *Status: Backlog*
@@ -4207,12 +4218,15 @@ So that I can send a pure blue beam to a matching receiver or filter.
 - **And** the package reuses Story 13.1b's declared emission-variant mechanism with the blue channel value. No optical solver or emission-capability source file changes.
 - **And** Red and Green Lasers on the same bench keep their channels (control), and an unpowered supply or an opaque Wall leaves no beam downstream (negative controls).
 - **And** Run/Reset restores the unpowered emitter exactly, and Save/Load preserves pose, channel and wiring.
-- **And** `tools/e2e/el-178.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/el-178.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.2: Broadband & Pure Channel Optical Receivers (CAT-038, CAT-056, CAT-032, CAT-012)
 *Status: Backlog*
 
 *Depends on: Stories 8.1 (switched contact), 8.2 (electrical load), 13.1 (laser source) and 13.1b–13.1d (the red, green and blue lasers are the pure sources for the pure-channel receivers; Open scheduling items a and d, decided 18 Oct 2026). Moved from Story 13.4 (owner decision, 9 Oct 2026: receivers before the mirror and filter stories that need them as observers).*
+
+*Delivery split (coordinator decision 37, 23 November 2026):* CAT-038 is delivered as its own slice at its teaching level, 51; CAT-056, CAT-032 and CAT-012 are delivered with the rest of the Colour receivers family at their own teaching level. Each keeps its own acceptance rows here.
 
 As a player,  
 I want Optical Receivers that respond only to specific colors,  
@@ -4222,7 +4236,8 @@ So that color-tuned optical triggers can activate designated circuits.
 - **Given** a Red Receiver illuminated by red, green, and blue beams successively,
 - **Then** only the red beam triggers electrical activation; green and blue produce zero response.
 - **And** Broadband Receivers activate under any light exceeding power threshold.
-- **And** `tools/e2e/cat-receivers-primary.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-receivers-primary.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.3: Beam Shutter Mechanical Guillotine (CAT-007)
 *Status: Backlog*
@@ -4236,7 +4251,8 @@ So that optical circuits can be switched physically.
 **Acceptance Criteria:**
 - **Given** a Beam Shutter positioned across a laser path,
 - **When** closed, the laser beam is blocked; when opened by signal or rope, the beam passes through cleanly.
-- **And** `tools/e2e/cat-007.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-007.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.4: Spectral Color Bandpass Filters (Red, Green, Blue) (CAT-055, CAT-031, CAT-011)
 *Status: Backlog*
@@ -4252,7 +4268,8 @@ So that multi-chromatic light beams can be separated into pure primary colors.
 - **When** the beam exits the filter,
 - **Then** only red spectral energy is transmitted; green and blue are absorbed.
 - **And** passing the red beam into a Green Filter completely extinguishes the beam (zero transmission).
-- **And** `tools/e2e/cat-filters.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-filters.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.5: Planar Reflection Mirror, Beam Splitter & Beam Combiner (CAT-041, CAT-008, CAT-006)
 *Status: Backlog*
@@ -4266,9 +4283,10 @@ So that optical rays can be routed around obstacles.
 **Acceptance Criteria:**
 - **Given** a laser directed into a $45^\circ$ Flat Mirror,
 - **When** the beam strikes the mirror surface,
-- **Then** it reflects at an exact $90^\circ$ right angle.
-- **And** Beam Splitters divide incident power 50/50; Beam Combiners merge orthogonal beams into one.
-- **And** `tools/e2e/cat-041-008-006.test.ts` passes 100% in Chrome serially.
+- **Then** it reflects about the mirror's actual normal (within 0.5°), so a mirror at 45° turns the beam through 90°.
+- **And** Beam Splitters halve each channel of the incident power (within 2 %); Beam Combiners merge orthogonal beams into one.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-041-008-006.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.6: Secondary Spectral Receivers (Cyan, Magenta, Yellow, White) (CAT-021, CAT-040, CAT-072, CAT-068)
 *Status: Backlog*
@@ -4281,10 +4299,11 @@ So that advanced color-combining puzzles can be constructed.
 
 **Acceptance Criteria:**
 - **Given** a Yellow Receiver,
-- **When** both Red and Green beams strike it simultaneously,
+- **When** red and green light both reach it, from one source or several,
 - **Then** it activates; a Red-only or Green-only beam fails to activate it.
-- **And** White Receiver requires all three primary colors simultaneously.
-- **And** `tools/e2e/cat-receivers-secondary.test.ts` passes 100% in Chrome serially.
+- **And** White Receiver requires all three channels, from one source or several.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-receivers-secondary.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.7: Photovoltaic Solar Panel Energy Conversion (CAT-059)
 *Status: Backlog*
@@ -4299,8 +4318,9 @@ So that optical beams can remotely power electrical motors and circuits.
 - **Given** a Solar Panel connected to an Electric Motor,
 - **When** illuminated by a Flashlight or Laser,
 - **Then** output electrical power energizes the motor.
-- **And** blocking the light beam immediately cuts motor power.
-- **And** `tools/e2e/cat-059.test.ts` passes 100% in Chrome serially.
+- **And** blocking the light cuts the supply once the panel's light falls below its release level, from the next tick.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-059.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 13.8: Optical Logic Gates (AND, NAND, NOR, OR, XOR) (CAT-043 through CAT-047)
 *Status: Backlog*
@@ -4314,8 +4334,9 @@ So that speed-of-light logic contraptions can operate without electrical wires.
 **Acceptance Criteria:**
 - **Given** Optical logic gates (AND, NAND, NOR, OR, XOR) illuminated by laser inputs,
 - **When** input combinations are tested,
-- **Then** emitted output laser beams conform 100% to formal Boolean logic tables.
-- **And** `tools/e2e/cat-optical-logic.test.ts` passes 100% in Chrome serially.
+- **Then** each gate relays a separate carrier at 90 % of its strength while its operation holds over the two input levels and absorbs it otherwise, matching its truth table for all four input combinations.
+- **And** native tests run the production simulation for each criterion above, with a one-cause control and the boundary of each declared threshold, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-optical-logic.test.ts` is written and run only then and gates nothing before it.
 
 ---
 
@@ -4325,28 +4346,12 @@ So that speed-of-light logic contraptions can operate without electrical wires.
 
 Delivery order (owner decision, 18 Oct 2026; Open scheduling item c): 14.0, 14.2, 14.1, 14.3, 14.4.
 
-### Story 14.0: Acoustic Propagation, Occlusion & Reception Engine (ENGINE-ACOUSTIC)
-*Status: Backlog*
-
-*Depends on: Stories 1.4 (BVH and SAT narrowphase, for occlusion queries) and 9.2b (multi-consumer event ring). New engine story (owner decision, 18 Oct 2026; Open scheduling item c), before the Service Bell (14.2) and every acoustic source. ENGINE-ACOUSTIC is a roadmap-only ID, not yet in `docs/planning/requirements.md`.*
-
-As a player,  
-I want sounds to travel through the workshop, fall off with distance and be blocked by solid parts,  
-So that acoustic sources and receivers behave consistently wherever I place them.
-
-**Acceptance Criteria:**
-- **Given** a declared acoustic emission occurrence (position, direction cone, level, tone band, tick) published on the event ring,
-- **When** the engine evaluates reception for every declared acoustic receiver,
-- **Then** each receiver gets a level that falls off with distance and cone angle, and is zero when a solid collider occludes the straight path.
-- **And** propagation is engine capability only: emissions and receivers are declaration data; no element identifier appears in the propagation code, and nothing flows back from presentation to physics.
-- **And** non-finite or out-of-range emission declarations are rejected atomically before any state changes; numerical residuals clamp, never fault the tick.
-- **And** reception is deterministic across Run/Reset, and Reset clears every pending emission and received level exactly.
-- **And** native tests cover distance falloff, cone edges, occlusion on/off and same-tick multiple emissions; it is proven in Chrome through the first consuming element's slice (Story 14.2) or an explicitly selectable authored qualification fixture, and `tools/e2e/engine-acoustic.test.ts` passes 100% in Chrome serially.
+Story 14.0 (ENGINE-ACOUSTIC), the acoustic engine story, is written once in the [engine programme and capability stories](#engine-first-capability-stories-21-november-2026) section, at its order position; it keeps its number and sprint key `14-0-acoustic-propagation-occlusion-reception-engine`.
 
 ### Story 14.1: Sound Level Meter Threshold Sensor (CAT-060)
 *Status: Backlog*
 
-*Depends on: Stories 8.1 (supplied contact), 8.2 (a supplied load), 14.0 (acoustic propagation and reception) and 14.2 (the Service Bell, its acceptance source). Delivered after the Bell (owner decision, 18 Oct 2026; Open scheduling item c). Formerly Story 14.3.*
+*Depends on: the engine programme (owner decision 3a); Stories 8.1 (supplied contact), 8.2 (a supplied load), 14.0 (acoustic propagation and reception) and 14.2 (the Service Bell, its acceptance source). Delivered after the Bell (owner decision, 18 Oct 2026; Open scheduling item c). Formerly Story 14.3.*
 
 As a player,  
 I want a Sound Level Meter to trigger an electrical contact when sound volume exceeds threshold,  
@@ -4357,12 +4362,13 @@ So that bells and speakers can activate remote circuits without physical wires.
 - **When** the bell rings,
 - **Then** the sound meter closes its electrical contact and illuminates a connected lamp.
 - **And** placing a solid Wall between bell and meter occludes the acoustic wave, preventing activation.
-- **And** `tools/e2e/cat-060.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation through placement, wiring, Run, Reset and the committed read for each criterion above, with a one-cause control and the threshold boundary, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-060.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 14.2: Service Bell Percussion & Resonant Ringing (CAT-009)
 *Status: Backlog*
 
-*Depends on: Story 14.0 (acoustic propagation, occlusion and reception; CAT-009 §3). Delivered before the Sound Level Meter (owner decision, 18 Oct 2026; Open scheduling item c). Formerly Story 14.1.*
+*Depends on: the engine programme (owner decision 3a); Story 14.0 (acoustic propagation, occlusion and reception; CAT-009 §3). Delivered before the Sound Level Meter (owner decision, 18 Oct 2026; Open scheduling item c). Formerly Story 14.1.*
 
 As a player,  
 I want Service Bells to ring with a crisp chime when struck,  
@@ -4370,15 +4376,16 @@ So that physical impacts can produce audible confirmation and trigger acoustic m
 
 **Acceptance Criteria:**
 - **Given** a Service Bell placed in the path of a rolling ball,
-- **When** struck with kinetic energy exceeding threshold,
+- **When** struck at an approach speed of 0.8 m/s or more,
 - **Then** a crisp metallic ring is emitted as a timestamped acoustic event.
 - **And** sub-threshold nudges produce no ring.
-- **And** `tools/e2e/cat-009.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation for a strike just below and at 0.8 m/s, a resting contact and Reset, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-009.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 14.3: Audio Speaker Directional Pulse Emission (CAT-061)
 *Status: Backlog*
 
-*Depends on: Stories 8.1 (supply), 9.3 (System Clock trigger) and 14.0 (propagation and reception; CAT-061 §3). Moved from Story 14.2 (owner decision, 9 Oct 2026: after propagation; 18 Oct 2026: propagation moved to Story 14.0).*
+*Depends on: the engine programme (owner decision 3a); Stories 8.1 (supply), 9.3 (System Clock trigger), 14.0 (propagation and reception; CAT-061 §3) and 14.1 (the meter that observes it). Moved from Story 14.2 (owner decision, 9 Oct 2026: after propagation; 18 Oct 2026: propagation moved to Story 14.0).*
 
 As a player,  
 I want an Audio Speaker to emit directional acoustic pressure waves upon signal activation,  
@@ -4387,11 +4394,15 @@ So that electrical pulses can be broadcast acoustically.
 **Acceptance Criteria:**
 - **Given** an Audio Speaker wired to a system clock,
 - **When** energized,
-- **Then** directional acoustic pressure waves radiate forward in a $35^\circ$ cone.
-- **And** `tools/e2e/cat-061.test.ts` passes 100% in Chrome serially.
+- **Then** directional acoustic pulses radiate forward in a cone of 35° half-angle ([CAT-061](../../docs/planning/elements/CAT-061-speaker.md)).
+- **And** the trigger pulses of a tick are one request, coalesced into one emission served on the next tick; each emission is paid from a declared 2 J pulse store charged at 10 W, which gives a 0.2 s re-arm in seconds at every cadence; the store starts empty and Reset empties it; a request that finds the store below capacity, or the supply input unpowered in the serving tick, expires; the tone is a typed parameter (Low, Mid, High).
+- **And** native tests run the production simulation: a meter inside the cone receives each pulse, one outside it or behind the speaker receives none, an unsupplied speaker is silent, and Reset clears pending emissions, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-061.test.ts` is written and run only then and gates nothing before it.
 
 ### Story 14.4: Resonant Wind Chimes Airflow Percussion (CAT-069)
 *Status: Backlog*
+
+*Depends on: the engine programme (owner decision 3a); Stories 12.2 (Fan), 14.0, 14.2 and 14.1; the spherical joint of `ENGINE-JOINT-KINDS`; `ENGINE-RUN-LENGTH` for the 60 s calm-and-rewind row; row 11 needs Story 12.4.*
 
 As a player,  
 I want Wind Chimes to sway and chime in fan airflow,  
@@ -4400,164 +4411,1040 @@ So that wind-driven musical contraptions can be solved.
 **Acceptance Criteria:**
 - **Given** Wind Chimes placed in the airflow of an Electric Fan,
 - **When** the airflow strikes the chime clapper,
-- **Then** the chime tubes strike each other, producing musical acoustic events.
+- **Then** the clapper strikes a tube, producing musical acoustic events.
 - **And** calm air produces zero ringing.
-- **And** `tools/e2e/cat-069.test.ts` passes 100% in Chrome serially.
+- **And** native tests run the production simulation with the Fan on and off and Reset, `Skipped: 0`.
+- *Browser qualification:* deferred to the post-catalogue browser phase under AGENTS.md's browser exception; `tools/e2e/cat-069.test.ts` is written and run only then and gates nothing before it.
 
 ---
 
 ## Engine-first capability stories (21 November 2026)
 
-**Why these exist.** The [loop protocol's capability probe](../../_bmad/custom/bmad-loop-protocol.md#capability-probe) and requirement REQ-12 require a missing solver, ABI, wire or shared-presentation capability to be its own engine slice before the first element that needs it. Until now only acoustics (Story 14.0) had such a story. Each story below was checked against this checkout on 21 November 2026: the capability is absent from `CuriousContraptions.Abstractions*`, `CuriousContraptions.Simulation` and `CuriousContraptions.Bundle`, or is present only in the narrower form stated. A story's planning scout re-runs that probe and narrows the story to what is still missing; it never rebuilds a capability that is present.
+**What this section is (rewritten 23 November 2026).** One current text per engine story, merged from the [engine design audit](../../docs/planning/elements/readiness/engine-design-gap.md) and every element readiness summary's proposals (`docs/planning/elements/readiness/`), under the [owner decisions of 22 and 23 November 2026](../../docs/planning/elements/readiness/owner-decisions-2026-11-22.md) and the [engine conformance standard](../../docs/planning/elements/readiness/engine-conformance.md). The [engine stories index](../../docs/planning/elements/readiness/engine-stories-index.md) holds the order table, the capability-to-story map, retired and renamed names and every contradiction reconciled here. A missing solver, ABI, wire or shared-presentation capability is its own engine slice before its first consumer (REQ-12; [capability probe](../../_bmad/custom/bmad-loop-protocol.md#capability-probe)); each story's planning scout re-runs that probe and narrows the story to what is still missing, never rebuilding what is present. Coordinator decisions 26 to 30 (23 November 2026) and the conventions repaired under them are applied in the stories they name; every capability an element spec marks missing or narrower has one owning story here, and none awaits an owner.
+
+**What may run, and when (owner decisions 3a and 22).**
+- **Before the engine programme, only repairs and tooling run:** visible-solid repair parts A, B, B2 and C, the Baseball repair, and structural stories S3, S5 and S6.
+- **The engine programme** is stories 1 to 10 below, including 8a `ENGINE-WIRE-ABI` and 8b `ENGINE-WASM-THREADS` (owner decision 24k, 23 November 2026) and 8c `ENGINE-INSTANCED-RENDERING` (coordinator decision 40, 23 November 2026) between 8 and 9, in that order, before any further element delivery. "Orders 1 to 10" always includes 8a, 8b and 8c.
+- **Everything else waits for the programme:** the five goal slices, Early level proofs, tests-only patches, closure reviews and new elements.
+- **After the programme:** `ENGINE-GAS-NETWORK` → `ENGINE-LIQUID` → `ENGINE-THERMAL` (owner decision 18). Then element slices follow the order in which the campaign levels first teach them, whichever capability they need (owner decision 24a), and every other story here lands before the first element in that order that needs it.
+- **Document order and execution order.** Stories appear in the order of owner decisions 3a and 18. Each story's *Depends on* line governs when it may start. Where a later-listed story is a dependency of an earlier one it runs first; the inversions are:
+  - `ENGINE-SIGNAL-NODES` (threshold row), `ENGINE-JOINT-KINDS` (spring rest position), `ENGINE-PARAMETER-BOUND-FRAMES`, `ENGINE-RUN-LENGTH` and `ENGINE-CONNECTION-MATERIALS` (solid strand for hoses) are needed by the gas, liquid or thermal stories or by their first consumers, so they land before those stories.
+  - `ENGINE-CONNECTION-MATERIALS` lands before `ENGINE-MECHANICAL-LINKS` and before the cutting clause of `ENGINE-TENSILE-EXTENSIONS`.
+  - `ENGINE-THERMAL`'s radiant-heating row reads an optical receiver; it is delivered as an interface whose end-to-end proof lands in `ENGINE-OPTICAL`.
 
 **Shared acceptance for every story in this section.**
-- **Given** declaration data only (typed descriptors, parameters and ports), **when** the production engine compiles and advances it, **then** the capability's behaviour holds for at least two differently parameterised declared qualification fixtures. No element identity, kind or name appears in engine code, and the story adds no element package.
-- **And** non-finite, out-of-range or unsupported declarations are refused atomically with a typed reason before any state changes; numerical residuals clamp, never fault the tick.
+- **Given** declaration data only (typed descriptors, parameters and ports), **when** the production engine compiles and advances it, **then** the capability's behaviour holds for at least two differently parameterised declared qualification fixtures. No element identity, kind or name appears in engine code. A story adds no element package; converting a delivered package's declaration to the story's new form in the same change is not adding one.
+- **And** non-finite, out-of-range or unsupported declarations are refused atomically with a typed reason before any state changes; numerical residuals clamp and never fault the tick.
 - **And** every conserved quantity the capability introduces is a finite ledger: nothing is created, lost or duplicated across a tick, Run/Reset or supported Save/Load, and Reset restores the authored state exactly.
-- **And** native tests cover a positive case, a one-cause control and the boundary of each declared threshold, with tolerances chosen from the quantity and its gameplay consequence under the [float rules](../../docs/testing-guidance.md#float-comparison-and-effort-rules). Browser proof is post-catalogue.
+- **And** native tests through defined interfaces cover a positive case, a one-cause control and the boundary of each declared threshold. Tolerances follow the [float rules](../../docs/testing-guidance.md#float-comparison-and-effort-rules) and the [game-grade envelope](../../docs/gpu-f32-physics.md#game-grade-envelope): each strict number names the gameplay failure it excludes; no hash, digest or byte-identity assertion; no exact float equality except authored values, counts and intentional zeros. Browser proof is post-catalogue.
+- **And** tables are sized at Run from the compiled declarations, backing storage grows geometrically and interaction state is sparse (design contract D5). No story sets a fixed scene ceiling or reserves owner × target state; a typed refusal is admitted only for a per-declaration limit a package declares (for example a segment limit per emitter), never for a scene population. Per-tick work is bounded by the compiled declarations and the bodies inside declared regions, never by the whole scene. This replaces the "declared capacities, typed refusal at Run" wording of earlier proposals.
+- **And** every spatial candidate comes from the query interface of `ENGINE-SPATIAL-QUERIES`; no story adds a scan of every body, collider, row or contact.
+- **And** every rate, credit, per-tick sum and accumulator is written per committed tick of duration dt (1/120 s by default, 1/60 or 1/240 s by the Run's simulation cadence), never as a fixed 120 Hz; each domain step sits where the one [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order) (optical convention 4) puts it, and a story cites that order rather than restating a different one (coordinator decision 26).
 - **And** the wire schema, TypeScript callers and presentation read model the capability needs are part of the story, so the first consuming element is declarations, art, bindings and tests only.
-- **And** open questions of the unblocked family that concern the shared model (units, scales, tick order) are decided in this story's Code Map by game intent, once, and recorded for every consumer.
+- **And** the story names the legacy it deletes, and deletes it in the same change (forward-only).
+- **And** open questions of the unblocked family that concern the shared model (units, scales, and the slot of a domain the combined tick order does not yet place) are decided in the story's Code Map by game intent, once, and recorded for every consumer; a new slot is added to the combined tick order, never stated as a second order.
 
-The elements each story unblocks are the ledger identities whose row in the [general-engine source composition map](../../docs/planning/general-engine-element-map.md) names the listed capability families; counts by ledger type come from [named elements](../../docs/planning/invest/named-elements.md). Order and clustering are in the [capability-cluster order](../../docs/planning/invest/vertical-delivery.md#capability-cluster-order).
+**Performance criterion (owner decision 3a).** Every story marked *performance* states a measured before and after on the fixed reference scenes below and must not regress. The scenes are committed fixture files built from the engine audit's measurements (section 4, items 1 to 6):
+- **R1** a grid of resting boxes, with collider count as the variable;
+- **R2** a dense mixed-shape pile, measuring candidate pairs against contacts produced;
+- **R3** a steady-state scene at stable topology, measuring managed bytes allocated per tick (`GC.GetAllocatedBytesForCurrentThread`);
+- **R4** a fixed body count with a varying number of airflow sources, sensors, compliant surfaces and region capabilities;
+- **R5** one drive at its power limit and one airflow source loading a hinge, measuring substep replays per tick;
+- **R6** the publication path per tick.
+
+A performance comparison never uses a flag or setting that disables an engine feature: it measures the reference scene before the story lands and again after (coordinator decision 41, 24 November 2026). The asserted criterion in each slice is a deterministic counter (candidate pairs, collider visits per query, replays per tick, managed bytes per tick): it must not rise above the recorded before value on any scene the story touches. Wall-clock tick time is measured and recorded beside it, before and after, and must not regress on the declared development device; the absolute tick target (REQ-04, 2.5 ms p95) is confirmed at the P0-034 performance gate.
+
+**Path shorthand.** `SIM/` = `CuriousContraptions.Simulation/`, `ABS/` = `CuriousContraptions.Abstractions/`, `GPU/` = `engine/gpu/`, `WEB/` = `CuriousContraptions.web/wwwroot/`, `ANIM/` = `CuriousContraptions.Animation.Worker/`, `FBS` = `schemas/workshop_wire.fbs`, `DOC` = `docs/gpu-f32-physics.md`. *Present today* evidence is the engine audit's, at published main `8d1d68aa`, unless stated otherwise; `ENGINE-WIRE-ABI`, `ENGINE-WASM-THREADS`, `ENGINE-INSTANCED-RENDERING` and the wire, worker-message and shared-memory clauses added to other stories on 23 November 2026 cite the [ABI audit](../../docs/planning/elements/readiness/audits/abi-interfaces.md) at published main `25df3cd5`.
+
+### Engine programme (owner decision 3a): before any further element delivery
+
+### Story DOC-ENGINE-STATUS: The documents describe the engine that exists
+*Status: Backlog. Sprint key: `doc-engine-status`. Order 1. Documents only.*
+
+*Outcome:* the authority documents stop stating absent features as present, so every element spec's conformance section cites real behaviour.
+
+*Present today:* `DOC` states flat SoA tables (`DOC:63`, `:353`), 4-wide SIMD batching (`:111`, `:268`), an incremental dual Quad-BVH (`:192-197`, `:283-297`), DSU islands and sleeping (`:65`, `:270-273`, `:332-336`), work-stealing dispatch (`:274`), kinematic bodies (`:145`), canonical pair order (`:352`), any-pair contact events (`:151`), optics in a phase before the substeps (`:169`) and a zero-copy pose ring (`:20-21`, `:76`); none is implemented (audit section 1). `docs/architecture/element-package-isolation.md:147` says no unmet invariant remains. `DOC:259` keeps a superseded supported-impact limitation. `docs/hollow-geometry-design.md:43` and the comments at `ABS/PhysicsDeclarationValues.cs:9-11` and `SIM/WorkshopCollisionKernels.cs:1996` call hollow colliders static only, while the solver has a dynamic-hollow branch (`SIM/WorkshopConstraintSolver.cs:161`).
+
+*Contract:* every unmet claim of audit section 1 moves to the isolation authority's Current status with its owning story from this section; `DOC` states each as target, not fact. The tick-phase diagram states what runs where today: supply grants and airflow inside each substep (`SIM/WorkshopPhysicsEngine.cs:1010-1011`), one optical and one thermal step after the last substep with readings acting from the next tick (coordinator decisions 16 and 21); the target order of every domain is the one [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order) (coordinator decision 26), which `DOC` cites rather than restates, and the supply phase fixed at 1/120 s at every cadence (`engine/gpu/ElectricalSupply.cs:9`) is recorded as open with `ENGINE-SUPPLY-DEMAND`. Whether a kinematic body is a supported kind is stated (no consumer needs one; the word is removed unless a story adds it). Same-build replay determinism and non-sphere tunnelling are recorded as unestablished with owners (`ENGINE-SPATIAL-QUERIES` for pair order; `ENGINE-TUNNEL-QUALIFICATION`).
+
+*Contract, wire and threading (ABI audit; owner decisions 24j and 24k):* `DOC` and the isolation authority also state, each with its owner: the `SharedArrayBuffer` pose ring is written every tick and read by no production code, and the renderer is fed by the whole per-tick FlatBuffers read, posted and decoded on the main thread and again on the animation worker (`SIM/Program.cs:335-348`; `WEB/workshop-client.ts:152`, `:256-257`; owner `ENGINE-WIRE-ABI`); zero-copy between the C# runtimes is not reachable without WebAssembly threads, so each shared-memory exchange costs at least one JavaScript-mediated copy per side today (`SIM/wwwroot/worker.ts:286-290`; `WEB/pose-ring.ts:87-99`; owner `ENGINE-WASM-THREADS`); instanced draws do not exist, and each body is one node transform (`engine/MachinePart.cs:342-350`; owner `ENGINE-INSTANCED-RENDERING`, coordinator decision 40); the physics worker blocks in `Atomics.wait` for up to 2 ms every 100 ms (`WEB/clock-ring.ts:246`, `:270`; `GPU/WorkshopClockDerivation.cs:39-40`), recorded and changed only if R6 shows it matters; the FlatBuffers wire is the control plane and save, while every shared-memory and worker-message layout is hand-defined until `ENGINE-WIRE-ABI`. The pose ring is described as multi-buffered with its depth derived from tick rate and render delay (owner decision 24k), never as triple-buffered.
+
+*Acceptance:* each `DOC` sentence about SoA, SIMD batching, Quad-BVH, dual tree, islands, sleeping, parallel dispatch, kinematic bodies, canonical pair order, any-pair contact events, tick phases, the pose ring and its reader, copies between runtimes, instanced draws and blocking waits on the physics worker either cites the running code path or is listed as open with its owning story; a reviewer reading `DOC` and the isolation authority finds no claim the code contradicts.
+
+*Deletes:* the stale supported-impact text at `DOC:259`; the "no unresolved finding remains" sentence at `element-package-isolation.md:147`; the static-only hollow-collider statements; every statement that the renderer reads the pose ring or that the ring is zero-copy or triple-buffered.
+
+*Depends on:* nothing. *Unblocks:* every element spec's engine-conformance section (all identities).
+
+### Story ENGINE-SPATIAL-QUERIES: Persistent trees and one query interface for every phase
+*Status: Backlog. Sprint key: `engine-spatial-queries`. Order 2. Performance story (R1, R2, R4). Corrects Story 1.4's statement that brute-force bounding loops were deleted.*
+
+*Outcome:* one persistent broadphase answers every spatial question in the tick, so no capability scans the scene.
+
+*Present today:* one scalar binary tree (`SIM/WorkshopDynamicBvh.cs:6-17`), cleared and refilled with every collider on every substep and every trial replay (`SIM/WorkshopPhysicsEngine.cs:808-863`; `SIM/WorkshopPhysicsEngine.Motors.cs:33`; `.ContinuousReplay.cs:22`; `.FiniteWork.cs:136`), inserted without rotations (`SIM/WorkshopDynamicBvh.cs:55-141`), fattened by the maximum speed (64 m/s × h plus spin reach plus 0.05 m, at least 0.18 m per side, `SIM/WorkshopPhysicsEngine.cs:810-822`); plane bounds assume a +Y normal (`:825-829`); pairs come in tree order with no canonical sort (`SIM/WorkshopDynamicBvh.cs:145-189`); every candidate pair scans every prismatic and revolute joint (`SIM/WorkshopPhysicsEngine.cs:877-886`). Only contact pairs use the tree (`:866`). Full scans: guides (`:1032-1068`), compliant surfaces (`:1412`, `:1540`), airflow line of sight (`SIM/WorkshopPhysicsEngine.Airflow.cs:149`), chambers (`SIM/WorkshopPhysicsEngine.Chambers.cs:86-160`), gas mass (`SIM/WorkshopPhysicsEngine.Gas.cs:69`). `AirflowLineClear` (`.Airflow.cs:141`) answers clear or blocked with no crossing.
+
+*Contract:*
+- A static tree built once at Run; a dynamic tree updated only when a collider leaves a box fattened by its actual velocity over the substep plus the speculative margin; incremental rotations keep it balanced.
+- Bounds are correct for a plane of any normal.
+- One query interface used by every phase: box overlap, shape against region, point containment, and a segment cast that returns, in order along the segment, every crossing of every participating collider (entry point, exit point, normal, collider, feature), exact for every admitted shape kind (sphere, box, plane, cylinder, tube, frustum, torus) on static and moving bodies. Results come in a canonical order (body pair, then feature).
+- **Batched queries (ABI audit G16).** Every query kind takes N inputs in columns and writes its results into caller-provided buffers (per-input result ranges and counts), with no delegate, closure or allocation per hit or per query; a single query is a batch of one through the same path. Optics, acoustics, radiation and liquid streams cast many segments per tick and use the batch form from their first slice.
+- A compiled body-to-collider range and a compiled jointed-pair set replace the per-pair joint scan.
+- Users moved onto it in this story: contact pairs, guides, compliant-surface sampling (each surface queries its bounded stroke volume), airflow line of sight and receiver candidates (a source queries its bounded cone), chamber occupancy and exit-clearance sweeps, gas mass gathering. Later stories (optics, acoustics, radiation, liquid streams, thermal links, field regions, strand checks, granular apertures) use it from their first slice.
+
+*Acceptance:*
+- For seeded scenes of mixed shapes, each query returns exactly the set (and the crossing order) an all-pairs reference computed in the test returns; this is an exact comparison of collider identities, not of floats.
+- A body resting on a tilted plane stays supported within the game-grade envelope.
+- On every existing lesson and the delivered law scenes, goals, event kinds, owners and causal order are unchanged, and positions and speeds agree within the game-grade envelope.
+- A capability's per-substep work does not change when bodies are added outside its declared volume (R4: collider visits counted).
+- A batch of segment casts returns, for each input, exactly the colliders and crossing order the same cast returns alone, and allocates no managed memory after warm-up (a deterministic counter).
+- *Performance:* R1 and R2 before and after; candidate pairs on R2 fall and never rise.
+
+*Deletes:* the per-substep rebuild and the trial-replay rebuilds; the maximum-speed fattening; every scan listed above; the joint scan in `AddCandidatePair`; `AirflowLineClear` and its own test.
+
+*Depends on:* DOC-ENGINE-STATUS. *Unblocks:* CAT-016, CAT-028, CAT-065, CAT-066, CAT-070, EL-042, EL-048, EL-090, EL-100, EL-107, EL-109, EL-175, EL-209; the segment cast every identity listed under `ENGINE-OPTICAL` and `ENGINE-RADIATION` needs; and the candidate source of `ENGINE-OPTICAL`, `ENGINE-RADIATION`, Story 14.0, `ENGINE-FIELD-FORCE`, `ENGINE-LIQUID`, `ENGINE-THERMAL`, `ENGINE-GRANULAR`, `ENGINE-IGNITION-BLAST` and `ENGINE-CONNECTION-MATERIALS`.
+
+### Story ENGINE-CONTACT-OBSERVATIONS: Contact rows on any body pair, found by index
+*Status: Backlog. Sprint key: `engine-contact-observations`. Order 3. Performance story (R4).*
+
+*Outcome:* contact triggers, contact work, contact loads and integrity observers work on any pair of bodies, static or dynamic, and are found by compiled index.
+
+*Present today:* triggers, contact work and contact loads fire only for a static body against a dynamic body, and the owner must be the static side (`SIM/WorkshopPhysicsEngine.cs:1341-1342`, `:226-229`, `:145`, `:169`); every contact scans every trigger and work row (`:141`, `:165`); every load row scans every contact (`:223-237`); integrity observers scan every contact (`SIM/WorkshopPhysicsEngine.Gas.cs:121`) and an integrity observer must be bound to a gas store (`ABS/GasCouplingValues.cs:15`); per-pair cooldown state is a managed map (`SIM/WorkshopPhysicsEngine.cs:1323`); a signal contact latches once per Run (`ABS/SignalContractValues.cs:51`).
+
+*Contract:*
+- Each row names its owning collider or body by compiled handle; a contact reports to the rows of both sides through a compiled index; no row or contact scan.
+- Begin-touch and end-touch occurrences per declared pair are published for consumers that need them (thermal links, surface treatment).
+- **Integrity observer, one owner (coordinator decision 16).** It names a body, one collider or a set of colliders; several may sit on one static or dynamic body; threshold impulse and minimum approach speed are constants or parameter-bound values; the pair measure may be multiplied by the other collider's declared stress concentration (at least 1, default 1); it publishes a one-way committed occurrence that a declared effect consumes (gas outlet, body break, blast release); it needs no gas store. A second separate strike on the same owner publishes a second occurrence; a persisting contact publishes none.
+- A contact-qualified repeating hit (approach speed threshold, declared target set, minimum interval) is the same row kind as contact work, without the energy payment.
+
+*Acceptance:*
+- A trigger owned by a dynamic body fires once when struck at its threshold speed and above, and not below; the same declaration with the owner static gives the same occurrence.
+- A scene with many unrelated rows gives the same events, owners and order as the same scene without them (R4: rows visited per contact counted).
+- The same body meeting two colliders that differ only in stress concentration breaks only on the higher one, just below and just above the scaled threshold.
+- An integrity observer with no gas store publishes its occurrence and changes nothing else.
+- *Performance:* on R4 extended with many unrelated trigger, work, load and integrity rows, rows visited per contact and contacts visited per row, measured on the scene before this story lands and after; the after count is bounded by the rows indexed to the contacting colliders and never rises above the before value.
+
+*Deletes:* the static-side requirement; the per-contact row scans and per-row contact scans; the integrity observer's mandatory gas-store binding.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES. *Unblocks:* CAT-009, CAT-015, CAT-052, CAT-063, CAT-069, EL-055, EL-057, EL-061, EL-084, EL-088, EL-090, EL-101, EL-106, EL-198, EL-210, GAP-09, TH-14, TH-33; the link table of `ENGINE-THERMAL` and the dwell of `ENGINE-SURFACE-STATE`.
+
+### Story ENGINE-SENSOR-VOLUMES: Shape-based, frame-relative sensors inside the tick
+*Status: Backlog. Sprint key: `engine-sensor-volumes`. Order 4. Performance story (R4). Amends Story 3.1.*
+
+*Outcome:* residence, passage and guide evaluation happen inside the physics tick, against collider shapes, relative to the sensor's frame, with several sensors and guides per element.
+
+*Present today:* residence tests the body origin point against a box once per committed tick (`SIM/WorkshopPhysicsEngine.cs:929-938`, `:348`, `:358`), reads world speed so a moving frame mis-measures (`:933`; guides likewise, `:1071`), and each sensor scans every dynamic body (`:913`) with an immutable-dictionary write per pair (`:973-976`). Passage sensing runs on the host after the tick, sensors × participants, in a helper named `RenderPosition` (`GPU/PassageSensorDeclaration.cs:80`, `:89-112`; called from `SIM/WorkshopGpuDevice.cs:243`). One residence sensor and one planar guide per element (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:27`, `:32`).
+
+*Contract:*
+- A sensor is a declared region on a frame body with a local id; a package may declare several sensors and guides.
+- Occupancy is a declared closed rule per sensor, ShapeOverlap or CentreInVolume, found through the region query; the upper margin may be fixed or parameter-bound.
+- Speed and approach are measured relative to the frame body's velocity at the sample point.
+- Residence is evaluated on the committed motion inside the tick at each substep endpoint; passage crossing is evaluated inside the tick on the swept segment; a passage sensor may declare a minimum crossing speed, parameter-bound, measured relative to its frame.
+- The residence phase (outside, dwelling, qualified) and the occurrence at which it last became true are on the committed read, for goals.
+
+*Acceptance:*
+- A body riding a moving frame faster than the speed limit dwells and is captured; a world-stationary body swept by the frame is not; static-frame results are unchanged.
+- A body whose origin is outside but whose shape overlaps is reported as its declared rule states; the two rules give different answers on the same scene.
+- Two sensors on one element report independently.
+- The same body crossing a passage sensor just below and just above its declared minimum speed: only the second publishes an occurrence.
+- *Performance:* on R4 with many sensors and bodies, sensor evaluations per tick (and bodies tested per sensor), measured on the scene before this story lands and after; the after count is bounded by the bodies the region query returns for each sensor and never rises above the before value.
+
+*Deletes:* the origin-point test; absolute-speed tests in residence and guides; the host-side passage tracker and `RenderPosition`; the one-sensor and one-guide properties (audit E6, sensor part).
+
+*Depends on:* ENGINE-SPATIAL-QUERIES. *Unblocks:* CAT-002, CAT-004, CAT-062, EL-062, EL-069, EL-070, EL-099, EL-109, EL-120, EL-123, EL-192, EL-194.
+
+### Story ENGINE-ISLANDS-SLEEP: Islands, sleeping, and work confined to an island
+*Status: Backlog. Sprint key: `engine-islands-sleep`. Order 5. Performance story (R1, R5). Absorbs `engine-resting-stack-settling`.*
+
+*Outcome:* bodies joined by contacts, joints, transmissions and tensile routes form islands; an island at rest sleeps and costs nothing until woken; trial work touches only the island it affects.
+
+*Present today:* no island, union-find, sleep state, timer or wake path exists in `SIM/`, `engine/`, `ABS/`, Core or Bundle (audit section 1); every body is integrated and every pair retested every substep, so a level's cost follows parts placed, not parts moving. A drive's power budget restores and re-solves the whole world's substep up to about ten more times (`SIM/WorkshopPhysicsEngine.Motors.cs:36-66`); continuous work runs whole-world trial substeps inside nested restart, scale and bisection loops (`SIM/WorkshopPhysicsEngine.ContinuousReplay.cs:33-52`, `.ContinuousSolve.cs:24-91`). A restitution group is silently cut to 8 points (`SIM/WorkshopConstraintSolver.cs:685-689`) and each root scans all manifolds (`:677-683`). Some resting three-box stacks keep a sub-millimetre vertical oscillation (deferred `engine-resting-stack-settling`, `_bmad-output/implementation-artifacts/deferred-work.md:122`).
+
+*Contract:*
+- Islands are built each substep by disjoint-set union over contacts, joints, transmissions and tensile routes.
+- An island sleeps after the thresholds of `DOC:273` (0.01 m/s and 0.02 rad/s for 0.5 s); it wakes on contact with an awake body, a drive or supply change, a force region or airflow reaching it, a request, a cut, a break, a change of liquid or granular load on it, or an edit.
+- A sleeping body's committed pose and velocity do not change; sleep state is on the committed read; Reset and Save/Load restore it exactly.
+- Persistent link tables (thermal links, sensor occupancy) survive while an island sleeps.
+- Drive-budget and continuous-work trials are confined to the island they affect. The restitution group has no point cap and finds its manifolds by island.
+
+*Acceptance:*
+- A settled stack reports asleep within the threshold time plus a stall guard and does not move while asleep.
+- A ball rolled into it wakes it; capture, toppling and event order match the outcomes of the same scene measured and recorded before this story lands (coordinator decision 41: no sleep-off setting ships or is declared in a test), within position tolerances justified by the receiving clearance.
+- A body on a moving surface, in airflow or on a powered hinge does not sleep.
+- A drive at its power limit in one island leaves a distant island's outcome unchanged, and R5 replays touch only that island's bodies.
+- Three-box stacks come to rest (no per-tick motion while asleep).
+- A group of more than eight bouncing points keeps every point.
+- *Performance:* R1 tick time and bodies integrated per substep before and after; R5 bodies re-solved per replay.
+
+*Deletes:* whole-world trial capture and restore; the 8-point restitution cut; the deferred story `engine-resting-stack-settling` (its stacks are this story's control).
+
+*Depends on:* ENGINE-SPATIAL-QUERIES. *Unblocks:* CAT-001, CAT-007, CAT-014, CAT-023, CAT-039, CAT-051, CAT-062, EL-089, GAP-09, and the "parts that rest can sleep" line of every element spec.
+
+### Story ENGINE-ONE-WAY-INSTALL: Physics commits alone
+*Status: Backlog. Sprint key: `engine-one-way-install`. Order 6. Scope confirmed by owner decision 3a ("remove physics' wait for animation/renderer acknowledgement"); the audit's open decision is closed. Its widening beyond install receipts (the 500 ms read stall, latest-only reads on the animation port and removal of the Presented wait; ABI audit G3 and G4) applies owner decision 3a's "physics commits alone" (coordinator decision 40, 23 November 2026).*
+
+*Outcome:* a slow or failed animation worker or renderer cannot delay, abort or retire a physics transition.
+
+*Present today:* an install (Run, Reset, Step, completion) sends Prepare to the animation worker and the renderer and waits up to 250 ms for their receipts; commit proceeds only when both arrive, and a failure after the physical commit retires the session (`SIM/Program.Schedule.cs:101-103`, `:152-157`, `:179-180`, `:219-222`, `:232-236`; `CuriousContraptions.Animation.Worker/Program.cs:215-225`). For Step, Completed and Reset it also waits for a Presented receipt (`SIM/Program.Schedule.cs:231-235`). Beyond installs (ABI audit section 3, at `25df3cd5`): a committed read the main thread has not receipted for 500 ms is a stall (`GPU/WorkshopReliableReadLedger.cs:18`, `:79-80`), and `DebtExceeded` then triggers `StopForDebt`, which faults the run (`SIM/Program.cs:275-297`), so a main-thread hitch over 500 ms (a long garbage collection, an asset load, a frozen page) ends a puzzle run; and every committed read is `slice()`-copied and posted to the animation port with no coalescing or back-pressure (`SIM/wwwroot/worker.ts:291-294`), and the animation worker verifies and decodes all of it (`ANIM/Program.cs:213-215`), so a worker that falls behind grows the port's queue without bound.
+
+*Contract:* the simulation publishes each install with its epoch and commits without waiting; consumers adopt the newest epoch; presentation readiness is a presentation concern. On adopting an epoch, and on construction and Reset, a consumer draws the first committed sample of every binding driven by committed state, never a zero-input value (owner decision 5; coordinator decision 29). The same one-way rule holds between installs:
+- A presentation consumer that falls behind never stops physics: an unreceipted read is a presentation lag reported on the read, and the reliable-read stall no longer faults the run.
+- The animation port carries latest-only reads: a newer committed read replaces one the worker has not taken, so its queue holds at most one read (until `ENGINE-WIRE-ABI` moves the animation worker onto the shared feed).
+- The Presented wait is removed with the other receipts.
+
+*Acceptance:* with the animation consumer withheld in a node harness, Run, Step, Reset and completion commit and the physical read advances; when the consumer returns it adopts the current epoch and its first sample equals the committed state; a consumer that fails leaves the session running; a binding driven by committed state shows its first committed sample, not a zero-input value, on construction and after Reset (a declared body whose binding is driven by committed state). Receipts withheld for 600 ms leave the run advancing and not faulted (the lifecycle failure: a renderer hitch ending a puzzle run). An animation worker whose service is throttled in a node harness for 10 s of Run holds at most one pending read and a heap that does not grow with Run time, and on release it draws the newest committed sample.
+
+*Deletes:* the receipt wait, its 250 ms timeout and the post-commit retirement path in `SIM/Program.Schedule.cs`; the Presented wait; `StopForDebt` on a presentation stall and the read-debt fault; the per-read posting of every committed read to the animation port; any zero-input initial projection of a committed-state binding.
+
+*Depends on:* DOC-ENGINE-STATUS. *Unblocks:* CAT-003 (first committed sample); ordinary lifecycle for all.
+
+### Story ENGINE-SUPPLY-DEMAND: Drive work debits its source
+*Status: Backlog. Sprint key: `engine-supply-drive-demand`. Order 7. The names `powered-part-demand-drain` and `engine-powered-part-demand-drain` are retired (owner decision 3a).*
+
+*Outcome:* every supplied consumer's committed work is debited from the sources on its route within their power bounds; an exhausted source opens the route.
+
+*Present today:* a closed `PowerIn` route enables a prismatic or revolute drive, which is on or off and debits nothing (`_bmad-output/implementation-artifacts/deferred-work.md:211`); contact-work stores and continuous airflow work are debited through `ElectricalSupply.Reserve`; electrical node ratings (`RatedVoltage`, `Resistance`, `Capacitance`, `MaxPower`) are checked finite and read by nothing (`CuriousContraptions.Bundle/BundleValidator.cs:865-877`); a consumer with no mechanism target requests nothing (`SIM/WorkshopPhysicsEngine.Supply.cs:88-105`). The finite-energy ledger is `ABS/FiniteEnergyBalance.cs`.
+
+*Contract:*
+- Each supplied drive declares demand = its maximum torque or force × the absolute target speed; the grant scales the drive's limit; its committed positive work, never above the grant, is debited as a request lane of the existing source reservation, not a second allocator.
+- **A consumer with no work target requests nothing (coordinator decision 37).** A consumer with no work target (no drive, transmission, energy store or continuous-work target) is granted and debited nothing and only reads whether its route is powered, as the System clock's consumer does today (`SIM/WorkshopPhysicsEngine.Supply.cs:88-105`), unless it declares a standing demand: that demand is requested, granted, debited and committed as a grant.
+- A work target (a consumer that does work in another domain, such as lifting liquid or compressing gas) is debited the energy it took, never more than its grant.
+- **Shaft-to-supply conversion:** a supply source whose available power is at most a declared efficiency times the work absorbed on a declared coordinate delivers no more than that work.
+- Several consumers on one source share it by the existing proportional rule; an unlimited source is a declared kind; an exhausted source opens the route on the next solve.
+- **Grant per tick at every cadence (coordinator decisions 27 and 30).** A source's grant in a tick is energy = its power limit × dt, dt the committed tick's duration ([combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order)): 1 J per tick for a 120 W source at 120 Hz, 2 J at 60 Hz, 0.5 J at 240 Hz. This replaces the fixed 1/120 s supply phase (`engine/gpu/ElectricalSupply.cs:9`, `PhaseSeconds`), which is 1/120 s at every cadence today.
+- **A drive limited to its allowance (coordinator decision 27).** A supplied drive whose request in a tick exceeds its source's per-tick allowance is limited to that allowance in that tick: its torque or force is scaled so the work it does that tick equals the energy granted. Element specs whose rows assume more are re-derived by their owners.
+- **A consumer that can accept nothing requests nothing (coordinator decision 30).** A consumer target that reports it can accept nothing in a tick requests nothing in that tick and is debited nothing. `ENGINE-THERMAL`'s electrical heat target reports this while the store it heats is at its declared limit, so no grant is debited for heat the store would refuse.
+- The electrical node's rated values are either the standing demand or deleted; no unread value remains.
+
+*Acceptance:*
+- A drive whose request exceeds its allowance does, in each tick, work equal to the energy granted (power limit × dt) and never more, at 60, 120 and 240 Hz cadences, and its source falls by that amount; the same drive under its allowance is unaffected.
+- A consumer that reports it can accept nothing is granted and debited nothing in that tick, and resumes its request in the tick it can accept again.
+- Stored energy falls by the committed work, never below it and above it by no more than the ledger's stated residual (`ABS/FiniteEnergyBalance.cs`); a stalled drive debits nothing.
+- The drive stops when the source is empty and the route reads open; two consumers on one source stop together; an unlimited source never drains; Reset restores the authored charge.
+- A standing-demand consumer drains a finite source at its declared rate and stops when it is empty; the same consumer with no work target and no standing demand leaves the source's charge unchanged while its route still reads powered.
+- A shaft-paid source delivers no more energy than the shaft work absorbed.
+- Two differently rated fixtures drain a finite source at their declared rates.
+
+*Deletes:* the binary-supply limitation and its deferred-work entry; the unread electrical node ratings (or their unread status); the fixed 1/120 s supply phase as the grant duration.
+
+*Depends on:* DOC-ENGINE-STATUS. *Unblocks:* CAT-005, CAT-007, CAT-018, CAT-039, CAT-042, CAT-051, CAT-059, EL-022, EL-037, EL-060, EL-068, EL-078, EL-079, EL-082, EL-083, EL-086, EL-087, EL-088, EL-095, EL-097, EL-167, EL-196, EL-199, EL-209, EL-211, EL-217, EL-220, EL-221, EL-222, EL-233, EL-234, EL-237, EL-241, GAP-04, RAD-06, RAD-14, TH-05, TH-34. EL-199 closes inside this slice.
+
+### Story ENGINE-CAPABILITY-INSTANCES: Shared contracts stop encoding one product's shape
+*Status: Backlog. Sprint key: `engine-capability-instances`. Order 8. Refactor; may be split by contract family.*
+
+*Outcome:* shared contracts name capabilities and hold lists of capability instances with local ids, so no package needs an engine edit to declare two, three or four of something.
+
+*Present today (audit section 2):* product-named activation kinds `Counter`, `StateLatch`, `LevelIndicator` (`ABS/ActivationValues.cs:18`, `:24`; `ABS/CompiledRuntimeContracts.cs:244-245`), E1; a boolean supply node fixed at two inputs (`ABS/SupplyContractValues.cs:26`; `GPU/SupplyRoute.cs:375-376`, `:391-395`), E2; a socket-glyph enum of product terminals (`ABS/PortDescriptor.cs:38`; `ui/WorkshopConnections.cs:36-44`), E3; player-facing strings naming parts (`ui/Workshop.cs:371`, `:884`; `GPU/WorkshopConnections.cs:150`; `GPU/SupplyRoute.cs:70`), E4; tube mouth snapping with exactly two ends and constants of one family (`engine/TubeMouthSnap.cs:23-25`, `:98-99`; `ABS/SceneGeometry.cs:37`, `:39`), E5; one compliant surface, residence sensor and guide per element, a fixed four-sample recipe and dense engagement rows (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:27`, `:32`, `:77`; `SIM/WorkshopPhysicsEngine.cs:1555-1556`; `GPU/PhysicsWorldLayout.cs:41-42`, `:90-94`), E6; presentation axes hard-wired (`engine/MachinePart.cs:162`, `:172`, `:231`), E7; a driver named after one wheel (`ABS/ElementPresentation.cs:25`), E8; a chamber region always a cylinder (`SIM/WorkshopPhysicsEngine.Chambers.cs:177-183`, `:141-166`), E9; run control assuming one driven hinge and a single inventory entry (`ABS/ParameterDescriptor.cs:48`; `GPU/PuzzleCatalogue.cs:36`, `:90-91`), E11; a product role in the target filter (`ABS/ContactWorkDeclarationValues.cs:31`), E12; hand-mirrored TypeScript enums that have drifted (`CuriousContraptions.web/wwwroot/workshop-observation.ts:12`, `:41`), E13; a hand-maintained package list (`CuriousContraptions.slnx:16-59`), E14. Rope ports admitted by enumerating three role names (`GPU/WorkshopConnections.cs:163-164`; `GPU/ElementPortCatalogue.cs:182`; `CuriousContraptions.Bundle/BundleValidator.cs:543`, `:546`). A second collider-shape enum and unadmitted `Capsule` and `Mesh` members (`ABS/ColliderDescriptor.cs:8-16`; `ABS/PhysicsDeclarationValues.cs:12`). Visible art accepted as a collider proxy (`tools/BundleElements/SceneGeometryExtractor.cs:108`), L2. The CPU engine reached through GPU-named types (`WorkshopGpuDevice`, `BrowserGpuTransport`, `PhysicsGpuAbi`, `GpuBodyId`, `engine/gpu/`).
+
+*Contract:*
+- Activation kinds take capability names (`PulseCount`, `Memory`, `Level`) through compiler, wire, read and TypeScript.
+- One N-input boolean node whose input list and truth function (the closed `LogicGateOperation` set) are declared.
+- Socket glyphs ship as package assets; snap sockets are a declared list (one to four per part, each with bore, capture distance and angle, joinable or a non-joinable outlet, plus immersed-port locators), each with a package-local id.
+- Compliant surfaces, residence sensors and guides are list-valued with local ids; sample layout is declaration data; engagement rows are sparse, held only for bodies overlapping a surface volume.
+- Presentation derives axes from the declared joint frame; drivers name the capability instance they read; the wheel-named driver becomes the guide angle it is.
+- **Coordinate drivers whatever the joint kind (coordinator decision 29).** A presentation driver that names a coordinate reads its committed coordinate continuously whatever the joint kind, so a prismatic coordinate has the continuous travel driver a revolute one has (CAT-010, TH-22, TH-23). The closed value-mapping set gains one member: a wrap of a committed coordinate into a declared pitch (CAT-019).
+- Region shape and exit axis are declared; run controls and inventory name drives by local id and inventory is a list; participation is a declared mask.
+- Rope-port admission reads domain, direction and declared attachment role, never an enumeration of role names.
+- TypeScript mirrors are generated from the C# owners in the build; the package list is derived from discovery. **One source per enum (owner decisions 24j and 24k):** the C# enum is the single source of every closed set; this story's C#-to-TypeScript generator is the only producer of TypeScript enum mirrors (the about 45 hand mirrors in `WEB/workshop-observation.ts:3-49` are replaced by it); `ENGINE-WIRE-ABI` adds no second generator, and the wire schemas carry no enum type that duplicates a C# owner.
+- The bundle tool refuses a visible mesh used as a collider proxy with a typed reason; one collider-shape enum remains with only admitted members.
+- Player-facing text uses capability wording or declared display names. In particular the level-rule refusal at `GPU/WorkshopConnections.cs:150` ("A level output can only light a Signal lamp.") becomes "A level output connects only to an input that admits a level."; this story is the one change that rewords it (the first slice to edit the line), and it updates the tests that pin the old text (`DeclaredIndicatorPassageTests.cs:296`, `LampDetectorGuardTests.cs:304`, `StateLatchTests.cs:164`, `PressurePlateTests.cs:698`) and the constant of the deferred browser suite `tools/e2e/cat-052-lamp.test.ts:36` (edited, not run). CAT-035, CAT-037 and CAT-052 cite this wording.
+- Engine-facing types drop the GPU names for the CPU engine they reach.
+
+*Acceptance:* a qualification fixture declaring two compliant surfaces, a three-input boolean node, a three-socket snap part with one outlet, two residence sensors, three rope ports and a hinge on a rotated axis compiles and behaves by its declaration; a binding on a prismatic coordinate follows its committed travel continuously, and a wrap mapping repeats at its declared pitch on two fixtures with different pitches; every existing lesson keeps its goals and causal event order; a visible proxy is refused with its typed reason; a generated TypeScript enum matches its C# owner member for member (checked by the build, not by a hash).
+
+*Deletes:* each old name, fixed slot, enum member and hand-mirrored enum in the same slice: `TubeEnd`, the First/Second terminals and the two-input state enum, the glyph table, `CommittedWheelAngle`, `AllPayloads`, the fixed axes, the duplicate shape enum, the hand-maintained package list; and the part names in shared engine comments, reworded element-free (Bumper: `GPU/ContactWorkImpulse.cs:11`, `:26` and `ABS/ContactWorkDeclarationValues.cs:56`; Domino: `ABS/OrientationSensorDeclarationValues.cs:11`).
+
+*Depends on:* ENGINE-SENSOR-VOLUMES (list-valued sensors). *Unblocks:* CAT-001, CAT-002, CAT-003, CAT-004, CAT-010, CAT-013, CAT-014, CAT-019, CAT-020, CAT-024, CAT-025, CAT-026, CAT-027, CAT-030, CAT-035, CAT-037, CAT-039, CAT-048, CAT-049, CAT-050, CAT-053, CAT-058, CAT-062, CAT-064, CAT-065, CAT-067, EL-001, EL-008, EL-011, EL-012, EL-017, EL-020, EL-023, EL-024, EL-026, EL-027, EL-029, EL-030, EL-031, EL-032, EL-033, EL-035, EL-036, EL-133, EL-134, EL-135, EL-136, EL-137, EL-166, EL-167, EL-168, EL-172, EL-183, TH-11, TH-22, TH-23, and every package with more than one instance of a capability. The payload contract (a declared participation mask in place of `AllPayloads`) changes the declarations of `ball`, `bowling`, `tennis`, `balloon` and `basket` (CAT-001, CAT-014, CAT-064, CAT-003, CAT-004).
+
+### Story ENGINE-WIRE-ABI: Every boundary record generated once; the pose ring feeds the renderer
+*Status: Backlog. Sprint key: `engine-wire-abi`. Order 8a. Performance story (R6). Added to the programme by owner decision 24k (23 November 2026), from the [ABI audit](../../docs/planning/elements/readiness/audits/abi-interfaces.md) section 6.1. Element-free; may be split by layout family. Instanced drawing is not part of this story: it is `ENGINE-INSTANCED-RENDERING` (order 8c, coordinator decision 40), which draws from the feed this story provides.*
+
+*Outcome:* every record that crosses a worker, thread or persistence boundary is declared once in a schema and read and written through code generated from the pinned `flatc` on both sides (owner decision 24j: wire code is generated, never hand-coded), and the renderer reads committed poses from the shared ring without locks, serialisation or allocation per frame.
+
+*Present today (ABI audit, at `25df3cd5`):*
+- After S5 and S5b the FlatBuffers accessors are generated, but about 3,470 lines of hand mapping codecs remain (`GPU/WorkshopWireFlatBuffers*.cs`, `GPU/WorkshopAuthoringFlatBuffers.cs`, `GPU/WorkshopSaveCodec.cs`; audit W1), with vtable arithmetic, field counts and slot indices typed in by hand (`GPU/WorkshopWireFlatBuffers.cs:45-53`, `:59-82`; `GPU/WorkshopAuthoringFlatBuffers.cs:44-100`; W2). Unknown-field refusal is hand-coded for 6 of about 76 tables and absent for the rest; no test ties a literal to the schema.
+- `motion: [uint8]` tunnels a hand-laid record (`PhysicsMotionRead`, 80-byte motion pieces) through the schema (`FBS:305-306`; encode `GPU/WorkshopWireFlatBuffers.cs:495`, decode `:694-697`; `GPU/PhysicsMotionRead.cs:47-52`; W3), copied at each end.
+- About 51 kind, phase, mode, state and reason fields are raw integers (W4) with per-site refusal, and one sampled decode casts without a local check (`GPU/WorkshopWireFlatBuffers.cs:864`). Seven of the schema's eight enum types duplicate a C# owner: `SimulationPhase` (`FBS:3`; `WorkshopSimulationPhase`, `ABS/RuntimeServices.cs:10`), `CommandKind` (`FBS:17`; `WorkshopCommandKind`, `ABS/WorkshopMessageValues.cs:11`), `CommandOutcome` (`FBS:37`; `WorkshopCommandOutcome`, `ABS/RuntimeServices.cs:11`), `ResponseKind` (`FBS:45`; `WorkshopResponseKind`, `ABS/WorkshopMessageValues.cs:13`), `ElectricalEnable` (`FBS:50`; `ABS/ElectricalSourceValues.cs:36`), `RunControlLane` (`FBS:56`; `ABS/ParameterDescriptor.cs:50`) and `RunControlValueKind` (`FBS:62`; `ABS/RunControlValues.cs:11`); the eighth, `ObservationPayload` (`FBS:385`), has no C# enum owner.
+- Every non-FlatBuffers binary layout is hand-offset in C# and mirrored by hand in TypeScript (W7): the pose ring (`GPU/WorkshopPoseRing.cs:11-17`; `WEB/pose-ring.ts:12-15`), the event ring (`ABS/EventRingBuffer.cs`; `WEB/event-ring-cursor.ts:14-20`), the clock ring (`GPU/WorkshopClockWire.cs`; `WEB/clock-ring.ts`), schedule controls with literal offsets (`SIM/Program.Schedule.cs:134-140`, `:168-171`, `:248`; `ANIM/Program.cs:232-234`), animation control and output (`GPU/WorkshopHint.cs:7-47`), the clock peer bootstrap (`WEB/workshop-client.ts:232-235`), and the trace record, canonical body, physics body, mechanical link, cadence and receipt layouts (`GPU/WorkshopTraceRecord.cs`, `GPU/CanonicalBodyCodec.cs`, `GPU/PhysicsBodyWire.cs`, `GPU/MechanicalLinkWire.cs`, `GPU/WorkshopCadence.cs`, `GPU/WorkshopClockWire.cs`). `CuriousContraptions.tests/WorkerAbiTests.cs:67-83` pins `const NAME = n;` in four scripts only; the Animation worker's literal offsets (`ANIM/wwwroot/worker.ts:78`, `:80`) and the inline literals at `WEB/pose-ring.ts:131-145` and `SIM/wwwroot/worker.ts:48` are pinned by nothing. The hand TypeScript schema copies in deferred tooling (`tools/e2e/workshop-wire.ts:12732-13101`; `tools/e2e/run-reset-snapshot.ts:14`, `SNAPSHOT_SCHEMA`; W5) remain after S5b.
+- **The pose ring is write-only.** Every tick the simulation composes a new slot array (`SIM/Program.cs:347`; `GPU/WorkshopPoseRing.cs:58-64`), JSImport marshals it to JavaScript as a copy (`SIM/wwwroot/worker.ts:286-290`) and `PoseProducer.publish` copies it into the next of three slots (`WEB/pose-ring.ts:87-99`); no production code reads it (`PoseReader` is constructed and swapped at `WEB/workshop-client.ts:152`, `:256-257` and never read). Its header holds only a sequence and a capture time and its record has no angular velocity or motion pieces (`GPU/WorkshopPoseRing.cs:55-57`), so it could not feed interpolation as laid out. Both sides use the plain-access seqlock the event ring rejected as tear-prone (review finding F1, `WEB/event-ring-cursor.ts:9-11`; `WEB/pose-ring.ts:96`, `:123-150`; `GPU/WorkshopPoseRing.cs:109-138`), and `latest()` and `read()` allocate per call (`WEB/pose-ring.ts:128-147`, `:157-160`).
+- **The renderer is fed by the whole read.** The full `WorkshopResponse` is encoded every tick (`SIM/Program.cs:335-348`; `GPU/WorkshopWireFlatBuffers.cs:204`, `:467`, `:568`), posted by transfer (`SIM/wwwroot/worker.ts:219-225`) and decoded into managed objects on the main thread and again on the animation worker (`ANIM/Program.cs:213-215`); `WorkshopPoseHistory` keeps seven decoded responses and allocates `new PresentedBody[]` every frame (`GPU/WorkshopPoseHistory.cs:12-15`, `:276`, `:301`), brackets only adjacent ticks and otherwise reports `AwaitingHistory` (`:241-242`, `:298`), so catch-up turns of up to four ticks (`GPU/WorkshopTickLoop.cs:15`, `:38`) can leave frames that do not advance (unmeasured). How the renderer then draws each body is `ENGINE-INSTANCED-RENDERING`'s.
+- **Animation output** is one 104-byte sample per animated target per `postMessage`, with one sample in flight across all targets (`ANIM/wwwroot/worker.ts:51-57`, `:76-82`, `:134-138`; `WEB/workshop-client.ts:191-203`), so a full refresh of T targets needs T round trips.
+
+*Contract:*
+- **Fixed records are FlatBuffers structs** in the schema, with C# and TypeScript accessors generated from the pinned `flatc` (S5, S5b), so no new generator is introduced: the pose record and pose-slot header, event record, schedule control and result, animation control and output, clock peer and receipt, motion piece, trace record, canonical body, physics body, mechanical link and cadence. Shared-memory access is a thin hand layer that copies whole words atomically into a private buffer and decodes it with the generated accessor (the event ring's pattern); it holds no byte offset of its own.
+- **Unknown-field refusal is derived from the generated accessors** for every table (field counts and slots read from the generated code), replacing the W2 literals.
+- **`motion: [uint8]` becomes schema structs**, read through generated accessors.
+- **Enums: the C# enum is the single source (owner decisions 24j and 24k).** A schema field that carries a closed set is an integer annotated with its C# owner, and every decode goes through the one refusal helper (`ObservationEnum<T>`, `GPU/WorkshopWireFlatBuffers.Observation.cs:56-59`), with a test that maps each such field to its owner. The seven schema enum types that duplicate a C# owner are deleted; `ObservationPayload` gains a C# owner enum and its field follows the same rule. TypeScript mirrors come only from `ENGINE-CAPABILITY-INSTANCES`' C#-to-TypeScript generator; this story generates no enum. The TypeScript callers that import those names from S5b's generated module (`CommandKind`, `CommandOutcome`, `SimulationPhase`, `ResponseKind` in `tools/e2e/`) move to the C#-generated mirror in the same change.
+- **One declaration per capability record (ABI audit G14).** A capability's wire, read and shared-layout records are declared once in the schema, and the C# and TypeScript sides follow from generation, so a new capability edits the schema and its domain mapping only; it no longer edits hand codecs, vtable literals, layout constants or TypeScript mirrors.
+- **The pose ring is the presentation feed.** Its header carries epoch, tick and body count; its records carry what interpolation needs (pose, linear and angular velocity, and the tick's motion pieces). The producer writes the slot in place from committed state, with no per-tick array. Every word is read and written atomically, so a torn read is impossible. The reader allocates nothing per frame, and a reader that misses slots keeps its last good frame. Presentation stops decoding bodies and motion from the per-tick `WorkshopResponse`; the Code Map decides whether the read still carries bodies for latch and goal validation (`GPU/WorkshopMessages.cs:22-41`, `engine/MachineWorld.Gpu.cs:285`). The animation worker reads the same feed.
+- **Multi-buffered, depth derived (owner decision 24k).** Presentation renders `DelayNanoseconds` (16.67 ms, `GPU/WorkshopPoseHistory.cs:13`) behind the newest commit and needs both bracket ticks while the producer writes the next slot, so the ring's depth = the delay in ticks at the Run's cadence + 2 bracket slots + 1 write slot: 1 + 3 = 4 slots at 60 Hz, 2 + 3 = 5 at 120 Hz and 4 + 3 = 7 at 240 Hz, the 7 slots owner decision 24k names. The depth is computed at install from the cadence and the delay, never a constant.
+- **Copies.** Until `ENGINE-WASM-THREADS` lands, the exchange costs one bounded copy per side (producer storage into the ring, ring into the consumer's buffer), the floor without threads (ABI audit section 3.4); `ENGINE-WASM-THREADS` removes the producer copy.
+- **Animation output is one shared table per pulse**, written in place and published once, not one message per target.
+
+*Acceptance:*
+- For every layout, the generated C# and TypeScript accessors read the same committed fixture bytes to equal field values.
+- Adding or moving a field in the schema changes both sides with no hand edit (a scratch-tree build test).
+- No production source in `GPU/`, `SIM/`, `ANIM/` or `WEB/` holds a numeric byte offset for a boundary record: the literal scan is extended to every TypeScript script, the Animation worker's included, and finds none.
+- In a node harness the reader reads N bodies from the ring for 1,000 frames while the producer publishes concurrently at 240 Hz: no managed or JavaScript allocation per frame after warm-up (a deterministic counter), every frame's records belong to one tick (no torn read), and a reader paused for three frames resumes with its last good frame and then the newest.
+- Under a forced 3-tick catch-up the renderer brackets every frame and reports no `AwaitingHistory` frame (the failure excluded: frames that do not advance during catch-up).
+- An undefined enum value and an unknown appended field are each refused with their typed reasons at both decode boundaries.
+- With T animated targets, every target's newest sample reaches the main thread in one publication per pulse, for two values of T.
+- A qualification capability record added to the schema in a scratch tree reaches C# and TypeScript with edits to the schema and its domain mapping only (files touched counted; ABI audit G14).
+- *Performance (R6):* bytes copied per tick on the publication path, main-thread bytes allocated per frame and decode time per tick against body count, before and after; none rises.
+
+*Deletes:* the hand layouts and their TypeScript constant mirrors; `WorkerAbiTests`' regex pinning; the W2 vtable literals and the hand unknown-field checks; the `motion` blob and `PhysicsMotionRead`'s hand layout; the schema enum types that duplicate C# owners; the hand TypeScript schema copies of W5; the presentation decode of bodies and motion from the per-tick read, with `WorkshopPoseHistory`'s copies of whole responses; per-target animation messages; `ComposeSlot`'s array; the fixed `SlotCount = 3`.
+
+*Depends on:* S5 and S5b (pinned generation for C# and TypeScript), ENGINE-ONE-WAY-INSTALL (epoch adoption), ENGINE-CAPABILITY-INSTANCES (the one enum generator). *Unblocks:* ENGINE-WASM-THREADS; ENGINE-INSTANCED-RENDERING (the renderer's pose feed); ENGINE-TICK-ALLOCATION's host read path (measured after this story shrinks it); ENGINE-SOA-SIMD (poses written from its columns into the ring); no identity directly. Every capability delivered before it adds hand layouts, codec fields and TypeScript mirrors that it would then convert, so it precedes further element delivery.
+
+### Story ENGINE-WASM-THREADS: The simulation runs on WebAssembly threads over shared memory
+*Status: Backlog. Sprint key: `engine-wasm-threads`. Order 8b. Performance story (R6, R1). Added to the programme by owner decision 24k (23 November 2026), placed with ENGINE-WIRE-ABI. Element-free.*
+
+*Outcome:* the simulation runtime is built with WebAssembly threads, so the pose ring, the event ring and (from ENGINE-SOA-SIMD) the engine's tables live in shared memory that C# writes in place and the other workers read without a copy on the producer side, and islands can be solved on several threads.
+
+*Present today (ABI audit section 3.4, at `25df3cd5`):* no project sets `WasmEnableThreads` (`SIM/CuriousContraptions.Simulation.csproj:2-31`); the worker is full LLVM AOT (`RunAOTCompilation`, `AOTMode` `LLVMOnly`, `:19-20`) with SIMD (`:22`). The physics worker, the animation worker and the main thread are separate .NET WASM runtimes; none can address another's heap, and C# cannot address a JavaScript `SharedArrayBuffer` or run `Atomics` on it, so every shared exchange goes through `byte[]` JSImport marshalling (`SIM/Program.cs:103-104`; `SIM/Program.Schedule.cs:15-17`, `:24`) and is copied again into the ring by JavaScript (`SIM/wwwroot/worker.ts:63-64`, `:94-100`, `:286-290`); no JSImport passes a `Span<byte>` as `JSType.MemoryView`. Cross-origin isolation, which `SharedArrayBuffer` and threads require, is obtained by the page's isolation service worker adding the headers (`WEB/workshop-isolation-worker.ts:34-36`; checked at `WEB/workshop-isolation.ts:129`, `:143`), because the static host sets none. Process-wide state would race under threads: `[ThreadStatic]` restitution scratch (`SIM/WorkshopConstraintSolver.cs:642-643`), static worker state (`SIM/Program.cs:13-35`; `SIM/Program.Schedule.cs:9-36`) and `lock (Gate)` in `GPU/DeclaredPhysics.cs:32-64` and `GPU/ElementPortCatalogue.cs:312-340`. Nothing in a tick reduces results across threads. Whether the pinned SDK supports threads with `LLVMOnly` AOT is not established (ABI audit section 7).
+
+*Contract:*
+- **First slice, the gate.** The pinned SDK builds the simulation worker with `WasmEnableThreads` and the same full LLVM AOT, SIMD, trimming and build gate; the published page is cross-origin isolated through the isolation service worker in every supported browser; a threaded runtime starts, runs a tick and shuts down cleanly. If the pinned SDK cannot combine threads with `LLVMOnly` AOT, the slice stops and returns to the owner with the measured alternatives (another AOT mode, or one bounded copy per side kept), with no partial switch and no second build.
+- **Shared layouts in shared memory.** The pose ring and the event ring live in the simulation runtime's shared memory, laid out by `ENGINE-WIRE-ABI`'s generated structs; C# writes them in place and JavaScript and the other workers read views of that memory. The producer copy that `ENGINE-WIRE-ABI` leaves is removed; a consumer reads with at most one copy, into its own instance buffers.
+- **A deterministic worker pool for island work.** Work is partitioned by island and each island's result is committed in canonical island order, so committed results do not depend on thread count or scheduling; nothing is reduced across threads in arrival order. The pool has a consumer whether or not the conditional `ENGINE-PARALLEL-ISLANDS` ever runs: the island-partitioned solve of the tick is dispatched through it from this story on (one thread is the same path), and this story's own acceptance runs every lesson and law scene through it at 1, 2 and 4 threads; `ENGINE-PARALLEL-ISLANDS`, if it runs, only tunes that dispatch.
+- **Thread-safe engine state.** Process-wide mutable state moves into the engine instance or becomes per-thread by design; locks remain only on host paths outside the tick.
+- **One thread-count rule.** The pool size is the device's reported hardware concurrency bounded by a declared maximum; one thread is a valid size of the same path, not a fallback mode.
+
+*Acceptance:*
+- The threaded, AOT-compiled worker passes the full native round and the build gate's f32x4 check (`SIM/CuriousContraptions.Simulation.csproj:24-26`).
+- A node harness runs the same scenes on 1, 2 and 4 threads: goals, event kinds, owners and causal order are identical, and positions and speeds agree within the game-grade envelope.
+- With the ring in shared memory, bytes copied per tick on the producer side are zero (R6).
+- A page that is not cross-origin isolated is refused with a typed reason before Run; it never runs by a second, unthreaded path.
+- *Performance:* R6 publication bytes and time, and R1 tick time, before and after; must not regress.
+
+*Deletes:* the `byte[]` marshalling of shared layouts and the JavaScript copy into the rings; process-wide mutable engine state; the "one copy per side" floor that ENGINE-WIRE-ABI records.
+
+*Depends on:* ENGINE-WIRE-ABI. *Unblocks:* ENGINE-SOA-SIMD (tables in shared memory), ENGINE-PARALLEL-ISLANDS; no identity directly.
+
+### Story ENGINE-INSTANCED-RENDERING: Bodies are drawn in instanced batches from the pose ring
+*Status: Backlog. Sprint key: `engine-instanced-rendering`. Order 8c. Performance story (R1, R2). Added to the programme by coordinator decision 40 (23 November 2026), split from ENGINE-WIRE-ABI: the [ABI audit](../../docs/planning/elements/readiness/audits/abi-interfaces.md) G1 found instanced batching owned by no story. Element-free.*
+
+*Outcome:* the renderer draws every presented body in GPU instanced draw batches grouped by mesh and material, on both WebGL 2 and WebGPU, filled each frame from the pose ring that ENGINE-WIRE-ABI makes the presentation feed, as `AGENTS.md`'s rendering graph and `DOC`'s Rendering Graph (`DOC:70-71`) state; the batches are derived from compiled package declarations, so a new part adds declarations and art, never renderer code.
+
+*Present today (ABI audit section 3.1, at `25df3cd5`):*
+- `WorkshopPhysicalPresentation.Apply` writes one Godot node transform per presented body every frame (`engine/MachinePart.cs:342-350`) and counts the node positions it changes (`writes`, returned at `:352`); before writing, it finds each body's node by scanning every part for every pose (`:326-339`). Strand spans are one node each, placed, turned and scaled to the span's length (`engine/MachinePart.cs:222-233`), and declared presentation bindings set node properties one binding at a time (`:236-241`).
+- No `MultiMesh`, `RenderingServer` call or instanced draw exists in `engine/`, `ui/` or `WEB/` (ABI audit section 3.1), so `DOC`'s instanced-batch statement (`DOC:70-71`) and NFR-02 are unimplemented.
+- The poses it applies come from `WorkshopPoseHistory`'s decoded responses (`GPU/WorkshopPoseHistory.cs:276`, `:301`), which ENGINE-WIRE-ABI replaces with the ring reader.
+- The project selects Godot's `gl_compatibility` renderer for desktop and mobile (`project.godot:17-18`), which is WebGL 2 on the web; nothing configures WebGPU. Whether the pinned Godot web export can drive WebGPU, and how it batches draw calls on the web today, are not established (ABI audit section 7; [engine design audit](../../docs/planning/elements/readiness/engine-design-gap.md) section 7, `:262`).
+
+*Contract:*
+- **First slice, the gate.** It establishes, with the pinned Godot version and web export, how an instanced batch is drawn on WebGL 2 and whether WebGPU can be driven at all. If a backend cannot be reached, the slice stops and returns to the owner with the measured alternatives, with no partial switch and no second renderer path.
+- **One draw path.** Every presented body is one instance in a batch keyed by its declared (mesh, material) pair. Batch keys, meshes and materials are compiled at Run from the visual meshes the packages declare; no element identity, kind or name appears in renderer code. A batch of one is a valid size of the same path, not a fallback; no body is drawn by a per-node transform.
+- **Fed by the ring.** Each frame the renderer reads the newest bracket from ENGINE-WIRE-ABI's allocation-free ring reader, interpolates it, and writes instance transforms straight into per-batch instance buffers. The buffers are sized at Run from the compiled declarations and grow geometrically (design contract D5); nothing is allocated per frame, and after ENGINE-WASM-THREADS the copy into the instance buffers is the consumer's only copy.
+- **Strands and bindings stay in their batches.** A strand span is an instance of its declared segment mesh whose transform carries the span's midpoint, direction and length scale (today's rule at `engine/MachinePart.cs:222-233`). Art moved by a declared presentation binding is an instance whose transform composes its body's pose with the binding's committed sample from ENGINE-WIRE-ABI's shared animation table; a binding that changes a declared material value writes it as per-instance data, so no binding splits a part out of its batch.
+- **One batch build for both backends.** The same batches feed WebGL 2 (`drawElementsInstanced`) and WebGPU (`drawIndexed` with an instance count); there is no per-backend batching rule.
+- **Refusal.** A package whose visible mesh cannot be keyed (no declared mesh, or a material the batch key cannot name) is refused at compile with a typed reason; it is never drawn by another path.
+
+*Acceptance (native, through the batch builder's defined interface fed by the ring reader):*
+- On R1 at two collider counts and on R2, the batch count equals the number of distinct declared (mesh, material) pairs in the scene and does not change with body count, and per-body node transform writes are zero (the failure excluded: draw cost growing with body count).
+- Two qualification fixtures with different meshes and materials compile to their own batches with no renderer edit; a fixture whose binding changes a material value stays in its batch.
+- Fed by the ring at 240 Hz for 1,000 frames, every instance transform equals the interpolated committed pose within the game-grade envelope's position and orientation tolerances, no frame mixes two ticks, and nothing is allocated per frame after warm-up (a deterministic counter).
+- A strand span's instance length matches the committed span length within the game-grade envelope's position tolerance on two spans of different rest length (the failure excluded: a drawn strand that does not reach its anchors).
+- Reset and a new install rebuild the batches from the compiled declarations; a removed part leaves no instance; on adopting a new epoch the first drawn frame is the first committed sample (ENGINE-ONE-WAY-INSTALL).
+- A package whose visible mesh cannot be keyed is refused with its typed reason before Run.
+- Actual WebGL 2 and WebGPU frame pacing in Chrome is Story 16.2's, run in the post-catalogue browser phase; this story claims no browser qualification.
+- *Performance (R1, R2):* batches per frame, per-body node transform writes per frame and main-thread bytes allocated per frame against body count, before and after (deterministic counters); main-thread frame time recorded beside them; none rises.
+
+*Deletes:* the per-body node transform loop and its per-frame target scan in `WorkshopPhysicalPresentation.Apply` (`engine/MachinePart.cs:326-350`); the per-span node writes of `ApplyPhysicalSpans` (`:222-233`); every visual node kept only to carry a body pose.
+
+*Depends on:* ENGINE-WIRE-ABI (the ring as the presentation feed and the shared animation table), and through it ENGINE-CAPABILITY-INSTANCES (declared presentation drivers) and ENGINE-ONE-WAY-INSTALL (epoch adoption). Listed after ENGINE-WASM-THREADS (order 8c) but not dependent on it. *Unblocks:* Story 16.2 (instanced batches on WebGL 2 and WebGPU, qualified in the browser phase); `DOC`'s Rendering Graph statement and NFR-02; no identity directly.
+
+### Story ENGINE-TICK-ALLOCATION: An allocation-free tick
+*Status: Backlog. Sprint key: `engine-tick-allocation`. Order 9. Performance story (R3, R6). Before further elements (owner decision 3a).*
+
+*Outcome:* a steady-state tick at stable topology allocates no managed memory, in the solver and on the host path.
+
+*Present today:* a new object per contact point (`SIM/WorkshopCollisionKernels.cs:305-322`); a new list per box–plane, box–box, cylinder–box and cylinder–cylinder pair (`:474`, `:726`, `:1546`, `:1894`); a new feature-set key with an array and a sort per manifold (`SIM/WorkshopFrictionSolver.cs:13-31`); sort lambdas per manifold (`:117`; `SIM/WorkshopHollowKernels.cs:148`); a delegate per broadphase query (`SIM/WorkshopPhysicsEngine.cs:866`); two immutable-dictionary builders per tick (`:249-250`, `:370`); a hash set per tick (`SIM/WorkshopPhysicsEngine.Motors.cs:17`); host-side dictionaries, LINQ and closures (`SIM/WorkshopGpuDevice.cs:196-209`, `:329-349`), passage collections (`GPU/PassageSensorDeclaration.cs:96-99`), and a full typed read with fresh arrays (`SIM/WorkshopGpuDevice.cs:284-294`). The pose ring's per-tick slot array and copies are `ENGINE-WIRE-ABI`'s (owner decision 24k), not this story's. The host activation network matches events O(V × N), checks duplicates O(V²) and propagates O(occurrences × E) (`GPU/ActivationNetwork.cs:335-342`, `:505`, `:689`).
+
+*Contract:* pooled contact points, manifolds and keys; no per-pair lists; interaction state in sparse reusable tables; no immutable-dictionary rebuilds; a host tick path with no LINQ, closures or per-tick arrays, measured after `ENGINE-WIRE-ABI` has shrunk the per-tick read; activation events matched by compiled index and de-duplicated by a reusable set.
+
+*Acceptance:* on R3, managed bytes allocated per steady-state tick at stable topology are zero after a stated warm-up (a deterministic counter); existing scenes keep goals, events and causal order, and positions within the game-grade envelope. *Performance:* R3 bytes and R6 publication time before and after.
+
+*Deletes:* every allocation site listed.
+
+*Depends on:* ENGINE-ISLANDS-SLEEP, ENGINE-CAPABILITY-INSTANCES, ENGINE-WIRE-ABI. *Unblocks:* no identity directly; the frozen workloads of P0-034.
+
+### Story ENGINE-SOA-SIMD: Flat tables and four-wide contact solving
+*Status: Backlog. Sprint key: `engine-soa-simd`. Order 10. Performance story (R1, R2, R3). Before further elements (owner decision 3a).*
+
+*Outcome:* the engine matches its stated design: columnar tables compiled once at Run and kept across ticks, and contacts and narrowphase solved four at a time.
+
+*Present today:* the world is array-of-structures byte records (`DOC:128`); each tick copies the world (`SIM/WorkshopPhysicsEngine.cs:254`) and decodes every body and collider into pooled class instances in lists and a dictionary (`:32-38`, `:396-543`; classes `SIM/WorkshopCollisionKernels.cs:29`, `:93`). `Vector128` appears only in joint rows gathered four at a time (`SIM/PrismaticConstraintSolver.cs:208-218`; `SIM/RevoluteConstraintSolver.cs:213-221`); the tensile row broadcasts one row into four lanes (`SIM/TensileConstraintSolver.cs:80-82`); contacts, friction, narrowphase and broadphase are scalar, one manifold at a time (`SIM/WorkshopConstraintSolver.cs:577-586`); cylinder–box costs 312 distance evaluations per pair (`DOC:210-211`); friction preparation scans driven surfaces per contact point (`SIM/WorkshopFrictionSolver.cs:124-144`). The build gate checks only that f32x4 instructions exist in four named types (`SIM/CuriousContraptions.Simulation.csproj:25-26`).
+
+*Contract:* body, collider, contact and joint state in columnar, 64-byte-aligned tables compiled at Run and kept across ticks; contact rows solved four at a time within an island; narrowphase evaluated four lanes at a time where the shape pair admits it; driven surfaces found by compiled index in friction preparation; gas, line and acoustic rows of later stories compile into the same flat tables; the build gate checks the kernels the design names. **Tables in shared memory (owner decision 24k; ABI audit G15).** The tables live in the simulation runtime's shared memory, which `ENGINE-WASM-THREADS` provides, laid out so an island's rows are contiguous: committed poses are written from the columns straight into the pose ring (`ENGINE-WIRE-ABI`), and the worker pool can solve islands on separate threads (`ENGINE-PARALLEL-ISLANDS`) without copying a table.
+
+*Acceptance:* existing behaviour within the game-grade envelope on every lesson and law scene; goals, events and causal order unchanged. On R1 and R2 the story's deterministic counters hold, so it cannot pass with the scalar path unchanged: scalar contact rows and scalar narrowphase pairs solved per tick are zero (every row is in a four-lane group, a ragged last group padded with inactive lanes); lane groups used per tick equal the sum over islands of the rows in the island divided by four, rounded up; world copies and decoded object instances per tick are zero; and every table a tick reads or writes lies inside the shared-memory region that `ENGINE-WASM-THREADS` provides, the same region the pose ring's producer reads. *Performance:* R1 and R2 tick time and R3 bytes before and after; must not regress.
+
+*Deletes:* the per-tick world copy and decode into objects; the object graph `SimBody` / `SimCollider`; the scalar contact path.
+
+*Depends on:* ENGINE-TICK-ALLOCATION, ENGINE-WASM-THREADS. *Unblocks:* no identity directly; the REQ-04 tick target at P0-034. If the target is missed there, `ENGINE-PARALLEL-ISLANDS` follows.
+
+### Domain stories in owner decision 18's order: gas, then liquid, then thermal
 
 ### Story ENGINE-GAS-NETWORK: Connected finite gas stores, lines and valves
-*Status: Backlog. Sprint key: `engine-gas-network`.*
+*Status: Backlog. Sprint key: `engine-gas-network`. Order 11. First domain story after the programme (owner decision 18).*
 
-*Present today:* one finite gas store per body with an isobaric envelope (`IGasStoreElement`, Balloon), conical airflow sources and receivers (Fan), rotary airflow capture (Windmill), ambient load. A fluid port contract (`IFluidElement`, `FluidPortDescriptor`, `FluidProperties` in `CuriousContraptions.Abstractions.Fluid`) is declared, serialised and validated by the bundle, but no solver or element consumes it. Story 12.4 (Pneumatic Bellows, in flight) owns the compression pulse and whatever it delivers is subtracted from this story. *Missing:* lines that join stores through typed ports, pressure equalisation by conserved transfer, valves and vents commanded by a signal, and pressure doing work on a declared actuator. Under the forward-only rule this story and ENGINE-LIQUID between them either build on that one fluid port contract or delete it; neither adds a second port contract beside it.
+*Outcome:* finite gas stores joined by lines through typed ports equalise by conserved transfer, valves and vents are commanded by signals, and pressure does work on declared coordinates.
 
-*Unblocks:* the 7 Pneumatic identities, the pneumatic pistons EL-230 and EL-231, and the pneumatic sources of the acoustic family (whistles, horns, ducts) that need a pressure supply. Map families: GasState, PressureWork.
+*Present today:* one finite gas store per body with an isobaric envelope, coupled to a sphere only (`ABS/GasCouplingValues.cs:10`; `ABS/IsobaricGas.cs:133`), which refuses refill; conical airflow sources and receivers; rotary airflow capture; ambient load. A fluid port contract (`IFluidElement`, `FluidPortDescriptor`, `FluidProperties`; `CuriousContraptions.Abstractions.Fluid/FluidContractValues.cs:12`, `:18`) is declared, serialised and validated with no solver or consumer. Slider damping is one coefficient; the travel observation takes a revolute coordinate and fires once (`ABS/CoordinateTravelValues.cs:13-17`).
 
-**Specific acceptance:**
-- **Given** two declared stores joined by a declared line, **when** a valve opens, **then** gas transfers until pressures balance, total amount is unchanged, and a closed valve or disconnected line transfers none.
-- **And** a declared chamber drives a declared prismatic or revolute coordinate through pressure work paid from the store; an exhausted store does no work.
+*Contract:*
+- **One fluid port record (coordinator decision 16).** A fluid port is a node, a role, an aperture and a socket (liquid L5). A socket is either a scene mouth joined by adjacency (mouth-joined) or a link terminal joined by a connection of a fluid connection material (link-joined); both compile to the same network edge, and no join rule depends on the medium. A gas port is role Bidirectional (flow follows pressure) with a link-joined socket whose authoring end is Input or Output, and its aperture is the throat the connection kind declares (pneumatic F3, F10); no `PortRole` member is added for gas. This record serves gas and liquid; `IFluidElement` is reshaped into it or deleted. The edge between a gas node and a liquid node is `ENGINE-LIQUID`'s (coordinator decision 26), not this story's.
+- **Stores.** A rigid fixed-volume store that loses and gains mass; a sealed store whose volume follows a prismatic coordinate; a fixed-volume store vented to ambient that exchanges counted mass as its temperature changes. The sphere-only coupling is removed. **Mixtures (coordinator decision 26; pneumatic P1).** A store may hold one carrier gas and one vapour component (air and water vapour) at one temperature: mass, internal energy and pressure are sums over the components by Dalton's law, U = Σ mᵢ·Cvᵢ·T and p = Σ mᵢ·Rᵢ·T ÷ V, each component's partial pressure mᵢ·Rᵢ·T ÷ V is a committed read, and flow carries each component in proportion to its mass fraction. Each component is a calorically perfect ideal gas with declared limits (pneumatic P14); heat reaches a store only through `ENGINE-THERMAL`, which moves none into a store at its temperature or pressure limit (thermal T9), so the clamp never destroys heat.
+- **Step (coordinator decision 26; pneumatic F5).** The gas step runs once per 1/480 s substep, first in the substep and before the liquid step, at its slot in the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order), and is not repeated by a solver trial replay (as the delivered advance runs, `SIM/WorkshopPhysicsEngine.cs:994`). Paths are applied one at a time in compiled order from current state, each moving at most the amount that equalises the two volumes it joins, so no node gives more than it holds, even a node joined to several paths; for a mixture the equalising amount is set by total pressure. Work per substep is one row per store and per path.
+- **Lines.** A fluid connection kind whose line volume and throat are bundle data, with a `LineEnd { Sealed, Vent }` free end, a save field, a Connect control and tube presentation; the strand collider is the connection material's (`ENGINE-CONNECTION-MATERIALS`). A line starts at the pressure of the store on its Output end, else the store on its Input end, else ambient. Several lines on one Output; vents as declaration data on any Fluid port, Input or Output end (EL-045 vents through its `GasIn` Input; pneumatic F4); flow through a declared throat follows pressure in either direction.
+- **Valves and paths.** One-way and routed paths selected by one signal memory node; an exhaust port that vents when unconnected and that a Choice can close; a one-way path with a cracking pressure. **A cracking relief, each gas step:** it is open while its upstream store's absolute pressure is at or above the declared cracking pressure and flow would leave toward its downstream side, and closed otherwise; while open it passes the one throat law's flow for that step (choked or subsonic by the pressure ratio), clamped like every path; it is re-tested every step, so a store held at its crack rises above it by at most one step's inflow and the relief opens and shuts with no hysteresis rule of its own (TH-17's relief). **Venting a mixed head:** a store holding air and steam vents through any path at the mixture's mass-weighted R and Cv (so the mixture's own γ and critical ratio set choking), each component leaving in proportion to its mass fraction; a path to ambient never draws the store below ambient (TH-17, TH-35).
+- **Work.** A work target that compresses ambient gas into a line with declared efficiency and rating and, for a shaft input, a power-limited resisting torque with a cap (debited under `ENGINE-SUPPLY-DEMAND`); an axial chamber on a prismatic coordinate, including two chambers on one coordinate; pressure work paid from the store; an expanding work target using the flow's declared Cp, γ and efficiency, shaft work removed from downstream enthalpy.
+- **Jets (boundary with `ENGINE-REACTION-THRUST`).** The converging-nozzle law with one-way ambient refill, and an airflow source fed by a gas path whose force and reach are declared functions of committed thrust, belong here. The reaction of any airflow source on its own frame body when nothing is in its cone belongs to `ENGINE-REACTION-THRUST`; a gas-fed source on a dynamic body uses both.
+- **Prismatic additions its first consumer needs:** slider damping declared per direction of travel (every existing package declares both coefficients; no defaulted second field) and a repeatable stroke occurrence on a prismatic coordinate.
+- **Observations and units.** Committed pressure, partial pressure, temperature and mass-rate observations at a store, line or inlet (thresholds over them are `ENGINE-SIGNAL-NODES`'); presentation drivers for pressure, mass rate and regime; unit members Pa, m³ and m² (this story lands before `ENGINE-LIQUID`, so it owns them); `PortId`s `GasIn` (Input end), `GasOut`, `PortA`, `PortB` and `Exhaust` (Output ends), and named inlets for a part with more than one.
+- Pressures are pascals absolute with ambient 101 325 Pa and the thermal conventions' ambient temperature (288 K).
 
-### Story ENGINE-OPTICAL: Beam emission, transport, surface interaction and reception
-*Status: Backlog. Sprint key: `engine-optical-propagation`. Precedes every Epic 13 story.*
+*Acceptance:*
+- Two stores joined by a line equalise when a valve opens, total mass unchanged; a closed valve or disconnected line transfers none; with every valve closed no store changes at Run start.
+- A store on a Vent end falls to ambient and never below; on a Sealed end mass is unchanged and nothing moves.
+- A chamber drives a prismatic coordinate through pressure work paid from the store; an exhausted store does no work; two opposed chambers on one coordinate drive it both ways.
+- Mass enters a compressed line only while work is supplied and stops at the rating; gas leaving through an exhaust joined to a line arrives in that line.
+- A receiver beyond the thrust-scaled reach receives zero impulse.
+- A slider declaring different damping per direction moves faster one way than the other under the same force; a stroke occurrence repeats on every stroke.
+- A line tee'd from one Output to two small stores at ambient never leaves the feeding store below the stores it feeds and never lets it give more than it holds; total mass is unchanged.
+- A store holding air and vapour reads a pressure equal to the sum of its partial pressures, and gas leaving it carries each component in proportion to its mass fraction.
+- The same equalisation run at 60, 120 and 240 Hz cadences reaches the same final pressures within pressure 2000 Pa or 2 %, whichever is larger (the pneumatic family's pressure tolerance, EL-039 F6: the 2 % is far inside the gauge's 10 % hysteresis band, so a cadence that shifts a settled pressure by more than a gauge reading would fail).
 
-*Present today:* nothing (no beam, ray or optical channel contract in the engine). *Missing:* declared emitters (direction, divergence, channel content), straight-line transport with solid occlusion through the existing BVH, declared surface responses (absorb, reflect, transmit by channel, split, combine), bounded bounce depth, declared receivers that integrate received channels against a threshold, and the beam presentation read model.
+*Deletes:* the sphere-only gas coupling; the store's refusal of refill as a separate rule; `IFluidElement` in its present form; the single slider damping coefficient; the one-shot revolute-only travel observation as a separate kind.
 
-*Unblocks:* the 23 optical CAT parts of Epic 13 and the 28 Optical identities. Map families: OpticalTransport, OpticalAbsorption.
-
-**Specific acceptance:**
-- **Given** an emitter, a reflecting surface and a receiver, **when** the path is clear, **then** the receiver reports the emitted channels; inserting an occluding solid or rotating the surface off the path gives none.
-- **And** a channel-selective surface passes only its declared channels, a splitter conserves channel power across its outputs, and evaluation order within a tick is fixed and documented once for all optical consumers.
-
-### Story ENGINE-FIELD-FORCE: Declared non-contact force regions
-*Status: Backlog. Sprint key: `engine-field-force`.*
-
-*Present today:* gravity, conical airflow wrench and ambient load only. *Missing:* a declared field source (region, falloff, strength, switched by a signal or supply) that applies force to bodies carrying a declared responding material property, with the reaction applied to the source body.
-
-*Unblocks:* magnets, electromagnet pickup and the magnetic impulse relay (EL-227), and the Gravity-type identities that alter the local field. Map families: EnvironmentState with RigidBodyDynamics.
-
-**Specific acceptance:**
-- **Given** a responding and a non-responding body at the same distance from a field source, **when** the source is on, **then** only the responding body accelerates toward it; switching the source off removes the force within the tick the command commits.
-- **And** the reaction on a dynamic source body is equal and opposite, so an isolated pair gains no momentum.
-
-### Story ENGINE-ASSEMBLY-JOINTS: Player-built rigid and releasable connections
-*Status: Backlog. Sprint key: `engine-assembly-joints`.*
-
-*Present today:* revolute, prismatic and tensile constraints declared inside one element package; `MechanicalTransmissionDescriptor`, which already couples two coordinates by a ratio, including revolute to prismatic (Wound spring); and a commanded release of a tensile span (rope cut). *Missing:* connections the player makes between two separately placed parts at typed attachment sockets (rigid, hinged or sliding), a commanded release of such a connection, position-dependent coupling such as a crank and rod, and the revolute counterparts of capabilities that exist only for prismatic coordinates: a holding brake (prismatic has `PrismaticInactiveResponse.SelfLock`), retention with a latched release, and a signal-commanded strike-and-hold or position drive (the revolute drive today takes only a run-control target speed). Also missing, and owned by this story: an elastic hinge (spring return on a revolute coordinate), a winch that winds a tensile span, an elastic tensile span, and shaft-to-electrical conversion (a supply whose output is paid by shaft work).
-
-*Unblocks:* the 9 Construction identities and the GAP assembly records. For EL-218 to EL-222, EL-226, EL-232 and EL-235 the capability probe decides which of the missing items above each one needs; none is assumed. Map families: JointConstraint, TopologyTransaction, ShaftTorque.
-
-**Specific acceptance:**
-- **Given** two parts joined at compatible sockets, **when** Run starts, **then** they move as the declared joint allows and incompatible sockets are refused at connection time.
-- **And** a commanded release frees the parts in the tick it commits and Reset restores the authored connection.
-
-### Story ENGINE-FRACTURE: Load-limited connections and irreversible break
-*Status: Backlog. Sprint key: `engine-fracture`. After ENGINE-ASSEMBLY-JOINTS.*
-
-*Present today:* contact-integrity observers on one body (Balloon). *Missing:* a declared load limit on a connection or body, a one-way break that changes topology when the sustained load exceeds it, and declared fragments.
-
-*Unblocks:* EL-159, EL-160 and EL-161 (tension-, shear- and bending-limited connectors, the children of the GAP-05 umbrella) and every identity whose map row names StructuralFracture.
-
-**Specific acceptance:**
-- **Given** the same connection loaded just below and just above its declared limit, **when** the run settles, **then** only the second breaks, it stays broken for the rest of the run, and Reset restores it.
-
-### Story ENGINE-GOALS: Declared goal kinds and ordered objectives
-*Status: Backlog. Sprint key: `engine-goal-evaluation`.*
-
-*Present today:* one goal per level, of kind Captured, ActivatedAfter or IntegrityBroken (`WorkshopGoalKind`, `WorkshopPuzzle.Goal`). The planned-level shape with a `goals` array is indexed but never constructed. *Missing:* evaluation of several goals per level (all-of first, then any-of, ordered and forbidden events), further goal kinds the planned levels use such as turned and powered-after, and per-goal progress with the Solved result on the typed observation port.
-
-*Unblocks:* the 4 Goal identities, including EL-122 ordered-events goal, the goal variants the campaign plan reserves for chapters 3–5, and every planned level that has more than one goal or a goal kind outside the three above.
-
-**Specific acceptance:**
-- **Given** an ordered-events goal, **when** its events occur in the required order, **then** the level is Solved; the same events out of order do not solve it, and a forbidden event fails the attempt until Reset.
-
-**Story 14.0 (ENGINE-ACOUSTIC)** stays as written in [Epic 14](#story-140-acoustic-propagation-occlusion--reception-engine-engine-acoustic); the shared acceptance above applies to it as well.
+*Depends on:* the engine programme; ENGINE-SIGNAL-NODES (threshold, memory routing); ENGINE-CONNECTION-MATERIALS (solid hose strand); ENGINE-RUN-LENGTH (rows over 30 s). *Unblocks:* CAT-003 (re-qualified on the new store), CAT-010, EL-037, EL-038, EL-039, EL-040, EL-041, EL-042, EL-043, EL-045, EL-230, EL-231, TH-17, TH-18, TH-19, TH-20, TH-24, TH-25, TH-35; and the fluid port record and units of EL-001, EL-002, EL-014, EL-015, EL-026, EL-027, EL-030, EL-031, EL-032, EL-033, EL-034, EL-168, EL-171, EL-229, RAD-17 and TH-11.
 
 ### Story ENGINE-LIQUID: Conserved liquid inventory, head-driven flow and immersion
-*Status: Backlog. Sprint key: `engine-liquid`.*
+*Status: Backlog. Sprint key: `engine-liquid`. Order 12. After ENGINE-GAS-NETWORK (owner decision 18). Performance story (R4 with stores and streams). The liquid conventions are owned by the [EL-001 spec](../../docs/planning/elements/EL-001-finite-reservoir.md) (L1 to L18); this story implements them.*
 
-*Present today:* no liquid solver, vessel or flow. Buoyancy exists only for a gas-filled body in air. The fluid port contract named under ENGINE-GAS-NETWORK (`IFluidElement`, `FluidPortDescriptor`, `FluidProperties`) is declared and validated with no consumer; this story builds liquid ports on it or, with ENGINE-GAS-NETWORK, deletes it. *Missing:* declared vessels holding a finite volume with a free-surface level, flow between vessels and through apertures and channels driven by head, overflow and spill as conserved transfer, immersion forces on bodies (buoyancy and drag from displaced volume), and level, flow and volume observations.
+*Outcome:* a liquid network compiled at Run from declared stores, fittings, sinks and sources conserves volume, flows by head through apertures, spills streams by sampled paths, and buoys bodies by displaced volume.
 
-*Unblocks:* the 44 Water identities ledgered before 21 November 2026, the hydraulic piston EL-229 and the waterwheel EL-240. Map families: FluidAdvection, Buoyancy, CapillaryTransport, PressureWork.
+*Present today:* no liquid solver, vessel or flow; buoyancy exists only for a gas-filled body in air. Liquid ports will use the fluid port record of `ENGINE-GAS-NETWORK`.
 
-**Specific acceptance:**
-- **Given** an elevated vessel joined to a lower one, **when** the aperture opens, **then** liquid flows until levels balance or the source empties, total volume is unchanged, and an empty source supplies none.
-- **And** a body less dense than the liquid floats at the displacement its mass requires and a denser body sinks.
+*Contract:*
+- **Network.** Stores, zero-volume fittings, sinks and sources, with four world accounts, `Spilled`, `Drained`, `Supplied` and `Evaporated` (liquid L3; coordinator decision 26); at every committed tick Σ store volumes (pending overflow and prime inventories included) + `Spilled` + `Drained` + `Evaporated` = Σ authored initial volumes + `Supplied` (liquid L10). Each pair of joined snap sockets of equal bore compiles to one edge (socket lists are `ENGINE-CAPABILITY-INSTANCES`'); fittings joined to fittings merge into one node. The liquid is one declared material row (density, immersion damping, discharge coefficient, and the rows other capabilities attach).
+- **Stores.** Capacity, plan area, interior height, floor datum points and an interior region, any optionally parameter-bound. Level follows volume, displaced volume and committed tilt by one relation; retained capacity is that relation at the rim. A store may be sealed and compliant (mouth head proportional to volume held, no interior), porous (keeps contents at any orientation, interior is its carrying collider, may take liquid up from a store its body is immersed in at a declared rate), or have capacity bound to a committed coordinate (excess held as pending overflow, leaving through a declared relief mouth next substep). Nested interiors resolve innermost first. A mouth may lie below its store's floor datum. Immersed ports have no socket; their node is the innermost interior containing their point, wet while that surface is above it.
+- **Flow.** Head is lost only at declared apertures by one orifice law; fitting flows sum to zero. Liquid passes a mouth datum only while the highest total head among the wet stores feeding that fitting, plus the head added by granted work targets between them, is at or above it, unless the fitting declares a crest (crest datum, prime volume, self-priming rate) and its prime is full; a dry intake breaks it; there is no lift limit. Each substep is one pass: aperture flows from committed heads, then stream credits. Volume above retained capacity is pending overflow leaving next substep. A store never gives more than it holds; in the wedge regime it never receives more than raises its surface to the supplying head; a transfer between two stores never passes levelling; after the declared sweeps a fitting's outflows are scaled to its inflows.
+- **Streams.** A free end discharges a stream at the contracted-jet speed along its normal plus the owning body's velocity, as a fixed declared number of sample paths each carrying an equal share; a sample that ends inside a store's or sink's declared interior is credited in the same step; one that meets any other collider is spilled; no collider is exempt by kind; no in-flight inventory. Each sample path is a declared fixed number of segment casts of `ENGINE-SPATIAL-QUERIES` along its ballistic arc, ending at the world bound (liquid L18).
+- **Bodies.** A dynamic body's displacement shapes (its colliders, or a declared envelope, counted as their union) inside an interior receive buoyancy and damping from submerged volume and raise the level; the region inside them is excluded from the surrounding store; buoyancy on a body inside a carried store is reacted on the carrying body. A store on a dynamic body adds its contents to that body's mass at the centroid of the liquid region at the committed pose, with no added inertia (a new mass-source kind), and captures at an aperture that follows the body. A declared capture region may do paid work on a declared coordinate, at most a declared fraction of ρ·g × descent per unit volume, and releases the volume from a declared outlet; a store whose capacity is bound to a prismatic coordinate receives force ρ·g·h·A on it from the head at its intake, paid by the volume entering at that head.
+- **Control.** A seat's opening follows a parameter (including one value per Choice option), a committed coordinate, a memory node or any committed scalar through a clamped linear map; a seat may be one-way with a cracking head. A work target adds head on a declared edge, limited by a declared maximum head and by efficiency × input power, with a declared sense on its coordinate input; energy taken = hydraulic work ÷ efficiency; an electrical input debits its grant; a shaft input meets a resisting torque of that power ÷ shaft speed, capped. An ungranted work target adds no head and is an open edge.
+- **Gas edge (coordinator decision 26; liquid L15).** The edge between a gas node and a liquid node is this story's; it lands after `ENGINE-GAS-NETWORK`. It is a work target whose input is a gas store: the energy taken (hydraulic work ÷ efficiency) is debited from that store's internal energy, the edge adds no head while the store's pressure does not exceed the liquid node's head pressure at the edge, it has its own head cap in metres, and it reads the gas pressure the gas step of the same substep has just committed. There is no pascal equality across the two networks.
+- **Exchange.** A declared exchange moves volume between a store and another capability's ledger (phase change), counted in `Drained` (liquid leaving) and `Supplied` (liquid arriving); evaporation to the world is counted in `Evaporated` only, never in `Drained` (liquid L3); a phase-row source or sink is not subject to the zero-flow threshold and is checked as mass; it may deliver into a zero-volume fitting at its committed rate, including on a dynamic body.
+- **Observations.** Store volume, depth, fraction and level; aperture flow; node pressure; account totals; seat opening; probe depth (a depth probe reads the store whose interior contains its point); prime fraction; cumulative volume per declared fitting. Readable by presentation drivers, threshold nodes and goals. Unit m³/s (Pa and m³ are `ENGINE-GAS-NETWORK`'s). Stores accumulate with the engine's bulk-and-remainder pair.
+- **Bounds.** The step runs once per substep, right after the gas step and before supply grants, at its slot in the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order) (liquid L16), and is not repeated by a solver trial replay; it carries `ENGINE-THERMAL`'s enthalpy column, which moves each transfer's heat with its volume (thermal T2). A change of contents or level wakes the islands it loads. Work per substep is bounded by the compiled counts of stores, apertures, fittings, seats, probes, envelopes and work targets and by the declared sweep, sample and cast counts, which the story states (per-declaration limits); tables are sized at Run with no scene ceiling and no scene-capacity refusal (D5).
+
+*Acceptance:*
+- An elevated store joined to a lower one flows until levels balance or the source empties; total volume is unchanged; an empty source supplies none.
+- A body less dense than the liquid floats at the draught its mass requires and a denser one sinks; a hollow body with a declared envelope floats at its draught and sinks when its mass exceeds the envelope's displacement; a body resting in a floating hull is buoyed only by the liquid in the hull; a carried vessel weighs the same whether a body in it rests on its floor or floats.
+- A route's flow is unchanged when a lossless fitting is inserted; two equal apertures in series pass 1/√2 of one.
+- A route with no granted work target whose highest mouth datum is above its supply surface passes nothing however low its outlet; a crested fitting with a short prime passes nothing, primed passes the aperture law's flow, stops when its intake uncovers and does not restart by itself.
+- A tilted store's reported depth and its overflow point agree; a cascade of three full stores conserves volume at every committed tick; a body lowered into a full store spills its displaced volume.
+- A stream sample ending inside an interior adds exactly its share; one meeting another collider first adds to the spilled account; a body floating inside a store does not spill a stream landing on it.
+- A seat driven by a held coordinate passes its held opening; a one-way seat passes nothing against its direction at any head.
+- A work target with no grant adds no head and passes flow downhill; the energy taken is never less than hydraulic work ÷ efficiency; a dry or stalled work target takes none; granted shaft work lifts liquid above its supply surface.
+- A sealed compliant store charges only to the head that feeds it; lowering a bound capacity moves exactly the excess through the relief mouth next substep and raising it draws nothing back; a porous store on an immersed body gains what the surrounding store loses and stops at capacity.
+- A twin-chamber rocker whose contents act at their centroids tips when the raised chamber's moment passes its hold and stays on its stop below it.
+- A fitting's cumulative volume equals what the stores upstream lost, whatever the sampling interval.
+- A gas store driving liquid up through a gas edge loses the energy the lift took (hydraulic work ÷ efficiency) and lifts nothing while its pressure does not exceed the head pressure at the edge; a store at 400 000 Pa lifts no higher than the edge's head cap.
+- The four-account ledger closes at every committed tick, including volume a phase-row exchange moves (counted in `Drained` and `Supplied`).
+- After two stores joined by one aperture have levelled, their level difference stays within the stated overshoot bound and reported flow stays under the stated no-flow allowance (L17 of the liquid conventions).
+- *Performance:* R4 with stores and streams before and after.
+
+*Deletes:* nothing in the engine (no liquid code exists); the per-material stream flag of earlier drafts is withdrawn.
+
+*Depends on:* ENGINE-GAS-NETWORK (port record, units, and the gas store a gas edge debits); the engine programme (spatial queries, islands, capability instances, supply demand); ENGINE-SIGNAL-NODES; ENGINE-PARAMETER-BOUND-FRAMES; ENGINE-JOINT-KINDS (spring rest position of channel gates); ENGINE-RUN-LENGTH. *Unblocks:* EL-001 to EL-036 (the Water identities ledgered before 21 November 2026), EL-052, EL-165 to EL-172, EL-229, EL-240, TH-11, TH-13, TH-14, TH-15, TH-17, TH-18, TH-28, TH-35, RAD-17, the liquid crossing of EL-130, and the liquid buoyancy rows of CAT-001, CAT-014, EL-187 and EL-188.
 
 ### Story ENGINE-THERMAL: Heat storage, transfer and phase change
-*Status: Backlog. Sprint key: `engine-thermal`. After ENGINE-LIQUID.*
+*Status: Backlog. Sprint key: `engine-thermal`. Order 13. After ENGINE-GAS-NETWORK and ENGINE-LIQUID (owner decision 18: the 3a programme → gas network → liquid → thermal → the rest), so campaign levels 14 to 20 and 39 to 41 can teach thermal parts. The thermal conventions are owned by [TH-04 section 11](../../docs/planning/elements/TH-04-electrical-heating-plate.md#thermal-conventions) (T1 to T14).*
 
-*Present today:* a gas temperature inside the isobaric gas law only. *Missing:* declared heat capacity and temperature per body or vessel, conduction through declared contacts, convection to a declared medium, declared heat sources and sinks paid from a finite store, phase thresholds (melt, freeze, boil, condense) as conserved transfers, thermal expansion as a declared coordinate, and temperature sensing.
+*Outcome:* declared thermal nodes store heat, exchange it by one link law, change phase with conserved latent heat, expand declared coordinates and convert heat to supply only through a finite store.
 
-*Unblocks:* the 37 TH identities and the thermal modes of other families. Map families: SensibleHeat, ThermalConduction, ThermalConvection, ThermalExpansion, SolidMelting, LiquidFreezing, LiquidBoiling, VaporCondensation, TemperatureSensing.
+*Present today:* a gas temperature inside the isobaric gas law only, entering at charge (`ABS/IsobaricGas.cs`); no thermal node, link, unit or driver (`ABS/ParameterDescriptor.cs:15-35` ends at `RadianPerSecondPerNewton`; `ABS/ElementPresentation.cs:18-37` has no thermal driver); a source's store has four parameter-bound values filled only by its initial charge.
 
-**Specific acceptance:**
-- **Given** a hot and a cold body in declared contact, **when** time passes, **then** their temperatures converge, total heat is unchanged, and an insulating declaration between them stops the transfer.
-- **And** a body held at its phase threshold changes phase only after the declared latent amount has been supplied.
+*Contract:* (the thermal conventions T1 to T14 as repaired on 23 November 2026 under coordinator decisions 26 and 28; the tick order is the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order), which this story cites and does not restate)
+- **Nodes.** A lumped node on any body: heat capacity, initial temperature (fixed, parameter-bound or Choice-selected, including below ambient), ambient conductance and faces (a collider or a declared disc aperture, each with a face conductance). Every liquid store is also a node with an authored starting temperature; inflow mixes by mass and outflow leaves at the store's temperature (owner decision 20). A gas store is a node through the energy it carries, Σ mᵢ·Cvᵢ·T over its components (pneumatic P1). Units kelvin, J/K, W/K and W/(m·K).
+- **Heat moves with liquid (coordinator decision 26; thermal T2, liquid L2).** This story adds an enthalpy column to `ENGINE-LIQUID`'s step, executed there per substep: every transfer of volume ΔV carries ΔV × the source store's enthalpy per unit volume H ÷ V; a fitting passes the mixed enthalpy per unit volume of its inflows; a stream credits its enthalpy with its volume; spilled and drained volume carries its enthalpy into that account. It reads no temperature and, with the liquid bound ΔV ≤ V, never makes H negative. The thermal step reads H as the last substep committed it and never moves advected heat itself.
+- **One link law, one step.** Q̇ = G·ΔT on every link, applied each tick in compiled link order by the exact two-node exchange ΔQ = ΔT·C_r·(1 − e^(−G·dt ÷ C_r)), C_r = C_a·C_b ÷ (C_a + C_b) (C_r = C for a link to ambient or to a held temperature; a node holding at a phase threshold counts as held); a zero-capacity node is inactive. A gas store at its material's temperature or pressure limit (pneumatic P14) accepts no heat: a link or source that would raise it moves nothing in that direction, and the paying node or store keeps its energy (thermal T9; coordinator decision 26). Internal links (declared G, or a slab k·A ÷ L, length optionally parameter-bound). Contact links between two face colliders while their shapes touch within one declared tolerance, G = G_a·G_b ÷ (G_a + G_b): static pairs resolved once at Run through the query interface, pairs with a moving member added and removed on begin- and end-touch (`ENGINE-CONTACT-OBSERVATIONS`), held in a link table that persists while an island sleeps; a link never depends on contact force. Attachment links across a player-made connection whose sockets declare a face conductance. Wetted links scaled by fill fraction. Region links: a box on a frame body with a declared axis, shares by projected overlap, granted nearest-first and capped at a sum of 1. Ambient exchange to the world account `ToAmbient`, multiplied by (2.5 + u) ÷ 2.5 with u the committed airflow speed at one declared forced-air sample point per node (it takes no force); zero in Vacuum.
+- **Sources.** Every source credits a node and debits a finite store by the same joules in the same tick (thermal T4):
+  - a supply heat target, crediting the energy granted over the tick's substeps; while the store it heats is at its declared limit it accepts nothing and so requests nothing that tick, through `ENGINE-SUPPLY-DEMAND`'s rule for a consumer that can accept nothing (coordinator decision 30);
+  - an inventory source paying a constant declared power from a finite inventory, restored on Reset;
+  - a frictional source (contact friction, joint friction or a resisting drive, summed over all the tick's substeps from each substep's accepted solve only, credited by declared shares);
+  - **absorbed light or radiation, booked once (coordinator decision 26; thermal T3):** where a collider is a face of a node with a declared absorptance a, a × the energy the one optical and radiation solve booked on that collider's absorbed record in the tick, after any store credit has taken its fraction, moves from that record to the node in the thermal step; the remainder stays on the record. A receiver's reading is an observation of flux and credits nothing. This row is delivered here as an interface whose end-to-end proof lands in `ENGINE-OPTICAL`, the first story that books absorbed energy;
+  - a converter row between two nodes and one supply node with a declared bounded law whose flows sum to zero, refused at bundle time if its law can exceed the Carnot fraction.
+- **Heat or light to supply: one form (coordinator decisions 21 and 26).** A credit of a declared fraction of converted or absorbed energy into a finite store that an ordinary supply source draws from, availability optionally gated by a threshold node. **The credited store** (a supply source whose finite store has a declared capacity, power limit, initial charge and enable, as constants or bound to parameters, and gains energy during a Run only by a credit) is one row of this story, for every filler, in the optical, radiation and thermal conventions alike (coordinator decision 26). The receiver credit, taken from the absorbing collider's record at the end of the optical solve, is `ENGINE-OPTICAL`'s row; a thermal converter's credit is this story's.
+- **Phase rows** on a node or a liquid store (thermal T5):
+  - melt and freeze with a latent amount;
+  - boil at T_sat(p) from the saturation table of the declared "game steam" material row, moving m·Cp_v·T_sat out of the liquid store's node into a gas store's vapour component, the latent heat being the game water's declared value (owner decision 19);
+  - **condense in one form, the wall-limited row (coordinator decision 26; stated word for word in TH-17 and TH-18; batch N section 5):** declared on a wetted link between a gas store holding vapour and the node that takes the latent heat, naming the liquid store that receives the condensate; while that node is below the dew point of the vapour's partial pressure, vapour moves at ṁ = G × (T_dew − T_node) ÷ L_v(T_dew), never more than is present, moving m·Cp_v·T_dew out of the gas store (m·c·T_dew into the liquid store, the latent m·L_v(T_dew) into the node); there is no other condensing rule;
+  - evaporation at a declared rate × (1 − φ) × the airflow multiplier, φ one validated scene relative humidity (0 to 1, default 0.5), off in Vacuum, its mass counted in the liquid `Evaporated` account (liquid L3);
+  - an ignite threshold handed to `ENGINE-IGNITION-BLAST`; any row may be one-way; committed phase fraction and solid amount;
+  - a collider and its art active over a declared interval of a committed phase scalar, switched at a tick boundary (an inactive collider wakes the islands it supported); a body's mass equal to its committed solid mass with centre and inertia recomputed from its active colliders at a tick boundary;
+  - a vapour expander (an expanding work target) declares an efficiency that is checked at bundle validation from declared values alone: the game-steam row declares the largest efficiency an expander may declare, η_max = 0.25 (thermal T11), and a declaration above it is refused with a typed reason, so no expander's best shaft power can reach the Carnot fraction of its source; nothing about the scene or the source is read (TH-20).
+- **Expansion.** A binding from a node's temperature to the rest position of one coordinate's position drive, with declared coefficient, stiffness and force or torque limit, active without a supply route; positive work debited from the node and negative work credited. The binding publishes its committed load (the force or torque its drive exerts) as a scalar observation and a presentation driver (TH-23; coordinator decision 29).
+- **Lift in air (coordinator decision 28; thermal T6; TH-25 H3).** Buoyancy in air is one law: a body declares its ambient lift, a declared acceleration (the delivered ambient load). A heated envelope's lift is that declared acceleration with its magnitude bound to the envelope store's committed temperature: a = A × (1 − T_ref ÷ T), A declared (decision 28's lift, envelope volume × reference air density × |g|, over the body's dry mass; the envelope air is not a mass source of the body), clamped to a declared range inside the 16 m/s² domain of a declared acceleration (`CuriousContraptions.Abstractions/WorldAccelerationDeclaration.cs:25`), read from the previous tick's committed temperature and acting from the next tick. `ENGINE-FIELD-FORCE` scales it by |effective gravity| ÷ |declared gravity| like any declared lift, bounded only by the body's one combined acceleration bound, and never twice. The reference air density is one declared value of the scene atmosphere, stated once in this story's Code Map. The binding mechanism is `ENGINE-PARAMETER-BOUND-FRAMES`' committed-state binding. There is no displaced-air law; buoyancy in liquid stays `ENGINE-LIQUID`'s displaced-volume law.
+- **Observations.** Committed temperature, heat flow, phase fraction and expansion load as scalar observations for `ENGINE-SIGNAL-NODES`; presentation drivers for each.
+- **Tick slot (thermal T8).** One thermal step per committed tick of duration dt, at its slot in the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order): after the last substep and the optical and radiation solve, before sensor evaluation and commit. It applies the tick's source credits first, then each face's absorptance share of what remains on its collider's absorbed record, then the link exchange and phase rows on the post-exchange values. It reads this tick's supply grants, the friction and drive work summed over the substeps (accepted solve only), the touching pairs as of the last substep, the absorbed records the solve has just booked and each liquid store's enthalpy as the last substep committed it. Thresholds over its results act from the next tick; mass a phase row moved enters its store at the tick boundary.
+- **Ledger and bounds (thermal T13; coordinator decision 26).** Every committed tick: Σ node enthalpy + `ToAmbient` + the enthalpy carried into `Spilled`, into sink nodes (the part of `Drained` a sink received) and into `Evaporated`, and out of vents + the work done on bodies and on liquid (expansion drives, gas chambers, the gas input of a liquid edge) = Σ initial enthalpy + Σ source credits (including absorbed light and radiation moved from collider records) + the enthalpy brought in by source nodes (the part of `Supplied` a source delivered) − Σ converter work out. A phase row's exchange between a liquid store and a gas store stays inside Σ node enthalpy and is counted once. Reset restores authored temperatures, phases and stores and zeroes the account; a save holds authored values only. Work per tick is the compiled rows plus live pairs and region overlaps; tables are sized at Run with no scene ceiling and no scene-capacity refusal (D5).
+
+*Acceptance:*
+- A hot and a cold body in declared contact converge, total heat unchanged; an insulating declaration between them stops transfer; two static faces placed touching exchange heat and the same faces apart by more than the declared tolerance do not.
+- A node held at its phase threshold changes phase only after the declared latent amount has been supplied; boiling a mass moves exactly the enthalpy its vapour carries and the ledger, with its sink, source and work terms, closes within 2 % over a boil-dry (integrated over hundreds of ticks; 2 % is under the smallest margin any thermal row uses), boiling counted once.
+- A condense row moves vapour only while its node is below the dew point of the vapour's partial pressure, never more than is present, and conserves enthalpy as boiling does.
+- Cold liquid passing through a small warm store in one tick never makes that store's enthalpy negative, and the heat each transfer carries equals the volume moved × its source's enthalpy per unit volume.
+- A small node joined to a large conductance neither overshoots nor oscillates; the same exchange run at 60, 120 and 240 Hz cadences reaches the same temperature within the thermal temperature tolerance (T12).
+- A stack that has gone to sleep keeps exchanging heat.
+- Friction heat over a tick equals the friction work of the accepted solves of all its substeps; a supplied drive slipping at constant speed heats its nodes by torque × angle and a stalled one by nothing.
+- A face with absorptance a gains a × the energy booked on its collider's record after any store credit, and the record keeps the rest; a reading alone credits nothing (interface test here; end-to-end in `ENGINE-OPTICAL`).
+- A gas store heated to its pressure limit accepts no more heat; its heating link moves nothing further and its source keeps its energy, and an electrical heater on it is granted and debited nothing while it is at the limit.
+- In Vacuum the ambient account stays zero and no evaporation occurs; an evaporating store's volume loss equals the `Evaporated` account's gain.
+- Free expansion equals coefficient × rise within the game-grade position envelope; work on an elastic load equals the node's debit; a blocked expansion publishes its committed load.
+- A heated envelope's lift is zero at T = T_ref, follows A × (1 − T_ref ÷ T) as its committed temperature rises, stops at its clamp, and changes one tick after the temperature does (its scaling by a field is proven in `ENGINE-FIELD-FORCE`).
+- A vapour expander declared at an efficiency whose best shaft power could reach the Carnot fraction is refused at bundle validation; a lower efficiency is admitted.
+- A converter's flows sum to zero and its supply output never exceeds the Carnot fraction of the heat passing; a declaration that could is refused; a credited store gains energy during a Run only by its credit and returns to its declared initial charge at Reset.
+
+*Deletes:* the gas store's private temperature entry as a second heat rule (the gas store becomes a node); the parameter-bound-only form of a source's store values as the sole store kind.
+
+*Depends on:* ENGINE-GAS-NETWORK, ENGINE-LIQUID, the engine programme (spatial queries, contact observations, islands, supply demand), ENGINE-SIGNAL-NODES, ENGINE-RUN-LENGTH, ENGINE-PARAMETER-BOUND-FRAMES (committed-state binding). *Unblocks:* TH-01 to TH-37 (including TH-23's committed load and TH-25's heated-envelope lift), the store thermal nodes of EL-001, EL-025, EL-026, EL-027, EL-029, EL-033, EL-034, EL-052, EL-168, EL-171 and EL-172, the thermal row of EL-055, the heat of EL-074, RAD-20, and the credited store of CAT-059, EL-154, EL-211 and RAD-12.
+
+### Before their first consumer (owner decision 3a)
+
+Each story below lands before the first element that needs it; where an earlier-listed story depends on it, it lands first (see the preamble). Each is element-free and carries the shared acceptance above.
+
+### Story ENGINE-JOINT-KINDS: Joint kinds, holds and drives on a coordinate
+*Status: Backlog. Sprint key: `engine-joint-kinds`. Order 14. Split out of ENGINE-ASSEMBLY-JOINTS; owns the fixed joint, spherical joint and dynamic-support hinge (coordinator decision 16), the spring rest position (owner decision 6; coordinator decisions 21 and 25) and every hold on a coordinate. May be delivered as separate slices (kinds; spring rest; holds; revolute position drive) before their first consumers.*
+
+*Outcome:* packages can declare every joint and coordinate behaviour their mechanisms need, inside one package, on static or dynamic supports.
+
+*Present today:* prismatic (5 lock rows, spring, two stops, position drive with speed, effort and power limits; `GPU/PrismaticRows.cs:6`) and revolute (5 lock rows, axial spring, stops, friction, velocity drive only; `GPU/RevoluteRows.cs:7-21`; `ABS/RevoluteConstraintValues.cs:25`); `CoordinateKind` has only `Revolute` and `Prismatic` (`ABS/PortDescriptor.cs:43-47`); no spherical, fixed or weld joint. A slider's spring rest must lie inside its travel (`CuriousContraptions.Bundle/MechanicalValueDomain.cs:78-81`); `Compression` is only the starting offset (`ABS/MechanicalContractValues.cs:111`; `GPU/WorkshopPhysicsCompiler.cs:159`). A constant axial spring on a limited hinge exists untested through a package; a continuous hinge must have stiffness 0 (`CuriousContraptions.Bundle/BundleValidator.cs:815-820`). A supplied zero-speed drive holds a shaft (`CuriousContraptions.tests/RevoluteDriveTests.cs:371`). Prismatic retention is a physical-request target (`ABS/PhysicalRequestValues.cs:6`).
+
+*Contract:*
+- **Kinds.** A fixed joint between two bodies of one package, including a package whose root body is dynamic and carries further bodies on joints, with a declared bodies-collide flag; a spherical joint with declared anchor frames, bearing damping and disabled mutual collision, whose moving body is a declared child body wherever a slider's or hinge's is; every joint kind, and a supplied drive on a hinge, qualified with a dynamic support body as well as a static one.
+- **Spring rest position.** A spring on a prismatic or revolute coordinate declares a rest position that may lie outside the travel limits (a preload against a limit); travel admission accepts it; the starting offset stays a separate value. It applies to every spring-returned blade, hatch or gate that must close unpowered.
+- **Holds on a coordinate.** A one-way hold on a revolute coordinate (free one declared way, resisting the other up to a declared torque capacity, direction selectable by a Choice), usable on a coordinate carrying both input and output drive ports; an indexed stop (a rigid hold at a declared angular pitch that a physical Release request frees for exactly one step and that re-locks at the next index, with a minimum carried torque below which a request is answered Empty and a request during a step answered AlreadyReleased); an authored-position retention for prismatic and revolute coordinates (holds the authored coordinate with no winding and no torque limit, released once per Run by a physical request; Reset re-arms it); each a physical-request target kind with its committed-released presentation driver; Reset clears pending requests. Revolute retention is this authored-position retention on a revolute coordinate, owned here like every hold on a coordinate and its release by physical request (C2 of the engine stories index); `ENGINE-ASSEMBLY-JOINTS` owns only the commanded release of a connection or attachment.
+- **Re-arm at rest (coordinator decisions 31 and 33).** A released retention or hold on a prismatic or revolute coordinate re-arms when its coordinate comes to rest within a declared re-arm distance of its hold position, not only within the solver slop of travel 0 (`CuriousContraptions.Simulation/SimPrismaticRetention.cs:85`). At rest means the coordinate's speed has stayed below a declared rest speed for a declared settle time. The re-arm distance, rest speed and settle time are declared values of the retention, in its coordinate's units (m or rad, m/s or rad/s, s), with their domains and defaults stated in this story's Code Map; its first consumers, EL-225 and EL-235, declare all three (each a 0.1 m re-arm distance, a rest speed of 0.05 m/s and a settle time of 0.5 s; coordinator decisions 33, 34 and 37) and keep rows asserting the re-arm (EL-225 S6 and S9, EL-235 J9).
+- **Revolute position drive.** The counterpart of the prismatic position drive: a target on the unwrapped angle advanced by a declared pitch per accepted physical request, with declared maximum speed, stopping acceleration, torque and power bounds and a self-lock inactive response; a request during a step or while unsupplied is refused with a typed answer. A signal-commanded strike-and-hold is a velocity drive against a stop on a limited hinge, qualified here.
+- **Observations for contacts.** The committed coordinate window state and a drive's committed Blocked phase are published as observations; the supply contacts that read them are `ENGINE-SIGNAL-NODES`' rows.
+- **A mechanical input on a driven coordinate.** The story settles whether a mechanical input may couple a coordinate that also carries a supplied drive: its planning probe runs GAP-04's row W5 (a mechanical input coupled to a coordinate whose supplied drive is unsupplied, bound zero) and states the answer in its Code Map; a refusal, or a coupling row and a drive row that fight, is repaired here, not in GAP-04's package.
+- **Crank coupling (coordinator decision 29).** A crank between a revolute and a prismatic coordinate is a rod body with its own collider, pinned at both ends by dynamic-support hinges (one on the crank's body, one on the slider's carried body); no coupling law is added. It is qualified here (EL-218).
+
+*Acceptance:*
+- Locked freedoms of each kind hold within the game-grade envelope under load, the free ones move, and drive effort never exceeds its declared limit. A fixed joint holds a cantilevered member with an end load within ±0.02 m for 5 s (the end-point tolerance of the shared set, under the smallest socket clearance a cantilevered member must keep).
+- A body on a spherical joint swings in any direction about its anchor, holds the anchor within the envelope, comes to rest under declared damping, and Reset restores its pose.
+- An unpowered spring-closed slider closes upright, on its side and inverted; a declared rest outside travel is admitted.
+- A one-way hold passes one way and holds the other up to its capacity; an indexed stop frees exactly one pitch per request; a retained coordinate holds until its request and releases once.
+- A released retention whose coordinate stays below its declared rest speed for its declared settle time within its declared re-arm distance re-arms; one that comes to rest outside the distance, or has not yet stayed below the rest speed for the settle time, does not.
+- A revolute position drive steps one pitch per accepted request within its bounds and refuses a request during a step.
+- A rod pinned between a driven crank and a slider moves the slider through a stroke of twice the crank radius per turn within the game-grade envelope, keeps both pins within the envelope, and collides with a ball placed in its path.
+
+*Deletes:* the refusal of a rest position outside travel; the reading of `Compression` as a rest position; prismatic-only forms of holds where a general form replaces them; the re-arm only within the solver slop of travel 0 (`ActuatorStopSlopMetres`).
+
+*Depends on:* the engine programme. *Unblocks:* CAT-007, CAT-029, CAT-051, CAT-069, EL-021, EL-056, EL-057, EL-061, EL-078, EL-109, EL-112, EL-113, EL-114, EL-115, EL-117, EL-159, EL-160, EL-161, EL-167, EL-168, EL-170, EL-171, EL-184, EL-185, EL-186, EL-210, EL-218, EL-221, EL-222, EL-224, EL-225, EL-226, EL-228, EL-241, GAP-04, GAP-06, RAD-06, RAD-21, TH-33.
+
+### Story ENGINE-MECHANICAL-LINKS: Force-bounded couplings and toothed meshes
+*Status: Backlog. Sprint key: `engine-mechanical-link-kinds`. Order 15. After ENGINE-CONNECTION-MATERIALS, whose material record it uses.*
+
+*Outcome:* a mechanical connection may carry a player-chosen material whose coupling law slips above a declared capacity or meshes teeth; the delivered rigid link is unchanged and stays the default (owner decision 2).
+
+*Present today:* a mechanical connection compiles to a bilateral ratio coupling between two revolute coordinates and carries no values (`GPU/WorkshopConnections.cs:166`, `:182-192`); link routes are drawn from cosmetic rim radii (`ABS/MechanicalLinkPresentationValues.cs:9`); `MechanicalTransmissionDescriptor` couples two coordinates by a ratio inside one package (`SIM/MechanicalTransmissionSolver.cs`).
+
+*Contract:*
+- The material record itself is `ENGINE-CONNECTION-MATERIALS`'. This story adds the mechanical law kinds a material may name: a force-bounded ratio coupling whose transmitted force is bounded by a capacity computed from declared tension, friction coefficient and wrap angle, slipping beyond it, with the slip recorded as a ledger loss and readable as the link's own travel; a toothed mesh with reversed sign and ratio from declared tooth counts, adjacency checked at connection.
+- Each mechanical port declares a physical pitch radius distinct from the cosmetic rim; capacity uses the smaller pitch radius of a pair. A material declares, as data, where its speed ratio comes from: the ports' coordinate ratio (the default, and the belt's), or the pitch-radius ratio of its two ports, ω_out = ω_in × r_in ÷ r_out, so the strand moves at one speed at both rims (the drive chain, EL-201; coordinator decision 24l). The coupling law is the same bilateral or force-bounded row either way; only its ratio value differs.
+- Mechanical ports declare an engagement class; a material whose required class a port does not offer is refused with a typed reason.
+- A closed ring of meshes turns when the product of its ratios is +1 and stays at rest otherwise.
+- Link presentation draws a material's declared style (link-by-link route, rim teeth).
+- Two transmissions composed in series inside one package are qualified here (EL-054; coordinator decision 29): the composed ratio is the product of the two.
+
+*Acceptance:* the same train just below and just above its declared capacity: only the second shows relative travel, and no sample gains energy; a material declaring the pitch-radius ratio turns two ports of unequal pitch radius at r_in ÷ r_out and two of equal radius at 1, while a coordinate-ratio material between the same ports keeps the coordinate ratio; a material offered to a port of the wrong engagement class is refused and changes nothing; two differently parameterised materials on two differently parameterised rotors; a mesh reverses direction at the tooth ratio; a ring whose ratio product is not +1 stays at rest; two transmissions in series inside one package turn their output at the product of their ratios.
+
+*Deletes:* the use of the cosmetic rim radius as a physical value; the material-free mechanical connection record as the only form.
+
+*Depends on:* ENGINE-CONNECTION-MATERIALS. *Unblocks:* EL-054, EL-200, EL-201, EL-232. (EL-218's crank is `ENGINE-JOINT-KINDS`', coordinator decision 29.)
+
+### Story ENGINE-TENSILE-EXTENSIONS: Dynamic guides, winding and cutting
+*Status: Backlog. Sprint key: `engine-tensile-extensions`. Order 16. The cutting clause is the one cutting-work law (coordinator decision 16) and runs after ENGINE-CONNECTION-MATERIALS; the other clauses may land first.*
+
+*Outcome:* tensile routes react on moving guides, wind on drums, and are severed by blade pairs through declared cutting work.
+
+*Present today:* route geometry follows each guide body's pose, but the length row's impulse and effective mass use the two end bodies only (`SIM/TensileConstraintSolver.cs:56`, `:64-69`); a commanded release removes a route's tensile rows at a committed step (`ABS/RuntimeServices.cs:77`); the player's Run-time cut is kept (owner decision of 22 October 2026).
+
+*Contract:*
+- **Dynamic guide.** For each guide of a taut route, tension is applied to the guide body at its entry and exit tangent points along the two unit tangents, with every dynamic guide body in the row's effective mass.
+- **Winding.** A winch winds a tensile span: the wound end is declared (a winding naming the revolute coordinate and radius), on a driven or undriven hinge of any package; paid-out length follows the coordinate at the radius between a declared minimum and capacity; capacity bounds the route's total length; at Run start the drum holds capacity minus the connect-time length; tension reacts on the coordinate; a route longer than capacity is refused; the wound length is on the read.
+- **Cutting.** A blade pair: a fixed straight edge on one body and a straight edge on a body moving on one revolute coordinate, both through the hinge axis, with a blade thickness and a capacity C (J, constant or parameter-bound). A target is a tensile span or an attachment seam (a declared straight segment with thickness d and cutting resistance R on a body held by a fixed joint). A target crossing the blade plane within the thickness, between the edges, engages when the perpendicular gap at the crossing point falls to d; while engaged and closing it opposes the moving edge with force R ÷ d at the crossing point and never pushes the blades apart; both edges load the target equally. If R ≤ C the target is severed when the gap reaches 0, having absorbed R (a seam releases its fixed joint one-way; Reset restores it); if R > C the gap is held at d. Absorbed work leaves the mechanism and is a committed read on the cutter. Blade-edge colliders do not collide with a target's strand or seam piece. Candidates come from a bounded query.
+- An elastic span is a material value of `ENGINE-CONNECTION-MATERIALS`, not a clause here.
+
+*Acceptance:*
+- Two differently parameterised dynamic guides each hold at half the free-end travel; an isolated two-load-plus-guide system gains no momentum or energy; a static guide behaves as today.
+- A winch pays out and winds within its capacity; an over-length route is refused.
+- A span crossing a blade pair at distance x: torque just below and just above R·x ÷ d severs only for the second; the cut-work read equals R and the mechanism's energy falls by R; a material whose R exceeds capacity holds the gap at d for any input; a target outside the blade thickness or beyond the edges never engages; a seam and a span of equal R and d cut at the same torque; Reset restores the route.
+
+*Deletes:* the end-bodies-only effective mass of the length row.
+
+*Depends on:* the engine programme; ENGINE-JOINT-KINDS (fixed joint for seams); ENGINE-CONNECTION-MATERIALS (cutting clause). *Unblocks:* EL-063, EL-066, EL-067, EL-068, EL-078, EL-085, EL-207, EL-225 (EL-069 and EL-070 if their probe shows the guide need).
+
+### Story ENGINE-SIGNAL-NODES: Rows of the one compiled signal and supply network
+*Status: Backlog. Sprint key: `engine-signal-nodes`. Order 17. One story because every item is a row of the same compiled network (coordinator decisions 16 and 25); the self-edge, saturating-count, edge, count-reset, contact-setting, oscillator-supply and rearming-timer slices of earlier drafts are rows here and keep no names of their own. Its threshold row lands before ENGINE-GAS-NETWORK.*
+
+*Outcome:* the signal network can threshold any committed scalar, detect edges, count, reset, combine levels and drive supply contacts from levels and coordinate states, as declaration data.
+
+*Present today:* only a contact load is thresholded (`ABS/SignalContractValues.cs:58`); a signal node on how far a body has turned fires once (`SIM/WorkshopPhysicsEngine.cs:1349-1360`); only the oscillator carries a supply input (`ABS/SignalContractValues.cs:61`; `GPU/WorkshopActivationCompiler.cs:72`); `SignalContactState` has only `Latched` and `TimerCounting` (`ABS/SignalContactControl.cs:5`); a pulse-count node's committed count keeps rising past its target (`GPU/ActivationMemory.cs:13-14`); every self-edge is refused as `InvalidConnection` before the monotone cycle rule (`GPU/SupplyRoute.cs:50-61`); a rearming timer cannot emit an elapsed signal (`CuriousContraptions.Bundle/SignalBundleValidation.cs:157`); a Level output is exercised only into a level-indicator input; the prismatic endpoint contact uses one fixed slop for close and open and reads only a supplied drive's actuator row (`SIM/WorkshopGpuDevice.cs:338`).
+
+*Rows:*
+- **Threshold.** A node over any declared committed scalar observation of any domain (contact load, coordinate angle or travel, gas pressure and mass rate, liquid depth, flow, pressure and cumulative volume, acoustic band level, optical strength, accumulator value, store fraction, a consumer's committed grant, temperature, phase fraction) with on and off levels or a release ratio, optional assert and release holds in seconds and a separate re-arm level; initial state from the authored state at compile; its state drives a Level output, a supply contact and a presentation binding; its crossing may emit a Pulse routed in the tick it is published. Domain stories add only their observation kinds.
+- **Edge.** A node over a declared electrical input or a supply contact of its own package, typed polarity (Rising, Falling, both), sampled beside the oscillators; one Pulse per transition, routed in the same tick, repeatable; none at Run start; `previous` is committed memory, false at admission and Reset.
+- **Count.** Saturation: `count = min(count + 1, target)`, emitting once on reaching the target; a `Reset` Pulse terminal; count and reset requests of a tick resolve once per node at the boundary (any reset gives count 0, phase Clear and no emission).
+- **Boolean over levels.** A node over two or more signal levels with the closed `LogicGateOperation` set; a feed-forward chain resolves within one tick; only a loop costs a tick. The two-input boolean signal node that specs name is this row with two inputs, owned here; the N-input boolean supply node of engine gap E2 is `ENGINE-CAPABILITY-INSTANCES`' reshaping of the delivered two-input supply node, which this row reads like any other signal level.
+- **Self-edge and cycles.** A self-edge on a monotone logic node is admitted and never powers itself; on a nonmonotone node it is refused as `NonmonotoneFeedback`, at construction, at load and in the bundle validator; a contact feeding its own `PowerIn` is admitted and inert; a cycle through an oscillator (at least one interval) is admitted; zero-delay nonmonotone feedback stays refused. An oscillator's enable may name a public `PowerIn` or a supply node of its own package.
+- **Rearming timer.** A timer whose completion policy is Rearm and whose elapsed signal is Activation is admitted, emits one activation on elapse and is ready again; busy inputs neither restart nor re-emit. A timer's duration may be zero (a zero delay): every timer is due at the later of its start boundary plus its duration in ticks and the first tick boundary strictly after its start pulse, so no timer elapses in the routing pass that started it: a loop through a zero-duration timer costs one tick per pass, like any loop through a node, and a chain or loop of zero-duration timers emits at most once per tick.
+- **Contacts.** `SignalStateContactControl`'s state set (today only `Latched` and `TimerCounting`, `CuriousContraptions.Abstractions/SignalContactControl.cs:5`) gains the threshold, boolean and level states; a threshold node presents one state, `Asserted`: the contact is closed while the node's committed level is asserted (after its assert hold) and open once it has released (after its release hold); a supply contact may declare one control per option of a Choice parameter, or a fixed open or closed control ("contact set by a parameter", coordinator decision 25), with a `CommittedContactClosed` driver that reads closure irrespective of supply; a prismatic endpoint contact takes a declared release travel and may read the coordinate of a passive slider; contacts closed while a revolute coordinate rests in a declared angular window (repeating at a declared pitch, slower than a declared speed) or while a drive is Blocked read `ENGINE-JOINT-KINDS`' observations. A Level output drives any typed signal input of matching kind.
+- **Wiring.** A package-internal edge from a pulse to a physical-request input.
+- A presentation binding may read the committed phase of any node.
+
+*Acceptance:* one fixture per row on two differently parameterised declarations; in particular: a threshold over two different scalar kinds asserts and releases at its levels and holds; a held input emits nothing from an edge node and a one-tick opposite state re-arms it; a count with target N reads N after more than N occurrences and has emitted once, and Reset returns it to 0; a self-edge on a monotone node is inert and on a nonmonotone node refused; an oscillator whose pulses latch a count that opens its own enabling gate emits exactly the target number; a parameter-set contact closes for its option and an uncovered option is refused at bundle validation; a zero-duration rearming timer started inside a tick emits at the next boundary, and one started by another timer's elapse on a boundary emits at the boundary after it, never in the same tick; every existing counter, gate and latch test stays green.
+
+#### Slice: self-edge row (a supply self-edge is a one-node cycle)
+*The one current text of this row's slice. It replaces the drafted contract `spec-engine-supply-self-edge-cycle-rule.md`, retired on 23 November 2026 because it named this capability a second time (owner decision 3a; coordinator decision 16; index §3). Blocked: waits for the engine programme (owner decision 3a), retry when ENGINE-SOA-SIMD publishes; owner: coordinator. Planned then as a contract under this story's sprint key `engine-signal-nodes` (no key of its own), from the published main of that day; the planning scout re-verifies every citation below against ENGINE-CAPABILITY-INSTANCES' node renames (each was unchanged from `8d1d68aa` to `25df3cd5`). Engine tier, all six layers. It precedes the electrical-gates closure review (`spec-closure-review-electrical-gates.md`), whose rows G4 and G5 use a direct self-wire.*
+
+*Defect:* a wire from a supply node's output to one of its own inputs is refused as `InvalidConnection` ("Unsupported or duplicate resolved supply edge.") before the cycle rule runs: `from == to` in `SupplyTopology.ValidateEdges` (`GPU/SupplyRoute.cs:50`; edit, save load and main compile) and in `CompiledSupplyGraph.AdmitEdges` (`:267`; worker admission through `GPU/PhysicsDeclarations.cs:223`), and `source.Id == target.Id` for declared edges (`CuriousContraptions.Bundle/SupplyBundleValidation.cs:162`–`:163`). The one-node branch of `SupplyCycles.Cyclic` (`ABS/SupplyCycles.cs:67`–`:68`) is therefore unreachable, while a two-node loop is judged by the cycle rule (`GPU/SupplyRoute.cs:60`–`:74`); the requirement (`requirements.md:6689`) makes no exception. *Approach:* remove the three conditions so the existing rule (`SupplyCycles.Monotone`, `ABS/SupplyCycles.cs:24`, over `LogicGateOperation`) decides at bundle admission, edit, save load, main compile and worker admission alike; no new rule, state, schema, ABI, read model or reachable message text; the activation graph's own rules (`GPU/ActivationNetwork.cs:119`) are untouched.
+
+*Matrix* (terminals `PowerIn`, `FirstIn`, `SecondIn`):
+- **S1** A self-edge on a nonmonotone logic node (Xor, Nor, Nand), any terminal: refused before any solve as `NonmonotoneFeedback` with "Break the wire loop through parts N. This gate's output cannot feed its own inputs."; nothing installed.
+- **S2** A self-edge on a monotone logic node (And, Or), any terminal: admitted; each tick it settles from unpowered and is never powered by its own output alone.
+- **S3** An Or node self-fed on `FirstIn`, supplied on `PowerIn`, with a second source on `SecondIn` enabled then disabled: powered while it is enabled, unpowered on the next committed tick after.
+- **S4** A contact node self-fed on `PowerIn`: admitted; never powered through it, open or closed.
+- **S5** An S1 wire at each boundary: edit `NonmonotoneFeedback`; save load `InvalidConnection` with inner reason `NonmonotoneFeedback` (`GPU/WorkshopSavePrevalidation.cs:154`–`:156`); main compile refused with the installed scene unchanged; direct graph construction "A nonmonotone electrical gate lies on a directed cycle."
+- **S6** An S2 wire saved, loaded, run on the worker and Reset: the load equals the save, the worker admits it, Reset restores the built state.
+- **S7** Still `InvalidConnection`, unchanged: unknown node; duplicate edge, a duplicated self-edge included; consumer as source; source as target; `FirstIn` or `SecondIn` on a node that is not a logic node, a contact self-edge included.
+- **S8** A package-declared internal self-edge: And or Or on any terminal, or a contact on `PowerIn`, admitted; Xor, Nor or Nand `NonmonotoneCycle`; a source, a consumer, a contact on `FirstIn`/`SecondIn` and a duplicated declared self-edge `Edge.Terminal`, unchanged.
+
+*Decisions (standing delegation, 21 November 2026):* one rule for every directed supply cycle of any length, general over node kinds (S4), the same at bundle admission (S8); reachable message text unchanged, "parts N." included; the unreachable ownerless loop branch and its filter (`GPU/SupplyRoute.cs:63`–`:73`; owner 0 is refused at `:29`) are deleted; the Workbench connect tool's same-part refusal (`ui/WorkshopConnections.cs:106`) is unchanged, so a self-wire reaches the engine only through the edit interface, a save, authored content or a package's declared edges, and a loaded one is drawn and can be disconnected (`:95`, `:181`). No test pinned the old refusal on `8d1d68aa` (the only invalid-edge message assertion is the duplicate case, `PackageLocalPortsTests.cs:186`); the planning scout repeats the search, and a pinned test found later is rewritten to the row it contradicts.
+
+*Owned scope:* `GPU/SupplyRoute.cs` (two condition removals, the ownerless branch, the comment at `:340`, which wrongly says a singleton is evaluated once), `CuriousContraptions.Bundle/SupplyBundleValidation.cs` (one removal), `ABS/SupplyCycles.cs` (one summary line: a self-edge is a one-node cycle), the new `CuriousContraptions.tests/SupplySelfEdgeTests.cs` (name checked at planning; no test-project edit, `CuriousContraptions.tests.csproj:77` compiles every top-level `*.cs`), `TODO.md` and the sprint status.
+
+*Tests* (in `SupplySelfEdgeTests`; synthetic node ids through `ISupplyQueries.CreateTopology` and `new CompiledSupplyGraph(...)`; delivered gates and the Switch only as test data; every assertion a typed refusal, a typed state or an equality of authored records, so no tolerance; 60-tick windows only to prove an absence):
+- `ASelfEdgeOnANonmonotoneLogicNodeIsRefusedAsFeedback` (S1; Xor, Nor, Nand × three terminals; control: the graph without the self-edge is created).
+- `ASelfEdgeOnAMonotoneLogicNodeIsAdmittedAndNeverPowersItself` (S2; And, Or × three terminals on the worker; control: the terminal fed by an enabled battery powers the consumer; boundary: And with its other condition powered stays off).
+- `AnOrNodeFeedingItselfFollowsItsOtherInputAndForgetsIt` (S3; off before enabling, off on the next committed read after disabling).
+- `AContactFeedingItsOwnPowerInIsAdmittedAndInert` (S4; open and closed; control: a battery also on `PowerIn` powers the consumer while closed; boundary: the same self-edge on `FirstIn` is S7).
+- `ANonmonotoneSelfWireIsRefusedInEditSaveCompileAndGraphConstruction` (S5; installed scene and saved construction equal the originals afterwards).
+- `ASelfEdgedNodeSettlesFromUnpoweredInASyntheticGraph` (S2–S4 as law, three declaration orders, three `Resolve` calls per phase: an Or self-fed on `PowerIn` and `FirstIn` alone stays unpowered although powered would also satisfy its equation — the least fixed point; read through `SupplyOutputRead.IsPowered`, `ABS/SupplyValues.cs:61`).
+- `AMonotoneSelfWireSurvivesSaveLoadRunAndReset` (S6; the decoded construction still holds the same-part link).
+- `InvalidConnectionStillRefusesEveryOtherBadEdge` (S7; eleven cases, each control without the bad edge).
+- `ADeclaredInternalSelfEdgeFollowsTheCycleRule` (S8, through `SupplyBundleValidation.Validate`, one admitted and one refused case also through `BundleValidator.Validate`; control: a declared two-node Xor cycle stays `NonmonotoneCycle`).
+- Every existing electrical, supply and gate test passes unchanged; the full local round rises by the new cases only, with zero failed and `Skipped: 0`. No browser case: the connect tool cannot make a self-wire.
+
+*Planning evidence carried from the retired contract (`8d1d68aa`, unchanged at `25df3cd5`; re-verified at planning):*
+- *Probe* (6 present, 1 present-untested, 1 narrower owned here, 0 missing): monotonicity `SupplyCycles.IsMonotone`/`Monotone` (`ABS/SupplyCycles.cs:13`, `:24`; `ABS/ElectricalContractValues.cs:25`), tested by `ElectricalOrTests.LawMonotonicityAndUndefinedValuesAreClosed`; cycle rule over components (`GPU/SupplyRoute.cs:60`–`:74`), `ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve`; one-node component cyclic (`ABS/SupplyCycles.cs:67`–`:68`), present-untested, added here; self-edge reaching the rule, narrower (`GPU/SupplyRoute.cs:50`, `:267`; `CuriousContraptions.Bundle/SupplyBundleValidation.cs:162`–`:163`), a validator case with no law, ABI, wire or presentation change; least-fixed-point settle (`GPU/SupplyRoute.cs:343`–`:351`, `_cyclic`), `ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick`; edit refusal mapping (`GPU/WorkshopSupplyCompiler.cs:41`–`:50`) and save-load inner reason (`GPU/WorkshopSavePrevalidation.cs:154`–`:156`, reached from `WorkshopSaveCodec.Decode` `:48`–`:50`), the Xor test's `saveRefusal` assertions; worker admission from the decoded scene (`GPU/PhysicsDeclarations.cs:223`; edge record `GPU/WorkshopWireFlatBuffers.Compiled.cs:695`–`:704`), `ElectricalOrTests.PureOrLoopIsAdmittedBySaveAndConstruct` and the settle test, both through the worker (`WorkshopIntegrationHarness.cs:239`–`:242`).
+- *Read and unchanged:* `GPU/WorkshopSupplyCompiler.cs`, `GPU/WorkshopConnections.cs:134` (a same-part electrical link is permitted), `WorkshopSaveCodec.cs`, `GPU/PhysicsGpuAbi.Airflow.cs:43` and `SupplyTopology.UpstreamSources` (`GPU/SupplyRoute.cs:77`, a visited-set walk that tolerates cycles), `GPU/WorkshopMessages.cs:153` (read admission recomputes the declared law, consistent for a self-fed node), `ui/WorkshopConnections.cs:95`, `:106`, `:181`, `SIM/WorkshopGpuDevice.cs:326` (second caller of `Resolve`), `ABS/SupplyContractValues.cs:66`–`:69` (the terminal rule that still refuses source, consumer and contact-condition self-edges), `schemas/`, generated wire code, TypeScript, every element package, `GPU/ActivationNetwork.cs:119`.
+- *Law-test cases* (`ASelfEdgedNodeSettlesFromUnpoweredInASyntheticGraph`, synthetic `ElectricalSourceDeclaration` rows and a `PhysicsElectricalRead` with charge): (a) Or self-fed on `PowerIn` and `FirstIn` alone, unpowered on every call; (b) source → Or (self on `FirstIn`, second source on `SecondIn` enabled then disabled) → consumer, unpowered on the first `Resolve` after the disable; (c) source → contact (self on `PowerIn`) → consumer, closed then open; (d) source → And (self on `FirstIn`, second source on `SecondIn`) → consumer, never powered; (b) enabled and (c) closed power the consumer.
+- *Affected run:* `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter` over `SupplySelfEdgeTests`, `BothGateTests`, `ElectricalOrTests`, `ElectricalXorTests`, `ElectricalNorTests`, `ElectricalNandTests`, `ComposableSupplyRoutingTests`, `PackageLocalPortsTests`, `ElectricalSupplyTests`, `SwitchElectricalTests`, `LatchSupplyFixtureTests`, `BundleValidatorTests`; plus the registration check (a test file is added), the maintainability gate and the full round.
+- *Rules:* E1, E2, E4, E5, E7, E8, E9, D4 and D5 apply; D6 holds because the law is unchanged; E3, E6, D1–D3 and D7 are unaffected.
+
+*Not in this slice:* the row's oscillator clauses (a cycle through an oscillator is admitted; an oscillator's enable may name a public `PowerIn` or a supply node of its own package) are planned as their own slice of this story, with the oscillator supply node row (coordinator decision 16).
+
+*Deletes:* the blanket self-edge refusal; the unbounded committed count; the two-state `SignalContactState`; the single fixed endpoint slop as the release rule; the refusal of a rearming elapsed timer; the refusal of a zero timer duration.
+
+*Depends on:* the engine programme (ENGINE-CAPABILITY-INSTANCES renames the node kinds and makes the boolean node N-input). *Unblocks:* CAT-012, CAT-013, CAT-020, CAT-021, CAT-024, CAT-025, CAT-026, CAT-027, CAT-032, CAT-038, CAT-040, CAT-043, CAT-044, CAT-045, CAT-046, CAT-047, CAT-056, CAT-059, CAT-060, CAT-063, CAT-068, CAT-072, EL-001, EL-018, EL-025, EL-030, EL-031, EL-032, EL-043, EL-044, EL-049, EL-075, EL-081, EL-086, EL-094, EL-129, EL-130, EL-133, EL-134, EL-135, EL-136, EL-137, EL-138, EL-139, EL-140, EL-141, EL-142, EL-146, EL-153, EL-155, EL-181, EL-182, EL-183, EL-198, EL-221, EL-211, EL-236, RAD-08, RAD-09, RAD-12, RAD-14, RAD-15, RAD-20, RAD-21, TH-04, TH-21, TH-22, TH-30, TH-36, TH-37.
+
+### Story ENGINE-COMPLIANT-FRICTION: Friction on a compliant surface
+*Status: Backlog. Sprint key: `engine-compliant-friction`. Order 18.*
+
+*Outcome:* a declared compliant surface applies tangential friction, and rolling resistance for spheres, through the general friction law.
+
+*Present today:* the compliant surface applies normal force only (`_bmad-output/implementation-artifacts/deferred-work.md:205`) at four fixed samples (`SIM/WorkshopPhysicsEngine.cs:1555-1556`). Sampling candidates and list-valued surfaces are `ENGINE-SPATIAL-QUERIES`' and `ENGINE-CAPABILITY-INSTANCES`'.
+
+*Contract:* per bearing sample, the general friction law with the pair's combined coefficient, energy-removing only; rolling resistance for spheres as on any contact. **Admission, deflection read and sag (coordinator decision 29).** A compliant surface is admitted by the law's stability condition, not by product ranges; each sample's committed deflection is a read; a height-field presentation binding draws bounded sag from that read (CAT-065, EL-215).
+
+*Acceptance:* a load sliding along a surface comes to rest and a frictionless declaration does not; no tick gains energy; a resting load stays put on a tilted surface within its friction angle; a declaration outside the stability condition is refused with a typed reason and one just inside it is admitted; each sample's deflection read equals its committed deflection, and the drawn sag never exceeds it.
+
+*Deletes:* the normal-only surface law; product-range admission of compliant surfaces.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-CAPABILITY-INSTANCES. *Unblocks:* CAT-065, EL-215.
+
+### Story ENGINE-PARAMETER-BOUND-FRAMES: Values, frames and parts bound to parameters
+*Status: Backlog. Sprint key: `engine-parameter-bound-frames`. Order 19. Owns choice-bound values and parameter-bound sockets, limits and parts (coordinator decision 16); `ENGINE-PARAMETER-SELECTED-PARTS` and `ENGINE-CHOICE-BOUND-VALUES` are rows here. Lands before ENGINE-LIQUID.*
+
+*Outcome:* a package can scale and configure its geometry, joints, ports and values from its declared parameters, resolved at compile so table counts stay fixed for the Run, and can bind a declared value to a committed observation evaluated each tick (counts still fixed at compile).
+
+*Present today:* collider binding exists for the base body only, by multiplier and offset of a Real (`CuriousContraptions.Bundle/BundleGeometry.cs:28-48`; `ABS/SceneGeometry.cs:24-27`); joint frames, rims and ports are literals; colliders are baked unconditionally; `PresentationBinding.Selection` and `Visible` exist but every binding needs a committed driver (`ABS/ElementPresentation.cs:15`, `:112`); a collider binding refuses a Choice.
+
+*Contract:*
+- A declared Real parameter may drive a hinge or slider base frame, a collider component of any body, a mechanical rim centre, a socket position, a revolute limit, mass and mass-frame centre, principal-moment operands, a store or inventory value, an accumulator's initial value and a field magnitude; a port position may follow more than one parameter.
+- A whole-number parameter may set a port rim, a hinge body's collider radius, its mass and a drawn repeat count.
+- **Choice-bound values.** Any binding site that accepts a Real may instead name a Choice with one declared f32 value per option (collider half-extent, offset or radius; material component; aperture value; emitter band row; receiver channel weights; presentation parameter including albedo channels); save and wire carry only the option index; a value-count mismatch, a non-finite value or a value outside the site's range is refused at bundle validation.
+- **Parameter-selected parts.** An art node and its paired collider may be present only when a declared whole-number or Choice parameter meets a declared comparison; a `Visible` binding by parameter is admitted only on a node the package classifies decorative.
+- Bundle admission refuses a declared parameter that binds nothing.
+- **Committed-state binding (coordinator decision 28).** A declared value (for example a declared lift's magnitude) may be bound to a committed scalar observation through a declared function from a closed set, including the non-linear A × (1 − T_ref ÷ T) read from a committed store temperature, clamped to a declared range inside the bound value's own domain; it is evaluated at each tick from the previous tick's committed value, so it acts from the next tick; counts and table shapes stay fixed at compile, the binding reads committed state only and writes nothing back, and Reset restores the value the authored state gives. `ENGINE-THERMAL`'s declared lift binding is its first consumer (the consuming identity is in that story's Unblocks).
+
+*Acceptance:* two differently sized fixtures compile with joints, rims, ports and colliders at their evaluated positions; out-of-range values refuse atomically; for two values of a selecting parameter the compiled collider count and drawn nodes differ as declared and a body passes where a deselected collider would stand; a Choice-bound collider follows its option; a value bound to a committed scalar follows it from the next tick, a non-linear binding stops at its clamp, and the value returns to its authored value at Reset; Reset, save and load keep the parameters.
+
+*Deletes:* literal frames and ports where a bound form replaces them; the base-body-only collider binding; the Real-only binding rule.
+
+*Depends on:* the engine programme. *Unblocks:* CAT-009, CAT-019, CAT-020, CAT-061, EL-001, EL-029, EL-044, EL-045, EL-046, EL-047, EL-049, EL-050, EL-051, EL-052, EL-076, EL-080, EL-112, EL-113, EL-114, EL-115, EL-162, EL-179, EL-180, EL-227, EL-232, GAP-07, RAD-02, RAD-07, RAD-08, RAD-09, RAD-13, RAD-14, TH-01, TH-02, TH-25, TH-26, TH-27.
+
+### Story ENGINE-PROFILE-COLLIDER: Convex extruded profile on a moving body
+*Status: Backlog. Sprint key: `engine-profile-collider`. Order 20. Performance story (contacts per mechanism). Before its first consumer only if that consumer's fixture built from delivered colliders fails.*
+
+*Outcome:* a convex profile or sector extruded along one axis is an admitted collider kind on hinge- or slider-carried bodies, with the same contact law as the other primitives.
+
+*Present today:* sphere, box, plane, cylinder, tube, frustum and torus (`SIM/WorkshopCollisionKernels.cs:1999-2028`; `GPU/HollowContactQuery.cs:50-52`); hull and capsule proxies are refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:108-111`).
+
+*Contract:* a declared convex polygon and extrusion length, compiled to the flat collider tables, with support-function narrowphase against every admitted kind and segment-cast crossings.
+
+*Acceptance:* a follower riding the profile keeps contact through the profile's dwell within the game-grade envelope; the same mechanism built from delivered collider kinds gives the same follower travel within that envelope. *Performance:* contacts and narrowphase evaluations per substep on the consumer's fixture before and after.
+
+*Deletes:* the multi-cylinder approximation of a profile in the consuming package, replaced forward in the same change.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-SOA-SIMD. *Unblocks:* EL-158.
+
+### Story ENGINE-RUN-LENGTH: Run length declared per level
+*Status: Backlog. Sprint key: `engine-run-length`. Order 21. Owner decisions 13 and 17. Lands before the first row longer than 30 s, so before ENGINE-GAS-NETWORK.*
+
+*Outcome:* a level declares its Run length in game seconds, up to 300 s; 30 s is the default.
+
+*Present today:* one fixed limit (`ABS/CadenceValues.cs:77`).
+
+*Contract:* the run limit, the physical ordinal limit and every admission check that compares a duration with the Run read the level's declared value; a steady inventory source may size itself for the 300 s maximum.
+
+*Acceptance:* two levels with different declared lengths each end at their own; a goal window ending after, or a hold not shorter than, the declared length is refused at admission; an out-of-range or non-finite length is refused; Reset, save and load keep it.
+
+*Deletes:* the fixed run limit as a constant read directly by those sites.
+
+*Depends on:* the engine programme. *Unblocks:* CAT-029, CAT-069, EL-001, EL-004, EL-015, EL-017, EL-019, EL-024, EL-027, EL-029, EL-030, EL-031, EL-032, EL-034, EL-035, EL-037, EL-039, EL-075, EL-090, EL-110, EL-121, EL-123, EL-229, EL-236, EL-240, RAD-01, RAD-13, RAD-20, TH-03, TH-21, TH-24, TH-32, TH-37.
+
+### Story ENGINE-CONNECTION-MATERIALS: Declared connection materials and solid strands
+*Status: Backlog. Sprint key: `engine-connection-materials`. Order 22. Owns the solid strand (owner decision 1; coordinator decision 16) and the material record every connection domain uses. Lands before ENGINE-GAS-NETWORK (hoses), ENGINE-MECHANICAL-LINKS and the cutting clause of ENGINE-TENSILE-EXTENSIONS.*
+
+*Outcome:* a connection carries a player-chosen declared material; thick strands (ropes, cables, hoses, ducts, visible belt and chain loops) collide as ordinary bodies; thin wires, the delivered rigid mechanical connection's schematic drawing and the Balloon string stay non-solid drawings (owner decisions 1 and 2; coordinator decision 25). The Balloon string's exception is data, not a rule naming a part: a declared **thin-string** material, a tensile strand that declares no strand collider and is drawn as a thin string, is the material of the Balloon's string wherever it is a connection; every rope, cable, hose and duct material is solid, and no other strand inherits the exception.
+
+*Present today:* a Rope-domain connection carries only a measured length (`GPU/WorkshopConnections.cs:166`) and one span law at the solver's fixed stiffness; strands are drawn with no collider. Admission reads domain, direction and port role (`GPU/WorkshopConnections.cs:112-114`, `:161-168`).
+
+*Contract:*
+- **Material record.** A non-placeable bundle entry kind (no body, scene, palette entry or ports), admitted by the bundle validator, excluded from the palette and per-package placement suites, present in the generated bundle: a typed id, the domain it serves, its law kind and values with ranges and defaults (span stiffness and damping, strand diameter, segment rule, cutting resistance; a mechanical law kind and its values for `ENGINE-MECHANICAL-LINKS`; line volume and throat for fluid lines), the engagement class it requires and its strand art. Chosen in the connection UI with a declared default; carried on the connection record, wire, save and read; one material per route; an unknown id refused. The engine knows no material by name.
+- **Solid strand.** A strand's collider is a property of its material (declared diameter, segment rule), compiled from declarations with cost bounded by them, candidates from the query interface.
+- **Straight static strand.** A material may be a straight static strand (one collider per run); a connection of it is refused, with a typed reason, where its straight run would cross any collider other than its two end parts', checked at every edit that makes or changes it or moves a part into it, and at Run compile.
+- The delivered rope is converted to the first declared material in this story, with no default fill and no migration; its missing collider (a recorded visible-solid defect) is repaired here, re-running the delivered tests of every package that ties a rope and the duplicate-closure checks that rely on the rope.
+
+*Acceptance:* two declared materials with different stiffness each settle a hanging load by their own values; a route joining two materials, a material on the wrong domain and an unknown id in a save are refused before any state changes; Reset, save and load restore each material; a ball dropped onto a taut strand is stopped or deflected and never passes through, and one dropped beside it falls past; a taut strand run against a wheel collider, a beam collider, a frame collider and a plate collider (declared test fixtures) rests on each collider without passing through it while its span still carries the load; a straight static strand that would cross a collider is refused and a clear run is admitted; a ball dropped onto a taut thin-string connection passes through it, the string still holds its load in tension, and the same ball is stopped by a rope in the same place.
+
+*Deletes:* the material-free rope connection; the drawn-without-collider rope strand.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-CAPABILITY-INSTANCES (rope-port admission). *Unblocks:* CAT-003 (tether re-check), CAT-058, EL-038, EL-048, EL-063, EL-066, EL-067, EL-068, EL-085, EL-090, EL-175, EL-200, EL-201, EL-204 (closure re-check), EL-205, EL-224, EL-225, EL-228, TH-16, TH-18, TH-19, TH-20.
+
+### Story ENGINE-GOALS: Declared goal kinds and ordered objectives
+*Status: Backlog. Sprint keys `engine-goal-evaluation`, `engine-goal-supplied-occurrence`, `engine-goal-progress-observation`, `engine-goal-ordered-events` and `engine-goal-count-window-hold`. Order 23. Five engine slices (owner decision 12); the drafted contract [spec-engine-goal-evaluation.md](../implementation-artifacts/spec-engine-goal-evaluation.md) holds the first and lists all five. ENGINE-GOALS stays open until all five publish. All five wait for the engine programme (owner decision 22).*
+
+*Outcome:* a level declares a list of goal conditions over committed observations; one stateless evaluator decides Solved, Waiting or failed, with progress on the observation port. There is one condition list and no goal-kind enum per product; a turned condition is a travel observer a package declares.
+
+*Present today:* one goal per level, of kind Captured, ActivatedAfter or IntegrityBroken (`WorkshopGoalKind`; `GPU/WorkshopPuzzle.cs:9-31`; `GPU/WorkshopGoalEvaluator.cs:41-54`); the planned `goals` array is indexed but never constructed; the observation projection carries no phase (`GPU/WorkshopObservationProjection.cs:84-93`); `Supplied` is a level with no occurrence time (`ABS/PhysicsPresentationRead.cs:27`). Goals read committed state, not presentation (`GPU/WorkshopGoalEvaluator.cs:7`).
+
+#### Slice engine-goal-evaluation
+Several conditions per level (all-of) in the save schema and level content; conditions over committed latches and travel observers; the Solved result. *Acceptance:* a two-condition level solves only when both hold; removing one cause leaves it Waiting.
+
+#### Slice engine-goal-supplied-occurrence
+An electrical supplied occurrence with its time on the worker read and wire, so a powered-after condition can be evaluated. *Acceptance:* a consumer supplied after a named occurrence satisfies powered-after; supplied before it does not.
+
+#### Slice engine-goal-progress-observation
+Per-condition progress on the observation port and HUD: a group's count, a window's bounds, hold progress and the failed state. *Acceptance:* each progress value is read through the observation port as the level advances.
+
+#### Slice engine-goal-ordered-events
+Ordered conditions with a minimum gap (equal occurrence times satisfy a zero minimum); forbidden events fail the attempt until Reset; the any-of form as a count group "at least k of n" whose occurrence is the k-th earliest, one subject counted once per group. *Acceptance:* events in order solve; the same events out of order do not; a forbidden event fails the attempt until Reset; one item sensed repeatedly counts once.
+
+#### Slice engine-goal-count-window-hold
+A half-open game-time window from Run start on a condition or group, refused when it ends after the level's declared Run length; a condition may require a named committed scalar of its subject to lie in an authored closed band at its occurrence (a failed qualifier leaves it unmet and reports the failed state); a held level is a committed state with the occurrence at which it last became true (residence phase from `ENGINE-SENSOR-VOLUMES`), and the goal holds when the read's time is the declared hold past the latest became-true occurrence (coordinator decision 16); the evaluator keeps no state and schedules one time wake; a hold not shorter than the Run length is refused. *Acceptance:* deliveries just below and at a count threshold: only the second solves; a burst before the window never solves; delivery alone does not solve a held goal; a level that drops and returns between wakes restarts the hold; a subject that leaves during the hold leaves the goal Waiting; a capture with its scalar outside the band does not solve.
+
+*Deletes:* the single-goal level shape and its three-kind enum as the only form.
+
+*Depends on:* the engine programme (ENGINE-SENSOR-VOLUMES for residence phases), S5 (wire accessors), ENGINE-RUN-LENGTH (window and hold admission). *Unblocks:* CAT-004, CAT-042, CAT-062, CAT-063, EL-069 (capture by goal), EL-099, EL-120, EL-121, EL-122, EL-123, EL-192, RAD-10, and every planned level with more than one goal or a goal outside the three present kinds.
+
+### Story ENGINE-OPTICAL: Beam emission, transport, surface interaction and reception
+*Status: Backlog. Sprint key: `engine-optical-propagation`. Order 24. Performance story (R4 with emitters). Precedes every Epic 13 story. The optical conventions are owned by [EL-176 section 10](../../docs/planning/elements/EL-176-red-laser-emitter.md#optical-conventions).*
+
+*Outcome:* one optical solve per tick transports declared light in watts per channel from paid emitters through declared surface responses to receivers whose committed readings drive signal nodes.
+
+*Present today:* nothing optical; the airflow line-of-sight test (replaced by the segment cast in `ENGINE-SPATIAL-QUERIES`); `ElementCategory` has no optics member.
+
+*Contract:*
+- **Emitters.** Frame (static or dynamic, including a companion body), origin, axis, half-angle up to 180° (a cone has uniform intensity), range (optionally parameter-bound), radiant power per channel, electrical demand, internal occluders and an optional enable naming a signal level; paid as a supply consumer target or by any finite conversion (a declared store, a fuel burn); it emits radiant power × the energy granted over the tick; granted energy not emitted is ledgered to a declared collider of the emitter. Its committed lit state is on the read.
+- **Solve.** One solve per tick of duration dt, at its slot in the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order) (optical convention 4): after the last substep and before the thermal step, taking ordered crossings from the segment cast against every participating collider at that tick's final pose, with signal levels as resolved at the start of the tick; readings commit with the tick's poses and act from the next tick; no logic is evaluated inside the solve. A collimated segment is a zero-width ray; diverging segments follow one distance law and are terminal.
+- **One near-field rule and one own-body rule, for light and radiation (coordinator decision 26; optical conventions 1 and 5).** Beyond 1 m irradiance is I × facing ÷ d²; inside 1 m it is I ÷ 1 m² for a source on the front side of the aperture (facing 1) and 0 behind it, so a reading is flat inside 1 m. A shadow cast from a source to a receiver's sample ends at the receiver's own aperture face (for a Uniform receiver, at the sample point); every crossing before that end acts by its declared response, the receiver's own colliders included, and nothing beyond it is read. Neither rule has a second form by channel class.
+- **Responses** per collider face or disc aperture, applied once per crossing, the default declared per channel (Absorb, τ = 0, for light channels; τ = 1 for radiation channels): reflect, transmit by channel with optional spread, split (a diverging segment is multiplied by τ, the ρ share absorbed and ledgered), and relay from an inlet to one or more outlets (channel mask, direction, half-angle, internal path, optional enable; an outlet may be declared relative to the inlet hit point and incoming direction, or on another placed part through an Optical-domain connection). An outlet is a declared node with a typed id committing the per-channel sum leaving it; a segment leaving an outlet ignores the collider carrying it at its origin; a Relay inlet may be a receiver aperture taking its conserved share of diverging segments. A declaration whose outputs can exceed its input in any channel is refused at bundle time. A port's maximum connection count and a connection kind's maximum length are declared and checked at edit and Run.
+- **Receivers.** Static or dynamic frame, weighted sample points, a sensed channel set, a strength rule (minimum over a required set, or a weighted sum) and purity, committing a continuous reading and a strength that a threshold node reads; coupling is observation → signal node → signal-state contact only (one receiver law for all light, owner decision 9).
+- **Absorbed energy is booked once (coordinator decision 26; optical conventions 7 and 8).** Power that ends on an absorbing face, a receiver's collimated power and its conserved diverging shares included, is booked once, on that collider's absorbed record; a receiver's reading observes that power and books or credits nothing again. The record becomes heat only as `ENGINE-THERMAL` moves it (thermal T3), and supply only by the credit below.
+- **Credit to supply.** At the end of the solve, a declared fraction (at most 1) of the energy booked on a receiver's absorbing collider in the tick moves from that record into one declared finite store, before the thermal step reads what remains; a credit that does not fit the store stays on the record. The store row is `ENGINE-THERMAL`'s (coordinator decision 26); there is no next-tick allowance form (coordinator decisions 21 and 25).
+- **Limits.** Per emitter, a declared segment limit L and interaction limit; at the limit segments are kept breadth-first by depth, then emitter and surface order.
+- **Presentation and authoring.** Drivers for committed emission, receiver reading and outlet power; the beam and cone read model; a declared display volume in which committed segments of declared channels are drawn; a Build preview running the same solve without committing, stating its collider source; the optical palette category and domain flag.
+- Every delivered package that declares a response other than Absorb is listed and tested here, so no element slice edits a delivered package for light.
+
+*Acceptance:*
+- An emitter, a reflecting surface and a receiver: with a clear path the receiver reports the emitted channels; an occluding solid or a surface turned off the path gives none.
+- Emitted energy never exceeds energy paid; for each segment, power received by all receivers together never exceeds its power (shares scaled by power ÷ sum when the sum exceeds it); no response creates a channel the incoming segment lacks.
+- A channel-selective surface passes only its channels; a split conserves channel power; a relay never exceeds its inlet.
+- A reading acts from the next tick; nothing reads a receiver directly.
+- A segment-limit qualification scene commits exactly the declared number of segments.
+- A clear shell declaring Transmit passes a beam to a detector, an absorbing collar does not, and a body inside the shell blocks it.
+- Energy is booked once: a laser's paid energy equals its emitted power plus its housing loss over the tick, and across the absorber's record, the store credit taken from it and the share a thermal face moves from it, nothing exceeds the energy absorbed; a reading alone moves nothing.
+- A receiver sample inside 1 m of a source reads the same at every distance inside 1 m; a receiver whose own collider stands in front of its aperture is shadowed by it.
+- Tolerances are the one optical set (coordinator decision 21): power ±2 %, stall guard 1 s, direction 0.5°, end points ±0.02 m, each excluding the failure the conventions name.
+- *Performance:* work per tick is at most N × L segment casts (N emitters, L segment limit) plus one shadow cast per sample point of each candidate receiver that a diverging segment's cone-and-range region query returns (optical convention 11); no other receiver is tested (counted on a scene with receivers outside every cone), none is a scan; R4 with emitters before and after.
+
+*Deletes:* the closed palette category set without optics (`AirflowLineClear` goes with `ENGINE-SPATIAL-QUERIES`).
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-SIGNAL-NODES, ENGINE-SUPPLY-DEMAND, ENGINE-THERMAL (credited store row). *Unblocks:* CAT-006, CAT-007, CAT-008, CAT-011, CAT-012, CAT-016, CAT-021, CAT-029, CAT-030, CAT-031, CAT-032, CAT-036, CAT-038, CAT-040, CAT-041, CAT-043, CAT-044, CAT-045, CAT-046, CAT-047, CAT-048, CAT-049, CAT-050, CAT-051, CAT-055, CAT-056, CAT-059, CAT-068, CAT-071, CAT-072, EL-075, EL-082, EL-083, EL-087, EL-088, EL-105, EL-138 to EL-155, EL-173 to EL-178, EL-210 to EL-214, TH-01, TH-02, TH-06, TH-07, TH-32, TH-37; the light-occlusion rows of CAT-066 and EL-191; and, through the solve `ENGINE-RADIATION` shares, EL-126, EL-129, RAD-01 to RAD-03, RAD-06 to RAD-10, RAD-12 to RAD-17, RAD-21 and RAD-22.
 
 ### Story ENGINE-RADIATION: Emission, attenuation, decay and exposure
-*Status: Backlog. Sprint key: `engine-radiation`. After ENGINE-OPTICAL (shared straight-line transport) and ENGINE-THERMAL (decay heat).*
+*Status: Backlog. Sprint key: `engine-radiation`. Order 25. After ENGINE-SPATIAL-QUERIES, ENGINE-SIGNAL-NODES and ENGINE-OPTICAL; the liquid crossing after ENGINE-LIQUID; no dependency on ENGINE-THERMAL (decay heat is a thermal inventory source). The radiation conventions are owned by [RAD-08 section 10](../../docs/planning/elements/RAD-08-radiation-rate-meter.md#radiation-conventions).*
 
-*Present today:* nothing. *Missing:* declared sources by kind with decaying activity, straight-line transport attenuated by the declared material and thickness crossed, exposure accumulated at declared detectors and exposure-responsive materials, and the readable detector presentation.
+*Outcome:* radiation is seven more channels on the one optical solve, attenuated exponentially by declared material rows, paid by supply or finite decaying inventories, and accumulated as dose at declared receivers.
 
-*Unblocks:* the 19 named RAD identities (the 22 RAD rows less the 3 umbrellas RAD-05, RAD-11 and RAD-19, which forward to EL-126 to EL-132) and the 7 Radiation-type EL identities. Map families: RadioactiveDecay with the optical transport family.
+*Present today:* nothing.
 
-**Specific acceptance:**
-- **Given** a source, a declared shield and a detector, **when** the shield is in the path, **then** the detector accumulates less by the declared attenuation; a thicker shield reduces it further and removing the source stops accumulation.
-- **And** activity falls with the declared half-life measured in game time.
+*Contract:*
+- Channels as a closed set (PhotonSoft, PhotonMedium, PhotonHard, Alpha, BetaMinus, NeutronFast, NeutronSlow) on the emitters, segments and receivers of the optical solve, in its tick slot.
+- Every collider transmits radiation channels with transmittance 1 unless declared; a declared attenuation row of per-channel coefficients on any collider and one declared default row for the scene (the photon coefficients ÷ 10, coordinator decision 21), applied as exp(−coefficient × chord) to the ordered crossings of the segment cast at the tick's final poses; overlapping chords of one body counted once with the largest coefficient. The own-body rule is optical convention 5's one rule for light and radiation (coordinator decision 26): a receiver's shadow cast ends at its aperture face, or at the sample point for a Uniform receiver, and every crossing before that end attenuates it, the receiver's own colliders included. A receiver that must read the same whatever way it faces declares one aperture sample per face and reads their mean (coordinator decision 30); the own-body rule has no second form.
+- One optional conversion per row (from, to, fraction ≤ 1): out_a = in_a·e^(−μ_a·L), out_b = in_b·e^(−μ_b·L) + m·in_a·(1 − e^(−μ_a·L)). A liquid store's committed filled region is crossed as a volume with the liquid's row. Radiation channels may appear in a Relay's outlet masks; unmasked channels, and every channel of a disabled relay, cross the inlet's collider by the attenuation law.
+- Emitters paid by a supply consumer or a declared finite inventory that decays with a half-life (emitting remaining × (1 − 2^(−dt ÷ T½)) each tick) or is steady (constant power, inventory sized for the 300 s maximum Run), restored on Reset.
+- Receiver facing as a closed set (Lambert, or Uniform with an effective cross-section and sample points); a collimated segment is credited where it crosses the aperture and continues; readings flat inside 1 m (optical convention 1's one near-field rule); one dose scale on one standard aperture area; a weighted-sum strength. A reading is the power crossing the aperture, a flux and not energy absorbed: it credits nothing, and several apertures on one collimated path each read what crosses them (radiation convention 7; coordinator decision 26). An accumulator integrates committed strength into joules, + strength × dt each tick, with a declared capacity and authored initial value, never reduced within a Run. Power removed along a crossing is booked once, on the absorbing collider's absorbed record (radiation convention 10), from which `ENGINE-THERMAL` moves heat and the optical store credit moves supply; no buildup, scatter, reflection or refraction.
+- Presentation drivers for strength, accumulator value or fraction and inventory fraction; the palette category and domain flag.
+
+*Acceptance:*
+- A collider with a declared row on the path lowers the reading by exp(−coefficient × chord); a second lowers it further; one beside the path changes nothing; a gap between colliders adds nothing; a collider with no row attenuates by the default row; an unknown or missing channel in a row is refused.
+- A decaying inventory's power halves each half-life of game time and its total never exceeds its inventory; a steady inventory emits constant power, is debited each tick and is restored on Reset.
+- Two separate exposures credit an accumulator the same total as one of the same length, at 60, 120 and 240 Hz cadences alike; the total survives loss of source and supply; Reset restores the initial value.
+- Power leaving a crossing never exceeds power entering it; diverging shares are scaled so received ≤ emitted; two thin receivers on one collimated path both read the flux crossing them, and the energy booked as absorbed along the path never exceeds the power removed from it.
+- A Uniform receiver reads a source behind its own body through the chord of that body; a receiver with one sample per face reads the same mean whichever way it faces.
+- *Performance:* at most C × L segment casts for C collimated sources and L the optical segment limit, plus, for each diverging source, one shadow cast per sample point of each candidate receiver its cone query returns through the query interface; no other receiver is tested. A cast returns every crossing on its segment: there is no crossing cap and no scene-capacity refusal (D5; radiation convention 12). R4 with sources before and after.
+
+*Deletes:* nothing in the engine; the earlier "after ENGINE-THERMAL (decay heat)" ordering.
+
+*Depends on:* ENGINE-OPTICAL; ENGINE-LIQUID for the liquid crossing; ENGINE-PARAMETER-BOUND-FRAMES; ENGINE-RUN-LENGTH. *Unblocks:* RAD-01 to RAD-04, RAD-06 to RAD-10, RAD-12 to RAD-18, RAD-20 to RAD-22 (the 19 named RAD identities; RAD-05, RAD-11 and RAD-19 are umbrellas forwarding to EL-126 to EL-132), EL-126 to EL-132.
+
+### Story ENGINE-FIELD-FORCE: The one uniform-field law and declared force regions
+*Status: Backlog. Sprint key: `engine-field-force`. Order 26. Owns gravity as one uniform-field law (coordinator decision 16) and its scene-region slice (the name `engine-scene-environment` is retired). Performance story (R4 with regions).*
+
+*Outcome:* every non-contact field is one declared law: acceleration fields (gravity, scene-wide or in a region) and force fields with declared selectors and payment.
+
+*Present today:* gravity is a fixed compiled value; the atmosphere is a two-value enum (`ABS/AtmosphereBoundary.cs:6-15`; `SIM/WorkshopPhysicsCompiler.Gas.cs:21`, `:37-38`); an ambient load acts only on the body that declares it (`ABS/GasCouplingValues.cs:19`); a supply consumer that pays only for delivered work exists for airflow only (`ABS/SupplyContractValues.cs:50`); no environment field in level content or on the observation port.
+
+*Contract:*
+- A field source declares a region (unbounded: the scene; or a bounded box or cylinder on a frame body), a selector (a responding property declared on a body by one rule, or a target selector), a magnitude whose quantity is a closed enum {Force (N), Acceleration (m/s²)}, a direction, optional falloff from a closed enum, and an optional occupancy capacity (acting on no more responding bodies than that until one leaves; occupancy is a committed read).
+- **Direction as data (coordinator decision 29).** A field's direction is declared from a closed enum {Constant vector, Toward a declared point} with its vector or its point in the source's frame; both forms are the one uniform-field law, evaluated per body at its centre of mass, with no branch by element.
+- Membership by centre of mass through the region query, waking sleepers; the field at a body is the sum of the fields whose region contains its centre of mass; the story sets the bound on a summed field.
+- An Acceleration field is the one gravity law: a body's effective gravity is its declared gravity plus the Acceleration fields it is inside; every declared buoyant lift, including a heated envelope's lift bound to its temperature (`ENGINE-THERMAL`, coordinator decision 28), scales by |effective gravity| ÷ |declared gravity| and is directed against it. Buoyancy in air is declared ambient lift only; there is no displaced-air law.
+- **One acceleration bound (EL-124 section 5, "Bound"; TH-25 H4).** A body's compiled acceleration has one bound, the combined |gravity + ambient load| ≤ 16 m/s² already checked at `engine/gpu/GasSceneValidation.cs:78`; the separate per-load check on the compiled load (|load| ≤ 16 m/s², `CuriousContraptions.Abstractions/GasCouplingValues.cs:65`) is deleted, forward-only, so a field-scaled lift has no second bound. A declared lift itself stays inside the 16 m/s² domain of a declared acceleration (`CuriousContraptions.Abstractions/WorldAccelerationDeclaration.cs:25`).
+- Payment kind from a closed enum {None, StandingDraw, PaidWork within a declared power bound, scaled proportionally when several bodies share it}; StandingDraw is a standing-demand consumer of `ENGINE-SUPPLY-DEMAND`; the reaction is applied to a dynamic frame body; one work read per source.
+- **Scene-region slice.** The scene field (one validated f32 from 1.0 to 16.0 m/s² along −Y, folded into each body's acceleration at compile, no per-tick cost), the environment record (gravity, and the atmosphere converted from an enum to a declared row of boundary pressure and relative factor), level-content fields, observation port and plaque.
+
+*Acceptance:*
+- The same drop under two declared scene values falls ½gt² within 0.05 m (the smallest landing clearance the gravity rows use); a declared buoyant body rises at the same rate in a 16.0 m/s² scene and in a Standard scene inside a region that brings the sum to 16.0; a heated envelope's bound lift is scaled once by the field, not twice; a lift scaled above 16 m/s² by a strong field is admitted while the body's combined |gravity + load| stays within 16 m/s², and refused once that combination exceeds it.
+- A responding and a non-responding body at the same distance: only the responding one accelerates; a point-form field accelerates responding bodies on opposite sides of its point toward it, and a constant-vector field accelerates both the same way; switching the source off removes the force from the tick the command commits; the reaction on a dynamic source is equal and opposite, so an isolated pair gains no momentum.
+- A body crossing a supplied PaidWork region gains at most force × path length and the supply is debited at least that; unsupplied it gains none; two bodies inside share one bound; a StandingDraw source empties a finite store at its rate and stops applying force when it is empty.
+- Out-of-range, non-finite or missing values and a save in the enum layout are refused atomically; difficulty never changes the scene field; Reset, save and load keep it.
+- *Performance:* region work bounded by the bodies inside; R4 before and after.
+
+*Deletes:* the fixed gravity constant as a separate rule; the atmosphere enum; the per-body-only ambient load as the only form of a field; the per-load acceleration check at `GasCouplingValues.cs:65`.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-ISLANDS-SLEEP, ENGINE-SUPPLY-DEMAND, ENGINE-PARAMETER-BOUND-FRAMES. *Unblocks:* EL-060, EL-089, EL-103, EL-124, EL-125, EL-227, TH-25, and the atmosphere and gravity rows of CAT-001, CAT-014, EL-187 and EL-188.
+
+### Story ENGINE-FRACTURE: Load-limited connections and irreversible break
+*Status: Backlog. Sprint key: `engine-fracture`. Order 27. After ENGINE-JOINT-KINDS and ENGINE-CONTACT-OBSERVATIONS; limits on player-made connections additionally after ENGINE-ASSEMBLY-JOINTS. Package-declared joints and bodies do not wait for player assembly.*
+
+*Outcome:* a declared load limit breaks a joint, attachment, rope tie or body one way for the rest of the Run, replacing removed colliders with declared fragments in the breaking substep.
+
+*Present today:* an integrity observer on one body opens a gas outlet and leaves the body in place; it qualifies on a per-substep pair impulse strictly above its threshold with approach speed above its minimum (`ABS/ContactIntegrity.cs:16-43`; `ABS/GasCouplingValues.cs:15`); a one-way topology change exists only as a commanded release of a tensile span (`ABS/RuntimeServices.cs:77`).
+
+*Contract:*
+- Every load limit declares a measure from one closed set (axial tension; shear; bending moment; resultant; contact normal, the largest normal load one other body exerts, summed over that pair's contact points; contact impulse, the integrity observation of `ENGINE-CONTACT-OBSERVATIONS`) and a hold time of zero or more; the break occurs when the measure has exceeded the limit on every substep for the hold; the settling transient at Run start does not count; a load of another kind or sign never breaks it. A limit may be multiplied by a clamped linear function of committed scalars (a store fraction, a node temperature).
+- A limit may sit on a joint or attachment, a rope tie, or a static or dynamic body; a body's break removes one declared collider, a declared set, or all of them.
+- Declared fragments are companion content of the package (owner decision 15): body and collider rows fixed in count and compiled at Run, inactive until the break (outside the broadphase, sensors and the committed body set), each within the removed colliders' volume (checked at bundle validation). The breaking substep is re-solved with the fragments active in place of the removed colliders, so the breaking contact acts on them and momentum is conserved; each fragment starts at its declared pose in the parent's frame with the parent's rigid-body velocity at its own centre (rest for a static parent), and takes the parent's material values, payload role and per-body surface state. Fragments of a whole dynamic body sum to its mass; fragments of a removed set sum to the mass that set carried and the remaining body's post-break mass frame is compiled at Run; a static parent's fragments declare their own mass. Fragments break again only if they declare a limit. A companion body may also take part from Run start.
+- The break publishes the existing integrity-broken observation; the committed load-to-limit ratio and the committed broken state are presentation drivers.
+
+*Acceptance:* the same connection loaded just below and just above its limit: only the second breaks, stays broken for the Run, and Reset restores it; a load of the other sign never breaks a tension limit; a transient shorter than the hold does not break a held limit; a struck body is replaced by its fragments in the same substep with total momentum conserved within the game-grade envelope and no intact body left for a tick; a declaration placing a fragment outside the removed volume or breaking the mass rules is refused.
+
+*Deletes:* the integrity observer's gas-outlet-only effect as the sole break.
+
+*Depends on:* ENGINE-JOINT-KINDS, ENGINE-CONTACT-OBSERVATIONS. *Unblocks:* EL-073, EL-084, EL-088, EL-159, EL-160, EL-161, EL-170, EL-186, GAP-09, TH-03, TH-16. Cutting tools (EL-066, EL-068) are not consumers; cutting is `ENGINE-TENSILE-EXTENSIONS`'.
 
 ### Story ENGINE-IGNITION-BLAST: Ignition, burn and blast impulse
-*Status: Backlog. Sprint key: `engine-ignition-blast`. After ENGINE-THERMAL.*
+*Status: Backlog. Sprint key: `engine-ignition-blast`. Order 28. The blast half does not wait for ENGINE-THERMAL; the burn half is after it. The combustion conventions are owned by [TH-01 section 11](../../docs/planning/elements/TH-01-candle.md).*
 
-*Present today:* nothing. *Missing:* a declared ignition threshold, a finite fuel store consumed at a declared rate, extinction when fuel or the declared oxidiser is absent, and a one-shot radial impulse with solid occlusion.
+*Outcome:* declared fuel burns from an ignition threshold until fuel or oxidiser runs out, crediting heat and light; a declared charge releases one occluded radial impulse.
 
-*Unblocks:* the explosive and burning parts. Map families: Ignition, ChemicalReaction, Extinction.
+*Present today:* nothing.
 
-**Specific acceptance:**
-- **Given** a charge behind a solid wall and one in the open, **when** both fire, **then** only the body with a clear path to its charge receives impulse, and a spent charge cannot fire again before Reset.
+*Contract:*
+- **Burn.** An ignite threshold handed from `ENGINE-THERMAL`; a finite fuel store (capacity from a parameter whose minimum is 0, its fraction a presentation driver) consumed at a declared rate; the burn's payment credited to declared thermal nodes by declared shares, less any radiant power paid to a declared optical emitter; an optional extinction temperature; an authored lit start setting the declared initial temperatures of its nodes; the oxidiser read from the scene atmosphere (absent in Vacuum) or an enclosure's finite gas store; a body's mass and one uniform collider scale bound to the fuel fraction at a tick boundary; a declared outcome for a solid whose fuel is spent (it keeps or loses its collider), restored on Reset.
+- **Blast.** A source on a body declares a reference impulse at distance 0 and a falloff from a closed enum (at least Linear) to zero at a maximum radius, applied once to every dynamic body whose centre of mass is inside the radius and joined to the origin by a segment no solid crosses (the source's and target's own colliders excluded), candidates from the query interface; the negative sum is applied to the source body; if Σ J² ÷ 2m over targets and source from rest exceeds the paying store's balance, every impulse scales by one factor; the store then reads zero until Reset. Release by a signal input (a physical-request target kind, typed refusal and no spend when spent) or by consuming an integrity observer's one-way occurrence. It commits at the end of the substep after its contact solve and publishes one event-ring record per release. A blast breaks nothing directly.
+
+*Acceptance:* the same fuel burns in Standard and not in Vacuum; fuel debit equals heat credited plus light emitted within the thermal ledger's tolerance; a charge behind a solid wall and one in the open fire, and only the body with a clear path receives impulse; total momentum is conserved; a spent charge cannot fire again before Reset.
+
+*Deletes:* nothing.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-CONTACT-OBSERVATIONS; burn half ENGINE-THERMAL and ENGINE-OPTICAL (radiant share). *Unblocks:* EL-074, EL-093, EL-106, TH-01, TH-02, TH-03, TH-31, TH-32, TH-33.
 
 ### Story ENGINE-GRANULAR: Bounded granular inventory and transport
-*Status: Backlog. Sprint key: `engine-granular`. After ENGINE-LIQUID, whose vessel and aperture ledger it reuses.*
+*Status: Backlog. Sprint key: `engine-granular`. Order 29. After ENGINE-LIQUID, whose store and aperture ledger it reuses. Sand waits for it; no rigid-grain substitute (owner decision 14).*
 
-*Present today:* nothing. *Missing:* a finite granular inventory per vessel that flows through an aperture at a declared rate independent of head, piles to a declared repose limit and loads its vessel by its mass.
+*Outcome:* granular material is a conserved inventory of declared fractions in stores and piles, passing apertures by grain size against clear width.
 
-*Unblocks:* the identities whose map row names GranularTransport (sand timers, hoppers of grain).
+*Present today:* nothing.
 
-**Specific acceptance:**
-- **Given** a filled upper vessel over an aperture, **when** it opens, **then** the lower vessel gains exactly what the upper loses, at a rate that does not change with fill height.
+*Contract:* (a) a store holds declared fractions, each with a grain diameter, conserved separately; a mixed store discharges fractions in proportion to their retained amounts; (b) an aperture declares a clear width, a full-width rate independent of fill height and a passage ratio; a fraction passes only while the clear width is at least the ratio × its grain diameter, otherwise it is retained (a jam); (c) the clear width is reduced by any solid collider across the aperture (candidates from the query interface) and the rate scales with the clear fraction, so a blade, a wall or the pile below gates the flow with no command channel; (d) material leaving an aperture is credited to the store interior beneath it or forms a free pile on the solids below, bounded by a declared repose limit, in the same ledger; (e) a store's and a pile's mass load their supports and are counted by contact-load sensors; (f) a store's contents and a pile present a surface that supports rigid bodies; (g) committed inventory per store and pile by fraction, an amount-reached observation goals can select, and fraction and flow as presentation drivers; (h) an aperture declares an occlusion reach, and only a solid whose top lies within that reach of the outlet plane narrows its clear width (GAP-06: 0.10 m); (i) a store admits every declared fraction that enters it, by the grain diameter its source declares (GAP-07); (j) a store's committed surface height is a presentation driver (GAP-06 and GAP-07 `Visual/Fill`); (k) the story measures its tick cost on its fixed reference scene and sizes its tables from compiled declarations (no scene ceiling).
 
-### Story ENGINE-CHARACTERS: Declared autonomous agents
-*Status: Backlog. Sprint key: `engine-characters`. Last of the engine-first stories.*
+*Acceptance:* a filled upper store over an open aperture: the lower gains exactly what the upper loses, at a rate that does not change with fill height; one feed passes a wide aperture and is retained by a narrow one; a solid moved across an open aperture stops the flow and moving it away restores it, while the same solid held just beyond the occlusion reach does not narrow it; a store fed two fractions admits both; a mixed feed over a selective aperture delivers one fraction and retains the other, each conserved; a pile presses a contact-load sensor as a rigid body of the same mass would.
 
-*Present today:* nothing. *Missing:* a declared agent body with a small typed behaviour table (stimulus, response, locomotion along supported surfaces), stimuli read from engine observations only, and deterministic choice.
+*Deletes:* nothing.
 
-*Unblocks:* the 7 Character identities. Map families: ProgrammableController, TimedCommand with RigidBodyDynamics.
+*Depends on:* ENGINE-LIQUID, ENGINE-SPATIAL-QUERIES, ENGINE-CONTACT-OBSERVATIONS. *Unblocks:* GAP-06, GAP-07.
 
-**Specific acceptance:**
-- **Given** an agent with a declared attraction stimulus, **when** the stimulus is present and reachable, **then** the agent walks to it over supported surfaces; with the stimulus absent or the route unsupported it stays put, and the same construction gives the same route on every run.
+### Story 14.0: Acoustic Propagation, Occlusion & Reception Engine (ENGINE-ACOUSTIC)
+*Status: Backlog. Sprint key: `14-0-acoustic-propagation-occlusion-reception-engine`. Order 30. Before the first acoustic consumer (Story 14.2, then 14.1, 14.3, 14.4; owner decision of 18 October 2026). The acoustic laws (L1 to L7), probe (C1 to C13, N1 to N14) and numbered gaps are owned by the [EL-044 spec](../../docs/planning/elements/EL-044-tone-selective-sound-meter.md); this text implements them. May be delivered as four slices: free field (gaps 1 to 5, 11 to 14, 17), surfaces (7, 8), routes (6) and resonance (9, 10).*
+
+*Outcome:* declared emitters produce acoustic occurrences that travel at a declared speed, fall off with distance, are occluded or attenuated by colliders, and are received by declared receivers as committed band levels.
+
+*Present today:* nothing acoustic; `SimulationDomain.Audio` is an enum member whose ports are refused (`ABS/SimulationDomain.cs:13`); the event-kind set has no acoustic kind and is pinned closed (`ABS/EventDescriptor.cs:7`); the multi-consumer event ring exists.
+
+*Contract:*
+- An occurrence has origin, axis, a pattern as a closed enum (Cone with a declared half-angle, or Omnidirectional with no direction), tone band, strength in (0, 1] and kind (Pulse of declared duration, or one Sustained occurrence with start and stop, never repeated pulses).
+- It reaches a receiver at distance ÷ declared speed, lasts its declared duration, and is zero beyond its declared range; level follows the declared falloff law (acoustic law L3); a receiver declares a band mask (out-of-band contributes exactly zero); its level is the strongest admissible arrival, never a sum; an instance's own colliders do not occlude it and it does not hear itself.
+- A collider may declare an acoustic transmission factor in [0, 1] (default 0, opaque); occlusion candidates from the segment cast.
+- Each receiver commits its band level every tick as a committed scalar observation; levels of a tick commit together; thresholds over it are `ENGINE-SIGNAL-NODES`'.
+- **Paid emitters.** A signal pulse on a declared input requests one emission; requests of a tick coalesce and are served on the next tick; an unserved request expires. A pulse emitter may be gated by a declared energy store (emission needs the store at capacity and its supply input powered in the tick that serves it, the route's powered state as resolved at that tick's start, and empties it; coordinator decision 32). A sustained emitter may be a continuous-work supply target that requests its declared power × dt each tick and sounds in a tick exactly when it was powered in full in the previous tick's commit (the acoustic phase runs at tick start and reads tick t − 1, like the optical one-tick latency; coordinator decision 34). An unpaid emitter is silent.
+- **Contact excitation.** An emitter may be excited by a qualified contact (`ENGINE-CONTACT-OBSERVATIONS`): declared colliders, a declared body target set, an approach speed threshold, strength = clamp(striker mass × approach speed ÷ a declared reference momentum, a declared floor, 1); emitters may share one declared minimum interval; contacts committed in one tick yield one emission per interval group in the next tick's acoustic phase, the strongest, ties to the lower emitter id; a resting or separating contact emits nothing; a package may declare several emitters with fixed tones and their own excitation rows.
+- **Observation excitation.** A sustained emitter may follow a threshold node over a committed scalar observation, with strength = observation ÷ a declared full-strength value, capped at one; this story delivers one observation kind, an observation-only airflow probe excited by the committed flow speed of a declared airflow source at declared probe samples (it takes no force, adds no demand and may sit on a static body); an emitter's tone or disabled state may be selected through a declared table by a committed scalar observation.
+- **Routes and surfaces.** Acoustic ports join through a typed route connection that delays by length ÷ speed and multiplies by a declared loss; an aperture captures arrivals inside its acceptance cone and an outlet releases routed sound; no stage has gain above one; a routed occurrence traverses each route at most once by lineage; relay depth is bounded; `WorkshopConnectionDomain` gains Audio with a typed per-connection setting through authoring, save and wire. A redirecting surface emits one child occurrence per incident occurrence using the total path from the source. An accumulating receiver integrates in-band level with a declared gain and decays with a declared time constant, capped at one.
+- **Presentation.** A typed acoustic event per emission for cues; audio playback is presentation-only; a committed acoustic read model exposes each receiver's level, each emitter's state, each emitter's requests of a tick, served or expired (so coalescing and expiry are observable; EL-044 gap 14), and each routed occurrence at an Audio port. Art chosen by a Choice is `ENGINE-PARAMETER-BOUND-FRAMES`'.
+- **Tick order.** The acoustic phase runs at the slot the [combined tick order](../../docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order) gives it (step 1: at the start of each tick, after the signal network resolves and before the substeps, reading tick t − 1's commits), which this story cites and does not restate; so a contact committed in tick t excites in tick t + 1, distinct from the optical solve after the last substep.
+- **Bounds.** Occurrences in flight per emitter are bounded by its declared minimum interval and lifetime; reception work is proportional to occurrences whose wavefront covers a receiver within range, found through the query interface, never emitters × receivers of the whole scene.
+
+*Acceptance:* distance falloff, cone edges, an omnidirectional source, occlusion on and off, a transmission factor, same-tick multiple emissions (strongest wins, never summed), out-of-band arrivals reading zero, a store-gated pulse emitter firing only at capacity with its supply input powered in the serving tick, a sustained supplied emitter sounding in the tick after one in which it was powered in full and silent in the tick after one in which it was not, a contact excitation just below and above its approach threshold, a sustained occurrence starting and stopping with its threshold node, a route delaying by length ÷ speed and never amplifying, and Reset clearing every pending emission and received level exactly; native tests only, browser proof post-catalogue. Tolerances are the acoustic family's named set (EL-044 section 2): level within max(0.02, 5 % of expected), a delay of ±0.05 s asserted only for a duct transit (free-air travel is asserted as causal order), energy within max(0.1 J, 2 %), and a stall guard of 5 s of game time after the cause.
+
+*Deletes:* the refusal of Audio-domain ports as unsupported; the closed event-kind set without acoustics; the Chrome e2e criterion of the earlier text.
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-CONTACT-OBSERVATIONS, ENGINE-SIGNAL-NODES, ENGINE-SUPPLY-DEMAND, ENGINE-PARAMETER-BOUND-FRAMES. *Unblocks:* CAT-009, CAT-060, CAT-061, CAT-069, EL-044, EL-045, EL-046, EL-047, EL-048, EL-049, EL-050, EL-051, EL-052, EL-179, EL-180, and the sound rows of CAT-066, EL-125 and EL-191.
+
+### Story ENGINE-ASSEMBLY-JOINTS: Player-built rigid and releasable connections
+*Status: Backlog. Sprint key: `engine-assembly-joints`. Order 31. Reduced to typed attachment sockets and commanded release (owner decision 3a; coordinator decision 16). The joint kinds, holds, drives, winding, elasticity, couplings and shaft-to-supply conversion it formerly listed are owned by ENGINE-JOINT-KINDS, ENGINE-TENSILE-EXTENSIONS, ENGINE-CONNECTION-MATERIALS, ENGINE-MECHANICAL-LINKS and ENGINE-SUPPLY-DEMAND.*
+
+*Outcome:* the player joins two separately placed parts at typed attachment sockets with a rigid or pinned connection, and a declared signal can release a connection.
+
+*Present today:* `AnchorPointDescriptor` (`ABS/MechanicalContractValues.cs:63`) is declared by one package, validated and bundled, never compiled; its `Name` is a string; there is no player-made joint.
+
+*Contract:*
+- Sockets carry a typed id and a role enum (mount, point); a mount is rigid or pin, optionally with a load limit (`ENGINE-FRACTURE`); a connection joins one mount to one point; several mounts may share a point; other pairings are refused with a typed reason. This story builds on `AnchorPointDescriptor` or deletes it; it adds no second socket contract.
+- The mount-carrying body and the point-carrying body of a connection do not collide, nor do bodies whose mounts share one point; every other pair collides.
+- The connect-time rule for a mount and a point that are apart is fixed once; a made connection adds no impulse at Run start.
+- **Commanded release.** A connection (player-made, or an attachment declared inside one package) may be released by a declared signal input of its owning part or by an internal signal node through a package-internal edge; one occurrence releases it at a step boundary, changing the compiled constraint set with no allocation during the tick; a second pulse changes nothing and publishes no second occurrence; Reset restores the authored connection. The committed attachment state is on the read with a presentation driver. Holds on a coordinate and their release by physical request are `ENGINE-JOINT-KINDS`'.
+
+*Acceptance:* two parts joined at compatible sockets move as the declared joint allows; incompatible sockets are refused at connection time; a closed loop of three pinned members holds its shape within the game-grade envelope for 10 s; a commanded release frees the parts in the tick it commits, and Reset restores the connection.
+
+*Deletes:* `AnchorPointDescriptor` in its string-named, uncompiled form.
+
+*Depends on:* ENGINE-JOINT-KINDS, ENGINE-CAPABILITY-INSTANCES, ENGINE-SIGNAL-NODES. *Unblocks:* EL-112, EL-113, EL-114, EL-115, EL-117, EL-185, EL-186, EL-219, EL-221, GAP-04, and the player-made limited connectors of EL-159 to EL-161.
+
+### Story: Package joints on a dynamic base
+*Status: Backlog. Sprint key: `engine-characters` (kept; formerly ENGINE-CHARACTERS, retitled and reduced by coordinator decision 16). Order 32. After ENGINE-CONTACT-OBSERVATIONS and ENGINE-SUPPLY-DEMAND. No agent, behaviour table, perception query or route planner.*
+
+*Outcome:* a package whose base body is dynamic and carries driven hinges and sprung sliders rolls, coasts and stops as ordinary physics.
+
+*Present today:* hinges and sliders on any support body are admitted by the validator and compiler; the drive reaction on a free base is tested only without contact (`CuriousContraptions.tests/RevoluteDriveTests.cs:503`, zero gravity, no ground).
+
+*Contract:* qualification only, on two differently sized fixtures with an internal finite source: the base rolls by contact friction under its driven hinges, coasts and stops unsupplied, gains no momentum in isolation, and survives Reset and save/load; a sprung slider on the dynamic base keeps its stops and its endpoint contact while the base rolls; two driven hinges in one package each follow their own consumer.
+
+*Acceptance:* as the contract, with travel and stopping asserted within the game-grade envelope inside a stated stall guard.
+
+*Deletes:* the scripted-agent text of the former ENGINE-CHARACTERS.
+
+*Depends on:* ENGINE-CONTACT-OBSERVATIONS, ENGINE-SUPPLY-DEMAND, ENGINE-JOINT-KINDS (dynamic support). *Unblocks:* EL-082, EL-083, EL-086, EL-087.
+
+### Further stories (name proposed, not in owner decision 3a)
+
+### Story ENGINE-REACTION-THRUST: Airflow source reaction, converging flow and ambient angular drag
+*Status: Backlog. Sprint key: `engine-reaction-thrust`. Order 33. Name proposed, not in 3a; it is "the thrust story" to which coordinator decision 16 gives the ambient angular drag. Amends REQ-12. After ENGINE-SPATIAL-QUERIES.*
+
+*Outcome:* an airflow source on a free body pushes it by its jet even with nothing in the cone; a source can draw toward its origin; bodies can declare angular drag.
+
+*Present today:* a conical airflow source on a dynamic frame receives the equal and opposite force and moment of what it delivers to each exposed receiver sample, paid from its store, supply or coordinate (`CuriousContraptions.tests/AirflowGeneralityTests.cs:189`); there is no reaction when nothing is in the cone and no angular drag.
+
+*Contract (one change to the airflow source descriptor, its wire row and read):* (a) **ambient reaction**: a reaction impulse on the frame body at the source origin, opposite the axis, equal to the delivered law for the still ambient medium, (granted limit − impulse granted to exposed receivers) × pressure scale × clamp((flow speed + origin velocity · axis) ÷ flow speed, 0, 1); work paid = that impulse × flow speed from the same finite input, for every input kind; applied at the origin, so an off-centre source turns its body; the read reports the ambient share; (b) **flow sense** as a closed enum (Diverging, Converging): a converging source's force on a sample points to the origin and its occlusion segment runs from sample to origin; a converging source has no ambient share, and declaring both is refused; (c) **ambient angular drag** (1/s) on an ambient load, scaled by the atmosphere's pressure scale, zero by default. Boundary with `ENGINE-GAS-NETWORK`: gas-fed nozzles and their thrust are that story's; the reaction on the source body is this one's.
+
+*Acceptance:* two free bodies with a declared ambient reaction and a finite store accelerate opposite their axis, never exceed their flow speed, and stop accelerating when the store is empty; total debit equals work paid within the ledger residual; the same holds for a supply-consumer and a coordinate input; with a receiver filling the cone the pair gains no net momentum; in Vacuum or disabled nothing is applied or debited; a source declared off the centre of mass, with nothing in its cone, gives its body, from rest, a spin rate after 0.25 s within 10 % of (origin − centre of mass) × reaction ÷ inertia × 0.25 s, about that axis and in that sense (the quantity is the body's angular speed in rad/s; the gameplay consequence is that an off-centre jet turns its body the way and at the rate its lever arm and inertia predict, so a level can aim a turning part; 10 % is wider than the fall of the reaction over the window as the origin gains speed along the axis, which the fixture keeps under 2 % by a flow speed at least fifty times the speed reached, and narrower than each plausible defect: no lever arm gives 0, the opposite sense −100 %, and the fixture's inertia about the source origin differs from its inertia about the centre of mass by more than 25 %); a supply-fed source whose signal-controlled contact is open applies and debits nothing; two converging sources draw a receiver toward their origin, and a solid between receiver and origin stops it while one behind does not; two bodies given the same spin stop within their declared time-constant ratio and zero drag spins on.
+
+*Deletes:* nothing (additive to one descriptor; no second source law).
+
+*Depends on:* ENGINE-SPATIAL-QUERIES, ENGINE-SUPPLY-DEMAND. *Unblocks:* EL-090, EL-092, EL-100, EL-104, EL-105.
+
+### Story ENGINE-SURFACE-STATE: Treatment regions that change a body's surface
+*Status: Backlog. Sprint key: `engine-surface-state`. Order 34. Name proposed, not in 3a. After engine-goal-evaluation.*
+
+*Outcome:* a declared treatment region changes one contact-material value or a surface tag of a body that dwells in contact with its applicator, once per unit of a finite store.
+
+*Present today:* collider material lanes are written once at ingest (`SIM/WorkshopPhysicsEngine.cs:532-535`); target selection exists for residence sensors only (`ABS/TargetSelector.cs:12`); the store-fraction driver reads electrical stores only (`ABS/ElementPresentation.cs:23`).
+
+*Contract:* a treatment region names an applicator collider, a target selector, a dwell of cumulative contact (`ENGINE-CONTACT-OBSERVATIONS`), a whole-number store, a local treatment id and one effect: set one declared contact-material value on every collider of the treated body, or set a declared surface tag (a typed local id with an overlay style). Per-body state is a fixed-width lane compiled at Run; the effect applies at a step boundary, lasts until Reset and is never saved; canonical body order decides when more bodies complete in one tick than units remain. Each treatment publishes a committed first-occurrence `Treated` observation the goal list can select; a per-body surface-state read and a renderer overlay from it; any store's committed fraction as a presentation driver. The engine knows no tag or coating by name.
+
+*Acceptance:* contact just under and just over the dwell: only the second is treated and debits one unit; an empty store treats nothing; a treated body's pair friction follows the new value from the next tick; a goal of {Captured, Treated} is Solved for a treated subject and Waiting for an untreated one; a goal naming an undeclared treatment is refused at load; Reset restores values, tags, latches and the store.
+
+*Deletes:* the ingest-once material lane as the only form.
+
+*Depends on:* ENGINE-CONTACT-OBSERVATIONS, ENGINE-GOALS (first slice). *Unblocks:* EL-118, EL-119.
+
+### Story ENGINE-PARAMETER-COMBINATIONS: Excluded option tuples
+*Status: Backlog. Sprint key: `engine-parameter-combinations`. Order 35. Name proposed, not in 3a.*
+
+*Outcome:* a package can forbid combinations of its Choice options.
+
+*Present today:* each parameter is validated alone.
+
+*Contract:* a package declares excluded tuples over two or more of its Choice parameters; an edit, placement, paste, save or load that would produce one is refused atomically with a typed reason naming the parameters; the default tuple may not be excluded (bundle validation); the authoring read model reports which options are currently unavailable.
+
+*Acceptance:* on two fixtures with different exclusions, an excluded tuple is refused from either parameter's edit and from a save, the construction is unchanged, and every non-excluded tuple is admitted.
+
+*Deletes:* nothing. *Depends on:* ENGINE-PARAMETER-BOUND-FRAMES. *Unblocks:* EL-076, EL-080.
+
+### Story ENGINE-TUNNEL-QUALIFICATION: Tunnelling envelope for every shape
+*Status: Backlog. Sprint key: `engine-tunnel-qualification`. Order 36. Name proposed, not in 3a. Tests first.*
+
+*Outcome:* the `DOC:375` envelope (no tunnelling of a 1 cm wall at 64 m/s) is proven for every admitted dynamic shape, not only spheres.
+
+*Present today:* the speculative margin includes spin reach (`SIM/WorkshopPhysicsEngine.cs:1112-1117`); only spheres get the conservative-advancement normal (`SIM/WorkshopCollisionKernels.cs:1940-1946`); a cylinder at 64 m/s is tested (`WorkshopPhysicsLawCylinderTests.ACylinderAtSixtyFourMetresPerSecondNeverPassesAOneCentimetreWall`).
+
+*Contract:* native scenarios for a box, a cylinder, a hollow shape and a thin plate at 64 m/s and at the angular bound against a 1 cm wall, and two fast bodies meeting. If any fails, the fix is a general swept test in the segment cast, not a per-shape rule.
+
+*Acceptance:* the body's centre never reaches the wall's near face plane in any scenario.
+
+*Deletes:* nothing unless a fix replaces a path. *Depends on:* ENGINE-SPATIAL-QUERIES. *Unblocks:* no identity directly (fast bodies everywhere).
+
+### Story ENGINE-ART-SOLIDITY: Each package declares which of its art is solid
+*Status: Backlog; drafted contract [spec-engine-art-solidity.md](../implementation-artifacts/spec-engine-art-solidity.md), blocked. Sprint key: `engine-art-solidity`. Order 37. Name proposed, not in 3a. Not a repair part of owner decision 22, so it waits for the programme.*
+
+*Outcome:* every mesh of every package is declared solid, hollow, arc chord or decorative as typed build-time data; the bundle generator refuses an unclassified or doubly classified mesh; the visible-solid test reads the declarations.
+
+*Present today:* the classification is a hand table inside one test.
+
+*Acceptance and deletes:* as the drafted contract; the hand table is deleted.
+
+*Depends on:* ENGINE-CAPABILITY-INSTANCES (visible-proxy refusal). *Unblocks:* every package's visible-solid row.
+
+### Story ENGINE-PARALLEL-ISLANDS: Islands solved in parallel
+*Status: Conditional. Sprint key: `engine-parallel-islands`. Order 38. Name proposed, not in 3a. Only if ENGINE-SOA-SIMD misses the REQ-04 tick target at P0-034.*
+
+*Outcome:* independent islands are solved on worker threads (`DOC:274`), with results committed in canonical island order. *Present today:* single-threaded (`SIM/wwwroot/worker.ts:139`); no project sets `WasmEnableThreads`, so it is impossible as configured (ABI audit G15). It becomes possible once `ENGINE-WASM-THREADS` provides threads, shared memory and the deterministic worker pool, `ENGINE-SOA-SIMD` keeps each island's rows in shared tables and `ENGINE-ISLANDS-SLEEP` builds the islands; this story then schedules island solves on that pool and stays conditional on the tick target (owner decision 24k changes its enabling, not its condition). *Acceptance:* the same outcomes as single-threaded within the game-grade envelope, on 1, 2 and 4 threads; R1 and R2 tick time before and after. *Depends on:* ENGINE-WASM-THREADS, ENGINE-SOA-SIMD, ENGINE-ISLANDS-SLEEP. *Unblocks:* no identity directly.
 
 ---
 
-## Epic 15: 150 Progressively Taught Campaign Levels
+## Epic 15: Progressively Taught Campaign (at least 150 levels)
 
-**Goal:** Deliver all 150 progressive challenge levels as 15 chapters of 10 levels, one story per chapter, each verified with real UI solutions, negative controls, and bit-for-bit Reset in actual Chrome.
+**Goal:** Deliver the progressively taught campaign: at least 150 levels (244 planned) in 15 chapters, one story per chapter. Every placeable part is used by a lesson, each mechanic is introduced once, no level introduces more than two or three new parts, and later levels combine and build on what earlier levels taught (owner decisions 24c to 24f, 23 November 2026; `AGENTS.md`). Each level is verified natively with its solution, negative controls and exact Reset; the actual-Chrome proof belongs to the post-catalogue phase.
 
-**Chapter authority (reconciled 21 November 2026).** [Requirements](../../docs/planning/requirements.md#campaign-structure-15-chapters-150-levels) define 15 chapters of 10 levels; the earlier five-chapter, three-part labels in Stories 15.1–15.15 are replaced below. Each story is one chapter. Its teaching focus, first-use elements and reuse come from that chapter's requirements row, the [chapter reservations](../../docs/planning/invest/campaign-reservations.md) and the [level scopes](../../docs/planning/invest/campaign.md); a story's summary sentence never narrows them. Sprint keys keep their story number and carry the corrected chapter number.
+**Chapter authority (reconciled 21 November 2026).** The [requirements campaign plan](../../docs/planning/requirements.md#campaign-plan) defines the 15 chapters; the earlier five-chapter, three-part labels in Stories 15.1–15.15 are replaced below. Each story is one chapter. Its teaching focus, first-use elements and reuse come from that chapter's requirements row, the [chapter reservations](../../docs/planning/invest/campaign-reservations.md) and the [level scopes](../../docs/planning/invest/campaign.md); a story's summary sentence never narrows them. Sprint keys keep their story number and carry the corrected chapter number. **Owner decisions 24c and 24d (23 November 2026):** the campaign now has 244 levels (owner decisions 24c to 24f and coordinator decisions 35 and 36). Each chapter story covers its chapter's levels in the [per-level allocation](../../docs/planning/elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f), lettered levels included, with at most three new parts in any level and every part's prerequisites taught before it (coordinator decision 36); 29 authored levels that repeat an introduced mechanic are removed, 2 are converted, and every kept authored level moves to the chapter its parts allow.
 
-**Early level proof (owner, 21 November 2026).** Under AGENTS.md's **Early level proof** rule, a planned level that uses only delivered parts may be authored and proven natively before catalogue closure. Today that is limited by goal evaluation: of the 45 planned levels that use only delivered parts, the 12 with a single captured or activated-after goal can be proven now (21 November 2026 audit); the other 33 wait for Story ENGINE-GOALS. That proof belongs to the level's chapter story; the Chrome clauses below stay in the post-catalogue phase, and a chapter story closes only when all ten levels pass.
+**Early level proof (owner, 21 November 2026).** Under AGENTS.md's **Early level proof** rule, a planned level that uses only delivered parts may be authored and proven natively before catalogue closure. Every Early level proof waits for the engine programme (owner decision 22, 23 November 2026; [engine programme](#engine-first-capability-stories-21-november-2026)). After it, of the 45 planned levels that use only delivered parts, the 11 with a single captured or activated-after goal can be proven (21 November 2026 audit; after the owner decision 24d removals, 9 levels are provable and 7 wait for the goal slices); the other 34 also wait for Story ENGINE-GOALS. That proof belongs to the level's chapter story; the Chrome clauses below stay in the post-catalogue phase, and a chapter story closes only when every level of its chapter passes.
 
 ### Story 15.0: Physical Placement Nudging & Difficulty Assistance
 *Status: Backlog*
@@ -4579,6 +5466,10 @@ So that easier difficulties forgive small placement errors and Precise rewards e
 - **And** CAT-049 and CAT-050 prove their declared depth-error results through the actual UI:
   - Forgiving and Balanced succeed where Precise fails, at the same placement error;
   - the boundary is tested at just inside, exactly at, and just outside each tolerance.
+- **And** the same mechanism closes three more native controls, each with its source values ([CAT-048](../../docs/planning/elements/CAT-048-pipe.md) facts 5 and 18, [CAT-015](../../docs/planning/elements/CAT-015-bumper.md) fact 5, [CAT-054](../../docs/planning/elements/CAT-054-ramp.md) facts 1 to 5):
+  - CAT-048's depth controls: in `clear_pipe` a reference pipe moved 0.48 m in depth wins at precision 0 and 0.45 but not at 1; in `joined_pipe` the straight pipe uses the narrow bend windows (position 0.6 / 0.5 m, rotation 5° / 2°, equal correction caps at precision 0 / 0.45);
+  - CAT-015's isolated authored-assistance control: in `bumper_sidekick` a bumper placed at (−3.110, 1.500, 0.035) is corrected to (−3.2, 1.5, 0) and the level is rescued by nudging alone at precision 0 and 0.45 but not at 1; the bumper does not move at Run start and Reset restores the placed pose;
+  - CAT-054's `first_principles` knots: the per-ramp knots at precision 0 / 0.45 / 1 stored in `content/puzzles.json` (position step 0.3 / 0.12 / 0 m, rotation step 5° / 2° / 0°, windows 3 m and 100°, then 1.5 m and 45°, blend 0.4 s) are applied, interpolated linearly between knots; inside the window the placed ramp is corrected by no more than the knot's cap and the level then solves; outside the window, and at precision 1, the transform is unchanged.
 - **And** nudging never moves a locked part. It never overlaps another part's collider: an overlap leaves the part where the player put it. Undo restores the pre-nudge pose.
 - **And** Run/Reset and Save/Load preserve the nudged pose exactly.
 - **And** `tools/e2e/nudging.test.ts` passes 100%, the `cat-049` and `cat-050` assistance cases pass, and every `tools/e2e/*.test.ts` suite passes 100% in one serial Chrome run.
@@ -4587,11 +5478,11 @@ So that easier difficulties forgive small placement errors and Precise rewards e
 *Status: Backlog*
 
 As a player,  
-I want introductory levels teaching ball drops, ramps, switches, lamps, and basic capture,  
+I want introductory levels teaching ball drops, ramps, rebounds, dominoes and basic capture,  
 So that I learn the core mechanics of Curious Contraptions.
 
 **Acceptance Criteria:**
-- **Given** Levels 1 through 10 in Chapter 1 (`first_principles`, `power_trip`, `air_mail`, `spring_forward`, `third_dimension`, `domino_effect`, `spring_signal`, `wind_signal`, `cold_start`, `bumper_sidekick`),
+- **Given** the 17 levels of Chapter 1 in the per-level allocation (authored: `first_principles`, `spring_forward`, `a_gentle_rebound`, `ready_to_rebound`, `domino_effect` re-authored without its lamp and with a Captured goal (the last domino knocks a ball into a Receiving basket, coordinator decision 41), `bumper_sidekick`, `bumper_depth`, `wall_and_bumper` and `burst_of_motion`; new level 9b introduces the Structural brace after the pivot under coordinator decision 36; `power_trip`, `air_mail`, `third_dimension`, `spring_signal` and `cold_start` move to chapter 2 under owner decision 24f, and `wind_signal` is removed under 24d),
 - **When** executed in Chrome via Playwright,
 - **Then** each level possesses an admitted inventory, solvable route, and Solved celebration.
 - **And** exact Reset restores initial authoring state bit-for-bit.
@@ -4601,91 +5492,91 @@ So that I learn the core mechanics of Curious Contraptions.
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "A Helping Weight" to teach the parts and combinations the requirements reserve for slots 11–20,
+I want the levels of "A Helping Weight" (25, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 11–20,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 11 through 20 in Chapter 2, with the teaching focus and reservations its requirements row names,
+- **Given** the 25 levels of Chapter 2 (slots 11 through 20 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** solved via real UI placements,
-- **Then** all 10 levels transition to Solved and reset cleanly, and completing them unlocks Chapter 3.
+- **Then** all 25 levels transition to Solved and reset cleanly, and completing them unlocks Chapter 3.
 - **And** `tools/e2e/campaign-02.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.3: Campaign Levels 21–30 (Chapter 3: "Pipe Dreams")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Pipe Dreams" to teach the parts and combinations the requirements reserve for slots 21–30,
+I want the levels of "Pipe Dreams" (20, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 21–30,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 21 through 30 in Chapter 3, with the teaching focus and reservations its requirements row names,
+- **Given** the 20 levels of Chapter 3 (slots 21 through 30 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** played in Chrome,
-- **Then** all 10 levels pass with 100% verification and unlock Chapter 4.
+- **Then** all 20 levels pass with 100% verification and unlock Chapter 4.
 - **And** `tools/e2e/campaign-03.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.4: Campaign Levels 31–40 (Chapter 4: "Gears of an Idea")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Gears of an Idea" to teach the parts and combinations the requirements reserve for slots 31–40,
+I want the levels of "Gears of an Idea" (17, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 31–40,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 31 through 40 in Chapter 4, with the teaching focus and reservations its requirements row names,
+- **Given** the 17 levels of Chapter 4 (slots 31 through 40 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all 10 levels pass with verified Solved transitions and unlock Chapter 5.
+- **Then** all 17 levels pass with verified Solved transitions and unlock Chapter 5.
 - **And** `tools/e2e/campaign-04.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.5: Campaign Levels 41–50 (Chapter 5: "Ready, Set, Throw!")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Ready, Set, Throw!" to teach the parts and combinations the requirements reserve for slots 41–50,
+I want the levels of "Ready, Set, Throw!" (18, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 41–50,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 41 through 50 in Chapter 5, with the teaching focus and reservations its requirements row names,
+- **Given** the 18 levels of Chapter 5 (slots 41 through 50 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels achieve 100% pass rate serially and unlock Chapter 6.
+- **Then** all 18 levels achieve 100% pass rate serially and unlock Chapter 6.
 - **And** `tools/e2e/campaign-05.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.6: Campaign Levels 51–60 (Chapter 6: "A Bright Idea")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "A Bright Idea" to teach the parts and combinations the requirements reserve for slots 51–60,
+I want the levels of "A Bright Idea" (27, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 51–60,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 51 through 60 in Chapter 6, with the teaching focus and reservations its requirements row names,
+- **Given** the 27 levels of Chapter 6 (slots 51 through 60 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** solved in Chrome,
-- **Then** all levels solve and unlock Chapter 7.
+- **Then** all 27 levels solve and unlock Chapter 7.
 - **And** `tools/e2e/campaign-06.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.7: Campaign Levels 61–70 (Chapter 7: "Go with the Flow")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Go with the Flow" to teach the parts and combinations the requirements reserve for slots 61–70,
+I want the levels of "Go with the Flow" (23, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 61–70,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 61 through 70 in Chapter 7, with the teaching focus and reservations its requirements row names,
+- **Given** the 23 levels of Chapter 7 (slots 61 through 70 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** executed in Chrome,
-- **Then** all 10 levels solve and unlock Chapter 8.
+- **Then** all 23 levels solve and unlock Chapter 8.
 - **And** `tools/e2e/campaign-07.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.8: Campaign Levels 71–80 (Chapter 8: "Sounds Like a Plan")
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Sounds Like a Plan" to teach the parts and combinations the requirements reserve for slots 71–80,
+I want the levels of "Sounds Like a Plan" (20, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 71–80,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 71 through 80 in Chapter 8, with the teaching focus and reservations its requirements row names,
+- **Given** the 20 levels of Chapter 8 (slots 71 through 80 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** tested in Chrome,
-- **Then** all 10 levels pass 100% serially with verified solutions and unlock Chapter 9.
+- **Then** all 20 levels pass 100% serially with verified solutions and unlock Chapter 9.
 - **And** `tools/e2e/campaign-08.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.9: Campaign Levels 81–90 (Chapter 9: "Stored Potential")
@@ -4705,13 +5596,13 @@ So that each new part is introduced, practised and combined before the next chap
 *Status: Backlog*
 
 As a player,  
-I want the ten levels of "Oddly Satisfying" to teach the parts and combinations the requirements reserve for slots 91–100,
+I want the levels of "Oddly Satisfying" (17, with their lettered levels) to teach the parts and combinations the requirements reserve for slots 91–100,
 So that each new part is introduced, practised and combined before the next chapter.
 
 **Acceptance Criteria:**
-- **Given** Levels 91 through 100 in Chapter 10, with the teaching focus and reservations its requirements row names,
+- **Given** the 17 levels of Chapter 10 (slots 91 through 100 and their lettered levels), with the teaching focus and reservations its requirements row names,
 - **When** played in Chrome,
-- **Then** all 10 levels solve and unlock Chapter 11.
+- **Then** all 17 levels solve and unlock Chapter 11.
 - **And** `tools/e2e/campaign-10.test.ts` passes 100% in Chrome serially.
 
 ### Story 15.11: Campaign Levels 101–110 (Chapter 11: "A Ray of Possibility")
@@ -4771,12 +5662,12 @@ So that each new part is introduced, practised and combined before the final cha
 
 As a player,  
 I want the final chapter to combine everything taught, introducing no new required element,
-So that solving all 150 levels completes the game with celebratory recognition.
+So that solving every campaign level completes the game with celebratory recognition.
 
 **Acceptance Criteria:**
 - **Given** Levels 141 through 150 in Chapter 15, with the combinations its requirements row names,
 - **When** solved in Chrome,
-- **Then** the final levels complete cleanly, culminating in the 150-Level Campaign Completion achievement.
+- **Then** the final levels complete cleanly, culminating in the Campaign Completion achievement (the final level of the campaign, whatever its count).
 - **And** `tools/e2e/campaign-15.test.ts` passes 100% in Chrome serially.
 
 ---
@@ -4835,7 +5726,7 @@ So that Curious Contraptions is ready for public release.
 - **Given** the production build pipeline,
 - **When** executed,
 - **Then** production WASM modules, scripts, and content packs build cleanly with 0 warnings.
-- **And** all 72 catalogue parts and all 301 named element identities of the [ledger](../../docs/planning/invest/named-elements.md) (the same set `catalogue-native-closure` verifies), all 150 campaign levels, and the Free Workshop sandbox are 100% verified in the final distribution bundle.
+- **And** all 72 catalogue parts and all 302 named element identities of the [ledger](../../docs/planning/invest/named-elements.md) (the same set `catalogue-native-closure` verifies), every campaign level (at least 150; 244 planned), and the Free Workshop sandbox are 100% verified in the final distribution bundle.
 
 ---
 

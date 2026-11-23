@@ -31,7 +31,7 @@ public class CurrentCapabilityInputsTests
         var sources = RequirementDiscovery.Discover(root);
         var preparation = CapabilityInputs.Prepare(root, sources);
         var expected = preparation.Expectations;
-        Assert.Equal(1473, sources.Count);
+        Assert.Equal(1475, sources.Count);
         Assert.Equal(72, sources.Count(source => source.Key.Origin == RequirementOrigin.Catalogue));
         Assert.Equal(304, sources.Count(source => source.Key.Origin == RequirementOrigin.Fixture));
         Assert.Equal(104, expected.Modes.Count);
@@ -66,7 +66,7 @@ public class CurrentCapabilityInputsTests
             Assert.False(Directory.Exists(Path.Combine(target.FullName, "elements/Laser")));
             var sources = RequirementDiscovery.Discover(target);
             var prepared = CapabilityInputs.Prepare(target, sources);
-            Assert.Equal(1473, sources.Count);
+            Assert.Equal(1475, sources.Count);
             Assert.Equal(104, prepared.Expectations.Modes.Count);
             Assert.Equal(72, prepared.Expectations.RequiredCapabilities.Keys.Count(key => key.Origin == RequirementOrigin.Catalogue));
             var springboard = Path.Combine(target.FullName, "elements/Springboard/SpringboardElementDeclaration.cs");

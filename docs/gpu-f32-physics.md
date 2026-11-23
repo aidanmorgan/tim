@@ -18,7 +18,7 @@ By executing the core simulation in vectorized WASM on a dedicated worker, the p
 - WebGL 2 is fully supported as a first-class production target alongside WebGPU.
 
 ### Zero-Copy Shared Memory Pipeline
-The simulation worker and the browser main thread communicate via a pre-allocated `SharedArrayBuffer` under cross-origin isolation (`crossOriginIsolated`). The simulation worker writes committed body transforms and event states directly into a lock-free atomic multi-buffered ring buffer. The main thread renderer samples this shared ring directly in its animation loop and uploads transforms to GPU instance buffers with zero heap allocations, zero serialization overhead, zero garbage collection pauses, and zero GPU readback stalls (`mapAsync` is completely eliminated).
+The simulation worker and the browser main thread communicate via a pre-allocated `SharedArrayBuffer` under cross-origin isolation (`crossOriginIsolated`). The simulation worker writes committed body transforms and event states directly into a lock-free atomic multi-buffered ring buffer whose depth is derived from tick rate and render delay (owner decision 24k, 23 November 2026). The main thread renderer samples this shared ring directly in its animation loop and uploads transforms to GPU instance buffers with zero heap allocations, zero serialization overhead, zero garbage collection pauses, and zero GPU readback stalls (`mapAsync` is completely eliminated).
 
 ---
 
@@ -186,7 +186,7 @@ The solver advances physical time at a fixed **120 Hz tick with 480 Hz sub-stepp
       [Phase 5: Continuous Sensor Evaluation & Event Dispatch]
                          |
                          v
-      [Commit State to SharedArrayBuffer Triple-Buffer Ring]
+      [Commit State to SharedArrayBuffer Multi-Buffered Ring]
 ```
 
 ### 1. Broadphase: Dynamic AABB BVH with Velocity Fattening

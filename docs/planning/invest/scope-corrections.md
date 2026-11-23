@@ -47,12 +47,12 @@ Freeze one material's break threshold and fragment bounds: just below holds, jus
 <a id="s646"></a>
 ### S646 · Design decision before programmable preset
 
-Enumerate the allowed typed programmable material values; one accepted preset behaves as declared, one invalid combination is refused at input. S646-I demonstrates that preset's physical outcome, not free-form code.
+Enumerate the allowed typed programmable values; the author selects size, mass and material from declared Choice presets, every admitted combination behaves as declared, and an excluded combination is refused at input ([EL-076 spec](../elements/EL-076-programmable-ball.md)). S646-I demonstrates the selected presets' physical outcomes, not free-form code.
 
 <a id="s650"></a>
 ### S650 · Design decision before programmable physical container
 
-Freeze one validated size/mass/material preset for the Programmable box (EL-080). A contained load stays inside its actual walls, a collision deflects from them, an unsupported preset is refused. S650-I demonstrates that preset and exact Reset; this is not a controller or a numeric solution editor.
+Freeze the validated size/mass/material Choice presets for the Programmable box (EL-080): the author selects each in Build, and the declared excluded combinations are refused ([EL-080 spec](../elements/EL-080-programmable-box.md)). A contained load stays inside its actual walls, a collision deflects from them, an unsupported combination is refused. S650-I demonstrates the selected presets and exact Reset; this is not a controller or a numeric solution editor.
 
 <a id="s652"></a>
 ### S652 · Design decision before character perception
@@ -72,7 +72,7 @@ Children: S639 finite preset/feed/capacity; S640 gravity passage and separately 
 <a id="law-controller-i"></a>
 ### LAW-CONTROLLER-I · Aggregate supporting capability
 
-Children: S652 perception/pursuit and S653 avoidance, with the S635 controller question fixing finite sensing/intent. Each is a typed ProgrammableController declaration proved by a finite trace in Chrome with absent/occluded/unsupported inputs. S646 Programmable ball and S650 Programmable box are preset admission, not controllers.
+Children: S652 perception/pursuit and S653 avoidance, with the S635 controller question fixing finite sensing/intent. Each is a declared receiver, supply contact and drive proved by a finite trace in Chrome with absent/occluded/unsupported inputs. S646 Programmable ball and S650 Programmable box are preset admission, not controllers.
 
 <a id="engine-ledger"></a>
 ### ENGINE-LEDGER · Aggregate supporting invariants

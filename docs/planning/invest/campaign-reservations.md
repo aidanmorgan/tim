@@ -2,11 +2,11 @@
 
 Navigation and preservation ledger only: chapter and slot reservations are kept exactly; they do not define the system.
 Design authorities: [canonical IEEE-754 f32 game values and WASM SIMD physics](../../gpu-f32-physics.md), [engine contracts](../../engine-contracts.md), [delivery workflow](../../delivery-workflow.md) and the [ordered roadmap](vertical-delivery.md#rolling-playable-roadmap).
-Levels are authored in the roadmap's CAMPAIGN slices toward 150 progressively taught levels plus an unlimited free-play workshop; a reservation never prescribes a mechanism inside the solver or the animation engine.
+Levels are authored in the roadmap's CAMPAIGN slices toward at least 150 progressively taught levels (244 planned) plus an unlimited free-play workshop; a reservation never prescribes a mechanism inside the solver or the animation engine.
 
 This is a navigation view of existing authoritative reservations, not a new allocation or proof of teachability. Proposed, optional and conditional wording remains unchanged; a numeric mention does not silently adopt an optional mode. Natural-language chapter references are not converted to level numbers. Each LEVEL chooses within its linked chapter and exact named reservations; no reserved child silently disappears. A reservation range is a bounded allocation problem, not a claim that every listed part is taught in every slot.
 
-**Decision oracle and stop for each chapter/slot:** record one teachable outcome (or separately scaffolded stages), fixed/available inventory, typed goal, intended failure/control and prior lesson IDs; verify no untaught mode, no new mode 136–150, all chapter/TH/RAD/GAP/IX/TX reservations still assigned and exactly 150 slots. Pilot the densest proposed new distinction for comprehension, duration and fatigue, retaining observations. Finish one reviewed allocation or explicit unresolved conflict with a named slot to revise; do not keep researching or declare untested density acceptable. Then the same LEVEL owner authors/proves that outcome. Current authored ordering is input, not the target ordering.
+**Decision oracle and stop for each chapter/slot:** record one teachable outcome (or separately scaffolded stages), fixed/available inventory, typed goal, intended failure/control and prior lesson IDs; verify no untaught mode, no new mode 136–150, all chapter/TH/RAD/GAP/IX/TX reservations still assigned and every planned slot accounted for exactly once (150 plus the levels added under owner decision 24d, [campaign coverage additions](../requirements.md#campaign-coverage-additions); a level that repeats a mechanic already introduced is removed or made a build-up). Pilot the densest proposed new distinction for comprehension, duration and fatigue, retaining observations. Finish one reviewed allocation or explicit unresolved conflict with a named slot to revise; do not keep researching or declare untested density acceptable. Then the same LEVEL owner authors/proves that outcome. Current authored ordering is input, not the target ordering.
 
 <a id="chapter-01"></a>
 ## Chapter 1: On a Roll · slots 1–10
@@ -21,7 +21,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - GAP-01–18: structures, vehicles, granular/processed material and supporting tools: First-use: Exact per-record/mode objectives at [campaign gap allocation](../requirements.md#campaign-gap-allocation), first use 2–100. Combination/reuse: Individual practice/reuse through 150; no required introductions in 136–150.
 
 **Exact named reservations intersecting these slots:**
-- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself**; guided practice **5**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself** (the beam) and **9b** (the brace, a new level after the pivot; coordinator decision 36); guided practice **5** and **10**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation); 9b is the one added level.
 - [gap-02](../requirements.md#gap-02): Introduction **9 · Joint Effort**; guided practice **10**; later combinations/reuse **38, 46, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-13](../requirements.md#gap-13): Introduction **2 · A Place for Everything**; guided practice **10**; later combinations/reuse **30, 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-14](../requirements.md#gap-14): Introduction **3 · Wait a Second**; guided practice **8**; later combinations/reuse **29, 80, 148**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
@@ -29,6 +29,9 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-17](../requirements.md#gap-17): Introduction **6 · Room for Improvement**; guided practice **8**; later combinations/reuse **19, 42, 147**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
+- [element-098](../requirements.md#element-098), [element-099](../requirements.md#element-099): Introduction **8 · Bank the Bounce**; practice **10**; reuse **49, 141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Owner decisions 24e and 24f: the Balloon's introduction moves here, to **9a** (`burst_of_motion`); chapter 1 introduces no switch, lamp or fan. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+- Coordinator decision 36 (prerequisites taught first): the Structural brace (EL-113) is introduced at the new level **9b**, after the Placeable pivot (9) its frame stands on; GAP-01's beam objective stays at 4.
 
 **Coverage owners:** [LEVEL-001](campaign.md#level-001), [LEVEL-002](campaign.md#level-002), [LEVEL-003](campaign.md#level-003), [LEVEL-004](campaign.md#level-004), [LEVEL-005](campaign.md#level-005), [LEVEL-006](campaign.md#level-006), [LEVEL-007](campaign.md#level-007), [LEVEL-008](campaign.md#level-008), [LEVEL-009](campaign.md#level-009), [LEVEL-010](campaign.md#level-010). Chapter player check CHAPTER-01-H and closure CHAPTER-01 retain their source criteria.
 
@@ -51,12 +54,14 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-09](../requirements.md#thermal-09): Intro **19**; practice **20**; combination/reuse **67, 84, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-21](../requirements.md#thermal-21): Intro **15**; practice **16**; combination/reuse **70, 83, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-37](../requirements.md#thermal-37): Intro **15**; practice **16**; combination/reuse **59, 90, 145**. Use the staged thermal allocation below; no extra campaign slot.
-- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself**; guided practice **5**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself** (the beam) and **9b** (the brace, a new level after the pivot; coordinator decision 36); guided practice **5** and **10**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation); 9b is the one added level.
 - [gap-03](../requirements.md#gap-03): Introduction **18 · Wheel Meet Again**; guided practice **19**; later combinations/reuse **37, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-10](../requirements.md#gap-10): Introduction **20 · Some Assembly Required**; guided practice **30**; later combinations/reuse **50, 100, 146**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-15](../requirements.md#gap-15): Introduction **7 · Cause for Celebration**; guided practice **15**; later combinations/reuse **39, 66, 145**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-17](../requirements.md#gap-17): Introduction **6 · Room for Improvement**; guided practice **8**; later combinations/reuse **19, 42, 147**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [element-101](../requirements.md#element-101): Introduction **13** (balloon pop lesson); practice **19**; reuse **149**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Owner decisions 24e and 24f: the switch, signal lamp and fan first appear here (**11**, **11a**), and the Balloon's introduction moves to 9a. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Coverage owners:** [LEVEL-011](campaign.md#level-011), [LEVEL-012](campaign.md#level-012), [LEVEL-013](campaign.md#level-013), [LEVEL-014](campaign.md#level-014), [LEVEL-015](campaign.md#level-015), [LEVEL-016](campaign.md#level-016), [LEVEL-017](campaign.md#level-017), [LEVEL-018](campaign.md#level-018), [LEVEL-019](campaign.md#level-019), [LEVEL-020](campaign.md#level-020). Chapter player check CHAPTER-02-H and closure CHAPTER-02 retain their source criteria.
 
@@ -81,6 +86,9 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-13](../requirements.md#gap-13): Introduction **2 · A Place for Everything**; guided practice **10**; later combinations/reuse **30, 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-14](../requirements.md#gap-14): Introduction **3 · Wait a Second**; guided practice **8**; later combinations/reuse **29, 80, 148**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [element-102](../requirements.md#element-102): New level **24a · Bore Necessities**; practice **30**; reuse **141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-100](../requirements.md#element-100): New level **27a · Clean Sweep**; practice **29**; reuse **96, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Moved introductions (owner decision 24e): Weight tray (EL-059) **25**, Egg timer (EL-236) **28**, Size grate (EL-058) **28a**, Spiral delay tube (EL-107) and Speed-sensitive trapdoor (EL-109) **28b**, Powered airlift (EL-108) and Selective trap door (EL-238) **28c**. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Coverage owners:** [LEVEL-021](campaign.md#level-021), [LEVEL-022](campaign.md#level-022), [LEVEL-023](campaign.md#level-023), [LEVEL-024](campaign.md#level-024), [LEVEL-025](campaign.md#level-025), [LEVEL-026](campaign.md#level-026), [LEVEL-027](campaign.md#level-027), [LEVEL-028](campaign.md#level-028), [LEVEL-029](campaign.md#level-029), [LEVEL-030](campaign.md#level-030). Chapter player check CHAPTER-03-H and closure CHAPTER-03 retain their source criteria.
 
@@ -102,7 +110,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 
 **Exact named reservations intersecting these slots:**
 - [thermal-05](../requirements.md#thermal-05): Intro **39**; practice **40**; combination/reuse **81, 147**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-10](../requirements.md#thermal-10): Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-10](../requirements.md#thermal-10): Intro **39** (coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-scenario-08](../requirements.md#thermal-scenario-08): 40 introduction, 41 practice, 78, 145 later combinations.
 - [thermal-scenario-10](../requirements.md#thermal-scenario-10): 39 introduction, 40 practice, 81, 147 later combinations.
 - [gap-02](../requirements.md#gap-02): Introduction **9 · Joint Effort**; guided practice **10**; later combinations/reuse **38, 46, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
@@ -131,7 +139,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - GAP-01–18: structures, vehicles, granular/processed material and supporting tools: First-use: Exact per-record/mode objectives at [campaign gap allocation](../requirements.md#campaign-gap-allocation), first use 2–100. Combination/reuse: Individual practice/reuse through 150; no required introductions in 136–150.
 
 **Exact named reservations intersecting these slots:**
-- [thermal-10](../requirements.md#thermal-10): Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-10](../requirements.md#thermal-10): Intro **39** (coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-scenario-08](../requirements.md#thermal-scenario-08): 40 introduction, 41 practice, 78, 145 later combinations.
 - [gap-02](../requirements.md#gap-02): Introduction **9 · Joint Effort**; guided practice **10**; later combinations/reuse **38, 46, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-04](../requirements.md#gap-04): Introduction **37 · Driven to Deliver**; guided practice **38**; later combinations/reuse **48, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
@@ -142,6 +150,11 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-17](../requirements.md#gap-17): Introduction **6 · Room for Improvement**; guided practice **8**; later combinations/reuse **19, 42, 147**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
+- [element-098](../requirements.md#element-098), [element-099](../requirements.md#element-099): Introduction **8 · Bank the Bounce**; practice **10**; reuse **49, 141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-097](../requirements.md#element-097): New level **44a · On Cue**; practice **49**; reuse **141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-091](../requirements.md#element-091): Introduction **45 · Load Before Fire**; practice **46**; reuse **68, 146**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-063](../requirements.md#element-063): Introduction **47 · Catch, Then Lift**; practice **48**; reuse **65, 138**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-103](../requirements.md#element-103): New level **48a · Up to Speed**; practice **50**; reuse **97, 148**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
 
 **Coverage owners:** [LEVEL-041](campaign.md#level-041), [LEVEL-042](campaign.md#level-042), [LEVEL-043](campaign.md#level-043), [LEVEL-044](campaign.md#level-044), [LEVEL-045](campaign.md#level-045), [LEVEL-046](campaign.md#level-046), [LEVEL-047](campaign.md#level-047), [LEVEL-048](campaign.md#level-048), [LEVEL-049](campaign.md#level-049), [LEVEL-050](campaign.md#level-050). Chapter player check CHAPTER-05-H and closure CHAPTER-05 retain their source criteria.
 
@@ -176,6 +189,8 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-212](../requirements.md#element-212): 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
+- [element-071](../requirements.md#element-071), [element-072](../requirements.md#element-072), EL-242 ([ledger](named-elements.md#element-242)): Introduction **52** (light-interruption lesson); practice **54**; reuse **142**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Coordinator decision 36 (prerequisites taught first): the Laser is introduced at **51** with the Flashlight and Light receiver; the colour receivers at **54a** before the filters at **54b**, which need them. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Coverage owners:** [LEVEL-051](campaign.md#level-051), [LEVEL-052](campaign.md#level-052), [LEVEL-053](campaign.md#level-053), [LEVEL-054](campaign.md#level-054), [LEVEL-055](campaign.md#level-055), [LEVEL-056](campaign.md#level-056), [LEVEL-057](campaign.md#level-057), [LEVEL-058](campaign.md#level-058), [LEVEL-059](campaign.md#level-059), [LEVEL-060](campaign.md#level-060). Chapter player check CHAPTER-06-H and closure CHAPTER-06 retain their source criteria.
 
@@ -205,19 +220,22 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-11](../requirements.md#thermal-11): Intro **69**; practice **70**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-14](../requirements.md#thermal-14): Intro **67**; practice **68**; combination/reuse **89, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-15](../requirements.md#thermal-15): Intro **68**; practice **69**; combination/reuse **86, 137**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-17](../requirements.md#thermal-17): Intro **70**; practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-17](../requirements.md#thermal-17): Intro **69c** (coordinator decision 35); practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-21](../requirements.md#thermal-21): Intro **15**; practice **16**; combination/reuse **70, 83, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-29](../requirements.md#thermal-29): Intro **66**; practice **67**; combination/reuse **79, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-scenario-01](../requirements.md#thermal-scenario-01): 70 introduction, 71 practice, 86, 140 later combinations.
 - [thermal-scenario-07](../requirements.md#thermal-scenario-07): 67 introduction, 68 practice, 89, 139 later combinations.
 - [thermal-scenario-12](../requirements.md#thermal-scenario-12): 60 introduction, 61 practice, 86, 149 later combinations.
 - [thermal-scenario-14](../requirements.md#thermal-scenario-14): 61 introduction after cooling suppression60, 62 practice, 86 and149 reuse.
-- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself**; guided practice **5**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself** (the beam) and **9b** (the brace, a new level after the pivot; coordinator decision 36); guided practice **5** and **10**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation); 9b is the one added level.
 - [gap-03](../requirements.md#gap-03): Introduction **18 · Wheel Meet Again**; guided practice **19**; later combinations/reuse **37, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-04](../requirements.md#gap-04): Introduction **37 · Driven to Deliver**; guided practice **38**; later combinations/reuse **48, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-05](../requirements.md#gap-05): Introduction **43 · The Last Straw**; guided practice **44**; later combinations/reuse **65, 96, 139**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-15](../requirements.md#gap-15): Introduction **7 · Cause for Celebration**; guided practice **15**; later combinations/reuse **39, 66, 145**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-212](../requirements.md#element-212): 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
+- [element-091](../requirements.md#element-091): Introduction **45 · Load Before Fire**; practice **46**; reuse **68, 146**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-063](../requirements.md#element-063): Introduction **47 · Catch, Then Lift**; practice **48**; reuse **65, 138**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Coordinator decision 36 (prerequisites taught first): the Float, Mechanical float valve and Electronic level switch are introduced at **63** and the Mechanically actuated and Solenoid taps at **64**; the Buoyant platform at **66a** and the Canal lock chamber at **67a**, with the Boat. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Coverage owners:** [LEVEL-061](campaign.md#level-061), [LEVEL-062](campaign.md#level-062), [LEVEL-063](campaign.md#level-063), [LEVEL-064](campaign.md#level-064), [LEVEL-065](campaign.md#level-065), [LEVEL-066](campaign.md#level-066), [LEVEL-067](campaign.md#level-067), [LEVEL-068](campaign.md#level-068), [LEVEL-069](campaign.md#level-069), [LEVEL-070](campaign.md#level-070). Chapter player check CHAPTER-07-H and closure CHAPTER-07 retain their source criteria.
 
@@ -243,15 +261,15 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - GAP-01–18: structures, vehicles, granular/processed material and supporting tools: First-use: Exact per-record/mode objectives at [campaign gap allocation](../requirements.md#campaign-gap-allocation), first use 2–100. Combination/reuse: Individual practice/reuse through 150; no required introductions in 136–150.
 
 **Exact named reservations intersecting these slots:**
-- [thermal-10](../requirements.md#thermal-10): Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-10](../requirements.md#thermal-10): Intro **39** (coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-12](../requirements.md#thermal-12): Intro **78**; practice **79**; combination/reuse **89, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-13](../requirements.md#thermal-13): Intro **79**; practice **80**; combination/reuse **89, 149**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-17](../requirements.md#thermal-17): Intro **70**; practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-17](../requirements.md#thermal-17): Intro **69c** (coordinator decision 35); practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-18](../requirements.md#thermal-18): Intro **74**; practice **75**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-19](../requirements.md#thermal-19): Intro **75**; practice **76**; combination/reuse **86, 143**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-20](../requirements.md#thermal-20): Intro **76**; practice **77**; combination/reuse **87, 147**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-24](../requirements.md#thermal-24): Intro **77**; practice **78**; combination/reuse **90, 143**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-25](../requirements.md#thermal-25): Intro **80**; practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-25](../requirements.md#thermal-25): Intro **79b** (coordinator decision 35); practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-28](../requirements.md#thermal-28): Intro **73**; practice **74**; combination/reuse **88, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-29](../requirements.md#thermal-29): Intro **66**; practice **67**; combination/reuse **79, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-scenario-01](../requirements.md#thermal-scenario-01): 70 introduction, 71 practice, 86, 140 later combinations.
@@ -265,6 +283,10 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
+- [element-043](../requirements.md#element-043): Introduction **72** (air reservoir lesson); practice **73**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-042](../requirements.md#element-042): New level **73a · Jet Set**; practice **75**; reuse **99, 143**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-037](../requirements.md#element-037): New level **74a · Pump It Up**; practice **76**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Coordinator decision 36 (prerequisites taught first): the Bell and Sound meter are introduced at **75a**, the Speaker and Wind chimes at **75b**, the Tone-selective meter and Continuous-tone speaker at **76a**, the Acoustic resonator, screen and dish at **78a** and the Listening horn, Acoustic duct and Exit horn at **79a**. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
 
 **Coverage owners:** [LEVEL-071](campaign.md#level-071), [LEVEL-072](campaign.md#level-072), [LEVEL-073](campaign.md#level-073), [LEVEL-074](campaign.md#level-074), [LEVEL-075](campaign.md#level-075), [LEVEL-076](campaign.md#level-076), [LEVEL-077](campaign.md#level-077), [LEVEL-078](campaign.md#level-078), [LEVEL-079](campaign.md#level-079), [LEVEL-080](campaign.md#level-080). Chapter player check CHAPTER-08-H and closure CHAPTER-08 retain their source criteria.
 
@@ -296,14 +318,14 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-06](../requirements.md#thermal-06): Intro **59**; practice **60**; combination/reuse **85, 142**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-08](../requirements.md#thermal-08): Intro **16**; practice **17**; combination/reuse **55, 82, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-09](../requirements.md#thermal-09): Intro **19**; practice **20**; combination/reuse **67, 84, 139**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-10](../requirements.md#thermal-10): Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-10](../requirements.md#thermal-10): Intro **39** (coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-11](../requirements.md#thermal-11): Intro **69**; practice **70**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-12](../requirements.md#thermal-12): Intro **78**; practice **79**; combination/reuse **89, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-13](../requirements.md#thermal-13): Intro **79**; practice **80**; combination/reuse **89, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-14](../requirements.md#thermal-14): Intro **67**; practice **68**; combination/reuse **89, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-15](../requirements.md#thermal-15): Intro **68**; practice **69**; combination/reuse **86, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-16](../requirements.md#thermal-16): Intro **85**; practice **86**; combination/reuse **96, 149**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-17](../requirements.md#thermal-17): Intro **70**; practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-17](../requirements.md#thermal-17): Intro **69c** (coordinator decision 35); practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-18](../requirements.md#thermal-18): Intro **74**; practice **75**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-19](../requirements.md#thermal-19): Intro **75**; practice **76**; combination/reuse **86, 143**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-20](../requirements.md#thermal-20): Intro **76**; practice **77**; combination/reuse **87, 147**. Use the staged thermal allocation below; no extra campaign slot.
@@ -311,7 +333,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-22](../requirements.md#thermal-22): Intro **83**; practice **84**; combination/reuse **90, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-23](../requirements.md#thermal-23): Intro **82**; practice **83**; combination/reuse **90, 146**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-24](../requirements.md#thermal-24): Intro **77**; practice **78**; combination/reuse **90, 143**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-25](../requirements.md#thermal-25): Intro **80**; practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-25](../requirements.md#thermal-25): Intro **79b** (coordinator decision 35); practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-26](../requirements.md#thermal-26): Intro **81**; practice **82**; combination/reuse **90, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-27](../requirements.md#thermal-27): Intro **84**; practice **85**; combination/reuse **97, 147**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-28](../requirements.md#thermal-28): Intro **73**; practice **74**; combination/reuse **88, 145**. Use the staged thermal allocation below; no extra campaign slot.
@@ -336,6 +358,8 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-scenario-13](../requirements.md#thermal-scenario-13): 76 introduction, 77 practice, 87 and147 reuse.
 - [thermal-scenario-14](../requirements.md#thermal-scenario-14): 61 introduction after cooling suppression60, 62 practice, 86 and149 reuse.
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [element-043](../requirements.md#element-043): Introduction **72** (air reservoir lesson); practice **73**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-037](../requirements.md#element-037): New level **74a · Pump It Up**; practice **76**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
 
 **Coverage owners:** [LEVEL-081](campaign.md#level-081), [LEVEL-082](campaign.md#level-082), [LEVEL-083](campaign.md#level-083), [LEVEL-084](campaign.md#level-084), [LEVEL-085](campaign.md#level-085), [LEVEL-086](campaign.md#level-086), [LEVEL-087](campaign.md#level-087), [LEVEL-088](campaign.md#level-088), [LEVEL-089](campaign.md#level-089), [LEVEL-090](campaign.md#level-090). Chapter player check CHAPTER-09-H and closure CHAPTER-09 retain their source criteria.
 
@@ -362,7 +386,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 
 **Exact named reservations intersecting these slots:**
 - [thermal-16](../requirements.md#thermal-16): Intro **85**; practice **86**; combination/reuse **96, 149**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-25](../requirements.md#thermal-25): Intro **80**; practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-25](../requirements.md#thermal-25): Intro **79b** (coordinator decision 35); practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-27](../requirements.md#thermal-27): Intro **84**; practice **85**; combination/reuse **97, 147**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-31](../requirements.md#thermal-31): Intro **58**; practice **59**; combination/reuse **85, 99**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-33](../requirements.md#thermal-33): Intro **85**; practice **86**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
@@ -382,6 +406,14 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
+- [element-100](../requirements.md#element-100): New level **27a · Clean Sweep**; practice **29**; reuse **96, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-103](../requirements.md#element-103): New level **48a · Up to Speed**; practice **50**; reuse **97, 148**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-042](../requirements.md#element-042): New level **73a · Jet Set**; practice **75**; reuse **99, 143**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-106](../requirements.md#element-106): New level **95a · Gently Does It**; practice **99**; reuse **149**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-104](../requirements.md#element-104): New level **96a · Fuse Box**; practice **99**; reuse **148**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-105](../requirements.md#element-105): New level **97a · Follow the Light**; practice **100**; reuse **142**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- Moved out (owner decision 24e): the Weight tray, Egg timer, Size grate, Spiral delay tube, Speed-sensitive trapdoor, Powered airlift and Selective trap door are introduced in chapter 3 (25–28c) and reused here. The parts each level introduces are in the [per-level allocation](../elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f).
+- Coordinator decision 36 (prerequisites taught first): the Predator character is introduced at **97** with the Lured and Escaping characters (one slice), before the Fish tank lure at 97b.
 
 **Coverage owners:** [LEVEL-091](campaign.md#level-091), [LEVEL-092](campaign.md#level-092), [LEVEL-093](campaign.md#level-093), [LEVEL-094](campaign.md#level-094), [LEVEL-095](campaign.md#level-095), [LEVEL-096](campaign.md#level-096), [LEVEL-097](campaign.md#level-097), [LEVEL-098](campaign.md#level-098), [LEVEL-099](campaign.md#level-099), [LEVEL-100](campaign.md#level-100). Chapter player check CHAPTER-10-H and closure CHAPTER-10 retain their source criteria.
 
@@ -411,7 +443,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 <a id="chapter-12"></a>
 ## Chapter 12: Particle Manners · slots 111–120
 
-**Actual chapter scope:** Exposure-sensitive cargo badge, sheet/tank transmission gauge modes, alpha and beta-minus cartridges, scintillator, magnetic deflector and segmented track chamber.
+**Actual chapter scope:** Exposure-sensitive cargo badge, sheet-thickness transmission gauge, alpha and beta-minus cartridges, scintillator, magnetic deflector and segmented track chamber.
 
 **Actual progression:** Reuse physical transport, water, optics and electricity: protect a moving parcel, sort by measured transmission, then route a charged trajectory. Advance to 8–10 roles with two simultaneous conditions.
 
@@ -426,7 +458,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - Speaker/pulse/continuous modes, sound meter, bell, wind chimes, each tuned band, whistle, listening horn, exit horn, each duct route, resonator, acoustic screen, reflecting dish, water-tuned bottle: First-use: 71–80; water-tuned bottle follows chapter 7 water. Combination/reuse: 81–100, 117–125, 136–150.
 - Size grate, weight tray/material sorter, timed ejector/toaster, egg timer, phazer-like toy pulse source, opener, mixer, box presets and contact display: First-use: 91–100; familiar control contracts from 21–40 are prerequisites. Combination/reuse: 111–120, 136–150.
 - RAD-01/02/05/06/07/08/09: gamma/X-ray, each shield material/thickness, shutter, collimator, rate meter and dosimeter: First-use: 101–110. Combination/reuse: 111–120, 124–130, 136–150.
-- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, both gauge modes, scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
+- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, the sheet gauge mode (EL-129), scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
 
 **Exact named reservations intersecting these slots:**
 - [radiation-02](../requirements.md#radiation-02): 107, 114
@@ -437,9 +469,10 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [radiation-10](../requirements.md#radiation-10): 111, 112
 - [radiation-12](../requirements.md#radiation-12): 117, 122
 - [radiation-14](../requirements.md#radiation-14): 118, 119
-- [radiation-15](../requirements.md#radiation-15): 120, 121
+- [radiation-15](../requirements.md#radiation-15): 119, 121 (coordinator decision 35)
 - [element-212](../requirements.md#element-212): 51–60; practice61–70; reuse111–120,142 as separate objectives in existing slots.
 - [element-213](../requirements.md#element-213): 51–60; practice71–80; reuse117,142 as separate objectives in existing slots.
+- Coordinator decision 36 (prerequisites taught first): the Tank-level transmission gauge (EL-130) leaves this chapter for **128**, after the Water moderator tank (RAD-17, 126) that every one of its rows reads; the Sheet-thickness gauge (EL-129) stays.
 
 **Coverage owners:** [LEVEL-111](campaign.md#level-111), [LEVEL-112](campaign.md#level-112), [LEVEL-113](campaign.md#level-113), [LEVEL-114](campaign.md#level-114), [LEVEL-115](campaign.md#level-115), [LEVEL-116](campaign.md#level-116), [LEVEL-117](campaign.md#level-117), [LEVEL-118](campaign.md#level-118), [LEVEL-119](campaign.md#level-119), [LEVEL-120](campaign.md#level-120). Chapter player check CHAPTER-12-H and closure CHAPTER-12 retain their source criteria.
 
@@ -459,16 +492,17 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - Communicating tanks, canal lock, cork/raft/boat/floating platform, hydraulic piston, distinct flow/volume/pressure meters: First-use: 61–70; distinct hull/load modes retain separate rows. Combination/reuse: 81–100, 126–140, 146–150.
 - Speaker/pulse/continuous modes, sound meter, bell, wind chimes, each tuned band, whistle, listening horn, exit horn, each duct route, resonator, acoustic screen, reflecting dish, water-tuned bottle: First-use: 71–80; water-tuned bottle follows chapter 7 water. Combination/reuse: 81–100, 117–125, 136–150.
 - RAD-01/02/05/06/07/08/09: gamma/X-ray, each shield material/thickness, shutter, collimator, rate meter and dosimeter: First-use: 101–110. Combination/reuse: 111–120, 124–130, 136–150.
-- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, both gauge modes, scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
-- RAD-13/16/17/18/19: decay presets, neutron source, moderator, absorber, Fast/Slow detection: First-use: 121–130. Combination/reuse: 136–150.
+- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, the sheet gauge mode (EL-129), scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
+- RAD-13/16/17/18/19 and RAD-11's tank gauge mode: decay presets, neutron source, moderator, absorber, Fast/Slow detection; the tank-level gauge (EL-130) at 128, after the moderator tank it reads (coordinator decision 36): First-use: 121–130. Combination/reuse: 136–150.
 
 **Exact named reservations intersecting these slots:**
 - [radiation-12](../requirements.md#radiation-12): 117, 122
 - [radiation-13](../requirements.md#radiation-13): 123, 124
-- [radiation-15](../requirements.md#radiation-15): 120, 121
+- [radiation-15](../requirements.md#radiation-15): 119, 121 (coordinator decision 35)
 - [radiation-16](../requirements.md#radiation-16): 125, 130
 - [radiation-17](../requirements.md#radiation-17): 126, 128
 - [radiation-18](../requirements.md#radiation-18): 127, 130
+- [element-130](../requirements.md#element-130): Introduction **128**, after the Water moderator tank (126); reuse 129–130, 136–150 (coordinator decision 36).
 
 **Coverage owners:** [LEVEL-121](campaign.md#level-121), [LEVEL-122](campaign.md#level-122), [LEVEL-123](campaign.md#level-123), [LEVEL-124](campaign.md#level-124), [LEVEL-125](campaign.md#level-125), [LEVEL-126](campaign.md#level-126), [LEVEL-127](campaign.md#level-127), [LEVEL-128](campaign.md#level-128), [LEVEL-129](campaign.md#level-129), [LEVEL-130](campaign.md#level-130). Chapter player check CHAPTER-13-H and closure CHAPTER-13 retain their source criteria.
 
@@ -497,8 +531,8 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - Size grate, weight tray/material sorter, timed ejector/toaster, egg timer, phazer-like toy pulse source, opener, mixer, box presets and contact display: First-use: 91–100; familiar control contracts from 21–40 are prerequisites. Combination/reuse: 111–120, 136–150.
 - Original cat/mouse lure/escape roles, walker, predator, fragile fish-bowl/tank target, rope-to-drive character motor; gravity-effect pad, drifting blimp, rocket, toy revolver, dynamite/plunger abstraction and tipsy/unstable platform: First-use: 91–100; distinct powered, fragile, fired, ignited and safe-arrival outcomes get separate objectives. Combination/reuse: 136–150, using alternatives where a level's role permits.
 - RAD-01/02/05/06/07/08/09: gamma/X-ray, each shield material/thickness, shutter, collimator, rate meter and dosimeter: First-use: 101–110. Combination/reuse: 111–120, 124–130, 136–150.
-- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, both gauge modes, scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
-- RAD-13/16/17/18/19: decay presets, neutron source, moderator, absorber, Fast/Slow detection: First-use: 121–130. Combination/reuse: 136–150.
+- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, the sheet gauge mode (EL-129), scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
+- RAD-13/16/17/18/19 and RAD-11's tank gauge mode: decay presets, neutron source, moderator, absorber, Fast/Slow detection; the tank-level gauge (EL-130) at 128, after the moderator tank it reads (coordinator decision 36): First-use: 121–130. Combination/reuse: 136–150.
 - RAD-20/21/22: RTG, material latch and sealed tracer: First-use: 131–135. Combination/reuse: 136–150.
 - GAP-01–18: structures, vehicles, granular/processed material and supporting tools: First-use: Exact per-record/mode objectives at [campaign gap allocation](../requirements.md#campaign-gap-allocation), first use 2–100. Combination/reuse: Individual practice/reuse through 150; no required introductions in 136–150.
 
@@ -513,7 +547,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-11](../requirements.md#thermal-11): Intro **69**; practice **70**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-14](../requirements.md#thermal-14): Intro **67**; practice **68**; combination/reuse **89, 139**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-15](../requirements.md#thermal-15): Intro **68**; practice **69**; combination/reuse **86, 137**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-17](../requirements.md#thermal-17): Intro **70**; practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-17](../requirements.md#thermal-17): Intro **69c** (coordinator decision 35); practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-18](../requirements.md#thermal-18): Intro **74**; practice **75**; combination/reuse **87, 137**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-26](../requirements.md#thermal-26): Intro **81**; practice **82**; combination/reuse **90, 140**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-29](../requirements.md#thermal-29): Intro **66**; practice **67**; combination/reuse **79, 139**. Use the staged thermal allocation below; no extra campaign slot.
@@ -523,7 +557,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-scenario-05](../requirements.md#thermal-scenario-05): 74 introduction, 75 practice, 87, 137 later combinations.
 - [thermal-scenario-07](../requirements.md#thermal-scenario-07): 67 introduction, 68 practice, 89, 139 later combinations.
 - [thermal-scenario-11](../requirements.md#thermal-scenario-11): 87 introduction, 88 practice, 131, 145 later combinations.
-- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself**; guided practice **5**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [gap-01](../requirements.md#gap-01): Introduction **4 · Brace Yourself** (the beam) and **9b** (the brace, a new level after the pivot; coordinator decision 36); guided practice **5** and **10**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation); 9b is the one added level.
 - [gap-02](../requirements.md#gap-02): Introduction **9 · Joint Effort**; guided practice **10**; later combinations/reuse **38, 46, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-03](../requirements.md#gap-03): Introduction **18 · Wheel Meet Again**; guided practice **19**; later combinations/reuse **37, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-04](../requirements.md#gap-04): Introduction **37 · Driven to Deliver**; guided practice **38**; later combinations/reuse **48, 68, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
@@ -534,6 +568,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [gap-11](../requirements.md#gap-11): Introduction **98 · Mind Your Own Business**; guided practice **100**; later combinations/reuse **140, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-16](../requirements.md#gap-16): Introduction **25 · A Steady Job (quantity); 29 · Going Steady (rate); 49 · First Things First (order); 89 · Leave It Lovely (end state)**; guided practice **26, 30, 50, 90 respectively**; later combinations/reuse **quantity: 96, 136; rate: 97, 140; order: 100, 146; end state: 100, 150**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
 - [gap-18](../requirements.md#gap-18): Introduction **17 · Down to Earth (gravity); 79 · Air on the Side (supported atmosphere)**; guided practice **18, 80 respectively**; later combinations/reuse **gravity: 97, 139; atmosphere: 99, 143**. These refer to the mandatory in-level objectives in the [campaign allocation](../requirements.md#campaign-gap-allocation), not additional campaign levels.
+- [element-063](../requirements.md#element-063): Introduction **47 · Catch, Then Lift**; practice **48**; reuse **65, 138**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
 
 **Coverage owners:** [LEVEL-131](campaign.md#level-131), [LEVEL-132](campaign.md#level-132), [LEVEL-133](campaign.md#level-133), [LEVEL-134](campaign.md#level-134), [LEVEL-135](campaign.md#level-135), [LEVEL-136](campaign.md#level-136), [LEVEL-137](campaign.md#level-137), [LEVEL-138](campaign.md#level-138), [LEVEL-139](campaign.md#level-139), [LEVEL-140](campaign.md#level-140). Chapter player check CHAPTER-14-H and closure CHAPTER-14 retain their source criteria.
 
@@ -563,8 +598,8 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - Size grate, weight tray/material sorter, timed ejector/toaster, egg timer, phazer-like toy pulse source, opener, mixer, box presets and contact display: First-use: 91–100; familiar control contracts from 21–40 are prerequisites. Combination/reuse: 111–120, 136–150.
 - Original cat/mouse lure/escape roles, walker, predator, fragile fish-bowl/tank target, rope-to-drive character motor; gravity-effect pad, drifting blimp, rocket, toy revolver, dynamite/plunger abstraction and tipsy/unstable platform: First-use: 91–100; distinct powered, fragile, fired, ignited and safe-arrival outcomes get separate objectives. Combination/reuse: 136–150, using alternatives where a level's role permits.
 - RAD-01/02/05/06/07/08/09: gamma/X-ray, each shield material/thickness, shutter, collimator, rate meter and dosimeter: First-use: 101–110. Combination/reuse: 111–120, 124–130, 136–150.
-- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, both gauge modes, scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
-- RAD-13/16/17/18/19: decay presets, neutron source, moderator, absorber, Fast/Slow detection: First-use: 121–130. Combination/reuse: 136–150.
+- RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, the sheet gauge mode (EL-129), scintillator, both field polarities, each chamber segment: First-use: 111–120. Combination/reuse: 121–125, 136–150.
+- RAD-13/16/17/18/19 and RAD-11's tank gauge mode: decay presets, neutron source, moderator, absorber, Fast/Slow detection; the tank-level gauge (EL-130) at 128, after the moderator tank it reads (coordinator decision 36): First-use: 121–130. Combination/reuse: 136–150.
 - RAD-20/21/22: RTG, material latch and sealed tracer: First-use: 131–135. Combination/reuse: 136–150.
 - GAP-01–18: structures, vehicles, granular/processed material and supporting tools: First-use: Exact per-record/mode objectives at [campaign gap allocation](../requirements.md#campaign-gap-allocation), first use 2–100. Combination/reuse: Individual practice/reuse through 150; no required introductions in 136–150.
 
@@ -574,7 +609,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-05](../requirements.md#thermal-05): Intro **39**; practice **40**; combination/reuse **81, 147**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-06](../requirements.md#thermal-06): Intro **59**; practice **60**; combination/reuse **85, 142**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-08](../requirements.md#thermal-08): Intro **16**; practice **17**; combination/reuse **55, 82, 145**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-10](../requirements.md#thermal-10): Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-10](../requirements.md#thermal-10): Intro **39** (coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-12](../requirements.md#thermal-12): Intro **78**; practice **79**; combination/reuse **89, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-13](../requirements.md#thermal-13): Intro **79**; practice **80**; combination/reuse **89, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-16](../requirements.md#thermal-16): Intro **85**; practice **86**; combination/reuse **96, 149**. Use the staged thermal allocation below; no extra campaign slot.
@@ -584,7 +619,7 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [thermal-22](../requirements.md#thermal-22): Intro **83**; practice **84**; combination/reuse **90, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-23](../requirements.md#thermal-23): Intro **82**; practice **83**; combination/reuse **90, 146**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-24](../requirements.md#thermal-24): Intro **77**; practice **78**; combination/reuse **90, 143**. Use the staged thermal allocation below; no extra campaign slot.
-- [thermal-25](../requirements.md#thermal-25): Intro **80**; practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
+- [thermal-25](../requirements.md#thermal-25): Intro **79b** (coordinator decision 35); practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-27](../requirements.md#thermal-27): Intro **84**; practice **85**; combination/reuse **97, 147**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-28](../requirements.md#thermal-28): Intro **73**; practice **74**; combination/reuse **88, 145**. Use the staged thermal allocation below; no extra campaign slot.
 - [thermal-30](../requirements.md#thermal-30): Intro **87**; practice **88**; combination/reuse **131, 145**. Use the staged thermal allocation below; no extra campaign slot.
@@ -622,6 +657,20 @@ This is a navigation view of existing authoritative reservations, not a new allo
 - [element-214](../requirements.md#element-214): 51–60; practice71–80; reuse110,142 as separate objectives in existing slots.
 - [element-215](../requirements.md#element-215): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
 - [element-216](../requirements.md#element-216): 1–10; practice41–50; reuse96,149 as separate objectives in existing slots.
+- [element-098](../requirements.md#element-098), [element-099](../requirements.md#element-099): Introduction **8 · Bank the Bounce**; practice **10**; reuse **49, 141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-101](../requirements.md#element-101): Introduction **13** (balloon pop lesson); practice **19**; reuse **149**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-102](../requirements.md#element-102): New level **24a · Bore Necessities**; practice **30**; reuse **141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-100](../requirements.md#element-100): New level **27a · Clean Sweep**; practice **29**; reuse **96, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-097](../requirements.md#element-097): New level **44a · On Cue**; practice **49**; reuse **141**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-091](../requirements.md#element-091): Introduction **45 · Load Before Fire**; practice **46**; reuse **68, 146**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-103](../requirements.md#element-103): New level **48a · Up to Speed**; practice **50**; reuse **97, 148**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-071](../requirements.md#element-071), [element-072](../requirements.md#element-072), EL-242 ([ledger](named-elements.md#element-242)): Introduction **52** (light-interruption lesson); practice **54**; reuse **142**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-043](../requirements.md#element-043): Introduction **72** (air reservoir lesson); practice **73**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-042](../requirements.md#element-042): New level **73a · Jet Set**; practice **75**; reuse **99, 143**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-037](../requirements.md#element-037): New level **74a · Pump It Up**; practice **76**; reuse **87, 147**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-106](../requirements.md#element-106): New level **95a · Gently Does It**; practice **99**; reuse **149**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-104](../requirements.md#element-104): New level **96a · Fuse Box**; practice **99**; reuse **148**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
+- [element-105](../requirements.md#element-105): New level **97a · Follow the Light**; practice **100**; reuse **142**. Owner decision 24c; [campaign coverage additions](../requirements.md#campaign-coverage-additions).
 
 **Coverage owners:** [LEVEL-141](campaign.md#level-141), [LEVEL-142](campaign.md#level-142), [LEVEL-143](campaign.md#level-143), [LEVEL-144](campaign.md#level-144), [LEVEL-145](campaign.md#level-145), [LEVEL-146](campaign.md#level-146), [LEVEL-147](campaign.md#level-147), [LEVEL-148](campaign.md#level-148), [LEVEL-149](campaign.md#level-149), [LEVEL-150](campaign.md#level-150). Chapter player check CHAPTER-15-H and closure CHAPTER-15 retain their source criteria.
 

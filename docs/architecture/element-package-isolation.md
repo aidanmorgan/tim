@@ -99,7 +99,7 @@ Workers (Simulation, Animation, audio and the main thread) communicate only thro
 | **Audio** | *(forbidden: one-way)* | *(forbidden)* | — | Status |
 
 ### 2.1 Pose ring (continuous state)
-Committed body poses stream through a lock-free `SharedArrayBuffer` triple-buffered ring with monotonic sequence counters. The Simulation worker writes committed poses at 120 Hz; the renderer samples the latest committed bracket with atomic loads, without readback stalls or heap allocation. Bootstrap reserves16 body records per slot; installation prepares default-or-needed geometric capacity before epoch commit. Same-epoch topology is fixed and reuses storage; spare records are zero. Exact logical populations remain the authority (invariant7).
+Committed body poses stream through a lock-free `SharedArrayBuffer` multi-buffered ring (depth derived from tick rate and render delay) with monotonic sequence counters. The Simulation worker writes committed poses at 120 Hz; the renderer samples the latest committed bracket with atomic loads, without readback stalls or heap allocation. Bootstrap reserves16 body records per slot; installation prepares default-or-needed geometric capacity before epoch commit. Same-epoch topology is fixed and reuses storage; spare records are zero. Exact logical populations remain the authority (invariant7).
 
 ### 2.2 Commands and queries
 - **Commands** are typed (`WorkshopCommandKind`), sequence-checked by `WorkshopCommandRouter`, validated at the domain boundary and answered with a receipt.

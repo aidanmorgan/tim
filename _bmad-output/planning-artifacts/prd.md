@@ -14,7 +14,7 @@
 
 **Curious Contraptions** is a modern, browser-native physics puzzle sandbox and progressive challenge game inspired by classics such as *The Incredible Machine* and *Crazy Machines*. Players construct whimsical, intricate chain-reaction contraptions on a 3D workbench to accomplish playful objectives—routing bowling balls into buckets, igniting laser circuits to pop balloons, triggering domino cascades, powering conveyor belts, and sounding musical chimes.
 
-Built with an uncompromising technical standard, Curious Contraptions runs universally across modern web browsers without plugins, external installations, or external third-party physics engine dependencies (strictly zero Box2D, Jolt, Rapier, or PhysX). The entire simulation engine is custom-authored in pure C# (.NET 10 / Mono) and TypeScript, compiled to 128-bit WebAssembly SIMD (`wasm-simd128`), and executed on a dedicated Web Worker at a rock-solid 120 Hz. Visuals are powered by universal instanced rendering (WebGL 2.0 and WebGPU) driven by a lock-free `SharedArrayBuffer` triple pose ring, complemented by an independent 60 Hz WebAssembly animation worker.
+Built with an uncompromising technical standard, Curious Contraptions runs universally across modern web browsers without plugins, external installations, or external third-party physics engine dependencies (strictly zero Box2D, Jolt, Rapier, or PhysX). The entire simulation engine is custom-authored in pure C# (.NET 10 / Mono) and TypeScript, compiled to 128-bit WebAssembly SIMD (`wasm-simd128`), and executed on a dedicated Web Worker at a rock-solid 120 Hz. Visuals are powered by universal instanced rendering (WebGL 2.0 and WebGPU) driven by a lock-free multi-buffered `SharedArrayBuffer` pose ring (depth derived from tick rate and render delay), complemented by an independent 60 Hz WebAssembly animation worker.
 
 The result is a deterministic, game-grade, delightfully tactile contraption builder capable of simulating hundreds of interacting bodies, complex pneumatic flows, electrical logic circuits, and optical ray paths with sub-millisecond execution times.
 
@@ -240,7 +240,7 @@ All currently existing puzzle element implementations must be converted from pro
      - Disjoint Set Union (DSU) island partitioning with zero-cost sleeping.
 2. **Tri-Graph Decoupling:**
    - **Machine Graph (Main Thread):** Hierarchical authoring, socket wiring, JSON persistence, and UI.
-   - **Physics Graph (WASM SIMD Worker @ 120 Hz):** Flat contiguous 64-byte aligned SoA tables; 480 Hz substep integration. Lock-free `SharedArrayBuffer` triple pose ring publishing.
+   - **Physics Graph (WASM SIMD Worker @ 120 Hz):** Flat contiguous 64-byte aligned SoA tables; 480 Hz substep integration. Lock-free multi-buffered `SharedArrayBuffer` pose ring publishing (depth derived from tick rate and render delay).
    - **Rendering Graph (Main Thread @ 30–60 FPS):** Universal instanced draw batches on WebGL 2 and WebGPU consuming pose ring buffers directly.
    - **Animation Worker (WASM Worker @ 60 Hz):** Procedural cosmetic curves and halo pulses; fed one-way by physics events.
    - **Data Flow:** One-way only: Physics $\to$ Animation $\to$ Renderer. Zero reverse data flow or synchronous waits.

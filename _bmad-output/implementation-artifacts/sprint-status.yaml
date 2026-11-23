@@ -2,7 +2,7 @@
 # Generated and maintained via BMAD Method (bmm module)
 
 generated: 10-08-2026 00:26
-last_updated: 11-21-2026
+last_updated: 11-23-2026
 project: Curious Contraptions
 project_key: CC
 tracking_system: file-system
@@ -107,11 +107,11 @@ development_status:
   # weak Pass (retro-verification 18 Oct 2026); repaired and re-verified by addendum in 9a-c-lamp-detector (9r-9)
   6-8-generic-aperture-sensor-directional-rearm: done # native re-verified at 2065d3 (C-Lamp addendum); cat-002 Chrome pending; 9R.9 "one more" wording owned by 9a-22
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6-typed-mouth-snapping and an addendum in 9a-pkg-2
-  6-9-pipe-bend-45-hollow-torus-segment: in-progress
+  6-9-pipe-bend-45-hollow-torus-segment: in-progress # 9r-6 and 9a-pkg-2 done; remaining tube clause proofs (CAT-049) owned by 9r-23
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-2; closes via an addendum in 9a-1 (AbiOffsets)
   6-9b-unbounded-collider-capacity: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via 9r-6, 9r-7 and an addendum in 9a-pkg-2
-  6-10-pipe-bend-90-joined-pipe-route: in-progress
+  6-10-pipe-bend-90-joined-pipe-route: in-progress # 9r-6, 9r-7 and 9a-pkg-2 done; remaining tube clause proofs (CAT-050) owned by 9r-23
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-6, re-verified by addendum in 9a-pkg-2
   6-11-funnel-hollow-frustum-inlet: in-progress # addendum Incomplete; owned by 9r-23
   epic-6-retrospective: optional
@@ -132,24 +132,24 @@ development_status:
   7-4-legacy-cpu-physics-unshipped-engine-purge: done
   epic-7-retrospective: optional
 
-  epic-8: in-progress
-  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); stays in-progress until cat-005 passes in Chrome (post-catalogue E2E); Motor clause moved to 11-1
-  8-1-battery-dc-power-source-network-graph: in-progress
+  epic-8: done
+  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); cat-005 Chrome clause pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8 (AGENTS.md browser exception); Motor clause moved to 11-1
+  8-1-battery-dc-power-source-network-graph: done # native Pass 54ffd9 (9a-39 addendum); browser pending
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-3; re-verified by addendum in 9a-c-gate
   8-2-powered-gate-passageway-barrier: done
   epic-8-retrospective: optional
 
   epic-9: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-4 and 9r-5; closes via an addendum in 9a-c-plate
-  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, so not yet done
-  9-1-pressure-plate-surface-contact-load-sensor: in-progress
+  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8
+  9-1-pressure-plate-surface-contact-load-sensor: done # native Pass 146588 (9a-c-plate addendum); browser pending
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-1; closes via addenda in 9a-2 and 9a-c-memory
-  9-2-pulse-counter-event-accumulator: in-progress
+  9-2-pulse-counter-event-accumulator: done # 9a-2 and 9a-c-memory addenda done (native Pass f5ffdb); browser pending
   # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-0 and the final 9a-45
   9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-c-clock (9r-10)
-  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, so not yet done
-  9-3-system-clock-periodic-pulse-generator: in-progress
+  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8
+  9-3-system-clock-periodic-pulse-generator: done # native Pass ae3cac (9a-c-clock addendum); browser pending
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
   9-4b-cumulative-chrome-regression-repair: done
@@ -315,12 +315,10 @@ development_status:
   # merged into 9a-c-gate (21 Oct 2026)
   9a-21-declaration-free-worker-warmup: done # scoped native/publication Passf27cb7; browser pending
   # 33 (element)
-  epic-10: in-progress # 10.1 to 10.5 delivered; engine-resting-stack-settling still backlog
+  epic-10: in-progress # 10.1 to 10.5 delivered; engine-resting-stack-settling removed 23 Nov 2026 (absorbed by engine-islands-sleep)
   10-1-solid-cylinder-collider-and-inertia: done # scoped native/publication Passcf35a0; browser pending (engine-cylinder); restitution gate owned by engine-restitution slice
   # engine slice after 10.1, before 10.2a (coordinator decision, 24 Oct 2026); spec-engine-restitution.md
   engine-restitution-energy-correctness: done # scoped native/publication Pass0cba94; browser pending
-  # deferred follow-up (coordinator decision 3, 24 Oct 2026): pre-existing soft-contact limit cycle in some 3-box stacks
-  engine-resting-stack-settling: backlog
   # 34 (deletion)
   9a-39-generic-instance-battery: done # scoped native/publication Pass54ffd9; browser pending
   # 35 (element)
@@ -439,6 +437,8 @@ development_status:
   14-2-service-bell-percussion-resonant-ringing: backlog
   14-1-sound-level-meter-threshold-sensor: backlog
   14-3-audio-speaker-directional-pulse-emission: backlog
+  # merged into 14-3 as a Duplicate closure (23 Nov 2026; delivery-batches.md 2b, coordinator decisions 16 and 27)
+  named-el-180: backlog # element-180; merged into 14-3, closed by CAT-061 rows 1-14; no package
   14-4-resonant-wind-chimes-airflow-percussion: backlog
   epic-14-retrospective: optional
 
@@ -541,7 +541,7 @@ development_status:
   11-1a-motor: done
   11-1b-conveyor: done # native complete & reviewed; Chrome/CI deferred per Oct 24/29 rules
   11-2a-clutch: done
-  11-2b-reverse-transmission: done # native/full-local/review Pass; normal commit/publication checks follow; browser pending
+  11-2b-reverse-transmission: done # native/full-local/review Pass; committed and published as c34f6390 (17 Nov 2026, on origin/main); its slice record holds no SnapshotApproval entry; remote build/deployment unverified; browser pending
   11-4a-wound-spring: done
   11-4b-cannon: done
   12-1a-tennis-ball: done # published15c8681d4db738f0adba148c4afd1ccf8595e74e; full6844/0/0, hooks134/0/0, E9 PASS; browser qualification pending
@@ -568,21 +568,70 @@ development_status:
   13-8d-optical-or: backlog
   13-8e-optical-xor: backlog
 
-  # Engine-first capability stories (21 Nov 2026): epics.md "Engine-first capability stories".
-  # Each precedes the elements it unblocks; order is docs/planning/invest/vertical-delivery.md#capability-cluster-order.
-  # 14-0 (acoustic) keeps its key in epic-14.
-  engine-gas-network: backlog # after 12-4
-  engine-optical-propagation: backlog # before every 13-x story
-  engine-field-force: backlog
-  engine-assembly-joints: backlog
-  engine-fracture: backlog # after engine-assembly-joints
-  engine-goal-evaluation: backlog
+  # Engine-first capability stories (21 Nov 2026; keys and order 23 Nov 2026): epics.md "Engine-first capability stories",
+  # listed in its order 1-38 (docs/planning/elements/readiness/engine-stories-index.md). Each story's Depends-on line in
+  # epics.md governs when it may start; the roadmap is docs/planning/invest/vertical-delivery.md#capability-cluster-order.
+  # Owner decision 22: before the programme only the visible-solid repairs A, B, B2 and C, the Baseball repair and S3, S5, S6 run.
+  # Owner decision 24h adds S5b (straight after S5) and S6's follow-ons S6b-S6g (with S6; coordinator decision 42 split S6f into S6f and S6g); order and inventory in delivery-batches.md S6.
+  s5b-generate-typescript-wire-in-build: backlog # drafted: spec-s5b-generate-typescript-wire-in-build.md; after S5
+  s6b-response-codec-read-family-table: backlog # drafted: spec-s6b-response-codec-read-family-table.md; after S5b and the first S6 slice
+  s6c-presentation-route-tables: backlog # drafted: spec-s6c-presentation-route-tables.md; after S6b
+  s6d-signal-node-route-tables: backlog # drafted: spec-s6d-signal-node-route-tables.md; after S6c
+  s6e-supply-control-port-route-tables: backlog # drafted: spec-s6e-supply-control-port-route-tables.md; after S6d
+  s6f-shape-pair-tables: backlog # drafted: spec-s6f-shape-pair-tables.md; after S6e (coordinator decision 42 split the former S6f; its mechanical half is s6g)
+  s6g-mechanical-kind-tables: backlog # drafted: spec-s6g-mechanical-kind-tables.md; after S6f; closes S6
+  # Repair part D (coordinator decisions 33 and 37) runs after the programme (owner decision 22).
+  elements-visible-solid-remainder-d: backlog # drafted: spec-elements-visible-solid-remainder-d.md, status blocked on the engine programme
+  # Engine programme (owner decision 3a), orders 1-10 including 8a and 8b (owner decision 24k) and 8c (coordinator decision 40), before any further element delivery:
+  doc-engine-status: backlog
+  engine-spatial-queries: backlog
+  engine-contact-observations: backlog
+  engine-sensor-volumes: backlog
+  engine-islands-sleep: backlog # absorbs engine-resting-stack-settling
+  engine-one-way-install: backlog
+  engine-supply-drive-demand: backlog # formerly powered-part-demand-drain / engine-powered-part-demand-drain
+  engine-capability-instances: backlog
+  engine-wire-abi: backlog # order 8a (owner decision 24k): generated boundary records, pose ring feeds the renderer
+  engine-wasm-threads: backlog # order 8b (owner decision 24k): threaded WASM over shared memory; first slice proves it with the AOT build
+  engine-instanced-rendering: backlog # order 8c (coordinator decision 40): instanced draw batches on WebGL 2 and WebGPU fed by the pose ring; after engine-wire-abi
+  engine-tick-allocation: backlog
+  engine-soa-simd: backlog
+  # Owner decision 18, orders 11-13: gas network, then liquid, then thermal.
+  engine-gas-network: backlog
   engine-liquid: backlog
-  engine-granular: backlog # after engine-liquid
-  engine-thermal: backlog # after engine-liquid
-  engine-ignition-blast: backlog # after engine-thermal
-  engine-radiation: backlog # after engine-optical-propagation and engine-thermal
-  engine-characters: backlog
+  engine-thermal: backlog
+  # Orders 14-32: each before its first consumer (owner decision 3a); 17, 14, 19, 21 and 22 land before 11-13 where needed.
+  engine-joint-kinds: backlog
+  engine-mechanical-link-kinds: backlog
+  engine-tensile-extensions: backlog
+  engine-signal-nodes: backlog # self-edge row slice text in epics.md (ENGINE-SIGNAL-NODES, "Slice: self-edge row"); waits for the engine programme
+  engine-compliant-friction: backlog
+  engine-parameter-bound-frames: backlog
+  engine-profile-collider: backlog
+  engine-run-length: backlog
+  engine-connection-materials: backlog
+  # Order 23, ENGINE-GOALS: five slices (owner decision 12); all wait for the programme (owner decision 22).
+  engine-goal-evaluation: backlog # drafted: spec-engine-goal-evaluation.md (also waits for S5)
+  engine-goal-supplied-occurrence: backlog
+  engine-goal-progress-observation: backlog
+  engine-goal-ordered-events: backlog
+  engine-goal-count-window-hold: backlog
+  engine-optical-propagation: backlog # before every 13-x story
+  engine-radiation: backlog
+  engine-field-force: backlog
+  engine-fracture: backlog
+  engine-ignition-blast: backlog
+  engine-granular: backlog
+  # Order 30: 14-0-acoustic-propagation-occlusion-reception-engine keeps its key in epic-14.
+  engine-assembly-joints: backlog
+  engine-characters: backlog # "Package joints on a dynamic base"
+  # Orders 33-38: names proposed, not in owner decision 3a.
+  engine-reaction-thrust: backlog
+  engine-surface-state: backlog
+  engine-parameter-combinations: backlog
+  engine-tunnel-qualification: backlog
+  engine-art-solidity: backlog # drafted contract spec-engine-art-solidity.md, blocked until the programme
+  engine-parallel-islands: backlog # conditional: only if engine-soa-simd misses the tick target at P0-034
 
   # Complete named-element inventory. One behavior/variant slice per source identity,
   # except under AGENTS.md Family slice and Duplicate closure (21 Nov 2026); groupings in docs/planning/invest/delivery-batches.md.
@@ -590,6 +639,8 @@ development_status:
   named-el-001: backlog # element-001
   named-el-002: backlog # element-002
   named-el-003: backlog # element-003
+  # merged into named-el-003 as a Duplicate closure (23 Nov 2026; delivery-batches.md 2b)
+  named-el-165: backlog # element-165; merged into named-el-003, closed by its TapTests rows; no package
   named-el-004: backlog # element-004
   named-el-005: backlog # element-005
   named-el-006: backlog # element-006
@@ -623,7 +674,6 @@ development_status:
   named-el-034: backlog # element-034
   named-el-035: backlog # element-035
   named-el-036: backlog # element-036
-  named-el-165: backlog # element-165
   named-el-166: backlog # element-166
   named-el-167: backlog # element-167
   named-el-168: backlog # element-168
@@ -653,7 +703,6 @@ development_status:
   named-el-136: backlog # element-136
   named-el-137: backlog # element-137
   named-el-179: backlog # element-179
-  named-el-180: backlog # element-180
   named-el-181: backlog # element-181
   named-el-182: backlog # element-182
   named-el-183: backlog # element-183
@@ -681,6 +730,7 @@ development_status:
   named-el-070: backlog # element-070
   named-el-071: backlog # element-071
   named-el-072: backlog # element-072
+  named-el-242: backlog # element-242 (ledgered 23 Nov 2026, coordinator decision 27); Family slice "Metal bends" with named-el-072
   named-el-073: backlog # element-073
   named-el-074: backlog # element-074
   named-el-107: backlog # element-107

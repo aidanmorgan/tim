@@ -280,7 +280,7 @@ public sealed class CapabilityTests
     }
     [Fact] public void FrozenTaskRequirementsRetainDistinctSampledSemantics()
     {
-        Assert.Equal(799,CapabilityTaskRequirements.Values.Count);
+        Assert.Equal(800,CapabilityTaskRequirements.Values.Count);
         var motor=CapabilityTaskRequirements.Values[new(RequirementOrigin.Task,new("sequence-task-194"))];
         Assert.Contains(EngineCapability.ShaftTorque,motor.Capabilities);
         Assert.Contains(EngineCapability.ElectricalPower,motor.Capabilities);

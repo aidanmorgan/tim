@@ -14,7 +14,7 @@ The [gameplay lifecycle criteria](planning/requirements.md#sequence-task-145) re
 flowchart LR
     I[Input and construction intent] --> C[Typed command admission]
     C --> S["Physics worker: C# WASM host + generic f32 SIMD solver, fixed 120 Hz"]
-    S --> R[Committed poses in SharedArrayBuffer triple ring]
+    S --> R[Committed poses in SharedArrayBuffer multi-buffered ring]
     S --> E[Committed events and telemetry batches]
     S --> A[Command results]
     A --> I
@@ -30,7 +30,7 @@ The same bridge serves mechanics, heat, fluid/gas, electrical state, optical pat
 
 ## Numeric authority and lock-free shared memory boundary
 
-The [numeric contract](gpu-f32-physics.md) governs canonical IEEE-754 f32 values, quantized cell-relative origin representation during authoring, SIMD128 vectorization, and lock-free atomic triple-buffered pose publication in `SharedArrayBuffer`. Editor controls, content, construction saves, animation/read models and fixtures use typed f32 values. Save is construction-only and Reset restores canonical admitted bits exactly. Elimination of GPU-to-CPU readback stalls (`mapAsync` stalls) is guaranteed by the lock-free pose ring: the simulation worker writes committed body transforms and velocities directly into pre-allocated shared memory slots, which the browser renderer reads in its display loop without blocking or allocations. Same-build replay on the same machine gives the same outcome; cross-device comparison uses the [game-grade envelope](gpu-f32-physics.md#game-grade-envelope), while IDs and events remain exact.
+The [numeric contract](gpu-f32-physics.md) governs canonical IEEE-754 f32 values, quantized cell-relative origin representation during authoring, SIMD128 vectorization, and lock-free atomic multi-buffered pose publication (depth derived from tick rate and render delay) in `SharedArrayBuffer`. Editor controls, content, construction saves, animation/read models and fixtures use typed f32 values. Save is construction-only and Reset restores canonical admitted bits exactly. Elimination of GPU-to-CPU readback stalls (`mapAsync` stalls) is guaranteed by the lock-free pose ring: the simulation worker writes committed body transforms and velocities directly into pre-allocated shared memory slots, which the browser renderer reads in its display loop without blocking or allocations. Same-build replay on the same machine gives the same outcome; cross-device comparison uses the [game-grade envelope](gpu-f32-physics.md#game-grade-envelope), while IDs and events remain exact.
 
 ## Command contract
 
@@ -92,7 +92,7 @@ Declare clock/lifecycle policies explicitly under the [shared clock](shared-cloc
 
 ## Rendering on the browser main thread
 
-The renderer draws the simulation as it runs. Each display frame it reads two read-only inputs, the latest committed physics poses/state from the `SharedArrayBuffer` triple ring and the latest animation sample, selects one coherent display time, interpolates poses from bounded timestamped committed histories (using shortest-arc Slerp for orientation and linear interpolation for position), composes physical and cosmetic transforms, and issues instanced GPU draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU). It owns input, construction previews, scene/resource ownership, mesh/material bindings, visual LOD, dirty tracking and camera state. It never waits synchronously for a worker and never influences physics or animation.
+The renderer draws the simulation as it runs. Each display frame it reads two read-only inputs, the latest committed physics poses/state from the multi-buffered `SharedArrayBuffer` ring and the latest animation sample, selects one coherent display time, interpolates poses from bounded timestamped committed histories (using shortest-arc Slerp for orientation and linear interpolation for position), composes physical and cosmetic transforms, and issues instanced GPU draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU). It owns input, construction previews, scene/resource ownership, mesh/material bindings, visual LOD, dirty tracking and camera state. It never waits synchronously for a worker and never influences physics or animation.
 
 Interpolate presentation only; do not interpolate back into collisions, ray queries, sensors, force inputs, save state or construction coordinates. Reset, Load, spawn and restoration reseed both displayed states; no sweep from an old location. Use event timestamps for short effects and latest state for continuous indicators. Keep authoritative contact geometry independent of camera-dependent visual geometry. Dirty object/resource updates and qualified idle-frame suppression optimize presentation.
 

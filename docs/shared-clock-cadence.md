@@ -55,7 +55,7 @@ The Run limit is 30 seconds of committed world time: 1800/3600/7200 commits at t
 <a id="history-capacity-and-unchanged-ceilings"></a>
 ## SharedArrayBuffer Pose Ring, History Capacity and Ceilings
 
-To eliminate GPU-to-CPU readback stalls (`mapAsync` stalls of 0.5–2 ms) and thread-to-thread copying overhead, the simulation worker publishes committed body poses directly into a lock-free zero-copy triple-buffered ring in `SharedArrayBuffer`.
+To eliminate GPU-to-CPU readback stalls (`mapAsync` stalls of 0.5–2 ms) and thread-to-thread copying overhead, the simulation worker publishes committed body poses directly into a lock-free zero-copy multi-buffered ring in `SharedArrayBuffer` (depth derived from tick rate and render delay).
 
 Each buffer slot in the ring stores contiguous SIMD-aligned 32-bit floats for all dynamic and kinematic bodies (position xyz, orientation quaternion xyzw, linear velocity xyz, flags), preceded by a 64-bit atomic sequence counter and a 64-bit committed timestamp.
 

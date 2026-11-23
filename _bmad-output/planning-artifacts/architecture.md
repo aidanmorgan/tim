@@ -53,7 +53,7 @@ flowchart TD
 
     MG -->|"Compile-to-State at Run"| PG
     MG -.->|"Compile Bindings"| AG
-    PG -->|"Lock-Free SAB Triple Pose Ring"| RG
+    PG -->|"Lock-Free SAB Multi-Buffered Pose Ring"| RG
     PG -->|"SAB Event Ring (one-shots)"| AG
     PG -->|"Committed read (levels)"| AG
     AG -->|"Cosmetic Transforms"| RG
@@ -69,7 +69,7 @@ A single homogeneous scene record executing in WebAssembly SIMD128 (`wasm-simd12
 Cosmetic evaluators running at 60 Hz on an independent WebAssembly Web Worker, evaluating procedural curves, squashes, stretches, and light transitions. Fed one-way by two channels that never substitute for each other: one-shot occurrences from the event ring, each consumer with its own cursor, and level states (activation level, latch memory, timer phase, electrical level) read from committed state. It never writes back into physical authority.
 
 ### 4. Rendering Graph (Browser Main Thread)
-Samples read-only committed poses from a lock-free pre-allocated `SharedArrayBuffer` triple pose ring using shortest-arc quaternion Slerp interpolation. Issues instanced draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) grouped by `(MeshID, PipelineID)`. Eliminates GPU readback stalls (`mapAsync` is completely eradicated).
+Samples read-only committed poses from a lock-free pre-allocated multi-buffered `SharedArrayBuffer` pose ring (depth derived from tick rate and render delay) using shortest-arc quaternion Slerp interpolation. Issues instanced draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) grouped by `(MeshID, PipelineID)`. Eliminates GPU readback stalls (`mapAsync` is completely eradicated).
 
 ---
 

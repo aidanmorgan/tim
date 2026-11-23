@@ -25,11 +25,11 @@ This required architecture is the three-system design of the [compilation model]
 
 | Execution owner | Exclusive responsibilities | Clock and boundary |
 | --- | --- | --- |
-| Simulation Web Worker, dedicated WASM SIMD worker | One generic WASM SIMD f32 solver advancing the typed scene record compiled at Run (flat SoA tables: bodies, shapes, materials, constraints, force regions, stores, sources, sensors, network nodes across every domain); scene-independent C# host/compiler, discrete timers/controllers/commands/objectives, transaction orchestration and authoritative save handling. No element-keyed kernel, branch, equation table or update loop. | Fixed 120 Hz gameplay ticks with 480 Hz substeps. Any later change needs separate numerical/timing qualification. Publish only whole committed revisions via zero-copy triple-buffered SharedArrayBuffer pose ring. |
+| Simulation Web Worker, dedicated WASM SIMD worker | One generic WASM SIMD f32 solver advancing the typed scene record compiled at Run (flat SoA tables: bodies, shapes, materials, constraints, force regions, stores, sources, sensors, network nodes across every domain); scene-independent C# host/compiler, discrete timers/controllers/commands/objectives, transaction orchestration and authoritative save handling. No element-keyed kernel, branch, equation table or update loop. | Fixed 120 Hz gameplay ticks with 480 Hz substeps. Any later change needs separate numerical/timing qualification. Publish only whole committed revisions via zero-copy multi-buffered SharedArrayBuffer pose ring (depth derived from tick rate and render delay). |
 | Animation Web Worker, separate .NET WASM runtime | Its own compiled animation model from the same element data; C# clips, cosmetic phase/easing, UI/autonomous animation, simulation-driven visual responses and effect lifetimes | Own clock, currently 60 Hz evaluation. Consumes committed physics results one-way through timestamped observations/events. No scene nodes, physics mutation, shared mutable state or combined kernel/loop with physics. |
 | Browser thread, current 2dog/Godot host | Input, construction previews, scene/resource ownership, final transform/material/UI application and WebGL rendering | Renderer at 30–60 FPS on supported devices: reads the latest committed physics pose/state and the latest animation sample, interpolates and presents; never influences physics or animation, never synchronously waits for workers. Interpolate from worker timestamps, not Godot's physics interpolation fraction. |
 
-Rates are ordered physics (fastest, fixed tick) > animation ≥ renderer; physics always updates faster than rendering. The three domains must execute concurrently in distinct execution contexts, not merely expose three methods or async APIs on one thread. Rendering remains on the browser thread with input; an additional rendering worker for Godot/OffscreenCanvas is not required by this selected design. Revisit only with a measured remaining bottleneck and a separately reviewed host-porting task. Simulation poses are transferred via a lock-free zero-copy triple-buffered pose ring in SharedArrayBuffer, while discrete events/commands use structured messages. Worker startup, memory and interop costs still require proof.
+Rates are ordered physics (fastest, fixed tick) > animation ≥ renderer; physics always updates faster than rendering. The three domains must execute concurrently in distinct execution contexts, not merely expose three methods or async APIs on one thread. Rendering remains on the browser thread with input; an additional rendering worker for Godot/OffscreenCanvas is not required by this selected design. Revisit only with a measured remaining bottleneck and a separately reviewed host-porting task. Simulation poses are transferred via a lock-free zero-copy multi-buffered pose ring in SharedArrayBuffer (depth derived from tick rate and render delay), while discrete events/commands use structured messages. Worker startup, memory and interop costs still require proof.
 
 **Ownership and timing invariants:** Compile authored typed declarations into simulation-owned state; keep Godot scene conversion at the boundary. Functional motion, contact, energy and outcomes never depend on animation/render cadence, visibility, LOD or delayed presentation. Cosmetic child transforms compose with authoritative physical parents at one selected display time. Animation evaluation and Godot property application are separate stages. Every mutable property has one writer; every transferred buffer has one current owner. Keep a bounded history with explicit acquisition/release/recycling rather than assuming the existing single-thread buffers or inbox are safe.
 
@@ -164,7 +164,7 @@ P0 is the highest-priority workstream, not a requirement to qualify unimplemente
 | Shared replacement foundations | One authoritative production physics path for the scoped existing behaviour; forward-refactored callers/content; conservative geometry and queries; owned rollback/Reset state; scene-independent core and typed worker-ready contracts, physical-pose presenter and independently owned animation evaluator; browser instrumentation, baseline and measured costs. This intermediate milestone enables dependent slices but does not satisfy the required PERF-39–48 concurrent-worker cutover. Complete affected current-part correctness, real-UI and restoration proof. Record remaining P0 tasks explicitly. | Engine capability delivered through the roadmap's ENGINE-CORE-1/2 and element slices; P0-035 remains the release-checklist gate at LEGACY-0, not a prerequisite for the next roadmap row. |
 | Component and domain integration | For each element, add its declaration data and at most the one generic capability it first needs; no solver or animation-engine change. Then its connections, artwork, animation bindings and focused teaching. Apply relevant PERF tasks and current per-part proof, then individual commit/push before the next new element. | The next element in [roadmap order](invest/vertical-delivery.md#rolling-playable-roadmap) (ELEMENT-n); exhaustive campaign sweeps remain later. |
 | Generalized-engine qualification | All required elements/modes and fundamental processes implemented and mapped; affected evidence current; mandatory PERF-01–48 requirements and declared device/workload gates satisfied; obsolete implementations removed. | PERF-27 and the full physics replacement may be declared complete. |
-| Complete-product qualification | Component coverage complete; 150-level teaching allocation/content ready; full campaign/difficulty and device evidence complete. | Product completion, distinct from engine completion. |
+| Complete-product qualification | Component coverage complete; campaign teaching allocation/content ready for every level (244 planned); full campaign/difficulty and device evidence complete. | Product completion, distinct from engine completion. |
 
 A control, connection or save/load defect that blocks mandatory current-step proof requires an explicit prerequisite inserted immediately before that step. External blockers require a recorded dependency-safe amendment in this document or TODO to proceed elsewhere; their qualification gates remain open. Never bypass failed proof with direct game-state injection, imported solutions or a compatibility path.
 
@@ -459,7 +459,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-001"></a>
 
-- [ ] **CAT-001 · ball.** Canonical Basketball radius/mass/restitution/drag/buoyancy must yield gravity, rolling, bounce and momentum transfer, including rest, boundary and two-height controls. Preserve workbench contact, ramp/pipe/Receiver integrations and visible stripes from committed body pose; retain R-N3 Fail until independently resolved.
+- [ ] **CAT-001 · ball.** Canonical Basketball radius/mass/restitution/drag/buoyancy must yield gravity, rolling, bounce and momentum transfer, including rest, boundary and two-height controls. Buoyancy is the ball's declared ambient lift (owner decision 24, 23 November 2026). Preserve workbench contact, ramp/pipe/Receiver integrations and visible stripes from committed body pose. The former R-N3 Fail reference is retired (owner decision 8, 22 November 2026).
 
   **Configuration / modes:** radius, mass, bounce, drag, buoyancy as typed Basketball material fields. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-001 D/I/V and fixtures](invest/current-consumers.md#cat-001-i), contact capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -472,6 +472,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 <a id="current-cat-003"></a>
 
 - [ ] **CAT-003 · balloon.** Distinct low-mass, buoyant spherical body rises under the declared world pressure/gravity profile, responds to conserved airflow and contacts, and supports applicable tether interactions. Test zero-pressure/no-fan/occluded jet and heavier-body controls. Canonicalize mass, bounce, radius, buoyancy and drag; sharing BallPart must not substitute Basketball material or silently reject this required variant forever.
+  **Delivery status (23 November 2026):** delivered and published (`4424da13`); browser qualification pending. The checkbox stays open, as on every CAT row, until the row's whole acceptance, including the post-catalogue browser proof, is met.
 
   **Configuration / modes:** mass, bounce, radius, buoyancy, drag. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-003 D/I/V and fixtures](invest/current-consumers.md#cat-003-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -537,7 +538,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-014"></a>
 
-- [ ] **CAT-014 · bowling.** Bowling is a distinct heavy low-bounce sphere with canonical mass/bounce/radius/drag/buoyancy. Prove workbench rest/bounce, ball/box momentum transfer and Domino/lever loading against a matched Basketball control. Shared BallPart cannot inherit Basketball defaults; visible size and committed pose agree with collision. *Delivery note (CAT-014, Story 6.1; terminal scoped Pass by the independent reviewer, Murdoch, 9 Oct 2026, two passes, for the original 0.38 m Bowling ball; the 0.28 m re-tune below is covered by the Story 6.1b review): the Bowling ball is the generic `WorkshopBall` with `Kind = BowlingBall` and `BallMaterial.For(kind)` (game-scale 4 kg / 0.28 m — smaller than the Basketball by the owner decision of 9 Oct 2026 — / bounce 0.14 / drag 0.04 / buoyancy 0; friction 0.3 and bounce threshold 0.1 m/s are declared per kind, no compiler constants); `parts/catalog/bowling.tres` carries the same typed bits and `parts/BallPart.cs` reads the declared radius. Chrome proof (`tools/e2e/cat-014.test.ts`) against a matched Basketball control on identical stock Dominoes (two lanes in one Run, where mass and radius differ together; mass-only controls are in the Node harness), on bench rest/bounce and Receiver capture; lever loading waits for the CAT-034 Impact lever slice; the Domino's offset centre of mass (CAT-023c) remains its own item. ENGINE-DRAG (Story 6.1b, pending independent review) applies the declared drag and a declared rolling-resistance coefficient at every sphere contact (Bowling 0.03, Basketball 0.035, kind data like friction, not persisted in the save slot) so both struck balls come to rest in the two-lane Run.*
+- [ ] **CAT-014 · bowling.** Bowling is a distinct heavy low-bounce sphere with canonical mass/bounce/radius/drag/buoyancy; buoyancy is its declared ambient lift (owner decision 24, 23 November 2026). Prove workbench rest/bounce, ball/box momentum transfer and Domino/lever loading against a matched Basketball control. Shared BallPart cannot inherit Basketball defaults; visible size and committed pose agree with collision. *Delivery note (CAT-014, Story 6.1; terminal scoped Pass by the independent reviewer, Murdoch, 9 Oct 2026, two passes, for the original 0.38 m Bowling ball; the 0.28 m re-tune below is covered by the Story 6.1b review): the Bowling ball is its own package `bowling` (`elements/BowlingBall/BowlingBallElementDeclaration.cs`), which declares its whole ball material (game-scale 4 kg / 0.28 m — smaller than the Basketball by the owner decision of 9 Oct 2026 — / bounce 0.14 / drag 0.04 as an ambient load / not buoyant; friction 0.3, rolling resistance 0.03 and bounce threshold 0.1 m/s on its collider material, no compiler constants); its art is `elements/BowlingBall/bowling.tscn`, and the radius is the scene sphere's half-extent, so the visible size is the collider's. Chrome proof (`tools/e2e/cat-014.test.ts`) against a matched Basketball control on identical stock Dominoes (two lanes in one Run, where mass and radius differ together; mass-only controls are in the Node harness), on bench rest/bounce and Receiver capture; lever loading waits for the CAT-034 Impact lever slice; the Domino's offset centre of mass (CAT-023c) remains its own item. ENGINE-DRAG (Story 6.1b, pending independent review) applies the declared drag and a declared rolling-resistance coefficient at every sphere contact (Bowling 0.03, Basketball 0.035, kind data like friction, not persisted in the save slot) so both struck balls come to rest in the two-lane Run.*
 
   **Configuration / modes:** mass, bounce, radius, buoyancy, drag. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-014 D/I/V and fixtures](invest/current-consumers.md#cat-014-i), contact capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -625,7 +626,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
   **Configuration / modes:** Self-contained / Electrical / Shaft supply; powered (Self-contained), force, reach, width. The 14,400 J Self-contained store is a finite budget, not a fixed timer. Force-rated transfer obeys global 64 m/s² and 1024 rad/s² bounds without an extra 16 m/s² cap. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-028 D/I/V and fixtures](invest/current-consumers.md#cat-028-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
-  **Delivery status (21 November 2026):** Story 12.2 native implementation and independent review complete; [evidence](../../_bmad-output/implementation-artifacts/spec-12-2-fan.md) records 7089/0/0 full proof and final scope PASS. Committed-SHA SnapshotApproval/publication and browser qualification remain pending; rotary receiver integration remains 12.3 and broader campaign qualification remains later. This aggregate checkbox is not closed by native Fan delivery alone.
+  **Delivery status (23 November 2026):** Story 12.2 delivered and published (`4378410e`, status reconciled in `b5b9b233`); [evidence](../../_bmad-output/implementation-artifacts/spec-12-2-fan.md) records 7089/0/0 full proof and final scope PASS. Browser qualification remains pending, and broader campaign qualification remains later. The checkbox stays open, as on every CAT row, until the row's whole acceptance, including the post-catalogue browser proof, is met.
 
 <a id="current-cat-029"></a>
 
@@ -767,7 +768,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-052"></a>
 
-- [ ] **CAT-052 · pressure_plate.** Threshold 0.1–16/default 0.5 kg counts each directly top-contacting body once. Sufficient resting mass closes separate supplied contact only while present; compound contacts and stacked transmitted force do not multiply mass. Side/underside/impact-only/below-threshold/no-supply controls, coherent indicator and removal/Reset must pass.
+- [ ] **CAT-052 · pressure_plate.** Threshold 0.1–16/default 0.5 kg counts each directly top-contacting body once. Sufficient resting mass closes separate supplied contact only while present; compound contacts and stacked transmitted force do not multiply mass. Side/underside/below-threshold/no-supply controls, a single impact that closes the contact for no longer than the 0.1 s release hold (owner decision 8, 22 November 2026), coherent indicator and removal/Reset must pass.
 
   **Configuration / modes:** minimum_mass. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#todo-265) and this complete entry. **Owner / collaborators:** [CAT-052 D/I/V and fixtures](invest/current-consumers.md#cat-052-i), signal capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -827,7 +828,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-062"></a>
 
-- [ ] **CAT-062 · spring.** Finite 0.25-mass plate on local-Y slider uses stiffness 120–1200/default 400, damping 0–8/default 0.2 and initial compression 0–0.20/default zero, within 0.25 travel. Explicit preload is finite initial energy, not latch/free launch. Test zero-load stationary/missed load, real contact/rebound/tilt/stops and energy bounds; actual plate collider and helix follow compression, obsolete strength field rejects.
+- [ ] **CAT-062 · spring.** Finite 0.25-mass plate on local-Y slider uses stiffness 120–1200/default 400, damping 0–8/default 0.2 and initial compression 0–0.20/default zero, within 0.25 travel. Explicit preload is finite initial energy, not latch/free launch. Test zero-load stationary/missed load, real contact/rebound/tilt/stops and energy bounds; actual plate collider and the four drawn rings follow compression (owner decision 4, 22 November 2026), obsolete strength field rejects.
 
   **Configuration / modes:** stiffness, damping, initial_compression. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#todo-461) and this complete entry. **Owner / collaborators:** [CAT-062 D/I/V and fixtures](invest/current-consumers.md#cat-062-i), elastic capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -839,7 +840,8 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-064"></a>
 
-- [ ] **CAT-064 · tennis.** Distinct lightweight high-bounce sphere retains canonical mass/bounce/radius/drag/buoyancy and committed appearance. Test gravity/rest/bounce and conserved Fan trajectory against heavier Bowling/Basketball controls, missed/blocked airflow and source fixtures; sharing scene/source cannot erase its configuration.
+- [ ] **CAT-064 · tennis.** Distinct lightweight high-bounce sphere retains canonical mass/bounce/radius/drag/buoyancy (buoyancy is its declared ambient lift; owner decision 24, 23 November 2026) and committed appearance. Test gravity/rest/bounce and conserved Fan trajectory against heavier Bowling/Basketball controls, missed/blocked airflow and source fixtures; sharing scene/source cannot erase its configuration.
+  **Delivery status (23 November 2026):** delivered and published by Story 12.1a (`15c8681d`); browser qualification pending. The checkbox stays open, as on every CAT row, until the row's whole acceptance, including the post-catalogue browser proof, is met.
 
   **Configuration / modes:** mass, bounce, radius, buoyancy, drag. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [simulation and element acceptance](#accept-simulation) and this complete entry. **Owner / collaborators:** [CAT-064 D/I/V and fixtures](invest/current-consumers.md#cat-064-i), air capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -857,7 +859,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-067"></a>
 
-- [ ] **CAT-067 · weight.** Canonical authored mass and spherical body/socket support lifting, counterbalance and 3D pendulum motion. Test equal/unequal ratios, slack release/open route, floor contact, direction/order and energy/length bounds with pulley/anchor; solid pose and rope attachment agree. Default mass 4 is not the fixed fixture mass 1.
+- [ ] **CAT-067 · weight.** Canonical authored mass and a solid cylindrical body with a rope tie support lifting, counterbalance and 3D pendulum motion. Test equal/unequal ratios, slack release/open route, floor contact, direction/order and energy/length bounds with pulley/anchor; solid pose and rope attachment agree. Default mass 4 is not the fixed fixture mass 1.
 
   **Configuration / modes:** mass. No enumerated selector in the inventory; audit configuration rather than infer none. **Current acceptance:** [retained behavior](#todo-141) and this complete entry. **Owner / collaborators:** [CAT-067 D/I/V and fixtures](invest/current-consumers.md#cat-067-i), constraint capability in the [logical order](invest/vertical-delivery.md#existing-element-order).
 
@@ -875,7 +877,7 @@ Optical preview entries (Mirror, Splitter, Combiner and each RGB filter) are rea
 
 <a id="current-cat-070"></a>
 
-**Native delivery:** Story12.3 implementation and independent review complete; full7232/0/0, hooks134/0/0 and E9 PASS. Exact-SHA SnapshotApproval/publication pending; the delivery checkbox remains open until publication, and browser/remote/release qualification remains unverified. [Completion evidence](../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md#auto-run-result).
+**Native delivery:** Story 12.3 delivered and published (`47e01bdb`, status reconciled in `864ce39b`); full 7232/0/0, hooks 134/0/0 and E9 PASS. Browser qualification pending; remote/release qualification remains unverified. The checkbox stays open, as on every CAT row, until the row's whole acceptance, including the post-catalogue browser proof, is met. [Completion evidence](../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md#auto-run-result).
 
 - [ ] **CAT-070 · windmill.** Four weighted actual-pose samples preserve partial occlusion, signed rear drive, edge-on/opposing controls, response 0.1–4 rad/s/N, cut-in 0.05 N of signed net aligned rest-force magnitude and unloaded target cap 12 rad/s. Finite inertia/load/backdrive and passive calm-air loss use the current conserved rotor law with per-branch source debit. No velocity clamp or independent drive torque; shaft/blades/output follow committed state and connected/disconnected cargo controls.
 
@@ -1910,7 +1912,7 @@ Use actual current-schema browser storage and campaign data. The workshop does n
 
 - [ ] Audit campaign loading, selection/navigation, current-schema save handling, hints, tests and Playwright tooling for hard-coded 40-level assumptions; derive limits from campaign data where possible.
 
-**Successful outcome:** Campaign selection, loading, hints and navigation reach every authored level and stop at the actual end of the data, including the future 150th level.
+**Successful outcome:** Campaign selection, loading, hints and navigation reach every authored level and stop at the actual end of the data, including the final level of the campaign (244 planned).
 
 <a id="todo-155"></a>
 
@@ -2266,14 +2268,14 @@ Unchecked rows with extensive passing evidence still have explicit remaining wor
 
 **Gameplay outcome:** A first-time player meets one new idea at a time, sees why a failed arrangement fails and combines previously taught ideas to solve later puzzles without copying a hidden reference layout.
 
-The campaign target is **150 distinct levels**, and the end state is 150 progressively taught levels plus an unlimited free-play workshop that is always available ([roadmap CAMPAIGN](invest/vertical-delivery.md#rolling-playable-roadmap), 10 levels per slice after LEGACY-0 and required component coverage). The allocation below is the current authoring plan, not a claim that those levels or parts are implemented. It supersedes the earlier 75-level allocation and the radiation research's preliminary campaign numbering. Deliver each implemented element's focused lesson and proof as it becomes available; unfinished dependencies keep their planned levels visibly blocked.
+The campaign target is **244 levels**: the original 150 slots plus 94 lettered levels added by owner decisions 24c to 24f and coordinator decisions 35 and 36 (23 November 2026: every placeable part is used by a lesson, the campaign may exceed 150 levels, a level that repeats a mechanic already introduced is removed, no level introduces more than two or three new parts, the switch, lamp and fan first appear in chapter 2, no finale introduces a part, and a part's prerequisites are taught before it). The end state is those progressively taught levels plus an unlimited free-play workshop that is always available ([roadmap CAMPAIGN](invest/vertical-delivery.md#rolling-playable-roadmap), 10 levels per slice after LEGACY-0 and required component coverage). The allocation below is the current authoring plan, not a claim that those levels or parts are implemented. It supersedes the earlier 75-level allocation and the radiation research's preliminary campaign numbering. Deliver each implemented element's focused lesson and proof as it becomes available; unfinished dependencies keep their planned levels visibly blocked.
 
 <a id="todo-098"></a>
 <a id="campaign-plan"></a>
 
 <a id="sequence-task-315"></a>
 
-- [ ] Author and rebalance the **150-level teaching progression** below. Maintain 15 chapters of 10 levels, with explicit introductions, practice, combinations and chapter finales. Preserve current draft/evidence identities when reworking content; old level numbers are historical until the current authoring/tooling is updated.
+- [ ] Author and rebalance the **150-level teaching progression** below. Maintain 15 chapters of 10 levels, extended by the lettered levels of owner decisions 24c to 24f and coordinator decisions 35 and 36 (244 levels, at most three new parts in any level; [campaign coverage additions](#campaign-coverage-additions)), with explicit introductions, practice, combinations and chapter finales. Preserve current draft/evidence identities when reworking content; old level numbers are historical until the current authoring/tooling is updated.
 
 #### Campaign structure: 15 chapters, 150 levels
 
@@ -2283,22 +2285,22 @@ The “new elements” column reserves teaching space for **each named element**
 
 | Chapter / levels | New elements and teaching focus | Increasingly complex use of familiar elements |
 | --- | --- | --- |
-| 1 · **1–10: On a Roll** | Ball/material variants, ramps, resizable walls, baskets, dominoes, springboards, bumpers, trampoline, impact lever and damped capture. Teach placement, rotation, depth, contact, Run/Reset and observable goal events. | Begin with one gravity path; progress to a two-stage rebound/catch and a contact chain. End with an alternative-route delivery using 2–3 distinct functional roles. |
+| 1 · **1–10: On a Roll** | Ball/material variants, ramps, resizable walls, baskets, dominoes, springboards, bumpers, trampoline, impact lever, damped capture, and pool ball and pool pocket (8, *Bank the Bounce*). Teach placement, rotation, depth, contact, Run/Reset and observable goal events. | Begin with one gravity path; progress to a two-stage rebound/catch and a contact chain. End with an alternative-route delivery using 2–3 distinct functional roles. |
 | 2 · **11–20: A Helping Weight** | Batteries, wires, switches, motors, belts/chains, conveyors, reverse transmission, weights, anchors/hooks, rope/cable, pulleys, moving containers, scissors/tin snips, fan and balloon/tether interactions. | Teach source → connection → load before powered transport. Combine counterbalance, drive direction and deliberate release; use 3–4 roles and one clearly visible dependency. |
-| 3 · **21–30: Pipe Dreams** | Straight ball pipes, 45°/90° bends, funnels, powered/mechanical gates, Y-diverter modes, hopper/escapement, ball detector, pressure plate, delay, hold timer, latch, counter and repeating clock. | Route one ball before a queue; then wait for a catcher, retain a command and distribute counted arrivals. End with a feeder/timed-diverter machine using 4–5 roles. Teach each state/mode before requiring its combination. |
+| 3 · **21–30: Pipe Dreams** | Straight ball pipes, 45°/90° bends, funnels, powered/mechanical gates, Y-diverter modes, hopper/escapement, ball detector, pressure plate, delay, hold timer, latch, counter and repeating clock; large-bore ball pipe (new level 24a) and vacuum nozzle (new level 27a). | Route one ball before a queue; then wait for a catcher, retain a command and distribute counted arrivals. End with a feeder/timed-diverter machine using 4–5 roles. Teach each state/mode before requiring its combination. |
 | 4 · **31–40: Gears of an Idea** | Electrical AND, OR, XOR, NOR and NAND separately; gears, generator, impact-started mouse-motor role, windmill, clutch, brake, crank-slider, rotation/linear converters, cam/follower profiles and rack-and-pinion. | Start each operation with familiar independent inputs and explicit supply. Combine logic, shaft direction and a real motion constraint; end with an interlocked drive using 4–6 roles across mechanical/electrical systems. |
-| 5 · **41–50: Ready, Set, Throw!** | Linear pusher/boxing glove, pinball flipper, wound launcher, jack-in-the-box, passive impact scoop, counterweighted scoop, slingshot, hinged elastic catapult, cannon/reload shuttle, magnetic impulse relay, electromagnet, gripper, docking lift/ferry, zipline carriage and releasable assemblies. | Separate capture, charging, aiming, triggering and rearming. Provide familiar fixed support while teaching each actuator. Combine loading and dock interlocks into 5–7-role deliveries; no free recharge, teleport or unexplained capture. |
-| 6 · **51–60: A Bright Idea** | Flashlight/lamp/drawstring sources, solar panel, lasers/receivers, mirrors, physical beam shutter, splitter, color filters, combiner/mixed receivers, converging/diverging lenses, prism, light pipe and optical AND/OR/XOR/NOR/NAND. | Teach illumination, interruption, redirection and finite-power splitting before spectral and logical combinations. Finish with a light-controlled physical transfer using 5–7 roles, including separate control beams/carrier/supply where required. |
+| 5 · **41–50: Ready, Set, Throw!** | Linear pusher/boxing glove, pinball flipper, wound launcher, jack-in-the-box, passive impact scoop, counterweighted scoop, slingshot, hinged elastic catapult, cannon/reload shuttle, magnetic impulse relay, electromagnet, gripper, docking lift/ferry, zipline carriage and releasable assemblies; pool cue (new level 44a), cannonball (45), cable winch (47) and accelerator tube (new level 48a). | Separate capture, charging, aiming, triggering and rearming. Provide familiar fixed support while teaching each actuator. Combine loading and dock interlocks into 5–7-role deliveries; no free recharge, teleport or unexplained capture. |
+| 6 · **51–60: A Bright Idea** | Flashlight/lamp/drawstring sources, solar panel, lasers/receivers, mirrors, physical beam shutter, splitter, color filters, combiner/mixed receivers, converging/diverging lenses, prism, light pipe and optical AND/OR/XOR/NOR/NAND; metal ball pipes and bends as opaque routes (52). | Teach illumination, interruption, redirection and finite-power splitting before spectral and logical combinations. Finish with a light-controlled physical transfer using 5–7 roles, including separate control beams/carrier/supply where required. |
 | 7 · **61–70: Go with the Flow** | Reservoir/header tank, taps, catch basin/funnel/drain, gutters, water-pipe kit, waterwheel, movable/leaky buckets, float/float valve/level switch, check valve/diverter/sluice, pump/screw, siphon/primer, tipping bucket, communicating tanks/locks, buoyant craft, hydraulic piston and flow/volume/pressure meters. | Teach finite supply and downhill flow before powered lifting or pressure. Reuse ropes, belts and logic to make changing mass and water level control a 6–8-role machine. A source cannot silently refill. |
-| 8 · **71–80: Sounds Like a Plan** | Bellows, hoses, finite air reservoir, release/directional valves, spring-return and double-acting pistons; speaker/meter, struck bell, wind chimes, tuned meters, whistle, listening/exit horns, acoustic ducts, resonator, screen/dish and water-tuned bottle. | Distinguish fan airflow from stored pressure and sound strength from tone. Reuse water tuning and mechanical strikers, then join pneumatic stroke → sound → supplied release in a 6–8-role sequence. |
+| 8 · **71–80: Sounds Like a Plan** | Bellows, hoses, finite air reservoir, release/directional valves, spring-return and double-acting pistons; speaker/meter, struck bell, wind chimes, tuned meters, whistle, listening/exit horns, acoustic ducts, resonator, screen/dish and water-tuned bottle; pneumatic pressure gauge (72), air nozzle (new level 73a) and air compressor (new level 74a). | Distinguish fan airflow from stored pressure and sound strength from tone. Reuse water tuning and mechanical strikers, then join pneumatic stroke → sound → supplied release in a 6–8-role sequence. |
 | 9 · **81–90: Stored Potential** | Retain separate ratchet/escapement/carousel, flywheel/governor, accumulator and porous-water lessons; add individual thermal storage, expansion, thermostat, fusible release and conversion objectives from the [thermal ledger](#thermal-campaign-allocation). Heat/phase/ignition prerequisites now begin in earlier chapters. | Teach stored quantity, depletion and recovery with a visible gauge/state. Reuse previously taught water, steam, cooling and heat through7–9 roles; verify startup and energy before feedback. |
-| 10 · **91–100: Oddly Satisfying** | Distinct size/material/weight sorters, speed-sensitive/selective trapdoor, spiral delay tube, powered airlift; powered ejector/toaster, egg timer, toy pulse emitter, opener/mixer, configurable container/display; walker/lure/predator/fragile-target roles, rope-driven character motor, gravity pad/blimp, toy rocket/ignition/destruction variants and unstable platform. | Resolve historical behavior before authoring. Give each distinct role a focused introduction with familiar supports, then combine safe arrival, timed ejection, sorting or break/cut/ignite goals. End with 7–9 roles and an ordered multi-object task. |
+| 10 · **91–100: Oddly Satisfying** | Distinct size/material/weight sorters, speed-sensitive/selective trapdoor, spiral delay tube, powered airlift; powered ejector/toaster, egg timer, toy pulse emitter, opener/mixer, configurable container/display; walker/lure/predator/fragile-target roles, rope-driven character motor, gravity pad/blimp, toy rocket/ignition/destruction variants (impact-sensitive charge, new level 95a; firework, new level 96a; missile, new level 97a) and unstable platform. | Resolve historical behavior before authoring. Give each distinct role a focused introduction with familiar supports, then combine safe arrival, timed ejection, sorting or break/cut/ignite goals. End with 7–9 roles and an ordered multi-object task. |
 | 11 · **101–110: A Ray of Possibility** | Gamma source, material/thickness shields, powered radiation shutter, collimator, powered X-ray source, rate meter and integrating dosimeter. Separate source control, field control, distance, current rate and accumulated exposure. | Reuse gates, clocks and logic. Begin with source → meter → gate; end with controlled exposure and actual shutter-travel feedback, using 7–9 familiar/new roles together. |
-| 12 · **111–120: Particle Manners** | Exposure-sensitive cargo badge, sheet/tank transmission gauge modes, alpha and beta-minus cartridges, scintillator, magnetic deflector and segmented track chamber. | Reuse physical transport, water, optics and electricity: protect a moving parcel, sort by measured transmission, then route a charged trajectory. Advance to 8–10 roles with two simultaneous conditions. |
-| 13 · **121–130: Half the Battle** | Track-segment interpretation, decay-clock capsule; neutron source, Fast/Slow detector modes, water moderator and neutron absorber. | Reinforce earlier scintillation before adding decay; combine a rate window with retained exposure. Reuse conserved water and shielding to satisfy multiple sensor conditions, using 8–11 roles and ordered dependencies. |
+| 12 · **111–120: Particle Manners** | Exposure-sensitive cargo badge, sheet-thickness transmission gauge, alpha and beta-minus cartridges, scintillator, magnetic deflector and segmented track chamber. | Reuse physical transport, water, optics and electricity: protect a moving parcel, sort by measured transmission, then route a charged trajectory. Advance to 8–10 roles with two simultaneous conditions. |
+| 13 · **121–130: Half the Battle** | Track-segment interpretation, decay-clock capsule; neutron source, Fast/Slow detector modes, water moderator and neutron absorber; tank-level transmission gauge (128, after the moderator tank it reads; coordinator decision 36). | Reinforce earlier scintillation before adding decay; combine a rate window with retained exposure. Reuse conserved water and shielding to satisfy multiple sensor conditions, using 8–11 roles and ordered dependencies. |
 | 14 · **131–140: Many Happy Returns** | 131–132: RTG heat/cooling/load and startup; 133–134: radiation-responsive material latch and irreversible state; 135: sealed tracer capsule. **136–140 introduce no new elements or modes.** | Apply chapter 9 thermal/work prerequisites. Progress into production cells that inspect, route, charge, release and protect cargo using 9–12 roles across 3–5 domains. Require explicit shutdown/rearm where taught. |
 | 15 · **141–150: All Together Now** | **No new required elements, modes, controls or physical rules.** Revisit all adopted families through combinations; do not force every catalogue item into one puzzle. | Progress from coordinated subsystems to 10–14 meaningful roles across 4–6 domains, parallel delivery, constrained supply, feedback and ordered goals. Final puzzles allow different valid machines and require explaining failures from visible state. |
-| **Total** | **15 chapters × 10 levels = 150 planned levels.** | Each new family reuses earlier skills; each finale increases integration rather than merely decorating a larger scene. |
+| **Total** | **15 chapters, 244 planned levels:** 150 slots plus 94 lettered levels (owner decisions 24c to 24f, coordinator decisions 35 and 36; [per-level allocation](elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)). | Each new family reuses earlier skills; each finale increases integration rather than merely decorating a larger scene. |
 
 The dense chapter allocations are **capacity reservations, not a verified fit**. The breadth of the backlog requires a per-element lesson ledger, staged objectives and rebalancing across chapter boundaries. Do not compress an unfamiliar set into one level just to preserve this table. If hands-on teaching needs more space, redistribute the 150 slots and move introductions earlier; no required element may disappear into workshop-only content to make the numbers work. Potential radiation candidates retain their proposal status until adopted, but all 22 have reserved lessons here.
 
@@ -2342,7 +2344,7 @@ These are working titles to test for clarity and tone, not behavior selectors or
 | --- | --- | --- |
 | Clear purpose and immediate feedback | State one concrete goal before Run; show actual subgoal progress and local causes such as “The carrier has not docked yet.” A partial success highlights what worked and what remains. | Feedback follows real simulated state; a failed run is not falsely marked complete. Reset clears transient subgoals, preserves construction and keeps previously earned campaign progress. |
 | Earned competence | First-use lessons provide a small editable inventory and a quick achievable experiment. Follow with a small variation, then a satisfying combination. A discovered part gains a notebook card explaining its observed behavior. | Merely opening the palette does not earn a “used successfully” mark. Completed assisted play is still a legitimate completion; only claim demonstrated mastery where the task actually measures it. |
-| Meaningful choice | Offer two or three available puzzles when their prerequisites are met, plus Replay and Workshop. Unlock taught parts for creative workshop use without a currency grind. | A branch cannot expose a required untaught mode. All 150 campaign levels remain tracked even when their local order is flexible; optional challenges cannot replace missing introductions. |
+| Meaningful choice | Offer two or three available puzzles when their prerequisites are met, plus Replay and Workshop. Unlock taught parts for creative workshop use without a currency grind. | A branch cannot expose a required untaught mode. Every campaign level (at least 150; 244 planned) remains tracked even when their local order is flexible; optional challenges cannot replace missing introductions. |
 | Visible progress | Show chapters and completed levels, with a small chapter-completion keepsake or original workshop ornament in the approved palette. Progress represents solved puzzles and learned connections. | Completion and rewards are persisted once, survive reload and are not duplicated by replay. No points for repeatedly failing, resetting or farming the same easy action. |
 | Friendly celebration | Let the successful machine finish its satisfying motion, then give a short skippable celebration and specific feedback such as “Both deliveries arrived in order.” Offer Continue, Replay and Take a break. | Muted and reduced-motion presentation conveys the same success; no mandatory animation delay, blocked controls or exaggerated praise for a failed condition. |
 | Optional mastery | After the first completion, reveal one contextual remix such as use less water, design another route or run on a finite charge. Give an optional distinct stamp, without downgrading the original completion. | First-time players see a full success rather than an empty three-star judgment. Remixes are outside the 150-level count, use taught elements and never gate later lessons. |
@@ -2369,7 +2371,7 @@ Proposed unlock rule: finish the prerequisite introduction(s) to access dependen
 
 - [ ] Extend the authoring ledger with presentation title/localization key, intended emotional beat, goal wording, hint ladder, prerequisite/unlock rule, reward/optional-remix rule and player-feedback record. Closed sets such as hint stages, reward kinds, completion states and chapter progression states must be enums end-to-end; extensible level/reward IDs remain strongly typed. Titles and puns never select behavior. Test canonical boundary mappings, unsupported values, saved progression and affected callers when implemented.
 
-**Successful outcome:** Each of the 150 planned levels has both a learning purpose and a positive experience brief. Rewards celebrate verified accomplishments without bypassing gradually taught mechanics or hiding any unimplemented element.
+**Successful outcome:** Each planned campaign level (every one of the 244: the 150 numbered slots and the 94 lettered levels, owner decisions 24d and 24e, coordinator decision 41) has both a learning purpose and a positive experience brief. Rewards celebrate verified accomplishments without bypassing gradually taught mechanics or hiding any unimplemented element.
 
 
 #### Complexity and pacing rules
@@ -2410,10 +2412,11 @@ Proposed unlock rule: finish the prerequisite introduction(s) to access dependen
 | Size grate, weight tray/material sorter, timed ejector/toaster, egg timer, phazer-like toy pulse source, opener, mixer, box presets and contact display | 91–100; familiar control contracts from 21–40 are prerequisites | 111–120, 136–150 |
 | Original cat/mouse lure/escape roles, walker, predator, fragile fish-bowl/tank target, rope-to-drive character motor; gravity-effect pad, drifting blimp, rocket, toy revolver, dynamite/plunger abstraction and tipsy/unstable platform | 91–100; distinct powered, fragile, fired, ignited and safe-arrival outcomes get separate objectives | 136–150, using alternatives where a level's role permits |
 | RAD-01/02/05/06/07/08/09: gamma/X-ray, each shield material/thickness, shutter, collimator, rate meter and dosimeter | 101–110 | 111–120, 124–130, 136–150 |
-| RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, both gauge modes, scintillator, both field polarities, each chamber segment | 111–120 | 121–125, 136–150 |
-| RAD-13/16/17/18/19: decay presets, neutron source, moderator, absorber, Fast/Slow detection | 121–130 | 136–150 |
+| RAD-03/04/10/11/12/14/15: alpha/beta-minus, badge, the sheet gauge mode (EL-129), scintillator, both field polarities, each chamber segment | 111–120 | 121–125, 136–150 |
+| RAD-13/16/17/18/19 and RAD-11's tank gauge mode: decay presets, neutron source, moderator, absorber, Fast/Slow detection; the tank-level gauge (EL-130) at 128, after the moderator tank it reads (coordinator decision 36) | 121–130 | 136–150 |
 | RAD-20/21/22: RTG, material latch and sealed tracer | 131–135 | 136–150 |
 | GAP-01–18: structures, vehicles, granular/processed material and supporting tools | Exact per-record/mode objectives at [campaign gap allocation](#campaign-gap-allocation), first use 2–100 | Individual practice/reuse through 150; no required introductions in 136–150 |
+| Parts no other row named (owner decision 24c): pool ball and pool pocket, thumb tack, large-bore ball pipe, vacuum nozzle, pool cue, cannonball, cable winch, accelerator tube, straight metal ball pipe and both metal bends, pneumatic pressure gauge, air nozzle, air compressor, impact-sensitive toy charge, toy firework, toy missile | Exact objectives and new levels at [campaign coverage additions](#campaign-coverage-additions): 8, 13, 24a, 27a, 44a, 45, 47, 48a, 52, 72, 73a, 74a, 95a, 96a, 97a | Per-part practice and reuse there, from 10 to 149 |
 | Cosmetic-only edition/holiday variants | No new mechanic slot required; record which already taught behavior they share | Verify appearance/accessibility without inventing duplicate completion credit |
 
 **Successful outcome:** Every required element and every adopted candidate has named lesson objectives and later combinations. Every grouped row is expanded before chapter closure; missing/overcrowded/unverified assignments stay open. Nothing is declared taught just because its family appears in this table.
@@ -2424,7 +2427,7 @@ Proposed unlock rule: finish the prerequisite introduction(s) to access dependen
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
 
-All 18 [GAP specifications](#cross-game-gaps) are now planned within the same **15 × 10 = 150** campaign. The following allocation supplements the chapter and original element tables; it does not replace their lessons. Numbers identify existing campaign slots; pun titles identify distinct lesson objectives within them. Keep stable level IDs and original content/evidence identities when rewriting titles. No extra campaign level or workshop-only substitute is counted.
+All 18 [GAP specifications](#cross-game-gaps) are now planned within the same campaign (at least 150 levels; 244 planned). The following allocation supplements the chapter and original element tables; it does not replace their lessons. Numbers identify existing campaign slots; pun titles identify distinct lesson objectives within them. Keep stable level IDs and original content/evidence identities when rewriting titles. No extra campaign level or workshop-only substitute is counted.
 
 **Staging rule:** In a shared slot, teach its original new distinction first with familiar supports, celebrate that small success, then reveal a separate short GAP objective with a positive/control contrast. Do not require both unfamiliar ideas in the first construction. Preserve the original lesson as an independently recorded objective. Stage transitions must retain the player's saved construction/Undo context or explicitly save it before a fresh mini-setup; no surprise loss of work. Later levels combine the learned pieces with progressively less scaffolding.
 
@@ -2432,7 +2435,7 @@ All 18 [GAP specifications](#cross-game-gaps) are now planned within the same **
 
 | Record / lesson objective | First introduction / prerequisites | Guided practice | Later combinations and spaced reuse |
 | --- | --- | --- | --- |
-| [GAP-01 beam/brace](#gap-01) · **Brace Yourself** | **4**, after basic placement/gravity; support a familiar basket with one member, then contrast braced/unbraced geometry without teaching break thresholds yet. | **5**, support a different load/route. | **18** rolling chassis; **65** changing water load; **138** structural docking platform. |
+| [GAP-01 beam/brace](#gap-01) · **Brace Yourself** | **4**, after basic placement/gravity: support a familiar basket with one member (the beam). The brace's objective, contrasting braced and unbraced geometry without teaching break thresholds yet, is at **9b**, after the pivot of GAP-02, because the braced frame stands on pivots (coordinator decision 36). | **5**, support a different load/route; **10** for the brace. | **18** rolling chassis; **65** changing water load; **138** structural docking platform. |
 | [GAP-02 pivot/linkage](#gap-02) · **Joint Effort** | **9**, after the lever objective; fixed/free axis then limits in separate guided steps. | **10**, link a familiar lever to a catcher. | **38** driven linkage; **46** loading arm; **138** docking joint. |
 | [GAP-03 passive wheel](#gap-03) · **Wheel Meet Again** | **18**, after ropes/moving cargo and environment practice; roll a preloaded beam chassis, then build its axle. | **19**, rolling versus slipping with familiar cargo. | **37** powered conversion; **68** cargo alongside a lock; **138** two-carrier transfer. |
 | [GAP-04 driven wheel](#gap-04) · **Driven to Deliver** | **37**, after motor, supply, belt and gear lessons; drive an already understood chassis. | **38**, add a familiar linkage under load. | **48** powered loading carrier; **68** haul water; **138** shared docking. |
@@ -2452,6 +2455,38 @@ All 18 [GAP specifications](#cross-game-gaps) are now planned within the same **
 | [GAP-18 environment](#gap-18) · **Down to Earth / Air on the Side** | **17** authored gravity after familiar gravity paths; **79** supported atmosphere after pressure/air lessons. Difficulty remains a separate choice. | **18 / 80**, respectively. | Gravity **97, 139**; atmosphere **99, 143**. Unsupported presets stay blocked until implemented and taught. |
 
 **Chapter integration:** Chapters 1–2 gain construction basics and experiment tools; chapters 3–5 add assemblies, goal variants, driven vehicles and load limits; chapters 7–9 reuse construction with fluids, air and thermal end states; chapter 10 introduces granular/material processing and authoring. Chapters 11–14 retain all 22 radiation reservations and reuse the new skills. Levels **136–150 still introduce no new required mechanics or modes**.
+
+<a id="campaign-coverage-additions"></a>
+
+#### Parts no lesson used: exact objectives and new levels (owner decisions 24c and 24d)
+
+**Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
+
+Owner decision 24c (23 November 2026) requires every placeable part to be used by a campaign lesson; 24d lets the campaign exceed 150 levels and removes levels that repeat a mechanic already introduced. The 18 parts below had no lesson. Nine join an existing planned lesson as a staged objective with its own positive/control contrast (staging rule above); nine get a new level, numbered after the slot it follows (24a follows 24) so that no existing slot number or reservation changes. Each new level stands alone: it does not share its slot's other objectives. Briefs, the coverage audit, the removed and converted levels and the counts are in [campaign coverage](elements/readiness/campaign-coverage.md).
+
+| Part(s) · lesson | First introduction / prerequisites | Guided practice | Later combinations and spaced reuse |
+| --- | --- | --- | --- |
+| EL-098 Pool ball, EL-099 Pool pocket · **Bank the Bounce** | **8**, after Ramp, Wall and Receiver: bank a ramp-fed pool ball off a cushion into a pocket; a ball beside the opening is not pocketed. | **10** | **49, 141** |
+| EL-101 Thumb tack · balloon pop lesson | **13**, after Balloon, Rope and Weight: the tack pops a rising balloon whose lift held a flap shut; a tack off its path leaves it intact. | **19** | **149** |
+| EL-102 Large-bore ball pipe · **Bore Necessities** (new level) | **24a**, after the clear pipe, bends and joins: an oversized ball jams the clear pipe and passes the large bore; a mixed join is refused. | **30** | **141** |
+| EL-100 Vacuum nozzle · **Clean Sweep** (new level) | **27a**, after Fan, supply and pipes: supplied suction draws a resting ball into a pipe; unpowered or blocked, nothing moves. | **29** | **96, 147** |
+| EL-097 Pool cue · **On Cue** (new level) | **44a**, after *Bank the Bounce*, Linear pusher and Boxing glove: an aimed, supplied cue sinks a named ball; a miss moves nothing. | **49** | **141** |
+| EL-091 Cannonball · **Load Before Fire** | **45**, with the Cannon's loading lesson: the same shot gives the heavy cannonball far less speed than a tennis ball. | **46** | **68, 146** |
+| EL-063 Cable winch · **Catch, Then Lift** | **47**, after Motor, Steel cable, Load hook, Moving bucket and Pulley: the winch lifts a caught ball's bucket; unpowered there is no lift, overloaded it stalls. | **48** | **65, 138** |
+| EL-103 Accelerator tube · **Up to Speed** (new level) | **48a**, after pipes, supply and Electromagnet: the supplied tube speeds a ball across a gap; unpowered, it falls short. | **50** | **97, 148** |
+| EL-071 Straight metal ball pipe, EL-072 90° metal bend, EL-242 45° metal bend · light-interruption lesson | **52**, after clear pipes and a light source and receiver: metal pipes carry the ball like clear ones but block a beam; clear pipes pass it. | **54** | **142** |
+| EL-043 Pneumatic pressure gauge · air reservoir lesson | **72**, after Bellows, Pneumatic hose, Air reservoir and Release valve: the gauge reads the stored charge; an empty reservoir reads ambient. | **73** | **87, 147** |
+| EL-042 Air nozzle · **Jet Set** (new level) | **73a**, after Fan and the gauge: one strong stored-pressure jet moves a ball the fan cannot; an empty reservoir gives none. | **75** | **99, 143** |
+| EL-037 Air compressor · **Pump It Up** (new level) | **74a**, after supply, the gauge and the nozzle: battery work charges the reservoir; an unpowered compressor adds nothing. | **76** | **87, 147** |
+| EL-106 Impact-sensitive toy charge · **Gently Does It** (new level) | **95a**, after Toy dynamite and Detonation plunger: carried gently it stays unspent, a dropped ball sets it off, and it does not fire twice. | **99** | **149** |
+| EL-104 Toy firework · **Fuse Box** (new level) | **96a**, after Toy rocket and timers: its burst signal, after the set delay, opens a gate for a waiting ball; a spent firework does not retrigger. | **99** | **148** |
+| EL-105 Toy missile · **Follow the Light** (new level) | **97a**, after Toy rocket and light receivers: its eyes steer it toward a lamp round a wall; with no light it flies straight. | **100** | **142** |
+
+**Moved introductions (owner decision 24e).** Where a part's prerequisites are all taught in an earlier chapter, its introduction moves there, and this list replaces the first-use range the ledger rows above give it: Balloon to **9a** (chapter 1); Weight tray to **25**, Egg timer to **28**, Size grate to **28a**, Spiral delay tube and Speed-sensitive trapdoor to **28b**, Powered airlift and Selective trap door to **28c** (chapter 3). The switch, the signal lamp and the fan first appear in chapter 2 (owner decision 24f; the lamp as a light source in chapter 6), so chapter 1's authored levels that introduce them move to chapter 2 and `domino_effect` is re-authored without its lamp.
+
+**Prerequisite order (coordinator decision 36).** A part's campaign prerequisites are taught before it, so these introductions move and replace the range or level given above: Structural brace to **9b**, a new level after the pivot (chapter 1; GAP-01's beam stays at 4); Laser to **51**, with the Flashlight and Light receiver; the colour receivers to **54a**, before the colour filters (**54b**) that need them; Float, Mechanical float valve and Electronic level switch to **63** and the Mechanically actuated and Solenoid taps to **64**; Buoyant platform to **66a** and Canal lock chamber to **67a**, with the Boat; Bell and Sound meter to **75a**, Speaker and Wind chimes to **75b**, Tone-selective meter and Continuous-tone speaker to **76a**; Acoustic resonator, screen and dish to **78a** and the Listening horn, Acoustic duct and Exit horn to **79a**; Predator character to **97**, with the Lured and Escaping characters; Tank-level transmission gauge to **128** (chapter 13), after the moderator tank it reads. The [per-level allocation](elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f) gives each move's reason and the row-level items still open.
+
+**Chapter level counts:** no level introduces more than three new parts. Chapter 1 has 17 levels, 2 has 25, 3 has 20, 4 has 17, 5 has 18, 6 has 27, 7 has 23, 8 has 20, 10 has 17, and chapters 9 and 11 to 15 keep 10: 244 in all. No chapter finale introduces a part (coordinator decision 35): the introductions once at 40, 70, 80 and 120 are at 39, 69c, 79b and 119. The [per-level allocation](elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f) lists the parts each level introduces and where each kept authored level goes; it is the slot authority for the lettered levels. Levels 136–150 still introduce no new required element or mode. A new level's typed `LEVEL-` identity is added in the slice that authors it (the owner-identity pattern accepts `LEVEL-` and three digits only today).
 
 <a id="sequence-task-320"></a>
 
@@ -2489,15 +2524,15 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 <a id="sequence-task-322"></a>
 
-- [ ] For each of the 150 levels, record typed level identity, chapter, first-use element/mode IDs, prerequisite lessons, available/fixed inventory, ordered goals, causal depth, distinct functional roles/domains, resource constraints, intended failure/control and allowed alternative solutions. Keep proposed, authored, native-verified, real-UI-verified and difficulty-qualified states distinct; retain boundary validation and reject unsupported IDs/modes rather than parsing display names.
+- [ ] For each campaign level (every one of the 244 planned: the 150 numbered slots and the 94 lettered levels, owner decisions 24d and 24e, coordinator decision 41), record typed level identity, chapter, first-use element/mode IDs, prerequisite lessons, available/fixed inventory, ordered goals, causal depth, distinct functional roles/domains, resource constraints, intended failure/control and allowed alternative solutions. Keep proposed, authored, native-verified, real-UI-verified and difficulty-qualified states distinct; retain boundary validation and reject unsupported IDs/modes rather than parsing display names.
 
-**Successful outcome:** A prerequisite audit finds no required first-use gap, the dependency graph has no forward reference, all 150 slots are accounted for exactly once and hands-on players can explain the causal solution. Native/reference success alone does not close teaching or difficulty qualification. All new per-element delivery, Reset/save, build and UI proof obligations remain in force.
+**Successful outcome:** A prerequisite audit finds no required first-use gap, the dependency graph has no forward reference, every planned slot (the 150 and the lettered levels added under owner decisions 24c to 24f) is accounted for exactly once and hands-on players can explain the causal solution. Native/reference success alone does not close teaching or difficulty qualification. All new per-element delivery, Reset/save, build and UI proof obligations remain in force.
 
 <a id="todo-081"></a>
 
 <a id="sequence-task-323"></a>
 
-- [ ] Integrate the trampoline introduction into the final gradual 150-level ordering and add the rebound-to-pipe lesson; sustained/mobile motion and broader combinations remain open.
+- [ ] Integrate the trampoline introduction into the final gradual campaign ordering and add the rebound-to-pipe lesson; sustained/mobile motion and broader combinations remain open.
 
 **Successful outcome:** The rebound introduction precedes a new trampoline-to-pipe puzzle; the player learns aim and entry alignment without needing an unexplained optical, rope or timing mechanism.
 
@@ -2505,7 +2540,7 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 <a id="sequence-task-324"></a>
 
-- [ ] Integrate the two launcher lessons into the final gradual 150-level ordering and add later obstruction combinations as campaign balancing requires. Focused introductory and retained-charge teaching is verified; final campaign progression and exhaustive difficulty testing remain open.
+- [ ] Integrate the two launcher lessons into the final gradual campaign ordering and add later obstruction combinations as campaign balancing requires. Focused introductory and retained-charge teaching is verified; final campaign progression and exhaustive difficulty testing remain open.
 
 **Successful outcome:** Players first learn wind-and-release, then retained charge after power stops; a later obstruction combination clearly requires those learned behaviours.
 
@@ -2611,7 +2646,7 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 <a id="sequence-task-338"></a>
 
-- [ ] Teach one distinction at a time: **Bank the Bounce**, **Catch, Then Lift**, **Load Before Fire**, **Save the Spring**, **One Ball at a Time**, **Hold the Light**, **Dock Before Drop** and **Carry Without Iron**. First use nearly planar layouts; later combine depth, optics, sound, water and logic. Reallocate within the 150-level target, allowing additional workshop challenges without pretending these levels already exist.
+- [ ] Teach one distinction at a time: **Bank the Bounce** (the pool-ball bank shot at 8, owner decision 24d), **Catch, Then Lift** (with the cable winch at 47), **Load Before Fire** (with the cannonball at 45), **Save the Spring** (removed as a separate lesson by owner decision 24d: the playable `saved_for_later` teaches it), **One Ball at a Time** (owner decision 24d: a build-up in which the hopper feeds the Cannon's reload shuttle, not a second hopper introduction), **Hold the Light**, **Dock Before Drop** and **Carry Without Iron**. First use nearly planar layouts; later combine depth, optics, sound, water and logic. Reallocate within the 150-level target, allowing additional workshop challenges without pretending these levels already exist.
 
 <a id="todo-279"></a>
 
@@ -2643,15 +2678,15 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 <a id="sequence-task-343"></a>
 
-- [ ] Allocate a first-use objective and later combination for every required P1/P2/P3 element in the [150-level coverage ledger](#campaign-element-coverage), including unimplemented variants. Adjust chapter boundaries after focused prototypes; potential candidates keep an explicit adoption status, and no required element is silently excluded for lack of space.
+- [ ] Allocate a first-use objective and later combination for every required P1/P2/P3 element in the [campaign coverage ledger (244 levels)](#campaign-element-coverage), including unimplemented variants. Adjust chapter boundaries after focused prototypes; potential candidates keep an explicit adoption status, and no required element is silently excluded for lack of space.
 
 <a id="todo-379"></a>
 
 <a id="sequence-task-344"></a>
 
-- [ ] Rebalance the [150-level plan](#campaign-plan) after prototypes and player feedback: one new distinction at a time, spaced practice, then increasingly integrated machines. Optional workshop remixes supplement the campaign; they cannot replace a required element's introductory lesson. Retain exactly 150 campaign slots.
+- [ ] Rebalance the [campaign plan](#campaign-plan) (244 levels planned) after prototypes and player feedback: one new distinction at a time, spaced practice, then increasingly integrated machines. Optional workshop remixes supplement the campaign; they cannot replace a required element's introductory lesson. Keep every planned slot accounted for; owner decisions 24d and 24e (23 November 2026) allow more than 150 levels, remove a level that repeats a mechanic already introduced and limit each level to two or three new parts.
 
-**Successful outcome:** Prototype and player-feedback results inform the first lesson, later combination and reward beat for each distinct mechanic. All 150 required levels remain teachable, playful and progressively more complex; every tracked element retains its explicit scope and evidence status.
+**Successful outcome:** Prototype and player-feedback results inform the first lesson, later combination and reward beat for each distinct mechanic. All planned levels remain teachable, playful and progressively more complex; every tracked element retains its explicit scope and evidence status.
 
 <a id="core-parts"></a>
 
@@ -2749,7 +2784,7 @@ Finish the shared-engine seams and mouth rules first, then diverter and hopper, 
 
 | Task | Historical piece / role | Proposed implementation and acceptance |
 | --- | --- | --- |
-| <a id="todo-199"></a> Scope index | Individual element specifications: [EL-071](#element-071), [EL-072](#element-072), [EL-073](#element-073), [EL-074](#element-074). | Each linked element has its own implementation/proof obligation; shared interactions use the [generic process register](#generic-interaction-register). |
+| <a id="todo-199"></a> Scope index | Individual element specifications: [EL-071](#element-071), [EL-072](#element-072), [EL-242](#element-242), [EL-073](#element-073), [EL-074](#element-074). | Each linked element has its own implementation/proof obligation; shared interactions use the [generic process register](#generic-interaction-register). |
 
 <a id="timing"></a>
 
@@ -3077,7 +3112,7 @@ Teach already working mirrors/splitters/filters in priority 3. Implement finite-
 
 <a id="sequence-task-398"></a>
 
-- [ ] **Separate integration verification:** The intended receiver responds to the documented source/channel and, for a charging variant, the actual illumination duration. Existing laser-only reception is not silently treated as flashlight reception. This is a cross-element acceptance task using the [generic interaction processes](#generic-interaction-register), not a combined element specification.
+- [ ] **Separate integration verification:** The intended receiver responds to the documented source/channel and, for a charging variant, the actual illumination duration. One receiver law serves all light: a detector responds to any light of the right channel and strength, laser or Flashlight, by the same declared rule; a test with one kind of source is never accepted as proof for the other (owner decision 9, 22 November 2026). This is a cross-element acceptance task using the [generic interaction processes](#generic-interaction-register), not a combined element specification.
 
 <a id="todo-309"></a>
 
@@ -3195,7 +3230,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 - [ ] **RAD-01 · P1 potential: Gamma source capsule.** A fixed-strength sealed toy source emits a spatial field continuously during Run; players control exposure by moving it or placing shielding. No electrical off switch for radioactive decay. Proposed campaign teaching: 101, 103, 110.
 
-**Successful outcome:** Moving the capsule farther away lowers the meter reading; disconnecting a nearby battery does not stop emission. Source pose and initial state restore exactly.
+**Successful outcome:** Moving the capsule farther away lowers the meter reading when the move ends beyond 1 m, since readings are flat inside 1 m (coordinator decision 21, 22 November 2026); disconnecting a nearby battery does not stop emission. Source pose and initial state restore exactly.
 
 <a id="radiation-02"></a>
 
@@ -3305,7 +3340,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 <a id="sequence-task-423"></a>
 
-- [ ] **RAD-15 · P3 potential: Track chamber.** A readable detector volume displays persistent short trails from the simulated charged trajectories; an explicitly supplied segmented readout can select an exit region. Proposed campaign teaching: 120, 121.
+- [ ] **RAD-15 · P3 potential: Track chamber.** A readable detector volume displays persistent short trails from the simulated charged trajectories; an explicitly supplied segmented readout can select an exit region. Proposed campaign teaching: 119, 121 (introduction moved from the chapter 12 finale 120 by coordinator decision 35).
 
 **Successful outcome:** The selected exit segment triggers only for a traversing track; a decorative trail or a miss cannot trigger it. Neutral photons make no direct charged track in the initial abstraction.
 
@@ -3385,15 +3420,15 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 <a id="sequence-task-433"></a>
 
-- [ ] Integrate all adopted radiation candidates into the [current 150-level campaign plan](#campaign-plan): 101–110 measurement/shielding, 111–120 inspection/charged routing, 121–130 decay/neutrons, 131–135 thermal/material/tracer lessons, then 136–150 cross-family synthesis. Use the [research recipes](../radiation-component-research.md#concrete-radiation-lessons-slots-76110) as design inputs; their preliminary slots 76–110 move to 101–135. Map every supported mode to an introduction, control and later combination; do not give radiation the other families' unfilled teaching slots.
+- [ ] Integrate all adopted radiation candidates into the [current campaign plan](#campaign-plan) (244 levels; the numbered slots below): 101–110 measurement/shielding, 111–120 inspection/charged routing, 121–130 decay/neutrons, 131–135 thermal/material/tracer lessons, then 136–150 cross-family synthesis. Use the [research recipes](../radiation-component-research.md#concrete-radiation-lessons-slots-76110) as design inputs; their preliminary slots 76–110 move to 101–135. Map every supported mode to an introduction, control and later combination; do not give radiation the other families' unfilled teaching slots.
 
-**Successful outcome:** All 150 positions have an explicit teaching purpose, every required mechanism is introduced before use, and unselected/unfinished candidates remain visible. Neither old evidence nor passing reference solutions are misreported as completion of the enlarged campaign.
+**Successful outcome:** All 244 planned positions (the 150 numbered slots and the 94 lettered levels) have an explicit teaching purpose, every required mechanism is introduced before use, and unselected/unfinished candidates remain visible. Neither old evidence nor passing reference solutions are misreported as completion of the enlarged campaign.
 
 <a id="radiation-campaign-evidence"></a>
 
 <a id="sequence-task-434"></a>
 
-- [ ] When the 150-level content is authored, forward-update current campaign tooling, typed level identities, navigation and save boundaries together, without aliases or automatic migration. Preserve historical 75-level/900-cell artifacts unchanged. Plan **150 × 3 difficulties × 4 placement variants = 1,800 distinct baseline cases**, plus repeats and mechanism probes, after component coverage.
+- [ ] When the campaign content is authored (every level, at least 150; 244 planned), forward-update current campaign tooling, typed level identities, navigation and save boundaries together, without aliases or automatic migration. Preserve historical 75-level/900-cell artifacts unchanged. Plan **the real level count × 3 difficulties × 4 placement variants distinct baseline cases (244 × 3 × 4 = 2,928 at the planned count; owner decisions 24d and 24e, coordinator decision 41)**, plus repeats and mechanism probes, after component coverage.
 
 **Successful outcome:** The enlarged campaign has content-versioned evidence and no silent credit from obsolete levels; focused per-element browser, Reset/save and build proof proceeds during implementation rather than waiting for the exhaustive matrix.
 
@@ -3420,7 +3455,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 - [ ] **TH-01 · Potential element: Candle.** Finite wax inventory feeds a shared combustion model and emits accounted heat/light; heat and oxygen conditions determine burning. Research basis: [TH-S03](../thermal-component-research.md#th-s03).
 
-**Visual style:** Cream wax cylinder with a recessed wick and restrained, state-driven flame.
+**Visual style:** Cream wax cylinder with a proud gold wick dish (the declared presentation form; owner decision 24, 23 November 2026) and restrained, state-driven flame.
 
 **Successful outcome:** An unlit or exhausted candle produces no sustained output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
@@ -3468,7 +3503,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 - [ ] **TH-05 · Potential element: Friction brake.** Extend the existing brake's generic resistive-contact/shaft model: removed mechanical work enters heat stores, with a visible mechanical cost. This is one brake identity with an added thermal proof. Research basis: [TH-S01](../thermal-component-research.md#th-s01).
 
-**Visual style:** Gold rotor, cream shoe and a small shaped thermal indicator.
+**Visual style:** Pale grey drum, slate shoes and a small shaped thermal indicator, as EL-055's brake declares them (owner decision 24, 23 November 2026).
 
 **Successful outcome:** A stationary brake makes no frictional heat; shaft energy loss balances thermal gain and declared losses. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
@@ -3492,7 +3527,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 - [ ] **TH-07 · Potential element: Solar absorber plate.** Absorbed optical flux becomes internal energy according to surface absorptance and illuminated area; a thermal port can carry it onward. Research basis: [TH-S04](../thermal-component-research.md#th-s04).
 
-**Visual style:** Matte navy inset on a cream slab, gold rim and raised temperature marks.
+**Visual style:** Matte navy inset on a cream slab, gold rim and flush printed temperature marks (owner decision 24, 23 November 2026).
 
 **Successful outcome:** A reflective comparison absorbs less; shading removes the input without immediately deleting stored heat. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
@@ -3532,7 +3567,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 **Successful outcome:** An equal-temperature environment gives no net cooling; passive convection cannot cool below ambient. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
-**Campaign:** Intro **40**; practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
+**Campaign:** Intro **39** (moved from the chapter 4 finale 40 by coordinator decision 35); practice **41**; combination/reuse **78, 87, 145**. Use the staged thermal allocation below; no extra campaign slot.
 
 <a id="thermal-11"></a>
 
@@ -3578,7 +3613,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 **Visual style:** Frosted cyan faceted cuboid with a clear melt edge and bounded droplets.
 
-**Successful outcome:** A cold control retains support; partially melted material cannot disappear or keep impossible full-block support. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
+**Successful outcome:** A cold control retains support; partially melted material cannot disappear (meltwater that runs off a solid support is counted as spilled; owner decision 24, 23 November 2026) or keep impossible full-block support. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
 **Campaign:** Intro **67**; practice **68**; combination/reuse **89, 139**. Use the staged thermal allocation below; no extra campaign slot.
 
@@ -3616,7 +3651,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 **Successful outcome:** An empty vessel emits no water vapor; warm water requires further sensible/latent input before the specified vapor output. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
-**Campaign:** Intro **70**; practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
+**Campaign:** Intro **69c**, a lettered level before the chapter 7 finale 70 (coordinator decision 35; 69b already introduces three parts); practice **71**; combination/reuse **86, 140**. Use the staged thermal allocation below; no extra campaign slot.
 
 <a id="thermal-18"></a>
 
@@ -3712,7 +3747,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 **Successful outcome:** Excess load or cooling prevents ascent; no fixed rising velocity or balloon-specific levitation rule. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
-**Campaign:** Intro **80**; practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
+**Campaign:** Intro **79b**, a lettered level before the chapter 8 finale 80 (coordinator decision 35; 79a already introduces three parts); practice **81**; combination/reuse **99, 149**. Use the staged thermal allocation below; no extra campaign slot.
 
 <a id="thermal-26"></a>
 
@@ -3840,7 +3875,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 - [ ] **TH-36 · Potential element: Lamp-trigger apparatus.** Resolve the historical lamp's trigger before implementation; represent the selected original toy design as a finite supplied light/heat source and a generic contact or displacement actuator. No historical-name selector may choose its effect. Research basis: [TH-S04](../thermal-component-research.md#th-s04).
 
-**Visual style:** Cream sculptural lamp, gold lever and restrained luminous aperture with original icon.
+**Visual style:** Cream sculptural lamp, gold pedal (the declared presentation form; owner decision 24, 23 November 2026) and restrained luminous aperture with original icon.
 
 **Successful outcome:** An unactuated or unsupplied source produces no new output; demonstrate trigger displacement and optical/thermal energy independently. Prove the positive use, this control, generic connections, finite stores and exact restoration after Run/Reset and save/reload.
 
@@ -3972,7 +4007,7 @@ Each TX is a separate acceptance/teaching obligation composed from IX abstractio
 
 <a id="sequence-task-521"></a>
 
-- [ ] **TX-07: Melting removes structural support.** An ice body's loss of solid fraction changes ordinary contact support; gravity then moves cargo. Heating another disconnected body does not trigger release; collect meltwater and restore exact initial topology.
+- [ ] **TX-07: Melting removes structural support.** An ice body's loss of solid fraction changes ordinary contact support; gravity then moves cargo. Heating another disconnected body does not trigger release; collect meltwater (meltwater that runs off a solid support counts as spilled; owner decision 24, 23 November 2026) and restore exact initial topology.
 
 **Successful outcome:** The stated chain and controls pass through shared capabilities with no catalogue-pair/level-specific code. Record an actual-UI recipe, typed state/connection observations, before/after quantities and exact Run/Reset/save restoration. **Campaign:** 67 introduction, 68 practice, 89, 139 later combinations.
 
@@ -4056,7 +4091,7 @@ The individual TH/TX entries give exact intro, practice and reuse numbers. This 
 
 - [ ] Author every TH/IX/TX first-use objective and separate control as a typed lesson record with prerequisites, saved stage state, available inventory and later reuse. Each physical element is placed/configured by the player; seeing it as a background fixture does not count. Preserve the original objective in a shared slot, then offer a separately scaffolded objective and a reward/rest beat before combining new ideas. Saved progress survives staged objectives; hints and slower playback carry no penalty.
 
-**Successful outcome:** All 37 thermal element records and 14 thermal scenarios have named placements within 1–150, and IX processes have separate first-use reservations. The existing 150 level IDs and radiation/GAP coverage remain intact. The density is explicitly **unvalidated**: pilot duration, comprehension and fatigue, then redistribute objectives within those 150 slots rather than declare a crowded chapter teachable from a table. Every unsupported mode stays blocked and visible. Finales136–150 only combine taught mechanisms; private creative remixes remain optional rewards.
+**Successful outcome:** All 37 thermal element records and 14 thermal scenarios have named placements within the campaign (the numbered slots 1–150 and the lettered levels of owner decisions 24c to 24f), and IX processes have separate first-use reservations. The existing 150 level IDs and radiation/GAP coverage remain intact. The density is explicitly **unvalidated**: pilot duration, comprehension and fatigue, then redistribute objectives within the campaign's levels rather than declare a crowded chapter teachable from a table. Every unsupported mode stays blocked and visible. Finales136–150 only combine taught mechanisms; private creative remixes remain optional rewards.
 
 <a id="specialist"></a>
 
@@ -4145,7 +4180,7 @@ This is a later queue, not a scope reduction. Core readability fixes remain earl
 
 **Gameplay outcome:** A comprehensive set of potential pieces and supporting tools lets players build structures, vehicles and material-processing machines, understand their behaviour, save their inventions and author their own puzzles.
 
-**Scope — owner direction, 24 October 2026:** All **GAP-01–18** from the [cross-game audit](../physics-puzzle-gap-audit.md) remain in the backlog and 150-level campaign plan. Every actual named element, including each separately specified umbrella child, is adopted for implementation before browser qualification. Seven non-element product features (GAP-10–15 and GAP-17) retain their product-feature obligations and owners; they are not counted as puzzle elements. Adoption is not implementation or verification. Existing component/radiation requirements remain intact. Additional unnamed speculative alternatives remain research context, not substitutes for these 18 records.
+**Scope — owner direction, 24 October 2026:** All **GAP-01–18** from the [cross-game audit](../physics-puzzle-gap-audit.md) remain in the backlog and campaign plan (every level, 244 planned). Every actual named element, including each separately specified umbrella child, is adopted for implementation before browser qualification. Seven non-element product features (GAP-10–15 and GAP-17) retain their product-feature obligations and owners; they are not counted as puzzle elements. Adoption is not implementation or verification. Existing component/radiation requirements remain intact. Additional unnamed speculative alternatives remain research context, not substitutes for these 18 records.
 
 **Shared visual and technical contract:** Every record follows [DESIGN.md](../../DESIGN.md#art-direction--monument-valley-inspired): original sculptural dioramas, rounded/chamfered simple forms, matte surfaces, soft directional lighting, gentle shadows and calm purposeful motion. Preserve the existing sky/wood/cream/navy/gold and established part colours exactly; Monument Valley informs form and composition, not a replacement palette. Use original pictograms, shaped state/port cues and contextual touch controls. Rendered motion must agree with contact, state and energy; no permanent inspectors, harsh metal, clutter or colour-only information. Each physical element needs build/run, selected/preview and dense-scene desktop/mobile visual and motion evidence.
 
@@ -4163,7 +4198,7 @@ The palette's category enum must cover these roles; a grain dispenser stays a di
 
 - [ ] **Separate integration verification:** A braced frame supports the specified load while an otherwise identical unbraced frame deflects/collapses under the supported model; no implicit world anchor. Moving/rotating a member updates real contact and connected mass. Apply the common completion requirements above. This is a cross-element acceptance task using the [generic interaction processes](#generic-interaction-register), not a combined element specification.
 
-**Campaign:** Introduction **4 · Brace Yourself**; guided practice **5**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](#campaign-gap-allocation), not additional campaign levels.
+**Campaign:** Introduction **4 · Brace Yourself** (the beam) and **9b** (the brace, a new level after the pivot; coordinator decision 36); guided practice **5** and **10**; later combinations/reuse **18, 65, 138**. These refer to the mandatory in-level objectives in the [campaign allocation](#campaign-gap-allocation); 9b is the one added level.
 
 <a id="gap-02"></a>
 
@@ -4381,7 +4416,7 @@ The palette's category enum must cover these roles; a grain dispenser stays a di
 
 <a id="sequence-task-553"></a>
 
-- [ ] Author every GAP-01–18 introductory/practice/reuse objective from the [campaign allocation](#campaign-gap-allocation) within the existing 150 levels, with the shared art direction and [positive-play requirements](#campaign-delight).
+- [ ] Author every GAP-01–18 introductory/practice/reuse objective from the [campaign allocation](#campaign-gap-allocation) within the campaign's levels (the 150 numbered slots and the lettered levels), with the shared art direction and [positive-play requirements](#campaign-delight).
 
 **Successful outcome:** All 18 records are represented; physical pieces are assembled by the player, UI tools receive guided use, and individual goal/environment modes are taught before dependent puzzles. Existing lessons and radiation coverage remain accounted for. Keep 150 numbered levels, retain failed teaching attempts, and rebalance staged objectives after playtests without silently removing a required element.
 
@@ -4398,7 +4433,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 **Common architecture/proof contract:** Every row declares typed geometry, material, ports, state and capabilities to shared subsystems. A part name, catalogue ID or pair of part classes must never select interaction behaviour. Effects depend on generic contact, transport, field, energy, material and sensing rules. All closed sets remain enums through callers, content, collections and tests. Each record requires its own positive/control real-UI construction, applicable typed connections, exact Run/Reset and current-schema save/reload, native boundary checks, build, revision/captures and retained failures before its own implementation/verification/commit/push completion. Existing evidence stays historical until refreshed when affected.
 
-**Campaign contract:** Each record inherits its original family's reserved first-use window in the 150-level ledger, but receives an independent introduction, practice and spaced-use objective before its chapter closes. Modes are separate objectives; no crowded family-level reservation counts as teaching proof. Rebalance staged objectives within the same 150 levels, preserve prerequisites and reward breaks, and introduce no new required element in 136–150.
+**Campaign contract:** Each record inherits its original family's reserved first-use window in the campaign ledger (244 levels), but receives an independent introduction, practice and spaced-use objective before its chapter closes. Modes are separate objectives; no crowded family-level reservation counts as teaching proof. Rebalance staged objectives within the same 150 levels, preserve prerequisites and reward breaks, and introduce no new required element in 136–150.
 
 <a id="element-001"></a>
 
@@ -4694,7 +4729,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-037 · Air compressor.** **Type:** Pneumatic. **Scope/evidence source:** [existing record](#todo-376). External work raises pressure in a connected finite gas volume.
 
-**Successful outcome:** Unpowered compressor cannot increase stored gas energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Unpowered compressor cannot increase stored gas energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 74a (new level *Pump It Up*); practice 76; reuse 87, 147 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-038"></a>
 
@@ -4734,7 +4769,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-042 · Air nozzle.** **Type:** Pneumatic. **Scope/evidence source:** [existing record](#todo-376). Expands supplied gas into a bounded directed jet.
 
-**Successful outcome:** Insufficient pressure cannot move a distant load. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Insufficient pressure cannot move a distant load. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 73a (new level *Jet Set*); practice 75; reuse 99, 143 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-043"></a>
 
@@ -4742,7 +4777,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-043 · Pneumatic pressure gauge.** **Type:** Pneumatic. **Scope/evidence source:** [existing record](#todo-376). Measures local gas pressure independently of electrical controls.
 
-**Successful outcome:** Empty reservoir reads ambient rather than a stale charged state. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Empty reservoir reads ambient rather than a stale charged state. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 72 (air reservoir lesson); practice 73; reuse 87, 147 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-044"></a>
 
@@ -4796,7 +4831,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 <a id="sequence-task-603"></a>
 
-- [ ] **EL-050 · Acoustic screen.** **Type:** Sound. **Scope/evidence source:** [existing record](#todo-352). Material surface attenuates or reflects sound according to its declared properties.
+- [ ] **EL-050 · Acoustic screen.** **Type:** Sound. **Scope/evidence source:** [existing record](#todo-352). Material surface blocks and attenuates sound according to its declared properties; it does not reflect (owner decision of 21 November 2026; redirection belongs to [EL-051](#element-051)).
 
 **Successful outcome:** A geometric gap permits transmission; no universal mute field. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
@@ -4902,7 +4937,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-063 · Cable winch.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#todo-320). Shaft work winds a finite cable path and lifts its attached load.
 
-**Successful outcome:** Stall and reverse load debit work; no instantaneous rope shortening. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Stall and reverse load debit work; no instantaneous rope shortening. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 47 (*Catch, Then Lift*); practice 48; reuse 65, 138 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-064"></a>
 
@@ -4966,7 +5001,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-071 · Straight metal ball pipe.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#todo-199). Hollow rigid conduit routes compatible physical balls.
 
-**Successful outcome:** Oversized cargo jams rather than traversing a logical connection. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Oversized cargo jams rather than traversing a logical connection. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 52 (light-interruption lesson); practice 54; reuse 142 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-072"></a>
 
@@ -4974,7 +5009,15 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-072 · Curved metal ball pipe.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#todo-199). Curved hollow conduit changes direction through real collision surfaces.
 
-**Successful outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 52 (light-interruption lesson); practice 54; reuse 142 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
+
+<a id="element-242"></a>
+
+<a id="sequence-task-800"></a>
+
+- [ ] **EL-242 · 45° metal ball pipe bend.** **Type:** Mechanical. **Scope/evidence source:** [existing record](#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces. Ledgered 23 November 2026 as its own placeable identity (coordinator decision 27); this row, its sequence task and the shared S owner S361 with EL-072 by coordinator decision 24l.
+
+**Successful outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 52 (light-interruption lesson); practice 54; reuse 142 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-073"></a>
 
@@ -5126,7 +5169,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-091 · Cannonball.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-197). Heavy spherical cargo declares material and mass independently of launcher identity.
 
-**Successful outcome:** Different launchers move the same body through generic contact and work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Different launchers move the same body through generic contact and work. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 45 (*Load Before Fire*); practice 46; reuse 68, 146 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-092"></a>
 
@@ -5174,7 +5217,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-097 · Pool cue.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Contact actuator delivers bounded work to an actual ball.
 
-**Successful outcome:** A miss cannot move its target. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** A miss cannot move its target. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 44a (new level *On Cue*); practice 49; reuse 141 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-098"></a>
 
@@ -5182,7 +5225,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-098 · Pool ball.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Authored ball material and planar-table constraints define rolling behaviour.
 
-**Successful outcome:** No-gravity historical variant, if adopted, requires a separate explicitly fictional field rule. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** No-gravity historical variant, if adopted, requires a separate explicitly fictional field rule. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 8 (*Bank the Bounce*); practice 10; reuse 49, 141 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-099"></a>
 
@@ -5190,7 +5233,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-099 · Pool pocket.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Real opening captures cargo through actual passage.
 
-**Successful outcome:** A ball beside the opening is not pocketed. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** A ball beside the opening is not pocketed. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 8 (*Bank the Bounce*); practice 10; reuse 49, 141 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-100"></a>
 
@@ -5198,7 +5241,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-100 · Vacuum nozzle.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Supplied pressure/airflow draws responsive material through a finite opening.
 
-**Successful outcome:** Blocked inlet or missing supply prevents suction. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Blocked inlet or missing supply prevents suction. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 27a (new level *Clean Sweep*); practice 29; reuse 96, 147 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-101"></a>
 
@@ -5206,7 +5249,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-101 · Thumb tack.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Sharp-contact geometry punctures material through a generic failure threshold.
 
-**Successful outcome:** Missed contact or puncture-resistant material remains intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Missed contact or puncture-resistant material remains intact. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 13 (balloon pop lesson); practice 19; reuse 149 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-102"></a>
 
@@ -5214,7 +5257,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-102 · Large-bore ball pipe.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Scaled physical bore supports correspondingly larger cargo.
 
-**Successful outcome:** Too-large cargo remains blocked; size is validated rather than guessed from art. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Too-large cargo remains blocked; size is validated rather than guessed from art. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 24a (new level *Bore Necessities*); practice 30; reuse 141 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-103"></a>
 
@@ -5222,7 +5265,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-103 · Accelerator tube.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Explicit supply adds bounded work through a declared coupling field.
 
-**Successful outcome:** Unpowered tube cannot increase cargo energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Unpowered tube cannot increase cargo energy. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 48a (new level *Up to Speed*); practice 50; reuse 97, 148 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-104"></a>
 
@@ -5230,7 +5273,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-104 · Toy firework.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Finite abstract toy charge creates bounded flight and an authored visual/event release.
 
-**Successful outcome:** Spent charge does not retrigger; no real pyrotechnic instructions. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Spent charge does not retrigger; no real pyrotechnic instructions. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 96a (new level *Fuse Box*); practice 99; reuse 148 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-105"></a>
 
@@ -5238,7 +5281,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-105 · Toy missile.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Guided toy projectile follows only supported sensing and finite actuation.
 
-**Successful outcome:** No supply or lost guidance cannot yield unlimited corrective thrust. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** No supply or lost guidance cannot yield unlimited corrective thrust. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 97a (new level *Follow the Light*); practice 100; reuse 142 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-106"></a>
 
@@ -5246,7 +5289,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-106 · Impact-sensitive toy charge.** **Type:** Specialist. **Scope/evidence source:** [existing record](#todo-227). Finite abstract stored energy reacts to a generic shock threshold.
 
-**Successful outcome:** Subthreshold contact leaves it unspent; historical nitroglycerine is a reference only. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Subthreshold contact leaves it unspent; historical nitroglycerine is a reference only. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 95a (new level *Gently Does It*); practice 99; reuse 149 (owner decision 24c; [campaign coverage additions](#campaign-coverage-additions)).
 
 <a id="element-107"></a>
 
@@ -5302,7 +5345,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-113 · Structural brace.** **Type:** Construction. **Scope/evidence source:** [existing record](#gap-01). Diagonal member constrains frame distortion through actual geometry and load.
 
-**Successful outcome:** Removing the brace changes stability; no frame-name bonus. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Removing the brace changes stability; no frame-name bonus. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 9b (new level, GAP-01's braced/unbraced objective after the pivot); practice 10; reuse 18, 65, 138 (coordinator decision 36; [prerequisite order](#campaign-coverage-additions)).
 
 <a id="element-114"></a>
 
@@ -5396,7 +5439,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 <a id="sequence-task-678"></a>
 
-- [ ] **EL-125 · Authored atmosphere preset.** **Type:** Environment. **Scope/evidence source:** [existing record](#gap-18). Supported gas boundary parameters set actual pressure and density.
+- [ ] **EL-125 · Authored atmosphere preset.** **Type:** Environment. **Scope/evidence source:** [existing record](#gap-18). Supported gas boundary parameters set actual pressure and density; density is stated as a ratio to the game's liquid (16 kg/m³): Standard air 0.0766, Vacuum 0 (owner decision 24, 23 November 2026).
 
 **Successful outcome:** Unsupported presets are rejected; a visual sky change alone cannot affect physics. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 
@@ -5438,7 +5481,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 - [ ] **EL-130 · Tank-level transmission gauge.** **Type:** Radiation. **Scope/evidence source:** [existing record](#radiation-11). Supplied calibrated detector observes attenuation across actual fill height.
 
-**Successful outcome:** Empty and full readings follow the material path; disconnected source is invalid. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+**Successful outcome:** Empty and full readings follow the material path; disconnected source is invalid. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above. **Campaign:** 128 (chapter 13, after the Water moderator tank RAD-17 that every row reads); reuse 129–130, 136–150 (coordinator decision 36; [prerequisite order](#campaign-coverage-additions)).
 
 <a id="element-131"></a>
 
@@ -6146,9 +6189,9 @@ Use the complete [springboard model and parameter contract](../springboard-elast
 
 **When:** After all required component coverage; focused proofs remain mandatory earlier.
 
-**Gameplay outcome:** The final 150-level campaign works from start to finish with a deliberate learning curve, alternative valid solutions and understandable differences between Forgiving, Balanced and Precise.
+**Gameplay outcome:** The final campaign (every level: 244 planned, at least 150) works from start to finish with a deliberate learning curve, alternative valid solutions and understandable differences between Forgiving, Balanced and Precise.
 
-Preserve all historical outcomes and failure records. Establish current content/revision evidence before counting any of the 1,800 baseline cells. Resolve any focused regression immediately rather than waiting for this broad sweep.
+Preserve all historical outcomes and failure records. Establish current content/revision evidence before counting any baseline cell of the difficulty matrix (the real level count × 3 × 4; 2,928 at 244 levels). Resolve any focused regression immediately rather than waiting for this broad sweep.
 
 <a id="difficulty-physics-realism"></a>
 
@@ -6156,7 +6199,7 @@ Preserve all historical outcomes and failure records. Establish current content/
 
 - [ ] **Make difficulty control physics realism as well as placement tolerance and nudging** — retain the current assistance behavior, and add explicit simulation profiles for **Forgiving (easy)**, **Balanced (medium)** and **Precise (hard)**. Hard mode should use the most realistic supported physics, including detailed contact/friction, rotational inertia, load/torque limits, drag and losses where implemented. Easy mode should deliberately disable or simplify many secondary physical effects so machines are easier to build and predict; medium mode should provide an intermediate profile. Enumerate each supported effect and its behavior in all three profiles before implementation, distinguishing an intentionally disabled effect from an unimplemented one. Preserve the mechanism being taught, physical containment, required connections and meaningful resource/goal rules in every mode; simplification must not fabricate success. Use one authoritative shared engine with enum-typed difficulty/effect policies, not legacy solvers or automatic fallback paths. Explain the player-facing differences, freeze the chosen profile for a Run, and apply changes through an explicit Reset/restart. Update current content, callers, authoring, saves and tests together; identify the physics profile in replay/evidence records.
 
-**Successful outcome:** The same constructed machine exhibits demonstrably simpler physics on easy, intermediate behavior on medium and very realistic supported behavior on hard, in addition to its existing tolerance/nudging differences. Prove selected effect differences with focused native and real-UI positive/control cases, deterministic reruns, exact Run/Reset and current-schema save/load, plus a production build. Audit every affected element and all 150 campaign lessons for solvability and preserved teaching intent; keep unsupported realism and unverified profiles explicit. This new requirement supersedes the preserved historical prohibition on changing physics realism by difficulty; historical evidence remains unchanged.
+**Successful outcome:** The same constructed machine exhibits demonstrably simpler physics on easy, intermediate behavior on medium and very realistic supported behavior on hard, in addition to its existing tolerance/nudging differences. Prove selected effect differences with focused native and real-UI positive/control cases, deterministic reruns, exact Run/Reset and current-schema save/load, plus a production build. Audit every affected element and every campaign lesson (all 244 planned levels) for solvability and preserved teaching intent; keep unsupported realism and unverified profiles explicit. This new requirement supersedes the preserved historical prohibition on changing physics realism by difficulty; historical evidence remains unchanged.
 
 <a id="todo-503"></a>
 
@@ -6170,19 +6213,19 @@ Preserve all historical outcomes and failure records. Establish current content/
 
 <a id="sequence-task-772"></a>
 
-- [ ] Verify 150 distinct, playable levels with an intentional difficulty ramp and no unintroduced required mechanism. Expand the baseline matrix to 150 × 3 difficulties × 4 placement variants = 1,800 cases, plus repeatability and mechanism-specific probes; preserve failed attempts and evidence versions.
+- [ ] Verify every campaign level as a distinct, playable level (244 planned: the 150 numbered slots and the 94 lettered levels; owner decisions 24d and 24e, coordinator decision 41) with an intentional difficulty ramp and no unintroduced required mechanism. Expand the baseline matrix to the real level count × 3 difficulties × 4 placement variants (244 × 3 × 4 = 2,928 cases at the planned count), plus repeatability and mechanism-specific probes; preserve failed attempts and evidence versions.
 
 <a id="todo-493"></a>
 
 <a id="sequence-task-773"></a>
 
-- [ ] Complete the full direct-UI difficulty/placement-error matrix for the final 150-level campaign, including correction bounds/easing and browser Reset audits.
-  - Run reference, near-positive, near-negative, and outside-window placements at Forgiving, Balanced, and Precise difficulty (1,800 distinct baseline cases). Use actual palette, gizmo, wiring, Run, and Reset controls; do not substitute game-state setters or numeric placement menus.
+- [ ] Complete the full direct-UI difficulty/placement-error matrix for the final campaign (every level, 244 planned), including correction bounds/easing and browser Reset audits.
+  - Run reference, near-positive, near-negative, and outside-window placements at Forgiving, Balanced, and Precise difficulty (the real level count × 3 × 4 distinct baseline cases; 2,928 at 244 levels). Use actual palette, gizmo, wiring, Run, and Reset controls; do not substitute game-state setters or numeric placement menus.
   - Review screenshots and sampled movement, document successes and failures, and distinguish repeated/historical attempts from unique matrix coverage. Historical outcomes are documented in docs/browser-playtest.md; rerun changed levels against their new content hash rather than carrying forward old passes.
   - [x] Add run-lifecycle tracking and failure capture to the UI runner. Nine adapter tests pass; a real UI early-Reset negative control is rejected and a level-8 reference completes normally. The original mixed-run record remains failed; its isolated retry passes. The source of the original early Reset/restart is still unknown.
   - Re-run the 52 older Reset records missing connection snapshots under the stronger connection-aware observer/audit; do not infer absent graph evidence.
 
-**Successful outcome:** Every counted cell identifies the current level/content/revision, intended placement variant, actual construction, outcome and Reset result. All 1,800 distinct baseline cells plus required repeats are accounted for without relabelling failures as passes.
+**Successful outcome:** Every counted cell identifies the current level/content/revision, intended placement variant, actual construction, outcome and Reset result. All distinct baseline cells (the real level count × 3 × 4; 2,928 at 244 levels) plus required repeats are accounted for without relabelling failures as passes.
 
 <a id="todo-143"></a>
 
@@ -6206,7 +6249,7 @@ Preserve all historical outcomes and failure records. Establish current content/
 
 <a id="sequence-task-777"></a>
 
-- [ ] Carry the useful legacy UI tests into the revised 150-level campaign; prioritise new mechanics and updated levels before exhaustive legacy coverage. Repeat matched placement errors to establish repeatability and separate nudging from other difficulty assistance.
+- [ ] Carry the useful legacy UI tests into the revised campaign (every level, 244 planned); prioritise new mechanics and updated levels before exhaustive legacy coverage. Repeat matched placement errors to establish repeatability and separate nudging from other difficulty assistance.
 
 <a id="todo-168"></a>
 
