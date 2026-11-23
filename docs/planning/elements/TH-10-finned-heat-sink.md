@@ -2,75 +2,161 @@
 
 **Current delivery (24 October 2026):** [TH-10 delivery slice](../invest/named-elements.md#thermal-10). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds heat-sink values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
+Rewritten on 22 November 2026 as one current text against checkout `spec-drafts` (published main `8d1d68aa`). Code citations are `path:line` in that checkout; `path@a6c914e` citations appear only in section 4. Nothing was built or run: every number is a hand calculation shown here and a starting value under decision D1 of [delivery batches](../invest/delivery-batches.md#3-family-level-decisions). Units, laws, scale and tolerances are the [thermal conventions](TH-04-electrical-heating-plate.md#thermal-conventions) (T1 to T14); probe rows "TH-04 R<n>" and "TH-08 C<n>" are in [TH-04 section 3](TH-04-electrical-heating-plate.md#3-engine-capabilities) and [TH-08 section 3](TH-08-heat-conducting-bar.md#3-engine-capabilities).
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
-| ID / name | TH-10 · Finned heat sink |
-| Type | Thermal · potential element (potential/conditional; source adoption retained) |
-| Anchors | [requirements.md#thermal-10](../requirements.md#thermal-10) (sequence-task-444); [named-elements.md#thermal-10](../invest/named-elements.md#thermal-10) |
-| Proof owner / research | S572 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
-| Related identities | No CAT spec. Airflow from [CAT-028 Fan](CAT-028-fan.md) (TX-08); cold-side rejection for [TH-12](TH-12-reversible-heat-pump.md) and [TH-30](TH-30-thermoelectric-generator.md). |
-| Campaign | Intro 40; practice 41; reuse 78, 87, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | [TH-10 delivery slice](../invest/named-elements.md#thermal-10); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| ID / name / type | TH-10 · Finned heat sink · Thermal |
+| Anchors | [requirements.md#thermal-10](../requirements.md#thermal-10) (task `sequence-task-444`); [named-elements.md#thermal-10](../invest/named-elements.md#thermal-10) |
+| Owner key / research | S572 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
+| Related identities | Airflow from the delivered Fan ([CAT-028](CAT-028-fan.md), TX-08); heat rejection for [TH-12](TH-12-reversible-heat-pump.md) and [TH-30](TH-30-thermoelectric-generator.md); follows [TH-05](TH-05-friction-brake.md) in the campaign. Conductors lead: [TH-08](TH-08-heat-conducting-bar.md). No CAT refines it. |
+| Campaign | Intro 39 (moved from the chapter 4 finale by coordinator decision 35); practice 41; reuse 78, 87, 145 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
+| Status | Not started. Blocked on the engine programme (owner decision 3a, 22 November 2026), in particular ENGINE-SPATIAL-QUERIES (static pairs and the flow sample); then ENGINE-THERMAL and ENGINE-RUN-LENGTH. Repaired on 22 November 2026 against the audit `docs/planning/elements/readiness/audits/elements-batch-n.md` (N3: a static sink; the airflow sample inside its own fin; one sample owner; Run length) and coordinator decision 21. |
+
+### Disposition
+
+**To deliver as a single element** after TH-04. Planned package id `heat_sink`, directory `elements/HeatSink/`, display name "Finned heat sink". Not a duplicate and not a Family member of TH-08: one node, six colliders and a forced-air term.
 
 ## 2. Declaration
 
-- **Batch N game scale** (proposed, identical in all 37 TH specs; chains derived against it are in [TH-17](TH-17-kettle.md#batch-n-chains); owner question in section 6). Ambient reservoir 288 K and 101.3 kPa. [Research table](../../thermal-component-research.md) rows: specific heat, latent heat and source power read as listed range × scale (64–4096 J/(kg·K), 8192–2,097,152 J/kg, 0.5–2048 W); temperature (128–2048 K), conductance (2⁻¹⁰–2⁸ W/K), fuel/supply (finite), ignition threshold (400–1200 K) and sensor thresholds read as listed, without scale; expansion coefficient reads 2⁻²⁰–2⁻¹⁴ 1/K after scale, which TH-22 and TH-23 exceed on purpose as a declared exaggeration. Condensed-phase specific heat SI × ¼ and latent heat SI × 1/16, so catalogue-scale bodies change temperature or phase within one Run. Gas R and Cv SI × 1, so γ and pressure stay physical; each condensed phase's enthalpy is referenced so vapour made at T_sat carries m·Cv·T_sat and the scaled latent heat is exactly the heat consumed; because water's scaled latent heat (141 kJ/kg) is below R·T_sat (172 kJ/kg), boiling follows a declared saturation curve, not Clausius–Clapeyron. Every fuel's reaction energy and O₂ demand per kilogram SI × 1/1024 (wax 41,016 J/kg and 3.4/1024 kg O₂/kg; wood and cellulose 15,625 J/kg and 1.2/1024 kg O₂/kg), so a 0.3 kg candle holds about 12 kJ, heat per kilogram of O₂ keeps Thornton's ≈ 13 MJ/kg, and fuel mass is consumed 1:1 so burn-down stays visible. Still-air surface exchange h = 2.5 W/(m²·K) (SI × ¼, so condensed-body time constants C/(hA) stay SI-like while gas-node ones run about 4× slower than SI); forced air h = 2.5 + u (u in m/s). Contact pairs conduct G = G_a·G_b/(G_a + G_b) from each part's face conductance: metal 64, ceramic, wood, ice or soft 16, probe tip 0.5 W/K. Every exchange is clamped per 480 Hz substep to the equalising amount ΔT·C_a·C_b/(C_a + C_b), so small nodes never overshoot. Reactive surfaces carry a thermal-only patch node outside rigid mass (fibre 10 mg, wood 0.5 g; area 0.0025 m²; patch-to-bulk 0.01 W/K; thermal nodes 10⁻⁶–1024 kg, not bound by the 1/1024 kg rigid minimum) that takes strikes, flames and light first. Radiant optical power: 1 legacy intensity unit = 1 W, so the flashlight emits 24 W. Canonical f32 ([numeric contract](../../gpu-f32-physics.md#game-grade-envelope)).
-- **Variants.** None named in the row.
-- **Bodies and shapes.** One static body: contact foot box, half-extents 0.25 × 0.03 × 0.25 m, under a fin block box with half-extents 0.25 × 0.25 × 0.25 m (proposed: a 0.5 m footprint sits on a Heating plate or a TH-30 cold face; colliders are boxes only, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). Declared wetted fin area 2.0 m² (proposed: about eight times the footprint, typical of a finned extrusion).
-- **Mass and material.** Static rigid mass zero (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L70-L76`). Thermal node 1.0 kg aluminium, c = 225 J/(kg·K) (aluminium 900 × ¼, batch scale). Foot: metal face 64 W/K (batch scale), so it pairs at 32 W/K with a metal face.
-- **Constraints.** None.
-- **Typed ports.** None as sockets. Thermal port: the foot contact face. Airflow receiver: the fin volume, sampled like other airflow receivers ([gas family](../../finite-gas-foundation.md)).
-- **Sensors and activation.** None.
-- **Work and energy stores.** Convective link to the explicit ambient reservoir uses the batch law: G = (2.5 + u)·A·w for relative air speed u at the fins and exposure weight w ∈ [0, 1]. Still air gives 2.5 × 2.0 = 5 W/K; a 12 m/s Fan jet gives 14.5 × 2.0 = 29 W/K. Flow q = G·(T − 288 K): zero at equal temperature and never below ambient (IX-19).
-- **Parameters.**
+Follows the delivered Wall shape for a static part with no ports (`elements/Wall/WallElementDeclaration.cs:11-13`), with package-declared colliders as the Heating plate (TH-04).
 
-  | Parameter | Type | Range | Default | Unit | Source |
-  | --- | --- | --- | --- | --- | --- |
-  | Fin area | f32 | fixed | 2.0 | m² | (proposed: above) |
-  | Convection law | f32 | fixed | 2.5 + u | W/(m²·K) | (batch scale) |
-  | Foot face conductance | f32 | fixed | 64 | W/K | (batch scale: metal face) |
+- **Interfaces.** `IMechanicalElement`, `ISceneGeometryElement`, and the thermal-node contract of ENGINE-THERMAL.
+- **Body.** One static body (`KinematicMode.Static`, zero static mass frame), origin at the centre of the foot's underside. The player places it with its foot touching the face it cools: on the Heating plate's disc, on a heat pump face, against a generator's cold plate (static-on-static pairs resolved once at Run, T3's list). Static because thermal links come from touch (coordinator decision 21; audit N3); the earlier dynamic sink could not hang under a pump face and added a loose six-collider body to every thermal level.
+- **Colliders (metres).**
 
-  Fan flow speed 12 m/s is sourced from the [gas family parameters](../../finite-gas-foundation.md).
-- **Cosmetic curves and UI bindings.** None ([research per-element table](../../thermal-component-research.md)).
-- **Art.** "Ordered cream architectural fins and a gold contact foot; no industrial clutter" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), gold `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`).
-- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `heat_sink`, title "Finned heat sink", category Heat (proposed: no current category covers thermal parts).
+  | Collider | Centre | Half extents | Purpose |
+  | --- | --- | --- | --- |
+  | `col_foot` | (0, 0.03, 0) | (0.25, 0.03, 0.25) | the contact foot; the thermal face |
+  | `col_fin_0` to `col_fin_4` | (−0.23, −0.115, 0, 0.115, 0.23; 0.28; 0) | (0.02, 0.22, 0.25) | five fins, 0.075 m apart; no thermal face |
+
+  Six boxes against the Receiver's five: fins with visible gaps must each be solid, and one block over the gaps would reach beyond the art (TH-04 R1).
+- **Material (f32).** Friction 0.6, restitution 0.05, rolling resistance 0.
+- **Thermal node.** `sink`: heat capacity 56.25 J/K (0.25 kg of aluminium at 225 J/(kg·K), declared); face `col_foot`, 64 W/K (metal); ambient conductance 5.5 W/K, which is the declared wetted fin area 5 × 2 × 0.44 × 0.5 = 2.2 m² × 2.5 W/(m²·K); one forced-air sample point at (0.0575, 0.28, 0), in the open channel between `col_fin_2` (x from −0.02 to 0.02) and `col_fin_3` (x from 0.095 to 0.135), for the forced-air multiplier of T3; the sample excludes this body's own colliders (T3), so the fins never shadow their own sample (the earlier point (0, 0.28, 0) lay inside `col_fin_2`). The channels run along Z: a Fan cools the sink when its stream runs along ±Z through the fins (or down −Y onto them); a stream along X meets the outer fin face-on.
+- **Parameters.** None (D13). **Ports.** None. **Stores.** None beyond the node.
+- **Presentation bindings.** `Visual/Foot` emission ← committed temperature of `sink`, 288 K to 400 K mapped 0 to 1 (driver of TH-04 R12).
+- **Palette.** Category `ElementCategory.Structure`. Order: 512 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)).
+
+### Art and solidity
+
+| Art node | Mesh | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Foot` gold `#f7cb52` | box 0.5 × 0.06 × 0.5 m | solid, `col_foot` | the body pose |
+| `Visual/Fin_0` to `Fin_4` cream `#fff8e9` | five boxes 0.04 × 0.44 × 0.5 m | solid, `col_fin_0` to `col_fin_4` | the body pose |
+
+Icon: five upright bars on a base. At a glance it differs from the Insulating panel (a flat layered slab) and the Thermal storage block (a plain prism with marks) by its comb of fins.
+
+### Compiled counts
+
+Bodies 1 (static); colliders 6 (box); joints 0; drives 0; sensors 0; thermal nodes 1; faces 1; airflow sample points 1; ports 0; stores 0; presentation bindings 1.
 
 ## 3. Engine capabilities
 
-Families (map row TH-10, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, FluidAdvection, GeometryQuery, SensibleHeat, ThermalConduction, ThermalConvection, TopologyTransaction; JSON adds StateTransaction.
+### Capability probe
 
-- **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** Airflow receiver sampling: Story 12.2 (CAT-028 Fan). Gas-side transfer model: [S416/S470](../invest/decisions.md#s470) (map note "liquid/gas boundary and coupled transfer model"). [S543](../invest/decisions.md#s543): convection → S545, conduction → S544; SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
-- **Dependencies.** A hot body (TH-26, TH-12 hot face); CAT-028 Fan for the forced case.
+| # | Capability | State | Symbol | Exercising test (body read) |
+| --- | --- | --- | --- | --- |
+| TH-04 R1 | Box colliders from art, visible = solid | present | as TH-04 | as TH-04 |
+| F1 | A declared airflow source commits a flow speed, zero when off and in the Vacuum preset | present | `AirflowSourceDescriptor`, `CuriousContraptions.Abstractions/AirflowValues.cs:45`; the Fan declares 12 m/s (`elements/Fan/FanElementDeclaration.cs:48`) | `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`CuriousContraptions.tests/FanIntegrationTests.cs:481`) |
+| F2 | A solid in the stream occludes it | present, test not opened | the airflow occlusion sweep | `FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream` (`CuriousContraptions.tests/FanGuidanceTests.cs:45`), not opened |
+| F3 | The flow speed of the airflow law sampled at a declared point of a body, taking no force, to scale that body's ambient conductance | **missing** | airflow reaches only declared receivers, as force (`AirflowReceiverDescriptor`, `CuriousContraptions.Abstractions/AirflowValues.cs:50`) | none; owner ENGINE-THERMAL |
+| TH-04 R9, R10, R11, R12 | Node, contact conduction, ambient exchange with the atmosphere preset, temperature driver | **missing** | as TH-04 | none; owner ENGINE-THERMAL |
+
+Counts: present 2, untested 1, narrower 0, missing 5. All five missing rows have one owner, **ENGINE-THERMAL**; F3 is stated in T3 and is not yet in the story's text (proposed text in the [Batch N summary](readiness/batch-n.md)). ENGINE-THERMAL is the sole owner of the forced-air sample (T3); the earlier pointer to an observation-only probe under Story 14.0 (the acoustic engine) is withdrawn, so there is one sampler and one owner. R10 here covers static pairs only (the foot on a disc, pump face or cold plate). Nothing here needs code that names this part.
 
 ## 4. Sources and legacy
 
-- **Requirement row** [thermal-10](../requirements.md#thermal-10): exposed area and surface/environment exchange reject heat to an explicitly modelled ambient reservoir; no variants.
-- **Named entry** [thermal-10](../invest/named-elements.md#thermal-10): owner S572; "an equal-temperature environment gives no net cooling; passive convection cannot cool below ambient".
-- **Research** per-element table: "high-conductance link to environment + airflow scaling"; parameters conductance, exposure; "cools faster under a Fan".
+- **Requirement row** [thermal-10](../requirements.md#thermal-10): exposed area and surface/environment exchange reject heat toward an explicitly modelled ambient reservoir; no variants.
+- **Named entry** [thermal-10](../invest/named-elements.md#thermal-10): owner S572; "An equal-temperature environment gives no net cooling; passive convection cannot cool below ambient".
+- **Research** per-element table: "high-conductance link to environment + airflow scaling"; "cools faster under a Fan".
+- **Element map** row TH-10: FiniteLedger, FluidAdvection, GeometryQuery, SensibleHeat, ThermalConduction, ThermalConvection, TopologyTransaction. Navigation only (D14); nothing here changes topology.
 - **Processes and scenarios.** [IX-19](../requirements.md#interaction-19), [IX-18](../requirements.md#interaction-18), [IX-08](../requirements.md#interaction-08); [TX-08](../requirements.md#thermal-scenario-08).
-- **Legacy.** None found. Searched `parts/`, `engine/physics/`, `engine/*.cs`, `engine/bridge/`, `CuriousContraptions.tests/`, `content/puzzles.json`, `tools/Campaign` and `reference/` at a6c914e for sink, fin, convect and heat terms. Consulted, no element knowledge: `reference/P0-022-before/docs/coverage/engine/task-002.json@a6c914e:L2783-L2787` (historical coverage-scope rows).
+- **Legacy.** None found. Searched `parts/`, `engine/physics/`, `engine/*.cs`, `engine/bridge/`, `CuriousContraptions.tests/`, `content/puzzles.json`, `tools/Campaign` and `reference/` at a6c914e for sink, fin, convect and heat terms.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-Point of truth: [thermal-10](../requirements.md#thermal-10), [TX-08](../requirements.md#thermal-scenario-08) and [ELEMENT acceptance](../requirements.md#accept-element).
+Point of truth: [thermal-10](../requirements.md#thermal-10), [TX-08](../requirements.md#thermal-scenario-08) and [ELEMENT acceptance](../requirements.md#accept-element). Chrome proof is pending the post-catalogue phase.
 
-- **Chrome recipe.** Through the real palette and sockets: a Thermal storage block (TH-26) authored at 400 K, the heat sink placed on it (ceramic-on-metal pair 12.8 W/K), a Temperature sensor (TH-21) on the block; in a second run, a supplied Fan (CAT-028) aimed at the fins.
-- **Positive.** The block (420 J/K, own loss 3.2 W/K) cools faster with the sink than without, and faster again under the Fan (sink path 29 W/K instead of 5 W/K, limited by the 12.8 W/K pair); heat removed equals ambient reservoir gain.
-- **Negative or control.** Block at 288 K: no net flow. A Wall between Fan and fins: still-air rate. The block never cools below 288 K by convection alone.
-- **Boundaries.** Exposure 0 gives the still-air rate only; every exchange is clamped to the equalising amount.
-- **Run/Reset.** Restores sink and block temperatures and the Fan state exactly.
-- **Save/Load.** Pose round-trips; Run after reload reproduces the outcome.
-- **Integrations.** TX-08; TH-12 hot side; TH-30 cold side; campaign 40, 41, 78, 87, 145.
+### Behaviour and numbers
+
+- **Laws.** A contact link at the foot; Q̇ = G_amb·(T − 288 K) to the ambient account, with G_amb multiplied by (2.5 + u) ÷ 2.5 under a flow of speed u (T3). The flow is toward ambient temperature only, so the law cannot cool below 288 K and gives nothing at 288 K.
+- **On a supplied Heating plate** (T14; foot on disc, metal on metal, 32 W/K). θ is the rise above 288 K.
+  - Still air: 32·(θ_d − θ_s) = 5.5·θ_s gives θ_d = 1.172·θ_s; 120 = 0.5 × 1.172·θ_s + 5.5·θ_s = 6.086·θ_s, so the sink settles at 307.7 K and the disc at 311.1 K, against 528 K for a bare plate.
+  - Under the Fan's 12 m/s: G_amb = 5.5 × 14.5 ÷ 2.5 = 31.9 W/K; θ_d = 1.997·θ_s; 120 = 32.9·θ_s, so the sink settles at 291.6 K and the disc at 295.3 K, 15.8 K cooler than in still air.
+  - Time constant in still air (15.25 + 56.25) ÷ 6.0 = 12 s, so 45 s is past three time constants.
+- **After the supply ends.** Battery `capacity` 1200 J: heating stops at 10 s; both nodes fall toward 288 K with the 12 s time constant and are within 0.2 K of it 60 s later (23 × e^(−5)); neither goes below it.
+- **Vacuum preset.** G_amb is zero for every node, so 45 s of supply (5400 J) only warms the two nodes: 5400 ÷ 71.5 = 75.5 K, to about 364 K, and the ambient account stays at zero.
+- **Why 5.5 W/K.** Eleven times the plate's own 0.5 W/K, so the sink visibly holds a 120 W source near ambient, and a Fan visibly improves on it.
+- **Stays put.** It is static; it declares no airflow receiver, so a stream exerts no force on it.
+- **Tick order.** T8: the flow speed the airflow phase committed in tick N scales the ambient term of tick N's thermal step. **Tolerances.** T12. Rows are fixed-time observations.
+- **Run length these rows need: 70 s** (A4 observes for 70 s; ENGINE-RUN-LENGTH, owner decisions 13 and 17; default 30 s, maximum 300 s).
+
+### Rows
+
+Planned class `HeatSinkTests`. Rows A1, A2 and A6 use a Battery with `capacity` 7200 J.
+
+| # | Given / When / Then | Planned test | Control | Boundary | Tolerance |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Given the sink standing on a supplied Heating plate, when 45 s pass, then the disc reads 311 K | `ASinkHoldsASuppliedPlateNearAmbient` | a bare plate reads above 450 K at 45 s (288 + 240 × (1 − e^(−1.475)) = 473 K) | none | ± 3 K |
+| A2 | Given A1 with a running Fan 2 m away on the sink's Z axis, blowing along the fin channels, when 45 s pass, then the disc is at least 8 K cooler than in A1; with a Wall between Fan and fins it is within 3 K of A1 | `AFanCoolsTheSinkFasterAndAWallUndoesIt` | A1 | none | 8 K margin against a calculated 15.8 K |
+| A3 | Given an unsupplied plate and sink at 288 K, with and without the Fan, when 30 s pass, then no node has moved and the ambient account is zero | `AnEqualTemperatureEnvironmentGivesNoCooling` | A1 | none | 0.01 K; 0.01 J |
+| A4 | Given Battery `capacity` 1200 J and the Fan running, when 70 s pass, then every node has stayed at or above 288 K throughout and ends within 2 K of it | `ConvectionNeverCoolsBelowAmbient` | none | the minimum temperature seen | not below 287.99 K |
+| A5 | Given A1 at 45 s, then the Battery's debit equals the heat stored in the two nodes plus the ambient account | `RejectedHeatReachesTheAmbientAccount` | none | none | 2% of the debit |
+| A6 | Given A1 in the Vacuum preset, when 45 s pass, then the ambient account is zero and the disc is above 350 K | `InAVacuumTheSinkOnlyStoresHeat` | A1 | the preset boundary | 0.01 J; disc as stated |
+| A7 | Given A2 then Reset, then both nodes are at 288 K, the sink is at its authored pose and a second Run repeats A2 | `ResetRestoresTheSinkAndItsNode` | none | none | as A2 |
+| A8 | Given a placed sink, when saved and loaded, then it and its pose are present and no run temperature is saved | `SaveAndLoadKeepThePoseAndNoRunState` | none | none | exact |
+
+No port and no parameter, so no wrong-kind or parameter-refusal row. The requirement's clauses are A3 (equal temperature) and A4 (never below ambient).
 
 ## 6. Open questions
 
-1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
-2. **Convection law.** The linear 2.5 + u law is a placeholder for the S545 decision. Owner decision.
-3. **Ambient reservoir.** Is the ambient reservoir a single world node (EnvironmentState) or per-region? Owner decision (S635).
-4. **TopologyTransaction.** The map row lists it, but nothing in the sink changes topology. Owner decision.
+Resolved:
+
+1. **Game scale.** D5, restated once in TH-04 section 11.
+2. **Convection law.** The linear (2.5 + u) rule of T3, a starting value (D1); ENGINE-THERMAL records it once for every consumer.
+3. **Ambient reservoir.** One world account at 288 K (T3, T13), decided in the conventions.
+4. **TopologyTransaction in the map row.** Not used (D14).
+5. **Static or dynamic.** Static (coordinator decision 21; audit N3): two static parts placed touching conduct through the link table, so the sink can stand on, beside or above what it cools.
+6. **Fin count.** Five solid fins (visible = solid); the wetted area is a declared value, not derived from the colliders.
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Works with.** TH-04 (planned before it); Fan, Wall and Battery (delivered); TH-05 (lesson 39 precedes it), TH-26, TH-12 and TH-30 (later rows in their slices).
+- **Campaign.** "A Warm Reception": introduction 39 (moved from the chapter 4 finale 40 by coordinator decision 35), practice 41; reuse 78, 87, 145. Loose cargo; fixed partners need the lesson-fixture story ([S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package)), which lands after the engine programme (owner decision 22).
+- **Coverage.** Section 10.
+
+## 8. Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), which comes first: the programme (ENGINE-SPATIAL-QUERIES for the static pairs and the flow sample); ENGINE-GAS-NETWORK and ENGINE-LIQUID, then ENGINE-THERMAL as amended (owner decision 18); ENGINE-RUN-LENGTH; TH-04; S7; S3 preferred.
+- **Files.** `elements/HeatSink/HeatSink.csproj`, `HeatSinkElementDeclaration.cs`, `heat_sink.tscn`, `icon.svg`; one guarded line in `CuriousContraptions.slnx` (`spec-s3-remaining-per-package-lists.md`, decision O1); `CuriousContraptions.tests/HeatSinkTests.cs`; a row in `VisibleSolidColliderTests`; this spec's binding section once S7 allows it. Registration is derived.
+- **Review tier.** Data-only if the probe finds every row present and tested; otherwise the engine tier.
+- **Disqualifiers.** ENGINE-THERMAL delivered without the forced-air term (rows A2 and the Fan half of A3 and A4 then wait for it); a flow sample that needs a force-taking receiver or reads its owner's colliders; a different convection rule (re-derive section 5).
+
+## 9. Engine conformance (22 November 2026)
+
+1. **Declaration data only.** One static body, six boxes, one node with one face and one flow sample, one binding. No update loop or engine branch on this part.
+2. **Generic laws.** Q̇ = G·ΔT at the foot and to ambient; one multiplier from the delivered airflow law. "Cools faster under a Fan" is that multiplier.
+3. **Three layers.** Colliders: foot and five fins. Visuals: the same six boxes as art, each with its collider. Animation: foot glow from committed temperature; nothing is written back.
+4. **Flow and typing.** No ports; f32 values; the atmosphere is the `AtmospherePreset` enum.
+5. **Flat state.** The counts in section 2.
+6. **Performance.** Six primitive colliders, the count justified in section 2; the flow sample is one bounded query per tick (T10); nothing scans the scene. The delivered airflow pass itself tests every source against every sample and collider; that cost is the engine programme's (ENGINE-SPATIAL-QUERIES), not designed around here. Static, it adds no solver body.
+7. **Tests are scenarios.** A1 to A8 run the production simulation.
+
+**Verdict: Conforms; blocked on ENGINE-THERMAL, a general capability stated element-free, and on the engine programme (owner decision 3a).**
+
+## 10. Coverage binding (planned, not yet live)
+
+Published main binds a named-identity package through a final section of its spec that `tools/Coverage/NamedPackageSources.cs` reads (pattern: EL-239 Baseball). That section is not written here. **Blocked on the coverage follow-on story S7:** main's reader lists only `EL-*.md` files and admits only an `EL-NNN` identity with an `element-NNN` anchor, so no thermal identity can be bound until S7 widens it.
+
+| Field | Planned value |
+| --- | --- |
+| Package | `heat_sink` |
+| Named identity | TH-10, `../invest/named-elements.md#thermal-10` |
+| Acceptance | none resolvable today; the row's own task is `sequence-task-444` and the ledger entry has no todo link |
+| Decision | S572; `scope-corrections.md` on published main has no `s572` block |
+| Mode records | `Configuration=Fixed` |

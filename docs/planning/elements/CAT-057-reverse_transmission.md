@@ -12,77 +12,74 @@ Story 7.0 CAT-057-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Field | Value |
 | --- | --- |
 | CAT ID | CAT-057 |
-| Kind | `reverse_transmission`, catalogue title "Reverse gear", category "Motion" (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L10`) |
+| Kind | `reverse_transmission`, catalogue title "Reverse gear", category Motion |
 | Requirement anchor | [CAT-057](../requirements.md#current-cat-057); retained behaviour [todo-151](../requirements.md#todo-151); shared rows [sequence-task-192](../requirements.md#sequence-task-192), [sequence-task-193](../requirements.md#sequence-task-193), [sequence-task-277](../requirements.md#sequence-task-277) |
-| Mapped identities | [EL-203 Reverse transmission](../invest/named-elements.md#element-203) ([full row](../requirements.md#element-203)). Candidate: [EL-200 Drive belt](../invest/named-elements.md#element-200), because the legacy belt link is the socket-to-socket ratio row the reverser consumes. Batch A confirms. |
+| Mapped identities | [EL-203 Reverse transmission](../invest/named-elements.md#element-203) ([full row](../requirements.md#element-203)), a candidate Duplicate closure of this part (section 8). [EL-200 Drive belt](../invest/named-elements.md#element-200) is related through the link the reverser consumes and is not closed here. |
 | Roadmap story | [11.2b Reverse transmission](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-057 mode and mapped named-identity obligation. |
-| Harvest-baseline status | Not started. `WorkshopPartKind` has no reverser member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Status (22 November 2026) | **Delivered.** Package id `reverse_transmission`, title "Reverse gear", directory `elements/ReverseTransmission`, palette category Motion, order 39 (`elements/ReverseTransmission/ReverseTransmissionElementDeclaration.cs:13`–`:18`). Slice record: [11.2b Reverse transmission](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) (status done; commit `c34f6390`, 17 November 2026). Residual (section 8): the index bars and gold marks on both wheels stand proud with no collider. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the story that owns this part's engine gap is `ENGINE-ISLANDS-SLEEP` (the resting wheels). Browser qualification pending. Checked on `8d1d68aa`; published main is now `25df3cd5`, and its two extra commits touch none of this package's files. |
 
 ## 2. Declaration
 
-### Bodies and shapes
-- **Static housing (root body).** Navy base box centred (0, −0.4, 0), size 1.5 × 0.16 × 0.9 m. Cream housing box centred (0, 0, −0.08), size 1.4 × 0.65 × 0.5 m (`parts/ReverseTransmissionPart.cs@a6c914e:L36-L37`). The legacy `AddBox` helper survives only in `reference/cpu/MachinePart.cs@a6c914e:L352-L356`: it always adds a root-body collider box with half extents = size/2, and its `draw` flag controls art only. So these boxes collide. Use `ColliderDeclaration` box shapes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`).
-- **Input wheel and output wheel.** Two dynamic shaft bodies, radius 0.32 m and width 0.14 m. Their hinge anchors are at (−0.36, 0, 0.32) and (0.36, 0, 0.32) in the part frame, about local Z (`parts/ReverseTransmissionPart.cs@a6c914e:L11-L16`). Each has a 24-sided convex prism hull (`parts/ReverseTransmissionPart.cs@a6c914e:L40-L41`, `engine/SceneRotaryShaft.cs@a6c914e:L29-L42`). The current `ColliderShapeKind` has only Sphere, Box and Plane (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L7-L7`).
+### Delivered declaration (22 November 2026)
 
-### Mass and material
-- Each wheel: mass 0.25 kg (`parts/ReverseTransmissionPart.cs@a6c914e:L11-L12`). Inertia: axial m·r²/2, transverse m·(3r² + w²)/12 (`engine/SceneRotaryShaft.cs@a6c914e:L13-L24`). The current `RigidMassProperties` compiles only a sphere or a box (`engine/gpu/RigidMassProperties.cs@a6c914e:L17-L50`).
-- Material: the part's initial contact material (`engine/SceneRotaryShaft.cs@a6c914e:L22-L22`). No values are recorded. Use `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`). Wheels are excluded from static queries (same line).
+Read from `elements/ReverseTransmission/ReverseTransmissionElementDeclaration.cs` and `reverse_transmission.tscn`.
 
-### Constraints and joints
-- Two hinges, each linking a wheel to the housing, about local Z, travel in both directions. Hinge-to-housing collision is disabled (`engine/SceneRotaryShaft.cs@a6c914e:L25-L28`).
-- One always-engaged, phase-free ratio row of −1 between the two hinge coordinates (`parts/ReverseTransmissionPart.cs@a6c914e:L13-L18`). The row has no positional stop (`engine/physics/PhysicsTransmissionJoint.cs@a6c914e:L66-L73`), and connected-body collision is enabled on the row (`engine/physics/PhysicsTransmissionJoint.cs@a6c914e:L22-L23`).
-- Add a hinge declaration and a ratio-coupling declaration. CAT-018 shares them with ratio +1 and enum engagement. Nothing exists in `engine/gpu/*`.
+- **Interfaces.** `IHingeElement`, `IMechanicalTransmissionElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:20`, `:90`), `ISceneGeometryElement` (`:10`). Footprint: 3 bodies, 2 moving, 2 revolute (`:22`).
+- **Static housing colliders (scene).** Base box 1.5 × 0.16 × 0.9 m at (0, −0.4, 0); housing box 1.4 × 0.65 × 0.5 m at (0, 0, −0.08).
+- **Two wheels (dynamic).** Cylinders r 0.32 m, 0.14 m wide, axis Z, at (±0.36, 0, 0.32); each 0.25 kg with moments (0.00681, 0.0128, 0.00681) kg·m² (`:49`–`:59`).
+- **Material, all three bodies.** Restitution 0, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:35`–`:40`).
+- **Hinges.** Two continuous revolutes about +Z; no spring, no drive, **bearing friction 0** (`:54`–`:58`). The Reverse gear adds no loss of its own; a train stops under the Motor's 0.05 N·m and a Conveyor's 0.02 N·m.
+- **Transmission.** One bilateral coupling, ratio −1, coordinate 0 to coordinate 1, untimed and always engaged (`:60`–`:61`).
+- **Parameters, stores, events.** None (`:21`, `:41`).
+- **Ports (`:25`–`:33`).**
 
-### Typed sockets and ports
-| Socket | Domain | Direction | Local position (m) | Source |
-| --- | --- | --- | --- | --- |
-| DriveIn | Mechanical | Input | (−0.36, 0, 0.4) | `parts/ReverseTransmissionPart.cs@a6c914e:L27-L27` |
-| Drive | Mechanical | Output | (0.36, 0, 0.4) | `parts/ReverseTransmissionPart.cs@a6c914e:L28-L28` |
+  | `PortId` | Role | Domain | Direction | Position (m), normal | Binding |
+  | --- | --- | --- | --- | --- | --- |
+  | `DriveIn` | `PortRole.DriveIn` | Mechanical | Input | (−0.36, 0, 0.4), +Z | coordinate 0, −1 per radian; rim r 0.32 m |
+  | `Drive` | `PortRole.Drive` | Mechanical | Output | (0.36, 0, 0.4), +Z | coordinate 1, −1 per radian; rim r 0.32 m |
 
-Bindings: DriveIn maps to the input hinge and Drive to the output hinge, each with coordinate-per-radian −1 (`parts/ReverseTransmissionPart.cs@a6c914e:L30-L30`). A belt link compiles to a ratio row equal to input coordinate-per-radian ÷ output coordinate-per-radian, always engaged (`engine/MechanicalNetwork.cs@a6c914e:L46-L49`). The current sockets lack Drive and DriveIn and a Mechanical domain (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`).
+  A link's ratio is the output's coordinate-per-radian divided by the input's (`engine/gpu/WorkshopConnections.cs:179`). Motor (+1) → `DriveIn` (−1) is −1, the internal coupling −1 and `Drive` (−1) → Conveyor (+1) −1, so one Reverse gear nets −1 and two net +1. Each coordinate takes one incoming and one outgoing link.
 
-### Sensors and activation
-None. The reverser has no electrical or activation port (`parts/ReverseTransmissionPart.cs@a6c914e:L25-L29`). The legacy `Active` flag meant |input speed| > 1e−6 and was observation only (`parts/ReverseTransmissionPart.cs@a6c914e:L53-L56`).
+  Signs across the catalogue: +1 per radian on Motor, Conveyor, Clutch and Windmill; −1 on both Reverse gear ports and on the Wound spring's and Fan's `DriveIn`.
 
-### Work and energy stores
-None. Kinetic energy lives only in the two finite-inertia wheels; the row creates no work (`engine/physics/PhysicsTransmissionJoint.cs@a6c914e:L9-L13`).
-
-### Parameters
-None. The catalogue declares `Parameters = {}` (`parts/catalog/reverse_transmission.tres@a6c914e:L14-L14`). The −1 ratio is fixed declaration data, not a player setting.
-
-### Cosmetic curves and UI bindings
-- Wheel art follows each committed hinge body. Readings are clockwise positive: speed is −(hinge speed) and angle is −(hinge coordinate) (`parts/ReverseTransmissionPart.cs@a6c914e:L21-L24`).
-- Positive speed is clockwise viewed from the marked local +Z face, and whole-part rotation does not change the transmission sign (`DESIGN.md@a6c914e:L279-L279`).
-- Pick radius 0.9 (`parts/ReverseTransmissionPart.cs@a6c914e:L34-L34`).
+  Engagement classes (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`): `DriveIn` and `Drive` admit Smooth and Toothed, so either takes a Drive belt or a Drive chain. The delivered rigid link stays admitted at every port and is unchanged (owner decision 2).
+- **Presentation (`:23`–`:24`).** Pick radius 0.9 m; `Visual/InputWheel` and `Visual/OutputWheel` follow bodies 1 and 2; no bindings.
 
 ### Art
-- Scene `parts/scenes/reverse_transmission.tscn` is a bare script node (`parts/scenes/reverse_transmission.tscn@a6c914e:L1-L6`).
-- Meshes: navy `#293954` base; cream `#fff8e9` housing; wheel discs in the catalogue colour; navy index bar 0.48 × 0.065 × 0.04 at z 0.09; gold `#f7cb52` index sphere, radius 0.07, at (0.21, 0, 0.1) (`parts/ReverseTransmissionPart.cs@a6c914e:L36-L52`).
-- Palette token: Reverse transmission (0.84, 0.61, 0.28) `#d69c47` (`DESIGN.md@a6c914e:L183-L183`, `parts/catalog/reverse_transmission.tres@a6c914e:L13-L13`). The motion contract describes cream housing, navy base and two ochre wheels with navy/gold index marks turning oppositely (`DESIGN.md@a6c914e:L279-L279`).
-- Toolbox pictogram: `ui/WorkshopIcons.cs@a6c914e:L98`.
+- Palette token: Reverse transmission (0.84, 0.61, 0.28) `#d69c47`; cream housing, navy base and two ochre wheels with navy and gold index marks turning oppositely. Icon `elements/ReverseTransmission/icon.svg`.
+- **Art and solidity as shipped (`elements/ReverseTransmission/reverse_transmission.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:102`–`:105`).**
+
+  | Node | Mesh | Class | Note |
+  | --- | --- | --- | --- |
+  | `Base`, `Housing` | boxes | solid | collider of the same size on the housing |
+  | `InputWheel/Disc`, `OutputWheel/Disc` | cylinders r 0.32 m, 0.14 m | solid | collider on each wheel body |
+  | `InputWheel/Index`, `OutputWheel/Index` | navy boxes 0.48 × 0.065 × 0.04 m at wheel-local z 0.09 | **defect: 40 mm proud of the wheel face (z 0.07), no collider** | rides the wheel's hinge body with no binding |
+  | `InputWheel/Mark`, `OutputWheel/Mark` | gold spheres r 0.07 m at wheel-local (0.21, 0, 0.1) | **defect: reaches z 0.17, 100 mm proud of the face, no collider** | rides the wheel's hinge body with no binding |
+
+  The four nodes are listed "to be measured" in `spec-engine-art-solidity.md:200` and their owner is visible-solid repair part D (Clutch, Reverse gear, Motor index bar and the Counter's sockets, foot and face panel; coordinator decision 33), which runs after the engine programme. Repair (decided under the standing delegation, by the precedent of part B and `spec-face-markings-flush.md`): reprint each index bar and each mark flat on its wheel face (a quad and a disc, at most 0.5 mm in front of the face), keeping names, positions in the face plane and colours. A collider on an off-axis mark would make a spinning wheel strike cargo with a bump the player did not build. Not a defect but recorded: both wheels float 8 cm in front of the housing (wheel back face at z 0.25, housing front at z 0.17) with no drawn axle. At a glance the Reverse gear differs from the Conveyor (same ochre) by two side-by-side wheels on a cream box, and from the Clutch by having no plates or lamp.
 
 ### Catalogue and inventory entry
-- `Id = "reverse_transmission"`, title "Reverse gear", category "Motion". Description: reverses rotation; two reversers restore the original direction (`parts/catalog/reverse_transmission.tres@a6c914e:L8-L14`).
-- Level `reverse_belt` ("The other way round", subtitle "18 / Reverse transmission"): inventory reverse_transmission 1 and conveyor 1 (`content/puzzles.json@a6c914e:L4649-L4657`). The reverser is an unlocked solution part `reverse_1` at (−0.3, 1, 0) (`content/puzzles.json@a6c914e:L4983-L5045`).
-- Add a package declaration and bundle-issued typed id and an inventory entry (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- Id `reverse_transmission`, title "Reverse gear", category Motion, order 39 (`elements/ReverseTransmission/ReverseTransmissionElementDeclaration.cs:13`–`:18`).
+- Level 18 `reverse_belt` stocks one Reverse gear and one Conveyor (section 7).
 
 ## 3. Engine capabilities
 
 The capability families are in the [general-engine map row](../general-engine-element-map.md) and the [catalogue coverage](../../coverage/catalogue-elements.json). They are not duplicated here.
 
-**Exists now**
-- Rigid bodies, box/sphere/plane colliders and materials (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`).
-- Box2D v3 TGS Soft solve at 480 Hz substeps (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208-L208`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878-L884`).
-- Save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- Cosmetic curves (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L20`).
+**Capability probe (22 November 2026, this checkout).** No engine code names the Reverse gear. Tests are in `CuriousContraptions.tests/`; they were found by name and line, and none was run. `ReverseTransmissionTests` is one partial class in four files; each test is cited with its file.
 
-**Missing**
-- Cylinder/hull collider and cylinder inertia. Story 10.1 owns solid-cylinder collision/inertia; any distinct hull capability remains a bounded decision for this consumer (see Open questions).
-- Hinge joint: Story 10.3.
-- Mechanical socket domain, belt ratio rows and shaft torque: Story 11.1.
-- Fixed −1 ratio row in the shared solver: Story 11.2.
+| # | Capability the behaviour uses | Status | Symbol | Exercising test |
+| --- | --- | --- | --- | --- |
+| 1 | Two passive continuous hinges with cylinder bodies | present | `RevoluteHingeDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:149`) | `ReverseTransmissionTests.EveryCurrentPairingCarriesCargoWithReversalParity` (`ReverseTransmissionTests.cs:73`), where both wheels turn |
+| 2 | Untimed bilateral coupling of two coordinates at ratio −1, with its reaction carried to the source | present | `MechanicalTransmissionDescriptor` (`MechanicalContractValues.cs:258`), `MechanicalTransmissionSolver` (`CuriousContraptions.Simulation/MechanicalTransmissionSolver.cs:29`) | `ReverseTransmissionTests.ReverseTransportsCargoOppositeTheZeroReverserBypass` (`:134`); `ReverseTransmissionTests.ADeclaredOutputLoadReactsThroughReverseToTheSource` (`ReverseTransmissionLoadTests.cs:19`); `ReverseTransmissionTests.CommittedTransmissionReactionOwnsFreshEngineAndAbandonedCandidateExecution` (`ReverseTransmissionStateTests.cs:14`) |
+| 3 | Mechanical ports with signed coordinate scale; one link per role; typed refusals | present | `WorkshopConnections.ValidateMechanical` (`engine/gpu/WorkshopConnections.cs:170`) | `ReverseTransmissionTests.ConflictingSourcesAndWrongDirectionAreRefused` (`:192`); `ReverseTransmissionTests.UnsupportedMechanicalConnectionsRefuseAtAuthoringAndSaveBoundaries` (`ReverseTransmissionLifecycleTests.cs:104`) |
+| 4 | Link artwork from declared rims and committed travel | present | `MechanicalRimDescriptor` (`CuriousContraptions.Abstractions/MechanicalLinkPresentationValues.cs:10`) | `ReverseTransmissionArtTests.NativeSceneAppliesWheelPosesConveyorWitnessAndEvaluatedLinkArtwork` (`:17`); `MechanicalLinkPresentationTests.DeclaredRimsProduceClosedTangentRoutesAndCommittedMarkers` (`:29`) |
+| 5 | Reset; save and load of a rotated construction | present | n/a (generic lifecycle) | `ReverseTransmissionTests.SaveLoadAndResetPreserveRotatedTwoReverserParity` (`ReverseTransmissionLifecycleTests.cs:68`) |
+| 6 | Scene colliders match the drawn solids; wheels are ordinary contacts | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:186`, row `:102`), which lists the index bars and marks as decorative (the defects under Art); `ReverseTransmissionTests.ExposedWheelHasPhysicalContactAndSignedSurfaceMotion` (`ReverseTransmissionLifecycleTests.cs:42`) |
 
-**Element dependencies.** A drive source is needed to observe motion: CAT-042 Motor (11.1), or later CAT-070 Windmill (12.3). CAT-019 Conveyor (11.1) is the load in `reverse_belt` and in the legacy tests. CAT-005 Battery (8.1) powers the motor.
+Counts: 6 present, 0 untested, 0 narrower, 0 missing.
+
+**Element dependencies.** A drive source (Motor, Windmill), a load (Conveyor) and the Battery behind the Motor; all delivered.
 
 ## 4. Legacy harvest
 
@@ -144,9 +141,9 @@ The capability families are in the [general-engine map row](../general-engine-el
 
 ## 5. Acceptance outline
 
-Follow [CAT-057](../requirements.md#current-cat-057), [todo-151](../requirements.md#todo-151), [EL-203](../requirements.md#element-203) and Story 11.2. The Chrome observables are in the [rotary contract](../../rotary-transmission-parts.md#chrome-observable-acceptance).
+Follow [CAT-057](../requirements.md#current-cat-057), [todo-151](../requirements.md#todo-151), [EL-203](../requirements.md#element-203) and Story 11.2. The Chrome observables are in the [rotary contract](../../rotary-transmission-parts.md#chrome-observable-acceptance-post-catalogue).
 
-- **Construction (actual UI).** In `reverse_belt`, or a free-play bench, place the reverser and conveyor from the toolbox. Wire Battery Supply → Motor PowerIn, belt Motor Drive → Reverser DriveIn and Reverser Drive → Conveyor DriveIn. Verify placed poses and typed connections.
+- **Construction (actual UI).** In `reverse_belt`, or a free-play bench, place the reverser and conveyor from the toolbox. Wire Battery Supply → Motor PowerIn, join Motor Drive → Reverser DriveIn and Reverser Drive → Conveyor DriveIn with Mechanical links. Verify placed poses and typed connections.
 - **Positive.** The wheels turn in opposite directions and the belt carries the ball toward the receiver.
 - **Negative/control.** A motor→conveyor bypass carries the ball the wrong way. An unpowered motor gives no motion. A disconnected reverser stays at rest.
 - **Boundaries.** Each input direction, two reversers in series, a load/backdrive impulse on the output, whole-part rotation, reversed connection order, supply loss with coasting.
@@ -154,10 +151,65 @@ Follow [CAT-057](../requirements.md#current-cat-057), [todo-151](../requirements
 - **Save/Load.** A rotated two-reverser construction.
 - **Integrations.** Conveyor transport, the clutch (CAT-018) reversed-drive case, and later windmill drive.
 
+**Native tests that exist (22 November 2026), in `CuriousContraptions.tests/`.** Each criterion of [CAT-057](../requirements.md#current-cat-057) against its test:
+
+| Criterion | Test (file line) |
+| --- | --- |
+| Each input direction; two reversers | `ReverseTransmissionTests.EveryCurrentPairingCarriesCargoWithReversalParity` (73), `CatalogueMotorDrivesEveryCurrentPairing` (81) |
+| Reverses signed motion; control without a reverser | `ReverseTransmissionTests.ReverseTransportsCargoOppositeTheZeroReverserBypass` (134) |
+| Load and backdrive; no duplicated input work (EL-203's outcome) | `ReverseTransmissionTests.ADeclaredOutputLoadReactsThroughReverseToTheSource` (`ReverseTransmissionLoadTests.cs:19`), `AnOutputDriveBackdrivesBothReverseShaftsAndTheUnpoweredMotor` (`:114`) |
+| Disconnected graph | `ReverseTransmissionTests.AbsentDriveLeavesBothWheelsAtRest` (154) |
+| Order and rotation; save, load and Reset | `ReverseTransmissionTests.SaveLoadAndResetPreserveRotatedTwoReverserParity` (`ReverseTransmissionLifecycleTests.cs:68`); `ClutchTests.ConnectionOrderDoesNotChangeClosureOrTransmission` (`ClutchGeneralityTests.cs:133`) |
+| Supply loss adds no work | `ReverseTransmissionTests.SupplyLossAddsNoMotorWorkAndResetRestoresAuthoredState` (166) |
+| Wrong-kind and conflicting connections | `ReverseTransmissionTests.ConflictingSourcesAndWrongDirectionAreRefused` (192); `ReverseTransmissionTests.UnsupportedMechanicalConnectionsRefuseAtAuthoringAndSaveBoundaries` (`ReverseTransmissionLifecycleTests.cs:104`) |
+| Wheels and link witnesses follow committed travel | `ReverseTransmissionArtTests.NativeSceneAppliesWheelPosesConveyorWitnessAndEvaluatedLinkArtwork` (17) |
+| Housing and wheel contact; passive loop; a Clutch downstream | in `ReverseTransmissionLifecycleTests.cs`: `ReverseTransmissionTests.HousingSupportsCargoWhileBeyondFootprintIsClear` (18), `ExposedWheelHasPhysicalContactAndSignedSurfaceMotion` (42), `APassiveTwoReverserLoopIsAdmittedAndRemainsAtRest` (93), `OpeningTheDownstreamClutchIsolatesItsCoastingOutput` (121) |
+
+No requirement criterion is without a test; there is no parameter to refuse. **Residual acceptance for the art repair (section 8):** each index bar and mark is a flat printed surface between 0 and 0.5 mm in front of its wheel face, with its face-plane position and colour unchanged, and a Basketball dropped onto a wheel face of the part laid on its back has its lowest centre within 5 mm of the face plus its radius; control: the same drop 0.5 m beside the wheel reaches the housing or the bench. Planned `ReverseTransmissionArtTests.IndexBarsAndMarksArePrintedFlatOnTheirWheelFaces`. Stall guard 5 s.
+
 ## 6. Open questions
 
-1. Mechanical loops: `MechanicalTests` rejects a source-less loop, while `MechanicalWorkTests` and `ClutchTests` admit loops. Which topology rule stands — owner decision.
-2. Housing collision: settled by the legacy `AddBox` helper (`reference/cpu/MachinePart.cs@a6c914e:L352-L356`), so the boxes collide. No owner decision remains.
-3. Solid cylinder/hull collider and cylinder inertia for wheels: Story 10.1 (ENGINE-CYLINDER), scheduled before the first shaft wheel by the owner on 9 Oct 2026.
-4. Wheel contact material values: unspecified — owner decision.
-5. Whether wheel-rim contact with cargo is ever a supported drive path, or wheels are witnesses only: unspecified — owner decision.
+**All five are resolved (22 November 2026); none needs the owner.**
+
+| # | Resolution | Authority |
+| --- | --- | --- |
+| 1 | A source-free loop is admitted when each coordinate has at most one incoming and one outgoing link, and stays at rest with no work created | Story 11.2b decision 8; `ReverseTransmissionTests.APassiveTwoReverserLoopIsAdmittedAndRemainsAtRest` (`ReverseTransmissionLifecycleTests.cs:93`) |
+| 2 | The housing boxes collide | delivered |
+| 3 | The wheels are true cylinders | Story 10.1 |
+| 4 | The catalogue's rigid-part material: restitution 0, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s | Story 11.2b decision 8; delivered |
+| 5 | Wheels are ordinary physical contacts, not a declared driven surface. A ball touching a turning rim is moved by ordinary friction; no lesson relies on it | Story 11.2b decision 8; `ReverseTransmissionTests.ExposedWheelHasPhysicalContactAndSignedSurfaceMotion` (`ReverseTransmissionLifecycleTests.cs:42`) |
+
+The questions were: 1 mechanical loop policy; 2 housing collision; 3 wheel collider; 4 wheel contact material; 5 whether wheel-rim contact is a drive path.
+
+## 7. Integration
+
+- **Collaborators (all delivered).** `DriveIn` (Mechanical input) from a Motor, Windmill, Conveyor, Clutch or another Reverse gear `Drive`; `Drive` (Mechanical output) into a Conveyor, Clutch, Wound spring or another Reverse gear. Domains and roles agree at both ends. Signs: +1 per radian on Motor, Conveyor, Clutch and Windmill; −1 on both Reverse gear ports and on the Wound spring's and Fan's `DriveIn`. A link's ratio is the output's sign divided by the input's, so each external link to a +1 port is −1. The pairing test covers Motor, Clutch, Conveyor and Reverse gear only (`ReverseTransmissionTests.cs:17`–`:18`); a Reverse gear driving a Wound spring or a Fan (−1 into −1, ratio +1) and a Windmill source are not in it.
+- **Campaign (`content/puzzles.json`).** Level 18 `reverse_belt` (Planned; one `captured` goal; provable from delivered parts after the engine programme, owner decision 3a; [delivery batches section 4](../invest/delivery-batches.md#4-early-level-proof), "Drive" group) stocks one Reverse gear and one Conveyor.
+- **Coverage binding.** Catalogue key `reverse_transmission` (CAT-057) in `docs/coverage/catalogue-elements.json`. EL-203 has none of its own.
+- **Lesson fixtures.** Not needed for the part.
+
+## 8. Delivery and residuals
+
+Delivered as recorded in section 1. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes further element work.
+
+| Residual | Owner | Tier | Prerequisite |
+| --- | --- | --- | --- |
+| Two index bars and two marks reprinted flat | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:102` and one art test) | the engine programme (owner decision 3a); a contract for part D |
+| Pairing rows for Wound spring, Fan and Windmill | The next slice that touches the package; a missing test is a patch | Data-only | the engine programme (owner decision 3a) |
+| Browser qualification | Post-catalogue E2E phase | n/a | n/a |
+
+**EL-203 Reverse transmission** is a candidate Duplicate closure of this part: [its spec](EL-203-reverse-transmission.md) decides against a separate crossed-belt reverser, which leaves it no behaviour, parameter, port, mode or material of its own. Closure check: its ledger outcome, "it cannot reverse by duplicating input work", is executed by `ReverseTransmissionTests.ADeclaredOutputLoadReactsThroughReverseToTheSource` (`ReverseTransmissionLoadTests.cs:19`) and `ReverseTransmissionTests.SupplyLossAddsNoMotorWorkAndResetRestoresAuthoredState`, with the bypass control (row 134) and Reset, save and load (row 68). [Delivery batches](../invest/delivery-batches.md#2-duplicate-closures) lists EL-203 in the 2a "Drive train" group. The closure review runs after the engine programme (owner decision 3a) and before `ENGINE-MECHANICAL-LINKS`, since it closes against today's Mechanical link. **EL-200 Drive belt** and **EL-201 Drive chain** are not closed here. The delivered Mechanical link is a rigid ratio and stays rigid (coordinator decision 36 names it); Drive belt and Drive chain are new declared connection materials a player chooses, and a visible belt or chain loop is thick and therefore solid (owner decision, 22 November 2026).
+
+**What the art slice's capability probe must re-check:** that `ReverseTransmissionArtTests` reads no index or mark transform that the reprint changes, and that the scene edit moves no collider index.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The fix is in the art layer (point 3), owned by repair part D (coordinator decision 33), whose contract is still to be drafted. No engine code names this element (searched `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions).
+
+1. **Declaration data only.** Three bodies, scene colliders, two hinges, one transmission, two ports, two body-pose bindings. No parameter, no node, no event, no code.
+2. **Generic laws.** Reversal: one bilateral transmission between two revolute coordinates with the declared ratio −1; torque and speed follow from that one constraint row and the two hinges. The same descriptor with another ratio is any gear pair; a gear pair's declared ratio follows its tooth counts (owner decision 8, 22 November 2026), and the Reverse gear's two equal wheels give −1.
+3. **Three layers.** Colliders: two housing boxes on the static body and one cylinder on each wheel body. Visuals: housing, two wheels, index bars, marks. Animation: none; the wheels' art follows their bodies. **Defect:** the index bars (40 mm proud) and marks (100 mm proud) are raised on spinning bodies with no collider. Repair as section 2: flat printing, because an off-axis collider on a spinning wheel would knock cargo; owner, repair part D (coordinator decision 33).
+4. **One-way flow and typing.** Committed wheel poses → art. Typed `CoordinateKind`, `TransmissionConstraintKind`, `PortId`; f32 values.
+5. **Flat-state counts** (from `reverse_transmission.tscn` and the declaration). 3 bodies (2 dynamic); 4 colliders (2 housing boxes, 1 cylinder on each wheel); 2 revolute joints; 1 transmission; 0 drives, nodes, stores, events; 2 ports; 0 parameters; 0 presentation bindings and 2 body-pose bindings.
+6. **Performance fitness.** The lightest rotary part: four primitives, two joints and one coupling row; static housing. Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026).
+7. **Scenario tests.** `ReverseTransmissionTests` (four files) and `ReverseTransmissionArtTests` run the production simulation.

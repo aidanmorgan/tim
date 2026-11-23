@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-127 delivery slice](../invest/named-elements.md#element-127). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [element-127](../requirements.md#element-127). This is a fictional toy material: the simplified shield chart is never real-world shielding guidance ([radiation research](../../radiation-component-research.md#laws-at-puzzle-scale)).
+Story 7.0 Batch O named-identity spec, brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after the independent audit (`docs/planning/elements/readiness/audits/elements-batch-o.md`, findings C-1, C-4, C-7, M-6, X-1 to X-4 and section 4 item 3) and coordinator decisions 16 and 21. Legacy citations are pinned to `a6c914e`; citations without `@` are `path:line` in the checkout. Requirement row: [element-127](../requirements.md#element-127). A fictional toy material, never real-world shielding guidance. The shared body, probe and conformance points are in the family lead, [EL-126](EL-126-thin-screen-shield.md); the law and the rows are in the [radiation conventions](RAD-08-radiation-rate-meter.md#radiation-conventions), cited by item. This spec states the polymer's own values, calculations and rows.
 
 ## 1. Identity
 
@@ -11,54 +11,39 @@ Story 7.0 Batch O named-identity spec. Legacy citations are pinned to `a6c914e` 
 | ID / name | EL-127 · Polymer shield |
 | Type | Radiation |
 | Anchor | [requirements.md#element-127](../requirements.md#element-127); [named-elements.md#element-127](../invest/named-elements.md#element-127); scope source [radiation-05](../requirements.md#radiation-05) (umbrella, index only) |
-| Related identities | Siblings [EL-126 Thin screen](EL-126-thin-screen-shield.md), [EL-128 Dense shield](EL-128-dense-shield.md). Proving partners [RAD-04 Beta-minus](RAD-04-beta-minus-source-cartridge.md), [RAD-01 Gamma](RAD-01-gamma-source-capsule.md), [RAD-08 Rate meter](RAD-08-radiation-rate-meter.md). No CAT spec. |
-| Proof owner | S611 |
-| Roadmap story | [EL-127 delivery slice](../invest/named-elements.md#element-127); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Owner | S611 |
+| Disposition | Member of the Family slice **Shield materials** with [EL-126](EL-126-thin-screen-shield.md) (lead) and [EL-128](EL-128-dense-shield.md). It differs from its siblings only in declared values. [RAD-18](RAD-18-neutron-absorber-panel.md) shares the family's law but is its own slice at level 127 (coordinator decision 37). Not a duplicate (D8). |
+| Planned package | id `polymer_shield`, directory `elements/PolymerShield/`, class `PolymerShieldElementDeclaration` |
+| Related identities | Proving partners [RAD-01](RAD-01-gamma-source-capsule.md), [RAD-08](RAD-08-radiation-rate-meter.md); [RAD-04](RAD-04-beta-minus-source-cartridge.md) (undelivered) is the planned part the law-scene beta beam used here stands in for; sample material for [EL-129](EL-129-sheet-thickness-transmission-gauge.md). No CAT part is refined. |
+| Status | not started; no package; blocked on the engine programme (owner decision 3a, 22 November 2026), ENGINE-OPTICAL and ENGINE-RADIATION |
+| Run length needed | 30 s (the default); no row is longer than 2 s |
 
 ## 2. Declaration
 
-The requirement says only "distinct material coefficients and density govern radiation transport" and "it cannot inherit dense-shield performance from its category". All numbers are proposals.
+The declaration is [EL-126's](EL-126-thin-screen-shield.md#2-declaration) with these values.
 
-- **Bodies and shapes.** One dynamic body: slab 0.80 × 0.80 × *t* m plus a foot 0.80 × 0.06 × 0.30 m, both `ColliderDeclaration` boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). *t* is set by the variant below (proposed: same 0.80 m face as every shield so equal-geometry comparisons isolate the material, as the radiation-05 integration task requires).
-- **Mass and material.** Contact restitution 0.25, friction 0.45, rolling resistance 0 (proposed: a smooth plastic slab, slightly slicker than the thin screen). Mass per variant below.
-- **Radiation material** (`RadiationMaterialKind.Polymer`):
-  - photon μ = 8 / 3 / 1.5 per metre for Soft / Medium / Hard (proposed: clearly weaker than Dense at every band, so a polymer slab never matches a dense slab of equal thickness);
-  - charged air-equivalent stopping factor 300 (proposed: 0.05 m counts as 15 m of air, far beyond the 3.0 m beta range, so polymer suppresses beta as RAD-04 requires);
-  - neutron fractions per 0.05 m: Fast 0.90 transmit / 0.05 moderate / 0.05 absorb, Slow 0.90 transmit / 0.10 absorb (proposed: a weak hydrogenous moderator, well below water, kept explicit rather than zero); thicker paths compound transmission as T(L) = T_ref^(L/0.05 m).
-  - Own coefficients only: the material is looked up by `RadiationMaterialKind`, never by the Radiation palette category, so no dense value can leak in.
-- **Constraints.** none.
-- **Typed ports.** none — no wire to a shield.
-- **Sensors and activation.** none.
-- **Work and energy stores.** none (deposited energy is ledger-debited; see open question 3).
-- **Parameters.** `ShieldThicknessPreset` enum, player-selected in the part inspector before Run, default Standard (proposed: the research names this typed preset; two values keep stacking lessons readable).
-- **Cosmetic curves and UI bindings.** none animated. Selected-only info card "Polymer — stops beta; weak against photons".
-- **Art.** Matte cyan `#66b8c9` slab with two engraved grooves, navy `#293954` foot, beveled edges (proposed: cyan reuses an approved palette value and two grooves give a shape cue).
-- **Catalogue and inventory.** Id `polymer_shield`, title "Polymer shield", category `Radiation` (proposed: snake_case id; [grouped menu](../requirements.md#palette-type-groups)). `PartAllowance` counted (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+| Item | Value |
+| --- | --- |
+| Slab collider | box 0.05 × 0.80 × 0.80 m centred (0, 0.46, 0); foot as the lead |
+| Mass and inertia | 1.0 kg, lighter than the 4 kg Bowling ball so it reads as plastic. Volumes 0.032 and 0.0144 m³ (density 1.0 ÷ 0.0464 = 21.55 kg/m³): slab 0.690 kg, foot 0.310 kg; centre of mass at y = (0.690 × 0.46 + 0.310 × 0.03) ÷ 1.0 = 0.327 m. Principal moments about it, by the lead's rule: X = 0.690 × (0.80² + 0.80²) ÷ 12 + 0.310 × (0.06² + 0.80²) ÷ 12 + 0.690 × 0.133² + 0.310 × 0.297² = 0.0736 + 0.0166 + 0.0123 + 0.0273 = 0.130 kg·m²; Y = 0.690 × (0.05² + 0.80²) ÷ 12 + 0.310 × (0.30² + 0.80²) ÷ 12 = 0.0369 + 0.0189 = 0.0558 kg·m²; Z = 0.690 × (0.05² + 0.80²) ÷ 12 + 0.310 × (0.30² + 0.06²) ÷ 12 + 0.0396 = 0.0369 + 0.0024 + 0.0396 = 0.0789 kg·m². Principal frame the identity. |
+| Contact material | restitution 0.25, friction 0.45, rolling resistance 0 (smooth plastic) |
+| Radiation row **(field)** | Polymer: 8, 3, 1.5, 400, 300, 2, 2 per metre (radiation convention 4; BetaMinus 300 by coordinator decision 21, 22 November 2026); no conversion. The row is declared on this package's colliders; nothing reads the palette category, so no dense value can reach it. |
+| Ports, parameters, stores, bindings | None (the old `ShieldThicknessPreset` is dropped, D13) |
+| Catalogue | id `polymer_shield`, "Polymer shield", `ElementCategory.Radiation` **(field)**, palette order 705 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)). Description: "A plastic slab. It stops beta and alpha, and only weakens gamma." |
 
-### Variant: Standard (`ShieldThicknessPreset.Standard`)
-- Thickness 0.05 m; mass 1.0 kg (proposed: lighter than the 4 kg Bowling ball so a polymer slab reads as light plastic).
-- Medium-band transmission e^(−0.15) ≈ 0.86: a Gamma capsule at 1 m reads ≈ 13.6 behind it.
+### Art and solidity
 
-### Variant: Thick (`ShieldThicknessPreset.Thick`)
-- Thickness 0.10 m; mass 2.0 kg (proposed: mass scales with volume at the same toy density).
-- Medium-band transmission e^(−0.30) ≈ 0.74 (≈ 11.7 at 1 m); never higher than Standard.
+As the lead's table, with `Visual/Slab` 0.05 m thick in cyan `#66b8c9` and `Visual/Pattern` two printed groove lines. It differs from the thin screen by thickness and groove count and from the dense shield by two grooves against three.
+
+### Compiled counts
+
+As the lead: 1 dynamic body, 2 box colliders, 2 radiation rows, nothing else.
 
 ## 3. Engine capabilities
 
-Families from the [map row](../general-engine-element-map.md) and [binding](../../coverage/engine/element-02.json):
+The family table in [EL-126 section 3](EL-126-thin-screen-shield.md#3-engine-capabilities) applies unchanged: **4 present** (R1 to R4), **0 untested**, **1 narrower** (N1 line of sight, owner ENGINE-SPATIAL-QUERIES), **3 missing** (M1 the shared solve, ENGINE-OPTICAL; M2 rows, surface τ and chords, and M3 category and flag, ENGINE-RADIATION). No capability is particular to this member.
 
-| Family | Status | Basis or builder |
-| --- | --- | --- |
-| FiniteLedger | missing | required in the linked delivery slice (S010-D); deposited-energy accounting; the only current finite store is bumper contact work, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L9` |
-| GeometryQuery | exists now for contact only; missing for radiation paths | BVH `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L74-L204` and narrowphase `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L325-L620` (the coverage JSON's `engine/gpu/physics.wgsl` basis is not in the tree); ordered material intervals along sampled paths: required in the linked delivery slice (P0-004, S606-D) |
-| IonizingTransport | missing | required in the linked delivery slice (S606-D/F); enum-indexed material table ([S605 rows](../invest/decisions.md#s605)) |
-| SignalPropagation | missing | Story 8.1; no signal port on the shield — used by the meter in the proof |
-| StateTransaction | exists now | `engine/gpu/WorkshopSimulation.cs@a6c914e:L44-L161`; pose and preset restore with Reset |
-
-As a dynamic panel it also uses RigidBodyDynamics, ContactImpulse and SlidingFriction (exist now: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623-L726`). The inspector enum selector for `ShieldThicknessPreset` is required in the linked delivery slice with this element.
-
-**Dependencies.** RAD-04 and RAD-08 for the beta control; RAD-01 for the photon comparison; EL-128 for the equal-geometry control.
+**Dependencies.** RAD-01 and RAD-08. The beta row P3 uses a law-scene collimated emitter, so it does not need RAD-04.
 
 ## 4. Sources and legacy
 
@@ -74,19 +59,53 @@ As a dynamic panel it also uses RigidBodyDynamics, ContactImpulse and SlidingFri
 - `reference/P0-022-before/docs/coverage/engine/task-013.json`
 - `reference/P0-022-before/docs/coverage/engine/capabilities-02.json`
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Construction (actual Chrome UI).** Place a Beta-minus cartridge and a Battery-supplied beta-sensitive Rate meter 0.5 m apart, wire the contact to a Powered gate (CAT-051); drag a Polymer shield onto the path; select each thickness preset in the inspector.
-- **Positive.** Beta reading falls from ≈ 7.1 to zero with either preset; the gate stays shut.
-- **Negative / controls.** A Thin screen in the same place passes beta (≈ 7.1, meter on). Equal-geometry control: a Standard Polymer (≈ 13.6) and a Standard Dense shield (≈ 5.8) at the same pose in front of a Gamma capsule 1 m from the meter give different readings, polymer higher.
-- **Boundaries.** Thick never transmits more than Standard; two stacked Standard slabs equal one Thick within f32 rounding; slab edge grazing; a 0.1 m gap between two slabs transmits.
-- **Run/Reset.** Pose (it can be knocked over) and selected preset restore exactly.
-- **Save/Load.** Preset and pose round-trip; an undefined preset value is rejected at load.
-- **Integrations.** Cross-element task [radiation-05 integration (sequence-task-413)](../requirements.md#sequence-task-413) (equal geometry with different materials, stacked thickness, gaps, restore); interaction processes [IX-15 Ionizing transport](../requirements.md#interaction-15) and [IX-01 Contact impulse](../requirements.md#interaction-01) (the panel is a dynamic body); family tasks [radiation-foundations](../requirements.md#radiation-foundations), [radiation-proof](../requirements.md#radiation-proof) and [radiation-campaign](../requirements.md#radiation-campaign); campaign first use in levels 101–110 with the RAD-05 shields ([campaign element coverage](../requirements.md#campaign-element-coverage); chapter 11 of the [campaign plan](../requirements.md#campaign-plan)), beta suppression taught at 116, reuse 111–120, 124–130 and 136–150.
+### Behaviour and numbers
+
+Starting values (D1); chord 0.05 m square to the path; transmission per crossing as [radiation convention 4](RAD-08-radiation-rate-meter.md#radiation-conventions).
+
+- **Photons.** Medium: e^(−3 × 0.05) = e^−0.15 = 0.861. Soft: e^(−8 × 0.05) = e^−0.4 = 0.670. Hard: e^(−1.5 × 0.05) = e^−0.075 = 0.928. A Gamma capsule 1 m from the standard meter reads 0.882 × 0.861 = 0.759 W behind one slab and 0.882 × e^−0.30 = 0.882 × 0.741 = 0.653 W behind two: weakened, never switched off (the mark is 0.2 W; 0.653 W is more than three times it).
+- **Not a dense shield.** At equal geometry the dense slab reads 0.882 × e^−1 = 0.324 W. Polymer 0.759 W is 0.759 ÷ 0.324 = 2.34 times that. To match one dense slab would take 1 ÷ 0.15 = 6.7 polymer slabs.
+- **Beta.** e^(−300 × 0.05) = e^−15 = 3.1 × 10⁻⁷: a 1 W Beta-minus beam leaves at 3.1 × 10⁻⁷ W, under the 0.001 W floor, and ends within ln 1000 ÷ 300 = 0.023 m of its entry. Polymer suppresses beta where the thin screen (0.670 W) passes it. A 0.05 m part on the default row (BetaMinus 150 /m) also stops beta (e^−7.5 = 0.00055 W) but needs ln 1000 ÷ 150 = 0.046 m to do it; the polymer needs half that thickness ([RAD-04](RAD-04-beta-minus-source-cartridge.md) section 5).
+- **Alpha.** e^(−400 × 0.05) = e^−20: ends.
+- **Neutrons.** e^(−2 × 0.05) = e^−0.1 = 0.905 for both groups, and no conversion: polymer does not moderate. Only the Liquid row declares a conversion (radiation convention 5), so the moderation lesson has one cause.
+- **Body.** Centre of mass 0.327 m over a 0.30 m foot: tips beyond atan(0.15 ÷ 0.327) = 24.6°.
+
+### Rows
+
+Class `ShieldMaterialTests` (family), with the lead's fixture F and charged fixture. The family rows S1 to S4 and S8 to S11 of [EL-126 section 5](EL-126-thin-screen-shield.md#5-acceptance) run for this member with the values above (S1: 0.327 m; 0.130, 0.0558, 0.0789 kg·m²). Its own rows, all in this slice:
+
+| # | Given / When / Then | Test | Control | Boundary and tolerance |
+| --- | --- | --- | --- | --- |
+| P1 | Given fixture F at 1 m with one polymer slab the reading is 0.759 W; with one dense slab in the same place it is 0.324 W; the polymer reading is more than twice the dense one (row: cannot inherit dense-shield performance) | `ShieldMaterialTests.PolymerIsNotADenseShield` | open path 0.882 W | ±3 % each; ratio above 2 (hand value 2.34) |
+| P2 | Given one and two polymer slabs, the meter's level stays on (0.759, 0.653 W) | `ShieldMaterialTests.PolymerWeakensButDoesNotSilenceGamma` | two dense slabs: off (0.119 W) | ±3 % |
+| P3 | Given the lead's Beta-minus charged fixture with the meter 1 m away and one polymer slab on the path, the strength is below 0.001 W and the level off; a thin screen in its place leaves 0.670 W and the level on (RAD-04's row; the form with the real parts is RAD-04 B7) | `ShieldMaterialTests.PolymerStopsBetaWhereAThinScreenPasses` | no slab: 1 W, on | below 0.001 W; ±3 % on 0.670 W |
+| P4 | Given a law-scene NeutronFast source of 10 W/sr, paid by a declared steady inventory of 37,699 J (the Neutron module's, radiation convention 14), 1 m from a law-scene standard receiver weighted NeutronSlow only, with the slab between, the slow reading is 0 | `ShieldMaterialTests.PolymerDoesNotModerate` | the same receiver weighted NeutronFast reads 0.882 × 0.905 = 0.798 W | below 0.001 W; ±3 % |
 
 ## 6. Open questions
 
-1. Whether polymer moderates neutrons at all in the first abstraction (the research names only water as moderator) — owner decision.
-2. Proposed coefficients need the S606-D decision.
-3. Whether deposited energy heats the slab — owner decision.
-4. Whether thickness presets exist or only stacking teaches thickness (shared with EL-126/EL-128) — owner decision.
+None open.
+
+1. **Does polymer moderate — decided now**: no. The research names only water as the moderator, and one cause keeps lessons 126 to 128 readable.
+2. **Coefficients — decided** (D1, D16; coordinator decision 21, 22 November 2026, for BetaMinus 300): the Polymer row.
+3. **Heating — decided** (D19): as the lead, not part of this element; absorbed power is ledgered (radiation convention 10).
+4. **Thickness presets — decided** (D13): none; stacking.
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Collaborators.** RAD-01, RAD-08, EL-129 (undelivered). RAD-04 meets the polymer in its own row B7. No port.
+- **Cross-element task.** [sequence-task-413](../requirements.md#sequence-task-413): family rows S2 to S4 and S9, and P1.
+- **Campaign.** First use 101–110 with the shields; beta suppression taught at 116; reuse 111–120, 124–130, 136–150.
+- **Coverage binding (planned, not yet live).** Blocked on the coverage follow-on story S7, for the lead's reasons: the ledger entry for element-127 carries no `todo-N` link and S611 has no anchor in `docs/planning/invest/scope-corrections.md` (checked by search).
+- **Lesson fixtures.** Story [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) is defined and lands after the engine programme (owner decision 22).
+
+## 8. Delivery
+
+Delivered in the Shield materials Family slice; prerequisites (blocked on the engine programme (owner decision 3a), with ENGINE-SPATIAL-QUERIES; ENGINE-OPTICAL; ENGINE-RADIATION as amended; RAD-01 and RAD-08; S7; no dependency on ENGINE-THERMAL), review tier and disqualifiers as [EL-126 section 8](EL-126-thin-screen-shield.md#8-delivery). Files: `elements/PolymerShield/PolymerShield.csproj`, `PolymerShieldElementDeclaration.cs`, `polymer_shield.tscn`, `icon.svg`; one guarded line in `CuriousContraptions.slnx`; theory cases in `ShieldMaterialTests`; a row in `VisibleSolidColliderTests`. Own disqualifier: a sibling whose declaration differs in anything but values (then the family is not a family and the slices split).
+
+## 9. Engine conformance
+
+Verdict: **Conforms**, on the seven points of [EL-126 section 9](EL-126-thin-screen-shield.md#9-engine-conformance), which hold word for word: one dynamic body, two box colliders, a declared row, no binding, no port, counts fixed at compile time, a resting panel stepped every tick until ENGINE-ISLANDS-SLEEP (owner decision 3a) delivers island sleeping. "Cannot inherit from its category" is met structurally: the coefficients are this package's declared data and the engine has no material or category lookup.

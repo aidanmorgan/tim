@@ -1,94 +1,160 @@
-# CAT-070 · windmill — declaration readiness spec
+# CAT-070 · windmill — element spec
 
-**Current delivery (24 October 2026):** [CAT-070 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** delivered and published by Story 12.3 ([native spec](../../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md)). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md). Browser, remote and release qualification are unverified. Every residual slice (part C) is **blocked on the engine programme (owner decision 3a, 22 November 2026)**; the stories that own this part's gaps are `ENGINE-SPATIAL-QUERIES` (each capture sample's line of sight scans every collider) and `ENGINE-ISLANDS-SLEEP` (continuous-work trials confined to the affected island; a calm rotor is still stepped).
 
-Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
+One current text, repaired 22 November 2026 after the Batch D audit, checked against `elements/Windmill/` and its tests in checkout `8d1d68aa`. Citations without `@` are `path:line` in that checkout; `Decl` is `elements/Windmill/WindmillElementDeclaration.cs` and `Scene` is `elements/Windmill/windmill.tscn`. Citations with `@a6c914e` are the legacy harvest and appear only in the closing appendix.
 
-## Current Story 12.3 contract — implementation, 21 November 2026
-
-The [native Windmill spec](../../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md) passed independent artifact consistency review (msg_4e8fe33e7c50) and the initial runtime candidate received independent implementation review. The current package declares the generic capture, physical hinge/blades/output and first-travel observation; affected native tests exercise paid transport, controls and lifecycle. Historical local verification passed (full7184/0/0, affected747/0/0, hooks134/0/0 and E9). Independent pass-1 review confirmed nine findings; the approved repair plan is implemented under coordinator continuation, with final full7232/0/0, hooks134/0/0, five normal compiler logs and E9 PASS recorded in the native spec. All findings, including residual asymmetric observer proof, are independently closed and Final diff scope/simplification passed; native implementation is complete, with exact-SHA SnapshotApproval/publication pending and browser/remote/release qualification unverified. Repairs retain cream guard/output art, exact explicit physical ownership, one current generated accessor surface, and strengthen paid connected lifecycle and generic observation/refusal proof. The current requirements and game-fidelity policy control the harvest below; its pinned numbers and implementation names are evidence, not instructions to restore a deleted solver.
-
-- Four weight-0.25 samples use the actual transformed support frame. Exact hinge/frame and internal collider exclusions are declared; rotor blades and output observe committed physical motion. Partial wall occlusion removes only covered samples; rear drive reverses, edge-on/equal opposed sources are passive.
-- Response `radians_per_force` has units rad/s/N, range0.1–4, default0.6666667. Cut-in is **0.05 N of signed net aligned rest-force magnitude** (0.049 passive, 0.05 active). The old gas-table m/s label is corrected: a force-response law must use a force threshold, independently of source flow speed.
-- Pitch selection uses the FIRST boundary of the connected H(p)=sign(Ω)·R(p,Ω)>0 interval from p=0, or pmax if that interval remains positive through pmax. Poses/axes/sample velocities, target and allocation coefficients are frozen inside the scalar search; a changed outer allocation recalibrates p/b. For the low-flow u=1,c=.75,g=4 case, p=1/3,b=0 gives driving torque below target magnitude3rad/s and ZERO torque at AND above3, in either drive direction. This explicitly supersedes harvest row1c's strict-negative-above-target claim for the zero-damping clipped case; ordinary positive-damping cases retain opposing torque above equilibrium. Fixed-coefficient scalar monotonicity does not qualify the full coupled solve.
-- The cap12rad/s bounds requested unloaded equilibrium. Finite inertia, load and backdrive determine actual motion; no velocity assignment/clamp or independent torque. Active branch impulses share current Fan force/power/joule allocation and debit each actual source. Calm resistance is passive, including depletion/disable/occlusion; moving exposure prepares in simulation each substep, not once from authored pose.
-- Guard reuses the current generic Tube collider (inner0.745, outer0.815, half-length0.035), not superseded compound boxes. Rotor/support use existing rigid-mechanism contact material: restitution0, friction0.3, rolling resistance0, bounce threshold0.1. Exact dimensions, frames, inertia and package-owned palette are retained below.
-- Replace the old ideal-speed catalogue description with finite work/load/coast behavior. Preserve first-full-turn feedback as a generic exact-coordinate accepted-travel occurrence; the old per-part `Turned` name and observe loop are not restored. Do not impose the old 1e-6 active threshold as a physical stopping rule.
-- Harvest tick counts, narrow transient speed bands, every-step trajectories, exact replay and byte comparisons are superseded by finite spin-up/coast, signed causal reversal, actual connected/disconnected cargo, meaningful load response and semantic Reset/save/load proof. The native plan defines quantity-specific tolerances and generous game-time stall guards; no source-ledger hash/certificate.
-- Hinge, hollow geometry, shaft transmission and Fan paid airflow are available in current code; rotary capture is the necessary generic extension within12.3. S470 now concerns later connected gas networks (S471/S697), not a blocker or decision owner for this rotor. Bellows12.4 retains burst integration. Browser construction/connection/motion remains post-catalogue; full gas networks, Motor electrical drain and campaign qualification retain later owners.
-
-## Identity
+## 1. Identity and disposition
 
 | Field | Value |
 | --- | --- |
 | CAT ID / kind | CAT-070 · `windmill` |
-| Requirement anchor | [CAT-070](../requirements.md#current-cat-070) and its [retained behaviour](../requirements.md#sequence-task-311); D/I/V row [CAT-070-I](../invest/current-consumers.md#cat-070-i) |
-| Mapped identities | None. No EL, TH, RAD or GAP identity names the windmill. |
+| Requirement anchor | [CAT-070](../requirements.md#current-cat-070) with [sequence-task-311](../requirements.md#sequence-task-311); owner key [CAT-070-I](../invest/current-consumers.md#cat-070-i) |
+| Disposition | **Delivered and published.** Package id and catalogue key `windmill`, directory `elements/Windmill/`, category Power, palette order 67 (`Decl:13`–`:16`). Commit `47e01bdb`, on main since `4f193bb2`; slice record status done. No named identity maps to it |
 | Capability row | [general-engine-element-map, CAT-070](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.3 "Windmill Rotor Aerodynamic Capture & Drive"; [rotary capture](../../finite-gas-foundation.md) in the gas family Current [CAT-070 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Native implementation, independent review and Final diff scope complete; local candidate commit exists, exact-SHA SnapshotApproval/publication pending. No push authorization; browser/remote/release qualification unverified. |
 
-## Declaration
+## 2. Declaration
 
-- **Bodies and shapes.**
-  - Static root body: base box at (0.25, −1.08, 0) size 1.1 × 0.16 × 0.9; tower box at (0.25, −0.55, 0) size 0.22 × 1.1 × 0.25; nacelle box at (0.25, −0.1, 0) size 0.65 × 0.45 × 0.55 (half-extents = size/2); guard tube (annulus) at (−0.12, 0, 0), axis X, inner radius 0.745, outer 0.815, half-length 0.035, opaque (`parts/WindmillPart.cs@a6c914e:L75-L77`, `L82-L82`; `engine/TubeProxy.cs@a6c914e:L6-L6`; `reference/cpu/MachinePart.cs@a6c914e:L352-L356`).
-  - Dynamic rotor body at (−0.12, 0, 0): hub sphere radius 0.14 plus four blade boxes, half-extents (0.0375, 0.26, 0.105), centred 0.4 m out on arms 90° apart, each blade yawed 30° (pitch) about its arm (`parts/WindmillPart.cs@a6c914e:L19-L19`, `L83-L92`). Excluded from static queries (`parts/WindmillPart.cs@a6c914e:L28-L28`).
-- **Mass and material.** Rotor 1 kg, radius 0.7, thickness 0.075; axial inertia m r²/2 = 0.245 kg·m², transverse m(3r² + t²)/12 (`parts/WindmillPart.cs@a6c914e:L22-L27`). Contact material: the legacy default (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`).
-- **Constraints and joints.** One hinge between rotor and root at (−0.12, 0, 0); the joint frame rotates local Z onto the part's X axis (rotation vector (0, π/2, 0)); both directions; connected-body collision disabled (`parts/WindmillPart.cs@a6c914e:L20-L21`, `L30-L35`).
-- **Typed sockets and ports.** One `Drive` port, mechanical domain, output, at (0.25, −0.1, 0.52), bound 1:1 to the rotor hinge (`parts/WindmillPart.cs@a6c914e:L53-L57`). It cannot accept a drive (`CuriousContraptions.tests/WindmillTests.cs@a6c914e:L280-L298`).
-- **Sensors and activation.** A `Turned` occurrence once the rotor's accumulated angular travel reaches 2π (`parts/WindmillPart.cs@a6c914e:L69-L69`). Active while |shaft speed| > 1e-6 rad/s (`parts/WindmillPart.cs@a6c914e:L68-L68`).
-- **Work and energy stores.** None; the rotor's kinetic energy is its only store.
-- **Airflow receiver.** Four rotary samples at (−0.12, ±0.42, 0) and (−0.12, 0, ±0.42), weight 0.25 each. They are declared on the static root body, not the rotor, so they stay fixed in the part frame and do not turn with the blades (`parts/WindmillPart.cs@a6c914e:L36-L41`, `L38-L39`). Rotary capture material: maximum pitch (torque arm) 0.4 m, speed per force = `radians_per_force`, maximum unloaded speed 12 rad/s, cut-in 0.05 N, force tolerance 1e-7 (`parts/WindmillPart.cs@a6c914e:L16-L18`, `L42-L44`; `engine/AirflowNetwork.cs@a6c914e:L26-L26`).
-- **Parameters.**
+Interfaces: `IHingeElement`, `IRotaryAirflowCaptureElement`, `ICoordinateTravelElement`, `ISceneGeometryElement` (`Decl:8`–`:9`).
 
-  | Parameter | Type | Range | Default | Unit |
-  | --- | --- | --- | --- | --- |
-  | radians_per_force | f32 | 0.1–4 | 0.6666667 | rad/s per N |
+| Parameter | Kind | Unit | Min | Max | Default |
+| --- | --- | --- | --- | --- | --- |
+| `radians_per_force` | Real | rad/s per N | 0.1 | 4 | 0.6666667 |
 
-  Range `parts/WindmillPart.cs@a6c914e:L58-L62`; default `parts/catalog/windmill.tres@a6c914e:L12-L12`; enum name `parts/WindmillPart.cs@a6c914e:L9-L9`.
-- **Cosmetic curves and UI bindings.** The rotor art follows the committed rotor pose; the output pulley art turns at −(shaft angle) about Z (`parts/WindmillPart.cs@a6c914e:L70-L70`). Gas doc: "Blade/hub pose ← committed hinge angle; no cosmetic spin".
-- **Art.** Ring "thickness" values are torus half-widths: inner r − t, outer r + t (`engine/PartArt.cs@a6c914e:L22-L23`). Base `#293954`; tower and nacelle `#fff8e9`; axle cylinder radius 0.11, length 0.55, `#e8b764`, at (0.14, 0, 0) along X; guard torus radius 0.78, half-width 0.035 (inner 0.745, outer 0.815, matching the guard collider), `#fff8e9`; blades 0.075 × 0.52 × 0.21 `#66b8c9` with 0.08 × 0.07 × 0.21 `#e8b764` tips at 0.63; hub sphere of radius 0.14 `#e8b764`; output pulley at (0.25, −0.1, 0.44): wheel radius 0.24, thickness 0.12, `#fff8e9`, with a 0.38 × 0.05 × 0.035 `#e8b764` mark; pick radius 1.2 (`parts/WindmillPart.cs@a6c914e:L72-L98`). Catalogue colour (0.4, 0.72, 0.79) (`parts/catalog/windmill.tres@a6c914e:L11-L11`); icon `ui/WorkshopIcons.cs@a6c914e:L34-L34`.
-- **Catalogue and inventory entry.** Id `windmill`, title "Windmill", category Power, description "Aim airflow through the rotor, then belt its side pulley to a conveyor or reverse transmission. Backwards wind reverses the shaft; edge-on wind cannot drive it. Obstructions reduce the exposed rotor area. Coasts briefly when wind stops. Uses the current ideal-speed mechanical model, not torque or load conservation." (`parts/catalog/windmill.tres@a6c914e:L6-L12`).
+(`Decl:17`.)
 
-## Engine capabilities
+| Item | Declaration |
+| --- | --- |
+| Bodies | a static support and one dynamic rotor; footprint 2 bodies, 1 moving, 1 revolute constraint (`Decl:18`) |
+| Support colliders | base box 1.1 × 0.16 × 0.9 m at (0.25, −1.08, 0); tower box 0.22 × 1.1 × 0.25 m at (0.25, −0.55, 0); nacelle box 0.65 × 0.45 × 0.55 m at (0.25, −0.1, 0); guard Tube at (−0.12, 0, 0), axis X, bore radius 0.745 m, outer radius 0.815 m, half-length 0.035 m |
+| Rotor colliders | hub sphere r 0.14 m; four blade boxes with half-extents (0.0375, 0.26, 0.105) m, centred 0.4 m out on arms 90° apart, each pitched 30° about its arm |
+| Material | support and rotor: restitution 0, friction 0.3, rolling resistance 0, threshold 0.1 m/s (`Decl:25`–`:26`) |
+| Hinge | continuous, at (−0.12, 0, 0) about local X, no drive, no bearing friction; rotor 1 kg, axial inertia 0.245 kg·m², transverse (3 × 0.7² + 0.075²)/12 kg·m² (`Decl:12`, `:27`–`:33`) |
+| Rotary capture | on the hinge coordinate: four samples of weight 0.25 at (−0.12, ±0.42, 0) and (−0.12, 0, ±0.42) in the support's frame; pitch limit 0.4 m; response `radians_per_force`; cut-in 0.05 N; unloaded target cap 12 rad/s; its own nine colliders are the exempt internal occluders (`Decl:34`–`:41`) |
+| Travel observer | one, on the hinge coordinate, threshold 2π of absolute accepted travel; publishes `CoordinateTravelReached` (`Decl:42`–`:45`) |
 
-Families: the [CAT-070 row](../general-engine-element-map.md) and `docs/coverage/catalogue-elements.json` (AerodynamicDrag, ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, RigidBodyDynamics, ShaftTorque, SlidingFriction).
+| `PortId` | Role | Domain | Direction | Position (m) | Binding |
+| --- | --- | --- | --- | --- | --- |
+| `Drive` | Drive | Mechanical | Output | (0.25, −0.1, 0.52) | hinge coordinate 1:1; rim r 0.24 m centred (0.25, −0.1, 0.44) (`Decl:46`–`:50`) |
 
-- **Available current prerequisites.** Static boxes, finite-inertia dynamic bodies, the shared continuous hinge (10.3), true hollow Tube guard geometry replacing the old6.6–6.7 compound shell, current12.2 conserved airflow/source settlement, and11.1–11.2 finite-inertia shaft/conveyor/reverse transmission. The [native plan's prerequisite table](../../../_bmad-output/implementation-artifacts/spec-12-3-windmill.md#actual-prerequisite-readiness) maps actual code and accepted evidence; old aggregate story status is not a capability refusal.
-- **Necessary Story12.3 extension.** Generic exact-coordinate rotary capture, its passive coast preparation and accepted-travel observation. No new element solver, copied supply budget or whole gas-network prerequisite. S470's S471/S697 rows keep their later network owners.
-- **Element dependencies.** Fan (CAT-028) or Bellows (CAT-010) as source; Conveyor (CAT-019) and Reverse transmission (CAT-057) as loads; Wall (CAT-066) for occlusion.
+Engagement classes (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`): `Drive` admits Smooth only, a light sail shaft, so a Drive belt is admitted and a Drive chain is refused there. The delivered rigid link stays admitted and is unchanged (owner decision 2).
 
-## Legacy harvest
+Presentation: `Visual/Output` rotation = −1 × the committed hinge angle; `Visual/Rotor` is the physical rotor body (`Decl:51`–`:55`). Catalogue description: "Airflow turns the blades and drives connected machines. Rear airflow reverses rotation; loads slow the shaft." (`Decl:14`).
 
-| # | Fact | Citation | Disposition |
-| --- | --- | --- | --- |
-| 1 | Unloaded response: target speed = clamp(F × gain, ±12) where F is the signed rest force of the exposed samples; resistance = \|F × 0.4 / target\| (0.4/gain when target is 0); below 0.05 N the rotor is passive with coast resistance 0.4/gain. "Resistance" here is the effective slope of torque against shaft speed at the operating point: the airflow branch's own drive slope (pitch² × conductance) plus a hinge damper. For the catalogue fan (conductance 0.75 N·s/m, 9 N) and gain 2/3 that is 0.12 drive + 0.48 damper = 0.6 = 9 × 0.4 / 6. The pitch is reduced when needed, never negative damping; no velocity clamp and no independent drive torque. | `engine/physics/RotaryCaptureMaterial.cs@a6c914e:L47-L127`; `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L25-L36` | Carry forward the law. |
-| 1a | Calibration: flow 12, gain 2/3 → target 6 rad/s, pitch 0.4, damper 0.48 (and −6 for reversed alignment). | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L15-L16` | Carry forward. |
-| 1b | Calibration: flow 12, gain 4 → target 12 rad/s (cap), pitch 0.4, damper 0.18. | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L17-L17` | Carry forward. |
-| 1c | Calibration: flow 1, gain 4 → target 3 rad/s, pitch reduced to 1/3, damper 0 (the test admits a positive value below 1e-14), both alignments. In every case the torque is zero at the target, positive at 0.9 × target and negative at 1.1 × target. | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L18-L33` | Carry forward. |
-| 1d | Cut-in boundary: rest force 0.049 is passive (target 0, coast damper pitch/gain = 0.4 at gain 1); 0.05 drives. Damping never adds energy at −12, 0 or 12 rad/s. | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L49-L65` | Carry forward. |
-| 2 | Accepted air force on a turning rotor: F_rest × (1 − 0.4 × ω / 12). | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L37-L42` | Carry forward. |
-| 3 | Air force is read as the mean of committed transfer impulses over the substep; the axial component along the hinge axis is the reading. | `engine/AirflowNetwork.cs@a6c914e:L102-L121`; `parts/WindmillPart.cs@a6c914e:L63-L67` | Carry forward the reading; not the per-part observe loop. |
-| 4 | Acceptance: fan at (−4, 6, 0), windmill at (−1, 6, 0): first tick 0.14–0.16 rad/s; after 240 ticks 6 rad/s (9 N × 0.6667); a belted conveyor surfaces at 4 m/s, reversed by each Reverse transmission; Turned recorded; fan off → 5.8–5.9 rad/s one tick later, 0 within 120 ticks; Reset zeroes speed, angle and travel; Save/Load replays 6 rad/s. Back wind (fan at (2, 6, 0) yawed 180°) gives the negative of each value. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L47-L110` | Carry forward. |
-| 5 | Acceptance: the whole assembly works in five orientations and has exactly one mechanical port. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L111-L133` | Carry forward. |
-| 6 | Acceptance: exposure full 9 N, partial 6.75 N (a Wall 3 × 0.4 × 0.25 at (−2.5, 6.5, 0) blocks the top sample), blocked 0 N. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L134-L156` | Carry forward. |
-| 7 | Acceptance: a ball at (1, 4.5, 0) on a conveyor at (2, 3, 0) is transported past X = 2.5 within 180 ticks only when belted, unblocked and the fan is on; the jet never touches the ball. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L157-L181` | Carry forward. |
-| 8 | Acceptance: edge-on (yaw 90°), weak (0.01 N) and opposing (equal rear fan) air give zero speed and zero source energy. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L182-L210` | Carry forward; the supplied-energy ledger assertion is a certificate and is not carried forward. |
-| 9 | Acceptance: reversing the wind crosses zero along the finite-inertia trajectory. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L211-L279` | Carry forward the behaviour. |
-| 10 | Acceptance: with force 40 and gain 4 the shaft caps at 12 rad/s; a Motor cannot also drive the belted conveyor; a conveyor cannot drive the windmill; gains 0, 5 and NaN reject. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L280-L298` | Carry forward. |
-| 11 | Acceptance: invalid sample weights fail before any receiver changes. | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L299-L322` | Carry forward as declaration validation. |
-| 12 | Acceptance: forward and reverse air at 9 N and 40 N drive the rotor between 1 and 12 rad/s; one tick after the fan stops the speed falls but keeps its sign; within 120 ticks kinetic energy drops below 10%. No damping or effort load sits on the hinge besides the rotary capture. | `CuriousContraptions.tests/SourceRotorTests.cs@a6c914e:L54-L66`, `L169-L212` | Carry forward. |
-| 13 | Solved poses, not rendered transforms, set the rotor force; disabling the fan body removes it. | `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs@a6c914e:L260-L283` | Carry forward. |
-| 14 | One fan funds two rotors, or a rotor and a ball, from one reservoir. | `CuriousContraptions.tests/RotorAirflowSupplyTests.cs@a6c914e:L25-L112` | Carry forward. |
-| 15 | Bellows → Windmill → Conveyor chain (default 480-tick and response-4, 960-tick cases). | `CuriousContraptions.tests/BellowsTests.cs@a6c914e:L82-L254` | Carry forward (see CAT-010). |
-| 16 | Shaft angle, speed and travel are read from the owned hinge, not presentation, at 0° and 37° placements, and restore on Reset; the rotor body keeps its authored box offsets under rotation. | `CuriousContraptions.tests/AxialMotionOwnershipTests.cs@a6c914e:L48-L142`; `CuriousContraptions.tests/BodyLocalBoxTests.cs@a6c914e:L25-L77` | Carry forward. |
-| 17 | Declaring a transfer on the undeclared rotor body rejects before Run. | `CuriousContraptions.tests/SceneMechanicalTransferTests.cs@a6c914e:L18-L32` | Carry forward as declaration validation. |
-| 18 | No level uses the windmill. | `docs/coverage/catalogue-elements.json` (empty fixture list) | Recorded. |
-| 19 | More calibration cases: two opposed branches (flow 12 forward, 2 reversed, gain 1) settle at 7.5 rad/s with damper 0.16 in either order; a saturated branch (conductance 100, cap 1, gain 2) gives target 2 and damper 0.2; opposed equal, edge-on and empty branch sets are passive; source power − receiver power = loss ≥ 0 at every speed; invalid pitch, gain, maximum speed, cut-in, duplicate or null branches and alignment outside [−1, 1] reject. At the catalogue operating point the transfer force is 0.75 × (12 − pitch × ω) and the rotor holds its target speed with exact replay. | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L35-L178` | Carry forward; the work-ledger checks are certificates and are not carried forward. |
-| 20 | Requested speed is continuous before the separate cut-in: at gain 4, rest force ±100 → ±12, ±0.01 → ±0.04, 0 → 0; NaN rejects. | `CuriousContraptions.tests/RotaryCaptureForcePathTests.cs@a6c914e:L153-L164` | Carry forward. The rest of the file (captured force paths, threshold sweeps, plateau-departure detection) tests CPU calibration-path certificates: do not carry forward. |
-| 21 | Calm air: a hinge with no branches damps relative rotor speed with resistance pitch/gain (0.6 at the catalogue gain), never adds energy and conserves the two bodies' total angular momentum. | `CuriousContraptions.tests/RotaryCaptureMotionTests.cs@a6c914e:L71-L91`; `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs@a6c914e:L291-L304` | Carry forward. |
-| 22 | A rotating source is re-sampled within the step and replays exactly. | `CuriousContraptions.tests/RotaryCaptureMotionTests.cs@a6c914e:L11-L69` | Carry forward only "exact replay"; the predictor-stage sampling is a CPU solver path. |
-| 23 | Supply lifecycle: disabling the source's participation body stops supply but the rotor keeps coasting, and re-enabling drives again; partial exposure re-prepares without losing branch identity; mixed linear and rotary branches share one finite allocation; an exhausted store leaves the rotor passive, coasting at resistance pitch/gain, and recharging drives it again; Reset replays exactly; duplicate identities reject atomically. | `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs@a6c914e:L89-L289` | Carry forward the behaviour. Ledger totals, tolerance bands and the authoritative-prediction recalibration are certificates or CPU paths: do not carry forward. |
+## 3. Art and solidity
+
+| Node | Class | Moved by |
+| --- | --- | --- |
+| `Visual/Base`, `Tower`, `Nacelle` | solid: box colliders `col_base`, `col_tower`, `col_nacelle` (`Scene:76`–`:84`) | nothing |
+| `Visual/Guard` (imported ring) | hollow: Tube collider `col_guard` (`Scene:88`) | nothing |
+| `Visual/Rotor/Hub` and four `Blade` boxes | solid, on the hinge body: `col_hub` and four `col_blade` (`Scene:121`–`:184`) | the rotor body's pose |
+| four blade `Tip`s | decorative: each lies inside its blade's box | the rotor body's pose |
+| `Visual/Output/Wheel` (cylinder r 0.24 m, 0.12 m long, at (0.25, −0.1, 0.44)) | **defect: stands 0.105 m in front of the nacelle with no collider** | the output binding (about its own axis) |
+| `Visual/Output/Spoke0`, `Spoke1` | decorative: turned by the output binding | the output binding |
+
+The package has no row in the visible-solid table. Repair: [part C](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md) (drafted, blocked on parts B and B2): a static cylinder collider for the wheel as base collider 4, added to the capture's own exemptions so rear airflow still reaches the samples, and a matcher that reads the imported guard ring. Colours: navy base, cream tower, nacelle, guard and wheel, cyan blades, gold hub, tips and spoke marks. Icon: four cyan vanes in a ring on a cream tower. At a glance it differs from the Fan by four pitched vanes, the tower and the side pulley.
+
+## 4. Engine capabilities
+
+| Capability | Mark | Symbol and test |
+| --- | --- | --- |
+| Rotary airflow capture over real pose samples | present | `IRotaryAirflowCaptureElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:55`); `RotaryAirflowRuntimeTests.FourActualPoseSamplesLoseOnlyOccludedWeight` (`CuriousContraptions.tests/RotaryAirflowRuntimeTests.cs:91`) |
+| Capture law (pitch selection, inclusive cut-in) | present | `CuriousContraptions.Abstractions/RotaryAirflowLaw.cs`; `RotaryAirflowLawTests.LowFlowSelectsFirstZeroRatherThanFarSideOfPlateau` (`CuriousContraptions.tests/RotaryAirflowLawTests.cs:10`), `CutInIsInclusiveForceThreshold` (`:87`) |
+| Finite-inertia rotor that coasts and accepts backdrive | present | `IHingeElement` (`MechanicalContracts.cs:20`); `RotaryAirflowRuntimeTests.PassiveRotorAcceptsBackdriveAboveTargetCapAndCoastsWithoutSourceWork` (`:75`) |
+| Accepted-travel occurrence | present | `ICoordinateTravelElement` (`MechanicalContracts.cs:50`); `WindmillIntegrationTests.RotorTravelEventPaidMotionAndLifecycleUseCommittedPhysicalState` (`CuriousContraptions.tests/WindmillIntegrationTests.cs:13`) |
+| Shaft output through a Mechanical link to driven loads | present | `PortRole.Drive`; `WindmillIntegrationTests.PaidShaftTransportsRemoteCargoAndReverseStagesControlDirection` (`:79`) |
+| Hollow Tube collider | present | `ColliderShapeKind.Tube` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`); `WindmillAdmissionTests.ActualPackageSolidsContactProbesWhileBoreAndMissRemainClear` (`CuriousContraptions.tests/WindmillAdmissionTests.cs:177`) |
+
+Counts: 6 present, 0 untested, 0 narrower, 0 missing.
+
+## 5. Behaviour and numbers
+
+- **Drive.** The signed net force of the exposed samples along the axis sets an unloaded target speed of force × `radians_per_force`, capped at 12 rad/s: a default Fan (9 N) asks for 6 rad/s. Below 0.05 N of net force the rotor is passive (0.049 N passive, 0.05 N active).
+- **No velocity is assigned.** Finite inertia, load and backdrive decide the actual motion. Active branches share the Fan's force, power and energy allocation and debit each source; a calm, blocked or depleted source leaves passive resistance only, and the rotor coasts to rest.
+- **Direction and exposure.** Rear airflow reverses rotation; edge-on air and equal opposed sources do not drive. A Wall over one sample removes that sample's quarter; moving exposure is re-sampled each substep.
+- **Pitch selection.** The capture chooses the first boundary of the positive-drive interval from zero pitch, up to the 0.4 m limit; in the low-flow clipped case torque is zero at and above the target in either direction.
+- **Output.** The drive port turns loads through its 0.24 m rim; a heavy load slows the shaft, and an external drive can turn the windmill above its aerodynamic target.
+- **Travel.** One occurrence when absolute accepted travel first reaches a full turn, including across a reversal.
+- **Bellows.** The planned Bellows must carry cargo past the same Conveyor at default settings (Story 12.4 row B3); whether a short burst suffices against a 0.245 kg·m² rotor is that slice's finding, and it may not be met by raising this part's response.
+
+## 6. Acceptance
+
+All executed in the published package.
+
+| Criterion (CAT-070) | Test (`WindmillIntegrationTests` unless named) |
+| --- | --- |
+| Four samples; partial occlusion removes its share | `RotaryAirflowRuntimeTests.FourActualPoseSamplesLoseOnlyOccludedWeight` |
+| Signed rear drive, edge-on and opposing controls | `ActualSourcePoseAndSignedExposureDetermineDrive` (`:267`), `OpposingSourcesPayTheirOwnWorkAndInactiveBranchesPayNothing` (`:413`), `RotaryAirflowLawTests.EqualOppositionAndEdgeOnArePassive` (`:96`) |
+| Response 0.1–4 admitted, others refused | `WindmillAdmissionTests.ResponseAdmitsOnlyCanonicalFiniteRange` (`:252`), `WindmillArtworkTests.ResponseEditorRefusesInvalidValuesWithoutChangingUndoOrInstalledConstruction` (`CuriousContraptions.tests/WindmillArtworkTests.cs:11`) |
+| Cut-in 0.05 N inclusive | `RotaryAirflowRuntimeTests.InclusiveCutInControlsActualTransfer` (`:43`) |
+| Unloaded target and cap | `RotaryAirflowRuntimeTests.PaidFiniteRotorApproachesItsSignedUnloadedOperatingRegion` (`:16`) |
+| Load, backdrive and coast | `HeavyCargoLoadsTheFiniteShaftAndUnloadedRigAcceleratesAgain` (`:151`), `ConnectedExternalDriveBackdrivesActualWindmillAboveAerodynamicTarget` (`:375`), `ElectricalCutPreservesCoastThenReenableRestartsCapture` (`:179`) |
+| Connected and disconnected cargo, reversers, blocked jet | `PaidShaftTransportsRemoteCargoAndReverseStagesControlDirection` |
+| Reversal passes through zero | `ReversingBeforeOneTurnAccumulatesAbsoluteTravelWithoutInstantaneousFlip` (`:207`) |
+| Works moved and turned | `TranslatingAndRotatingTheAssemblyPreservesItsLocalCaptureBehavior` (`:242`) |
+| Art follows committed state; Reset restores | `WindmillArtworkTests.NativeRotorAndOutputFollowCommittedStateAndResetAuthoredTransforms` (`:43`) |
+| Save, load and Reset with a connection | `ConnectedNondefaultSaveLoadDeliversPaidCargoAndResetsAuthoredState` (`:316`) |
+| Invalid ports and wrong-kind links refused | `WindmillAdmissionTests.InvalidPortsLeaveTheInstalledConstructionUntouched` (`:148`); generic `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`) |
+
+Chrome recipe: post-catalogue.
+
+## 7. Integration
+
+Works with Fan (all three supplies), Conveyor, Reverse transmission, Motor, Wall, Battery (delivered); Bellows (Story 12.4, in flight: the burst integration is that slice's row B3). Campaign: first use in levels 31–40 ([campaign reservations](../invest/campaign-reservations.md)); no level in `content/puzzles.json` places it yet. Coverage binding: catalogue key `windmill`. Lesson-fixture story (S8) only where a level pre-places it.
+
+## 8. Delivery
+
+Delivered and published. Residual work: part C's wheel collider and table row (engine review tier); the Bellows integration; browser proof, post-catalogue. `requirements.md` still says publication is pending and keeps the CAT-070 checkbox open (see the [batch summary](readiness/batch-d.md)). The blades collide, as delivered: [DESIGN.md](../../../DESIGN.md) "Windmill" is being updated to say so (owner decision 4, 22 November 2026).
+
+**Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; in particular `ENGINE-SPATIAL-QUERIES` and `ENGINE-ISLANDS-SLEEP`; then part C after parts B and B2. The Bellows row waits for the Bellows slice (CAT-010).
+
+## 9. Open questions
+
+None. Catalogue wording, the cut-in unit (a force, 0.05 N), the contact material and reuse of the Tube collider for the guard were decided in Story 12.3 and are delivered.
+
+## Engine conformance
+
+Against the owner's conformance addendum of 22 November 2026 (element-free engine gate in [AGENTS.md](../../../AGENTS.md); design contracts D1–D7 in `_bmad/custom/element-free-engine-design.md`). **Verdict: conforms with one fix pending (point 3: the output wheel has no collider; part C).**
+
+1. **Declaration data only.** One declaration class of descriptors, one scene, one imported guard mesh, one icon. No runtime project names the part: a search of `engine/`, `ui/` and every `CuriousContraptions.*` runtime project for `windmill` and `Windmill` returns nothing. There is no per-part occurrence, "active" rule or observe loop: the part declares a generic travel observer.
+2. **Generic laws.** Spin-up, reversal and cut-in: the rotary airflow capture law on a declared revolute coordinate. Coast and backdrive: the hinge with finite inertia and no drive. Partial blocking: occlusion of each sample by any collider except the declared internal ones. Output: the mechanical transmission law through a declared drive port and rim. First full turn: the coordinate-travel observation with a declared threshold.
+3. **Layers.** Colliders: hidden `col_base`, `col_tower`, `col_nacelle`, `col_guard`, `col_hub` and four `col_blade` (after part C also `col_output`). Visuals: the nodes of section 3; none is a collider. Animation: one binding turns `Visual/Output` from the committed hinge angle; the wheel's art turns about its own axis, which a static cylinder collider matches at every angle.
+4. **One-way flow and typing.** Art reads the committed coordinate; nothing flows back. The port is typed Mechanical, Output, Drive.
+5. **Flat state.** 2 bodies (1 static, 1 dynamic); 9 colliders (7 boxes, 1 tube, 1 sphere; 10 after part C, adding a cylinder); 1 revolute joint; 0 drives; 1 rotary capture with 4 samples; 1 travel observer; 0 stores and domain nodes; 1 port; 1 event kind; 1 presentation binding and 1 body-pose mapping. All fixed at compile time.
+6. **Performance.** Nine colliders: each of the four blades is a drawn solid on a moving body that a ball can strike, and the guard is a true hollow ring. None is cosmetic. Four capture samples cost four occlusion queries per source per substep; today each query scans every collider, and `ENGINE-SPATIAL-QUERIES` replaces the scan with its segment query. A calm rotor comes to rest. Island sleeping is not implemented (`docs/gpu-f32-physics.md:273` describes it); a resting rotor is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`; nothing in this part works around either gap.
+7. **Tests are scenarios.** All rows run the production simulation; `WindmillAdmissionTests.UnfamiliarRepeatedCapturesKeepExactFramesAndHingesWhenReordered` (`:14`) runs the same law on declarations that are not this package.
+
+## Appendix: Historical evidence
+
+Evidence of the legacy part at `a6c914e`, kept so the harvest stays traceable. Nothing here is a requirement, a tolerance or a design instruction; sections 1–9 are the spec. The legacy part had its own `Turned` occurrence, an "active while" rule, a per-part observe loop, CPU calibration paths and work-ledger certificates; none of that is the design. Legacy tick counts, speed bands and calibration values in the cited files are history only.
+
+| # | Fact | Citation |
+| --- | --- | --- |
+| 1 | Legacy unloaded response, cut-in and effective resistance of the capture | `engine/physics/RotaryCaptureMaterial.cs@a6c914e:L47-L127`; `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L25-L36` |
+| 1a–1d | Legacy calibration cases and the cut-in boundary | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L15-L33`, `L49-L65` |
+| 2 | Accepted air force fell as the rotor turned | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L37-L42` |
+| 3 | Air force was read from committed transfer impulses along the hinge axis | `engine/AirflowNetwork.cs@a6c914e:L102-L121`; `parts/WindmillPart.cs@a6c914e:L63-L67` |
+| 4 | Fan and windmill: spin-up, belted conveyor, reversers, fan off and coast, Reset, save and load; back wind reversed each | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L47-L110` |
+| 5 | The assembly worked in five orientations and had exactly one mechanical port | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L111-L133` |
+| 6 | Exposure: full, partial with one sample blocked, and blocked | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L134-L156` |
+| 7 | A ball on a conveyor was carried only when belted, unblocked and the fan was on | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L157-L181` |
+| 8 | Edge-on, weak and opposing air gave no drive | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L182-L210` |
+| 9 | Reversing the wind crossed zero along the finite-inertia motion | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L211-L279` |
+| 10 | The shaft capped; a Motor could not also drive the belted conveyor; out-of-range gains were refused | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L280-L298` |
+| 11 | Invalid sample weights failed before any receiver changed | `CuriousContraptions.tests/WindmillTests.cs@a6c914e:L299-L322` |
+| 12 | Forward and reverse air drove the rotor; it coasted down after the fan stopped | `CuriousContraptions.tests/SourceRotorTests.cs@a6c914e:L54-L66`, `L169-L212` |
+| 13 | Solved poses, not rendered transforms, set the rotor force | `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs@a6c914e:L260-L283` |
+| 14 | One fan funded two rotors, or a rotor and a ball, from one reservoir | `CuriousContraptions.tests/RotorAirflowSupplyTests.cs@a6c914e:L25-L112` |
+| 15 | Bellows, windmill and conveyor chain | `CuriousContraptions.tests/BellowsTests.cs@a6c914e:L82-L254` |
+| 16 | Shaft angle, speed and travel were read from the owned hinge, at two placements, and restored on Reset | `CuriousContraptions.tests/AxialMotionOwnershipTests.cs@a6c914e:L48-L142`; `CuriousContraptions.tests/BodyLocalBoxTests.cs@a6c914e:L25-L77` |
+| 17 | Declaring a transfer on an undeclared rotor body was refused before Run | `CuriousContraptions.tests/SceneMechanicalTransferTests.cs@a6c914e:L18-L32` |
+| 18 | No level used the windmill | `docs/coverage/catalogue-elements.json` (empty fixture list) |
+| 19 | More calibration cases; invalid capture declarations refused | `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs@a6c914e:L35-L178` |
+| 20 | Requested speed was continuous before the cut-in | `CuriousContraptions.tests/RotaryCaptureForcePathTests.cs@a6c914e:L153-L164` |
+| 21 | In calm air a hinge with no branches damped rotor speed and added no energy | `CuriousContraptions.tests/RotaryCaptureMotionTests.cs@a6c914e:L71-L91`; `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs@a6c914e:L291-L304` |
+| 22 | A rotating source was re-sampled within the step | `CuriousContraptions.tests/RotaryCaptureMotionTests.cs@a6c914e:L11-L69` |
+| 23 | Supply lifecycle: disabling, partial exposure, mixed branches, exhaustion and recharge | `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs@a6c914e:L89-L289` |
+| 24 | Legacy part, art and catalogue entry | `parts/WindmillPart.cs@a6c914e:L9-L98`; `parts/catalog/windmill.tres@a6c914e:L6-L12`; `engine/TubeProxy.cs@a6c914e:L6-L6`; `engine/PartArt.cs@a6c914e:L22-L23` |
 
 **Files harvested:**
 - `parts/WindmillPart.cs`
@@ -98,8 +164,8 @@ Families: the [CAT-070 row](../general-engine-element-map.md) and `docs/coverage
 - `engine/PartArt.cs` (ring half-width convention)
 - `engine/TubeProxy.cs`
 - `engine/physics/RotaryCaptureMaterial.cs`
-- `engine/physics/RotaryCaptureDeclaration.cs` (CPU preparation and trajectory certificates over fact 1's law; do not carry forward)
-- `engine/physics/RotaryCaptureForcePath.cs` (CPU calibration-path certificates; do not carry forward)
+- `engine/physics/RotaryCaptureDeclaration.cs` (CPU preparation and trajectory certificates)
+- `engine/physics/RotaryCaptureForcePath.cs` (CPU calibration-path certificates)
 - `reference/cpu/MachinePart.cs`
 - `CuriousContraptions.tests/WindmillTests.cs`
 - `CuriousContraptions.tests/SourceRotorTests.cs`
@@ -109,23 +175,7 @@ Families: the [CAT-070 row](../general-engine-element-map.md) and `docs/coverage
 - `CuriousContraptions.tests/AxialMotionOwnershipTests.cs`
 - `CuriousContraptions.tests/BodyLocalBoxTests.cs`
 - `CuriousContraptions.tests/SceneMechanicalTransferTests.cs`
-- `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs` (facts 1a–1d, 19)
-- `CuriousContraptions.tests/RotaryCaptureForcePathTests.cs` (fact 20; remainder do not carry forward: certificates)
-- `CuriousContraptions.tests/RotaryCaptureMotionTests.cs` (facts 21–22)
-- `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs` (facts 21, 23; certificates not carried forward)
-
-## Acceptance outline
-
-Point of truth: [CAT-070](../requirements.md#current-cat-070) and [retained behaviour](../requirements.md#sequence-task-311).
-
-- **Chrome construction.** Through the real palette, place a Fan, the Windmill 3 m downstream and a Conveyor; connect the windmill's Drive port to the conveyor with the real socket UI; put a ball on the belt.
-- **Positive.** Run: the rotor spins up toward 6 rad/s, the belt moves and the ball is transported.
-- **Negative or control.** A Wall in the jet stops the rotor (Story 12.3); edge-on, weak and opposing air give no drive; a disconnected belt leaves the ball; fan off → coast then rest.
-- **Boundaries.** Partial occlusion gives 3/4 of the force; unloaded speed never exceeds 12 rad/s; rest force 0.049 N is passive and 0.05 N drives; gains outside 0.1–4 reject.
-- **Run/Reset.** Reset zeroes speed, angle and travel exactly.
-- **Save/Load.** Round-trips the gain and the connection; replay reaches the same speed.
-- **Integrations.** Bellows burst (CAT-010); Reverse transmission (CAT-057).
-
-## Current decisions
-
-The four former questions (catalogue wording, cut-in unit, contact material and guard reuse) are resolved in the current contract and native implementation. Planning, the bounded first-zero correction, implementation repairs and Final diff scope have independent approval. Local candidate commit 47e01bdb9627017dce7ae68e16ef199c87b8c651 exists; its SnapshotApproval identified only the current-status documentation inconsistency now corrected in this follow-up. Exact-SHA approval of the resulting candidate and publication remain pending; no push is authorized. The preserved harvest remains historical evidence, not current authorization.
+- `CuriousContraptions.tests/RotaryCaptureMaterialTests.cs`
+- `CuriousContraptions.tests/RotaryCaptureForcePathTests.cs`
+- `CuriousContraptions.tests/RotaryCaptureMotionTests.cs`
+- `CuriousContraptions.tests/RotaryCaptureDeclarationTests.cs`

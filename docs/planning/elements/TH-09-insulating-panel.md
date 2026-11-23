@@ -2,73 +2,167 @@
 
 **Current delivery (24 October 2026):** [TH-09 delivery slice](../invest/named-elements.md#thermal-09). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 named-identity spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. No legacy holds insulation values, so every design value without a cited source is marked "(proposed: …)" with a one-line justification; the owner may revise it.
+Rewritten on 22 November 2026 as one current text against checkout `spec-drafts` (published main `8d1d68aa`). Code citations are `path:line` in that checkout; `path@a6c914e` citations appear only in section 4. Nothing was built or run: every number is a hand calculation shown here and a starting value under decision D1 of [delivery batches](../invest/delivery-batches.md#3-family-level-decisions). Units, laws, scale and tolerances are the [thermal conventions](TH-04-electrical-heating-plate.md#thermal-conventions) (T1 to T14); probe rows "TH-04 R<n>" and "TH-08 C<n>" are in [TH-04 section 3](TH-04-electrical-heating-plate.md#3-engine-capabilities) and [TH-08 section 3](TH-08-heat-conducting-bar.md#3-engine-capabilities).
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
-| ID / name | TH-09 · Insulating panel |
-| Type | Thermal · potential element (potential/conditional; source adoption retained) |
-| Anchors | [requirements.md#thermal-09](../requirements.md#thermal-09) (sequence-task-443); [named-elements.md#thermal-09](../invest/named-elements.md#thermal-09) |
-| Proof owner / research | S571 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
-| Related identities | Configurable-dimension precedent: [CAT-066 Wall](CAT-066-wall.md). Used as the control in the first heat slice with [TH-04](TH-04-electrical-heating-plate.md) and [TH-21](TH-21-temperature-sensor.md); the low-conductivity comparison for [TH-08](TH-08-heat-conducting-bar.md). |
+| ID / name / type | TH-09 · Insulating panel · Thermal |
+| Anchors | [requirements.md#thermal-09](../requirements.md#thermal-09) (task `sequence-task-443`); [named-elements.md#thermal-09](../invest/named-elements.md#thermal-09) |
+| Owner key / research | S571 · [TH-S01 heat transfer and finite stores](../../thermal-component-research.md#th-s01) |
+| Related identities | Parameter-bound size precedent: the delivered Wall ([CAT-066](CAT-066-wall.md)). The control of the first heat lessons with [TH-04](TH-04-electrical-heating-plate.md) and [TH-37](TH-37-heat-sensitive-target.md); protects [TH-14 Ice block](TH-14-ice-block.md) in lesson 67. Conductors lead: [TH-08](TH-08-heat-conducting-bar.md). No CAT refines it. |
 | Campaign | Intro 19; practice 20; reuse 67, 84, 139 ([thermal allocation](../requirements.md#thermal-campaign-allocation)) |
-| Roadmap story | [TH-09 delivery slice](../invest/named-elements.md#thermal-09); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no legacy part. |
+| Status | Not started. Blocked on the engine programme (owner decision 3a, 22 November 2026), in particular ENGINE-SPATIAL-QUERIES (static pairs) and ENGINE-CONTACT-OBSERVATIONS (a dynamic target on the panel); then ENGINE-THERMAL and ENGINE-RUN-LENGTH. Repaired on 22 November 2026 against the audit `docs/planning/elements/readiness/audits/elements-batch-n.md` (N3: a static panel; Run length) and coordinator decision 21. |
+
+### Disposition
+
+**To deliver as a single element** after TH-04 and TH-37. Planned package id `insulating_panel`, directory `elements/InsulatingPanel/`, display name "Insulating panel". Not a duplicate and not a Family member of TH-08: it has two stacked faces and a thickness-bound link instead of two ends and a conductivity-bound one.
 
 ## 2. Declaration
 
-- **Batch N game scale** (proposed, identical in all 37 TH specs; chains derived against it are in [TH-17](TH-17-kettle.md#batch-n-chains); owner question in section 6). Ambient reservoir 288 K and 101.3 kPa. [Research table](../../thermal-component-research.md) rows: specific heat, latent heat and source power read as listed range × scale (64–4096 J/(kg·K), 8192–2,097,152 J/kg, 0.5–2048 W); temperature (128–2048 K), conductance (2⁻¹⁰–2⁸ W/K), fuel/supply (finite), ignition threshold (400–1200 K) and sensor thresholds read as listed, without scale; expansion coefficient reads 2⁻²⁰–2⁻¹⁴ 1/K after scale, which TH-22 and TH-23 exceed on purpose as a declared exaggeration. Condensed-phase specific heat SI × ¼ and latent heat SI × 1/16, so catalogue-scale bodies change temperature or phase within one Run. Gas R and Cv SI × 1, so γ and pressure stay physical; each condensed phase's enthalpy is referenced so vapour made at T_sat carries m·Cv·T_sat and the scaled latent heat is exactly the heat consumed; because water's scaled latent heat (141 kJ/kg) is below R·T_sat (172 kJ/kg), boiling follows a declared saturation curve, not Clausius–Clapeyron. Every fuel's reaction energy and O₂ demand per kilogram SI × 1/1024 (wax 41,016 J/kg and 3.4/1024 kg O₂/kg; wood and cellulose 15,625 J/kg and 1.2/1024 kg O₂/kg), so a 0.3 kg candle holds about 12 kJ, heat per kilogram of O₂ keeps Thornton's ≈ 13 MJ/kg, and fuel mass is consumed 1:1 so burn-down stays visible. Still-air surface exchange h = 2.5 W/(m²·K) (SI × ¼, so condensed-body time constants C/(hA) stay SI-like while gas-node ones run about 4× slower than SI); forced air h = 2.5 + u (u in m/s). Contact pairs conduct G = G_a·G_b/(G_a + G_b) from each part's face conductance: metal 64, ceramic, wood, ice or soft 16, probe tip 0.5 W/K. Every exchange is clamped per 480 Hz substep to the equalising amount ΔT·C_a·C_b/(C_a + C_b), so small nodes never overshoot. Reactive surfaces carry a thermal-only patch node outside rigid mass (fibre 10 mg, wood 0.5 g; area 0.0025 m²; patch-to-bulk 0.01 W/K; thermal nodes 10⁻⁶–1024 kg, not bound by the 1/1024 kg rigid minimum) that takes strikes, flames and light first. Radiant optical power: 1 legacy intensity unit = 1 W, so the flashlight emits 24 W. Canonical f32 ([numeric contract](../../gpu-f32-physics.md#game-grade-envelope)).
-- **Variants.** None named in the row. Thickness is a configuration parameter, so the "thinner comparison" is the same part at a smaller thickness.
-- **Bodies and shapes.** One static body: upright slab box, half-extents (t/2) × 0.40 × 0.50 m for thickness t (proposed: a 1.0 × 0.8 m face shields a Basketball-sized target). Opaque to light and gas as an ordinary solid.
-- **Mass and material.** Static rigid mass zero (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L70-L76`). Two face nodes of 0.25 kg each, c = 210 J/(kg·K) (ceramic fibre 840 × ¼, batch scale). Conductivity k = 0.05 W/(m·K) (proposed: ceramic-fibre board 0.04–0.08). Faces: ceramic, 16 W/K (batch scale), so a probe tip pairs at 0.485 W/K and the plate at 12.8 W/K. Contact friction 0.6, restitution 0.05 (proposed: matte ceramic like the Domino, `engine/gpu/WorkshopDomino.cs@a6c914e:L9-L9`).
-- **Constraints.** None.
-- **Typed ports.** None.
-- **Sensors and activation.** None.
-- **Work and energy stores.** Through-conductance G = k·A/t = 0.05 × 0.8 / t; at the default 0.10 m G = 0.4 W/K, at 0.05 m G = 0.8 W/K (derived). Each 0.8 m² face keeps its explicit still-air exchange, 2.5 × 0.8 = 2 W/K (batch scale, radiation included); insulation never deletes heat (map composition note).
+Follows the delivered Wall for parameter-bound colliders and art on one static body (`elements/Wall/WallElementDeclaration.cs:11-13`, `:40-45`).
+
+- **Interfaces.** `IMechanicalElement`, `ISceneGeometryElement`, `IParameterizedGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:29`), and the thermal-node contract of ENGINE-THERMAL.
+- **Body.** One static body (`KinematicMode.Static`, zero static mass frame), a slab lying flat: 1.0 m (X) × `thickness` (Y) × 0.8 m (Z), origin at its centre. The player places it with its lower face touching the face it insulates (the Heating plate's disc top at 0.21 m, a static-on-static pair resolved once at Run, T3); cargo rests on its upper face. It is static because thermal links come from touch, not from a narrowphase contact (coordinator decision 21; audit N3); the earlier dynamic panel, made loose only to obtain a contact, is withdrawn.
+- **Colliders (metres; t = `thickness`).**
+
+  | Collider | Centre | Half extents | Purpose |
+  | --- | --- | --- | --- |
+  | `col_lower` | (0, −t ÷ 4, 0) | (0.50, t ÷ 4, 0.40) | lower layer; thermal face of node `lower` |
+  | `col_upper` | (0, +t ÷ 4, 0) | (0.50, t ÷ 4, 0.40) | upper layer; thermal face of node `upper` |
+
+  Four `ColliderParameterBinding` rows: `HalfExtentY` = 0.25 × t and `OffsetY` = ∓0.25 × t for each (`GeometryComponent`, `CuriousContraptions.Abstractions/SceneGeometry.cs:24`). Two colliders because a face is a collider (T2) and the two sides must be different nodes.
+- **Material (f32).** Friction 0.6, restitution 0.05, rolling resistance 0. Like every collider it blocks light and sound.
+- **Thermal nodes.** `lower` and `upper`: heat capacity 5 J/K each (light fibre board, declared); ambient conductance 0.2 W/K each (edges and uncovered margin, declared); face conductance 16 W/K (ceramic).
+- **Internal link.** `lower` ↔ `upper`, a slab (TH-08 C3): conductivity 0.05 W/(m·K), area 0.8 m², length `thickness`, so G = 0.04 ÷ t: 0.8 W/K at 0.05 m, 0.4 W/K at 0.10 m, 0.2 W/K at 0.20 m.
 - **Parameters.**
 
-  | Parameter | Type | Range | Default | Unit | Source |
-  | --- | --- | --- | --- | --- | --- |
-  | Thickness t | f32 | 0.05–0.20 | 0.10 | m | (proposed: a 4:1 range shows the conductance trade; set through the gizmo like Wall dimensions, `engine/gpu/WorkshopWall.cs@a6c914e:L8-L10`) |
-  | Conductivity | f32 | fixed | 0.05 | W/(m·K) | (proposed: above) |
-  | Face conductance | f32 | fixed | 16 | W/K | (batch scale: ceramic face) |
+  | Name | Kind | Unit | Default | Min | Max | Editor policy |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | `thickness` | `ParameterKind.Real` | `ParameterUnit.Metre` | 0.10 | 0.05 | 0.20 | `ParameterEditorPolicy.Clamp`; player-editable unless the level locks it (D11); build-only; set with the size gizmo as the Wall's is |
 
-- **Cosmetic curves and UI bindings.** None ([research per-element table](../../thermal-component-research.md)). The navy section pattern shows thickness.
-- **Art.** "Layered cream ceramic slab with a visible navy section pattern" (row). Nearest [DESIGN.md](../../../DESIGN.md) source colours (proposed mapping): cream `#ead39b` (`DESIGN.md@a6c914e:L146-L146`), navy `#293954` (`DESIGN.md@a6c914e:L147-L147`).
-- **Catalogue and inventory entry.** Package-owned declaration, discovered into the bundle; id `insulating_panel`, title "Insulating panel", category Heat (proposed: no current category covers thermal parts).
+- **Ports.** None. **Stores.** None beyond the nodes.
+- **Presentation bindings.** `Visual` scale Y ← `thickness` (parameter-driven, the Wall's pattern). No temperature cue: the panel is read by its thickness.
+- **Palette.** Category `ElementCategory.Structure`. Order: 510 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)).
+
+### Art and solidity
+
+| Art node | Mesh | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Lower`, `Visual/Upper` cream `#fff8e9` | two stacked boxes 1.0 × t ÷ 2 × 0.8 m | solid, `col_lower`, `col_upper` | the body pose; height by the parameter binding |
+| `Visual/Section` navy `#293954` | a zigzag section pattern printed flush on the four edges | decorative: printed flat | the body pose |
+
+Icon: a slab seen edge-on with a zigzag core. At a glance it differs from the Wall (a plain upright block) by its zigzag edge and lying flat, and from the Heat-conducting bar by being broad with no ringed ends.
+
+### Compiled counts
+
+Bodies 1 (static); colliders 2 (box); joints 0; drives 0; sensors 0; thermal nodes 2; faces 2; internal links 1; ports 0; stores 0; collider parameter bindings 4; presentation bindings 1.
 
 ## 3. Engine capabilities
 
-Families (map row TH-09, [general-engine-element-map](../general-engine-element-map.md); binding [thermal-01.json](../../coverage/engine/thermal-01.json)): FiniteLedger, GeometryQuery, SensibleHeat, ThermalConduction, ThermalRadiation; JSON adds StateTransaction. Composition note: keep explicitly supported convection and radiation paths; insulation never deletes heat.
+### Capability probe
 
-- **Exists now.** Static body and box collider (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); configurable box dimensions precedent (`engine/gpu/WorkshopWall.cs@a6c914e:L8-L10`); Run/Reset and save (`engine/gpu/ActivationNetwork.cs@a6c914e:L67-L67`, `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Missing.** [S543](../invest/decisions.md#s543): conduction → S544, thermal-radiation → S546; face convection → S545 (not in the map row). SensibleHeat (IX-43) is a required entry decision under S543 owned by the linked delivery slice. Required in the linked delivery slice.
-- **Dependencies.** A heat source and a receiver on opposite sides (TH-04, TH-21, TH-37).
+| # | Capability | State | Symbol | Exercising test |
+| --- | --- | --- | --- | --- |
+| TH-04 R1, R6 | Colliders from art; parameter bounds | present | as TH-04 | as TH-04 |
+| TH-08 C2 | A Real parameter drives collider half extents and an art scale, through Reset, save and load | present (on the static Wall) | as TH-08 | as TH-08 |
+| P1 | The same binding including `OffsetY` | present, untested for `OffsetY` | `GeometryComponent.OffsetY`, `CuriousContraptions.Abstractions/SceneGeometry.cs:24` | not opened |
+| TH-08 C3 | A slab link whose length is a declared Real parameter | **missing** | none | none; owner ENGINE-THERMAL |
+| TH-04 R9, R10, R11, R13 | Nodes, touch links (the static lower face on the disc; a dynamic target on the upper face), ambient exchange, thermal units | **missing** | as TH-04 | none; owner ENGINE-THERMAL |
+
+Counts: present 3, untested 1, narrower 0, missing 5. All five missing rows have one owner, **ENGINE-THERMAL** (R10 with ENGINE-SPATIAL-QUERIES and ENGINE-CONTACT-OBSERVATIONS). Nothing here needs code that names this part.
 
 ## 4. Sources and legacy
 
-- **Requirement row** [thermal-09](../requirements.md#thermal-09): thickness and material resist transfer while retaining supported radiative/convective paths; no variants.
-- **Named entry** [thermal-09](../invest/named-elements.md#thermal-09): owner S571; "a thinner/lower-resistance comparison leaks heat faster; insulation is not a universal heat deletion field".
-- **Research** per-element table: "low-conductance link"; parameter conductance; "slows heat loss; protects cargo". The [first heat slice](../../thermal-component-research.md) uses this panel as a control.
+- **Requirement row** [thermal-09](../requirements.md#thermal-09): thickness and material properties resist heat transfer while retaining explicitly supported radiative/convective paths; no variants.
+- **Named entry** [thermal-09](../invest/named-elements.md#thermal-09): owner S571; "A thinner/lower-resistance comparison leaks heat faster; insulation is not a universal heat deletion field".
+- **Research** per-element table: "low-conductance link"; "slows heat loss; protects cargo". The [first heat slice](../../thermal-component-research.md) uses this panel as a control.
+- **Element map** row TH-09: FiniteLedger, GeometryQuery, SensibleHeat, ThermalConduction, ThermalRadiation; "insulation never deletes heat". Navigation only (D14).
 - **Processes.** [IX-18](../requirements.md#interaction-18), [IX-19](../requirements.md#interaction-19), [IX-20](../requirements.md#interaction-20).
-- **Legacy.** None found. Searched `parts/`, `engine/physics/`, `engine/*.cs`, `engine/bridge/`, `CuriousContraptions.tests/`, `content/puzzles.json`, `tools/Campaign` and `reference/` at a6c914e for insulat, conductance and heat terms. Consulted, no element knowledge: `reference/P0-022-before/docs/coverage/engine/task-002.json@a6c914e:L2783-L2787` (historical coverage-scope rows).
+- **Legacy.** None found. Searched `parts/`, `engine/physics/`, `engine/*.cs`, `engine/bridge/`, `CuriousContraptions.tests/`, `content/puzzles.json`, `tools/Campaign` and `reference/` at a6c914e for insulat, conductance and heat terms. The Wall's configurable dimensions (`engine/gpu/WorkshopWall.cs@a6c914e:L8-L10`) are the harvest baseline only.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-Point of truth: [thermal-09](../requirements.md#thermal-09) and [ELEMENT acceptance](../requirements.md#accept-element).
+Point of truth: [thermal-09](../requirements.md#thermal-09) and [ELEMENT acceptance](../requirements.md#accept-element). Chrome proof is pending the post-catalogue phase.
 
-- **Chrome recipe.** The first-slice recipe (Battery → Switch → Heating plate → Temperature sensor → Signal lamp) with an Insulating panel placed through the palette between plate and probe; thickness set with the gizmo.
-- **Positive.** With the 0.10 m panel the probe side face rises slowly (0.4 W/K through, 2 W/K lost from that face), so it stays far below the plate and the lamp lights much later than without the panel, or not at all within the Run; heat crossing the panel equals G·ΔT.
-- **Negative or control.** The same construction at 0.05 m leaks twice as fast (the needle rises sooner). A hot body wrapped by panels still cools through the declared face paths; total heat is conserved.
-- **Boundaries.** Thickness outside 0.05–0.20 m is clamped at the gizmo; equal face temperatures give zero flow.
-- **Run/Reset.** Restores face temperatures and thickness exactly.
-- **Save/Load.** Pose and thickness round-trip; Run after reload reproduces the outcome.
-- **Integrations.** TH-14 Ice block protection (lesson 67); campaign 19, 20, 67, 84, 139.
+### Behaviour and numbers
+
+- **Laws.** Contact links on each face, one slab link through, ambient at each node (T3). The panel is a body with a small conductance; nothing removes heat except the declared ambient paths.
+- **Reference stack.** A supplied Heating plate (T14), the panel lying on its disc (metal on ceramic, 12.8 W/K), a TH-37 target lying on the panel (ceramic on ceramic, 16 × 16 ÷ 32 = 8 W/K; target 0.45 W/K to ambient). θ is the rise above 288 K. Steady state at 0.10 m:
+  - target: 8·(θ_u − θ_t) = 0.45·θ_t, so θ_t = 0.9467·θ_u and it takes 0.426·θ_u;
+  - `upper`: 0.4·(θ_l − θ_u) = (0.2 + 0.426)·θ_u, so θ_l = 2.565·θ_u;
+  - `lower`: 12.8·(θ_d − θ_l) = 0.2·θ_l + 0.626·θ_u = 1.139·θ_u, so θ_d = 2.654·θ_u;
+  - disc: 120 = 0.5 × 2.654·θ_u + 1.139·θ_u = 2.466·θ_u, so θ_u = 48.7 K.
+  Result: disc 417 K, `lower` 413 K, `upper` 337 K, target 334 K; 30.5 W cross the panel. Check: 0.5 × 129.2 + 0.2 × 124.9 + 0.2 × 48.7 + 0.45 × 46.1 = 64.6 + 25.0 + 9.7 + 20.7 = 120 W.
+- **Thickness.** The same algebra with G = 0.8 (0.05 m): θ_l = 1.7825·θ_u, 120 = 1.912·θ_u, target 288 + 0.9467 × 62.8 = 347 K, 39.3 W crossing. With G = 0.2 (0.20 m): θ_l = 4.13·θ_u, 120 = 3.574·θ_u, target 320 K, 21.0 W crossing. Without the panel the target settles at 412 K ([TH-37](TH-37-heat-sensitive-target.md)).
+- **At 60 s** (two-stage estimate: the plate side settles with a 28 s time constant, the upper side lags by 15.5 J/K ÷ 1.03 W/K = 15 s): target rise about 46.1 × (1 − e^(−45 ÷ 28)) = 37 K at 0.10 m, about 47 K at 0.05 m, about 25 K at 0.20 m, against about 110 K with no panel. Rows therefore assert order with margins.
+- **Run length these rows need: 60 s** (A1 to A4 observe at 60 s; ENGINE-RUN-LENGTH, owner decisions 13 and 17; default 30 s, maximum 300 s; the plate's Battery has `capacity` 7200 J so it lasts the 60 s).
+- **Panel alone on the plate.** `upper` loses only to ambient: 0.4·(θ_l − θ_u) = 0.2·θ_u gives θ_u = 0.667·θ_l; `lower`: θ_d = 1.026·θ_l; 120 = 0.513·θ_l + 0.333·θ_l, so `lower` 430 K and `upper` 383 K. The far side warms and sheds heat by its declared path.
+- **Tick order.** T8. **Tolerances.** T12. Stall guard 180 s.
+
+### Rows
+
+Planned class `InsulatingPanelTests`. All rows use a Battery with `capacity` 7200 J.
+
+| # | Given / When / Then | Planned test | Control | Boundary | Tolerance |
+| --- | --- | --- | --- | --- | --- |
+| A1 | Given the reference stack at 0.10 m, when 60 s pass, then the target has risen more than 2 K and less than half the rise it shows with no panel | `APanelSlowsHeatWithoutDeletingIt` | the target directly on the disc | none | as stated |
+| A2 | Given the stack at 0.05 m and at 0.20 m, when 60 s pass, then the thin panel's target is at least 5 K warmer | `AThinnerPanelLeaksFaster` | A1 | `thickness` at its minimum and maximum | 5 K margin against an estimated 22 K |
+| A3 | Given A1 at 60 s, then the Battery's debit equals the heat stored in the five nodes plus the ambient account | `InsulationConservesHeat` | an unsupplied stack: every node at 288 K, debit 0 J | none | 2% of the debit |
+| A4 | Given the panel alone on the supplied plate, when 60 s pass, then `upper` has risen more than 10 K and the ambient account has grown | `TheFarFaceKeepsItsAmbientPath` | none | none | as stated |
+| A5 | Given A1 then Reset, then every node is at 288 K, the stack is at its authored pose and a second Run repeats A1 | `ResetRestoresThePanelAndItsNodes` | none | none | as A1 |
+| A6 | Given a placed panel with `thickness` 0.15, when saved and loaded, then the value and pose are kept and the colliders are 0.15 m tall in total | `SaveAndLoadKeepThickness` | none | none | exact value |
+| A7 | `thickness` outside 0.05 to 0.20 is clamped (`ParameterEditorPolicy.Clamp`) | generic: TH-04 R6 | bounds admitted | 0.05, 0.20 | clamped value exact |
+
+No port, so no wrong-kind connection row. The requirement's clauses: thinner leaks faster (A2); not a deletion field (A3); retained convective paths (A4).
 
 ## 6. Open questions
 
-1. **Batch N game scale.** Adopt or revise the one scale in section 2 (×¼ specific heat, ×1/16 latent heat, gas ×1, reaction energy and O₂ ×1/1024, h 2.5 W/(m²·K), per-pair series contact conductance from per-part face values, 1 intensity unit = 1 W, and which research-table rows the scale multiplies). It carries two consequences: boiling needs a declared saturation curve (S550) because scaled water latent heat is below R·T_sat, and gas-node time constants run about 4× slower than SI (TH-25). Owner decision.
-2. **Thickness control.** Player-configurable thickness or fixed thickness presets. Owner decision.
-3. **Face convection.** The map row omits ThermalConvection although the row keeps convective paths. Owner decision.
+Resolved:
+
+1. **Game scale.** D5, restated once in TH-04 section 11.
+2. **Thickness control.** A continuous Real parameter (D11), as the Wall's.
+3. **Face convection.** Kept as each node's declared ambient conductance (T3); the map row's omission is navigation only (D14).
+4. **Radiation.** None between nodes (T3); the "radiative path" the row names is light, which the panel blocks as any collider does.
+5. **Static or dynamic.** Static, lying flat (coordinator decision 21; audit N3): touch, not contact force, makes a link, so both faces conduct while they touch within the tolerance.
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Works with.** TH-04, TH-37 (planned before it), TH-21, TH-26, TH-29, TH-14 (lesson 67: a panel under an ice block slows its melting).
+- **Campaign.** Introduction 19, practice 20; reuse 67, 84, 139. Loose cargo; fixed partners need the lesson-fixture story ([S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package)), which lands after the engine programme (owner decision 22).
+- **Coverage.** Section 10.
+
+## 8. Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), which comes first: the programme (ENGINE-SPATIAL-QUERIES, ENGINE-CONTACT-OBSERVATIONS); ENGINE-GAS-NETWORK and ENGINE-LIQUID, then ENGINE-THERMAL as amended (owner decision 18); ENGINE-RUN-LENGTH; TH-04; TH-37; S7; S3 preferred.
+- **Files.** `elements/InsulatingPanel/InsulatingPanel.csproj`, `InsulatingPanelElementDeclaration.cs`, `insulating_panel.tscn`, `icon.svg`; one guarded line in `CuriousContraptions.slnx` (`spec-s3-remaining-per-package-lists.md`, decision O1); `CuriousContraptions.tests/InsulatingPanelTests.cs`; a row in `VisibleSolidColliderTests`; this spec's binding section once S7 allows it. Registration is derived.
+- **Review tier.** Data-only if the probe finds every row present and tested; otherwise the engine tier.
+- **Disqualifiers.** No slab link with a parameter-bound length (then `thickness` becomes a three-option Choice selecting one of three fixed links and three collider sets); `OffsetY` bindings failing (P1); static pairs not resolved at Run; faces per body instead of per collider (the panel would then be one node and conduct perfectly).
+
+## 9. Engine conformance (22 November 2026)
+
+1. **Declaration data only.** One static body, two boxes, two nodes, one slab link, one parameter, five bindings. No update loop or engine branch on this part.
+2. **Generic laws.** Q̇ = G·ΔT on contact, slab and ambient links. "Insulates" is a small declared conductance.
+3. **Three layers.** Colliders: `col_lower`, `col_upper`. Visuals: two layer boxes each with its collider; a printed edge pattern. Animation: none beyond the parameter-driven height.
+4. **Flow and typing.** No ports; one f32 parameter in metres.
+5. **Flat state.** The counts in section 2.
+6. **Performance.** Two primitive colliders, both needed as face boundaries; thermal work is two nodes, one link and one term per live touch pair in the link table (T10). Static, it adds no solver body; the link table persists through sleep when ENGINE-ISLANDS-SLEEP (planned) lands.
+7. **Tests are scenarios.** A1 to A6 run the production simulation.
+
+**Verdict: Conforms; blocked on ENGINE-THERMAL, a general capability stated element-free, and on the engine programme (owner decision 3a).**
+
+## 10. Coverage binding (planned, not yet live)
+
+Published main binds a named-identity package through a final section of its spec that `tools/Coverage/NamedPackageSources.cs` reads (pattern: EL-239 Baseball). That section is not written here. **Blocked on the coverage follow-on story S7:** main's reader lists only `EL-*.md` files and admits only an `EL-NNN` identity with an `element-NNN` anchor, so no thermal identity can be bound until S7 widens it.
+
+| Field | Planned value |
+| --- | --- |
+| Package | `insulating_panel` |
+| Named identity | TH-09, `../invest/named-elements.md#thermal-09` |
+| Acceptance | none resolvable today; the row's own task is `sequence-task-443` and the ledger entry has no todo link |
+| Decision | S571; `scope-corrections.md` on published main has no `s571` block |
+| Mode records | `Configuration=Fixed` |

@@ -4,7 +4,7 @@
 
 Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Requirement row: [CAT-033](../requirements.md#current-cat-033). Supplied-network facts (N1–N24) are in [CAT-005](CAT-005-battery.md#4-legacy-harvest).
 
-**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the housing collide with their drawn primitives, after the housing and foot boxes: the cream face panel as a 1.18 × 0.72 × 0.045 box at z 0.35, the indicator as a sphere r 0.07 at (0, −0.22, 0.4), and the three ports as spheres r 0.08 at (0, 0.65, 0.2) and (∓0.78, 0, 0) (`elements/HoldTimer/hold_timer.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto the face; `HoldTimerTests`). The remaining-time bar is scaled by the timer and does not collide. Placement bounds every collider (`PlacementPose`), so the ports now count toward the bench edge: the timer reaches x ±0.86 against the foot's ±0.8, and y +0.73 (the trigger port) against the body's +0.55. The static navy track is flat printing at z 0.37275, 0.25 mm above the face, without a collider; the animated gold remaining bar and its anchoring are retained. The one lesson that uses the hold timer, `saved_for_later`, is Planned (not Playable), so no authored solution exercises these colliders yet.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`elements-visible-solid-sweep`](../../../TODO.md) the parts that stand proud of the housing collide with their drawn primitives, after the housing and foot boxes: the cream face panel as a 1.18 × 0.72 × 0.045 box at z 0.35, the indicator as a sphere r 0.07 at (0, −0.22, 0.4), and the three ports as spheres r 0.08 at (0, 0.65, 0.2) and (∓0.78, 0, 0) (`elements/HoldTimer/hold_timer.tscn`; `VisibleSolidColliderTests` checks them against the art and drops a ball onto the face; `HoldTimerTests`). The remaining-time bar is scaled by the timer and does not collide. Placement bounds every collider (`PlacementPose`), so the ports now count toward the bench edge: the timer reaches x ±0.86 against the foot's ±0.8, and y +0.73 (the trigger port) against the body's +0.55. The static navy track is flat printing at z 0.37275, 0.25 mm above the face, without a collider; the animated gold remaining bar and its anchoring are retained. The one lesson that uses the hold timer, `saved_for_later` (level 60), is Playable, and its authored solution runs natively (`WoundSpringIntegrationTests`, `LaunchLessonSolveTests`).
 
 ## 1. Identity
 
@@ -14,35 +14,104 @@ Story 7.0 Batch B declaration spec (CAT-033-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-033](../requirements.md#current-cat-033); retained behaviour [todo-261](../requirements.md#todo-261) |
 | Mapped identities | none owned. Related: [TH-34 Timed toaster ejector](../invest/named-elements.md#thermal-34) composes a generic timer; its requirement row stands as the source. |
 | Roadmap story | 9.5 "Hold Timer Pulse Stretcher" (Epic 9) Current [CAT-033 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | implemented; native review in progress, browser qualification deferred until catalogue complete |
+| Status | **Delivered** (22 November 2026 check): package `elements/HoldTimer`, id `hold_timer`; Story 9.5 done on the declared timer of Story 9.5a (`sprint-status.yaml:245–251`); browser qualification pending post-catalogue. Residuals: [section 7](#7-delivered-state-integration-and-residuals-22-november-2026). Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the part needs no specific engine story of its own. |
 
 ## 2. Declaration
 
-| Item | Declaration (value · source) |
-| --- | --- |
-| Bodies and shapes | Static root box 1.4 × 1.1 × 0.65 m at the origin; foot box 1.6 × 0.14 × 0.85 m centred at y −0.62 (`parts/HoldTimerPart.cs@a6c914e:L61-L62`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)); the face panel, indicator and ports (Colliders above). |
-| Mass and material | Static. Legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`). |
-| Constraints and joints | none |
-| Typed sockets and ports | `ActivationIn` Activation Input at (0, 0.65, 0.2); `PowerIn` Electrical Input at (−0.78, 0, 0); `Supply` Electrical Output at (0.78, 0, 0) (`parts/HoldTimerPart.cs@a6c914e:L37-L42`). Electrical route `PowerIn`→`Supply` closed while the timer is Counting (`parts/HoldTimerPart.cs@a6c914e:L43-L44`). No activation output. |
-| Sensors and activation | Trigger activation starts a window if Ready; a busy trigger is ignored (`parts/HoldTimerPart.cs@a6c914e:L51-L56`). |
-| Work and energy stores | none; the timer closes a supplied contact and never creates electricity (`parts/HoldTimerPart.cs@a6c914e:L9-L9`). |
-| Parameters | `hold_seconds`: float seconds, range 0.1–12 inclusive, default 2.0 (`parts/HoldTimerPart.cs@a6c914e:L45-L50`, `parts/catalog/hold_timer.tres@a6c914e:L14-L14`). Window ticks = checked MathF.Ceiling of rounded f32(seconds × cadence rate) (`engine/SceneTimerDeclaration.cs@a6c914e:L12-L18`). Carry forward as f32 seconds; do not copy the half-precision `DelayDuration` encoding (`engine/gpu/WorkshopDelay.cs@a6c914e:L6-L33`; then-remaining f32 migration per `docs/gpu-f32-physics.md@a6c914e:L96-L96`, delivered by Story 9A.44). |
-| Cosmetic curves and UI bindings | (1) Remaining bar: gold bar scales along X from anchor −0.5 with fraction = committed remaining fraction (1 at trigger → 0 at expiry), minimum scale 0.001, visible only while the timer is active (`parts/HoldTimerPart.cs@a6c914e:L25-L32`). (2) Indicator lamp slate `#556573` → gold `#f7cb52`, 0.1 s SmoothStep, follows the window (owner active), independent of supply (`parts/HoldTimerPart.cs@a6c914e:L33-L35`). Historical cosmetic `Timer` source carried phase and a 0..1 blend (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L13`), used by Delay. |
-| Art | Housing in catalogue colour `#66b8c9` (0.40, 0.72, 0.79); navy `#293954` foot; cream `#fff8e9` face 1.18 × 0.72 × 0.045 at z 0.35; navy track 1 × 0.14 × 0.025 at (0, 0.1, 0.39); gold `#f7cb52` bar 1 × 0.10 × 0.035 at (0, 0.1, 0.415), hidden at rest; three `#e8b764` contact pads r 0.08 at (±0.78, 0, 0) and (0, 0.65, 0.2) — "two contact pads distinguish the hold relay from the round delay clock"; indicator r 0.07 at (0, −0.22, 0.40) (`parts/HoldTimerPart.cs@a6c914e:L58-L72`). Selection ring 0.95 (`parts/HoldTimerPart.cs@a6c914e:L60-L60`). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L87-L87`. Design: "Hold timer" row of [DESIGN.md · Motion and state feedback](../../../DESIGN.md#motion-and-state-feedback). |
-| Catalogue / inventory | Id `hold_timer`, Title "Hold timer", Category Control, colour (0.40, 0.72, 0.79), Parameters `{"hold_seconds": 2.0}`; Description: "An activation closes this electrical contact for two seconds. Connect a battery to its input: the timer does not create power. Busy triggers are ignored; it rearms when time is up." (`parts/catalog/hold_timer.tres@a6c914e:L8-L14`). Inventory 1 in `saved_for_later` (harvest H18). |
+The delivered declaration is `elements/HoldTimer/HoldTimerElementDeclaration.cs` with the scene `elements/HoldTimer/hold_timer.tscn` (read on `8d1d68aa`). It implements `ISignalElement`, `ISupplyElement` and `ISceneGeometryElement` (`:10`). The legacy sources of the carried values are in section 4.
 
-## 3. Engine capabilities
+**Body and material.** One static body with no mass and no joint (`:22`). Material: restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:31`), all f32.
 
-Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction, TimedCommand (P0-022/023 shared evaluator/feedback registration).
+**Colliders (physics graph).** Seven, baked in this order from the hidden scene proxies `col_Body` to `col_PortOutput`. Physics reads no art.
 
-**Current capabilities (Story 9.5)**
-- Shared declared timer policies select Rearm/BeforeNetworks/None for Hold and preserve Delay's Latch/BeforePhysics/Activation. Duration and phase use canonical f32; start/due ticks remain integers.
-- Candidate scheduling expires contacts, then routes already-due deliveries to BeforeNetworks timer destinations before supply integration. Remaining destinations merge chronologically with physical occurrences after the solve. Commit/discard covers both timer and physical state.
-- A newly observed physical trigger commits its window at that tick; consumer motion begins on the next physical integration, as with the existing plate. An already-due Delay opens the Hold window before that boundary's consumer integration.
-- Supplied contact and remaining-fraction/visibility/indicator bindings are generic capabilities. No element identifier branch, activation output, or independent update loop.
-- Common collider/speed/capture ABI remains owned by 9A.44; this timer/presentation extension does not claim full numeric migration.
+| # | Shape | Size (m) | Centre (m) |
+|---|---|---|---|
+| 0 | box | 1.4 × 1.1 × 0.65 | origin |
+| 1 | box | 1.6 × 0.14 × 0.85 | (0, −0.62, 0) |
+| 2 | box | 1.18 × 0.72 × 0.045 | (0, 0, 0.35) |
+| 3 | sphere | r 0.07 | (0, −0.22, 0.4) |
+| 4–6 | sphere | r 0.08 | (0, 0.65, 0.2), (−0.78, 0, 0), (0.78, 0, 0) |
 
-**Element dependencies**: an activation source (Switch CAT-063, Delay CAT-022); Battery (CAT-005) and a supplied consumer for any observable output (the legacy tests used Powered gate, CAT-051; [current-consumers](../invest/current-consumers.md#cat-033-i) names Motor, CAT-042); `saved_for_later` also needs Motor (CAT-042) and Wound spring (CAT-071).
+Placement bounds every collider, so the timer reaches x ±0.86 and y +0.73 at the bench edge.
+
+**Visuals (rendering graph).** No art mesh is used as a collider.
+
+| Art node | Mesh and colour | Solidity | Moved by |
+|---|---|---|---|
+| `Visual/Body` | box 1.4 × 1.1 × 0.65 m, teal `#66b8c9` | solid, collider 0 | nothing |
+| `Visual/Foot` | box 1.6 × 0.14 × 0.85 m, navy `#293954` | solid, collider 1 | nothing |
+| `Visual/Face` | box 1.18 × 0.72 × 0.045 m, cream `#fff8e9` | solid, collider 2 | nothing |
+| `Visual/Indicator` | sphere r 0.07 m, slate to gold | solid, collider 3 | nothing (colour binding only) |
+| `Visual/PortTrigger`, `PortInput`, `PortOutput` | spheres r 0.08 m, ochre `#e8b764` | solid, colliders 4–6 | nothing |
+| `Visual/Track` | `QuadMesh` 1 × 0.14 m at (0, 0.1, 0.37275), navy (`hold_timer.tscn:34–36`) | decorative: printed flat, 0.25 mm in front of the face | nothing |
+| `Visual/Remaining/Bar` | box 1 × 0.10 × 0.035 m, gold, anchored at x −0.5, z 0.415 | decorative: moved by a binding. It reaches z 0.4325 while shown and takes no collider | the remaining-time bindings (animation graph) |
+
+Selection radius 0.95 (`:46`). Icon `elements/HoldTimer/icon.svg`. At a glance it is the teal case with a horizontal track and three contact pads; the Delay box, its nearest sibling, has a round clock face and a hand.
+
+**Animation (animation graph).** Five presentation bindings (`:48–52`). They read the committed timer row of node `signal` and write nothing back.
+
+| Target | Property | Driver | Values |
+|---|---|---|---|
+| `Visual/Remaining` | scale X | `CommittedTimerRemaining` | 0.001 to 1, Linear |
+| `Visual/Remaining` | visible | `CommittedTimerActive` | hidden at rest, shown while counting |
+| `Visual/Indicator` | albedo red, green, blue | `CommittedTimerActive` | slate to gold, SmoothStep 0.1 s; independent of supply |
+
+**Ports** (`:26–28`). There is no activation output.
+
+| `PortId` | Domain | Direction | Role | Signal kind | Position (m) | Facing |
+|---|---|---|---|---|---|---|
+| `ActivationIn` | Signal | Input | ActivationIn | Pulse | (0, 0.65, 0.2) | +Y |
+| `PowerIn` | Electrical | Input | PowerIn | — | (−0.78, 0, 0) | −X |
+| `Supply` | Electrical | Output | Supply | — | (0.78, 0, 0) | +X |
+
+**Parameter** (`:21`).
+
+| Name | Kind | Unit | Minimum | Maximum | Default | Editor policy | Run edit |
+|---|---|---|---|---|---|---|---|
+| `hold_seconds` | Real | second | 0.1 | 12 | 2 | Reject (default) | Build-only |
+
+**Signal node, supply node and event.** One signal node `signal`, a `SignalTimerDescriptor` on `hold_seconds` with completion `Rearm`, boundary `BeforeNetworks` and elapsed signal `None` (`:33`); `ActivationIn` binds to its input (`:35–38`). One supply node `contact`, a `SupplyContactDescriptor` closed while `signal` is `TimerCounting`, between `PowerIn` and `Supply` (`:39–44`). No event (`:32`). `ElectricalNodes` holds one `Switch` row (`:45`); its ratings are unread (section 7).
+
+**Compiled counts per instance.** 1 static body; 7 colliders (3 boxes, 4 spheres); 0 joints; 0 drives; 0 sensors; 1 signal node with one committed timer row; 1 supply node; 0 stores; 3 ports; 5 bindings. All are fixed at compile.
+
+**Catalogue.** Id `hold_timer`, title "Hold timer", category Control, palette order 25, colour (0.40, 0.72, 0.79), description "An activation closes the supplied contact for the configured window. Busy triggers are ignored; expiry rearms it." (`:13–20`). Coverage key `hold_timer`. Authored level 60 `saved_for_later` (plan level 41a) grants one.
+
+## 3. Engine capabilities and conformance
+
+Map families, for navigation only (D14): AnimationEvaluation, AnimationLifecycle, ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction, TimedCommand.
+
+**Generic laws.** The package holds no script, callback, update loop or state machine. The Delay box declares the same timer node with other policy values (`Latch`, `BeforePhysics`, `Activation`), which shows the law is general.
+
+| Behaviour | General law | Declared values |
+|---|---|---|
+| A body rests on it or rebounds from it | rigid contact with the product pair law for restitution, and friction | seven colliders; the material |
+| A trigger opens a window of the declared length; a busy trigger is ignored; expiry rearms | signal network timer rule: a ready node that receives a pulse counts for its duration; at its due tick it completes by its declared completion policy on its declared boundary, and emits its declared elapsed signal | `hold_seconds`; `Rearm`, `BeforeNetworks`, `None` |
+| The contact is closed during the window; supply loss never pauses the window | supply network contact rule: a contact is closed while its controlling signal node is in the declared state | `SignalContactState.TimerCounting` |
+| A due Delay opens the window before the same tick's consumer step | the engine's declared tick phases: due deliveries reach `BeforeNetworks` timers before supply integration | the boundary value |
+| Bar and lamp | presentation bindings on the committed timer row | the five bindings |
+
+**Capability probe.** 6 present, 0 untested, 0 narrower, 0 missing.
+
+| Capability | Status | Symbol | Test |
+|---|---|---|---|
+| Rearming timer on the before-networks boundary | present | `SignalTimerDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:49`) | `HoldTimerTests.PhysicalTriggerHoldsExactWindowWithoutGeneratingSupply`; `HoldTimerTests.BusyInputsDoNotExtendAndExpiryRearmsWithoutAnyOutput` |
+| Supplied contact while counting; supply loss never pauses | present | `SupplyContactDescriptor` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:40`) | `HoldTimerTests.SupplyLossNeverPausesAndRestorationAfterExpiryNeverReplays` |
+| A due Delay opens the window before the same tick's consumer step; save and Reset | present | one chronological router | `HoldTimerTests.DueDelayClosesContactBeforeSameTickConsumerIntegrationAndSaveResetIsExact`; `HoldTimerTests.ScheduledExpiryRetriggerAndPhysicalBypassShareOneChronologicalRouter` |
+| Seconds compiled per cadence | present | the same descriptor | `HoldTimerTests.ResetThenCadenceChangeUsesTheNewCompiledTimerDuration` |
+| Parameter refusal | present | `ParameterDescriptor` range | `HoldTimerTests.InvalidDurationDoesNotAlterCanonicalPart` |
+| Remaining bar and lamp | present | `PresentationDriver.CommittedTimerRemaining`, `CommittedTimerActive` | `HoldTimerPresentationTests.ActualCommittedWindowDrivesAnchoredBarAndIndependentLampAndHiddenCatchUp` |
+
+The window length is the feature, so these tests may assert the due tick.
+
+**Conformance (owner addendum, 22 November 2026): conforms with one fix.**
+- Declaration data only: holds. A search of `engine`, `ui` and every non-test `CuriousContraptions.*` project for the package id, class and namespace found no reference (`docs/planning/elements/readiness/audits/elements-batch-b.md` §5).
+- Three layers: hold. Every static proud solid has its own collider; the track is a flat print; the bar is moved by bindings and is decorative; the indicator's binding changes colour only.
+- One-way flow, typing and flat state: hold, with the counts in section 2. The policies are closed enums.
+- Fix: the unread `ElectricalNodes` ratings are a required forward-only refactor (section 7).
+
+**Performance fitness.** The body is static and is never integrated. Seven colliders against the two of the original housing has one reason: visible = solid. The face, the indicator and the three contact pads are each drawn standing clear of the housing, so each has its own primitive. No collider is cosmetic, and the bar, which is cosmetic, has none. The cost for many instances is the recorded, unmeasured engine gap "Per-instance collider growth from visible = solid" (`_bmad-output/implementation-artifacts/deferred-work.md:177–179`), owned by the performance qualification gate P0-034. The timer costs one node row per tick. The authorities state no per-part budget, so none is claimed here.
+
+**Dependencies.** A pulse source (Impact switch, Delay box); Battery and a supplied consumer (Powered gate, Motor). All are delivered.
 
 ## 4. Legacy harvest
 
@@ -110,3 +179,18 @@ Authority: [CAT-033](../requirements.md#current-cat-033), [todo-261](../requirem
 1. Output means the supplied PowerIn→Supply contact only; no ActivationOut is added.
 2. Reset clears timers, pending scheduled delivery and committed presentation together; it never invents an expiry occurrence. Busy triggers are dropped.
 3. Story 9.5 uses the f32 timer/phase delivered by 9.5a and f32 presentation delivered by 9A.25a. Shared physical ABI migration remains 9A.44. Historical harvest above remains evidence, not a second current implementation.
+
+## 7. Delivered state, integration and residuals (22 November 2026)
+
+Checked against `elements/HoldTimer`, its scene and its tests on published main `8d1d68aa`, and against `origin/main` `25df3cd5`, which changes none of them. Nothing was built or run.
+
+**Disposition.** Delivered CAT part: package `elements/HoldTimer`, id `hold_timer`, category Control, palette order 25 (`elements/HoldTimer/HoldTimerElementDeclaration.cs:13–18`). No slice is planned for this identity. It owns no named identity. Every residual below is blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element.
+
+**Integration.**
+- Delivered collaborators: Impact switch, Delay box, Battery, Powered gate, Both gate (a Hold contact opens a mutual loop, `BothGateTests.OpeningPoweredContactRetractsMutualLoopWhileSourcesRemainEnabled`), and the Motor and Wound spring of its lesson.
+- Campaign: authored level 60 `saved_for_later` (plan level 41a) grants one in the inventory and is Playable; the part itself is first taught at plan level 24 ([campaign coverage section 6](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)).
+- Coverage binding: catalogue key `hold_timer` in `docs/coverage/catalogue-elements.json`.
+
+**Residuals.**
+- **Required forward-only refactor: unread ratings.** `ElectricalNodes` declares 12 V, 0.05 Ω and 100 W (`HoldTimerElementDeclaration.cs:45`). The four rating values are only checked finite (`CuriousContraptions.Bundle/BundleValidator.cs:873–876`) and nothing reads them. Dead declaration data is removed, not kept; the deferred-work text is in batch B readiness.
+- Requirement row CAT-033 stays unchecked until the post-catalogue browser phase.

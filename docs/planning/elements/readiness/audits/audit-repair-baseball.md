@@ -1,0 +1,97 @@
+# Planning audit: `spec-repair-baseball-el-239.md` (Baseball repair, EL-239)
+
+Audited 22 November 2026. Phase: planning; nothing was built or run. Contract read in the `spec-drafts` checkout (`8d1d68aa`, uncommitted draft, 3,310 words). Code read only through `git show origin/main:<path>` at `fa86969f`; "main" below means that revision. Policy read from the `spec-drafts` checkout.
+
+## Verdict: Incomplete
+
+The intent is right and matches the owner's decisions of 22 November 2026. I found no wrong value, threshold or capability claim. The contract is not yet Ready for Development because of one wording defect inside the read-only intent contract, two contradictions between its own sections, a stale statement about the in-flight EL-223 slice, and two planned tests that can pass without proving their row. All are text fixes; none needs a redesign or an owner decision. With findings B1 to B6 applied it is a Scoped Pass; the fixes do not need a new audit of the intent rows.
+
+## What was checked and holds
+
+- **Owner decisions.** Mass 0.15 kg, radius 0.26 m, one proud band with its own collider, role "the lightest ball", a `VisibleSolidColliderTests` row: all in the intent, tasks and acceptance (contract `:21`, `:45`–`:52`, `:96`, `:149`–`:150`).
+- **Inertia.** 0.4 · 0.15 · 0.26² = 0.004056; 0.01 per cent is 4.056e-7 (contract `:45`, `:156`).
+- **Band geometry against the Basketball.** Main `elements/Ball/ball.tscn:15`–`:18`: stripe inner 0.322, outer 0.35 on a 0.34 m sphere, that is r − 0.018 and r + 0.01; quaternion (0, 0, −0.3007058, 0.95371695) at `:31` and `:42`; collider proxy is a hidden `MeshInstance3D` named `col_visual_stripe` under the root (`:40`–`:43`). The contract's 0.242 and 0.27, the quaternion and `col_visual_band` copy this exactly. Centreline 0.256, tube 0.014. The extractor accepts any `col_`-prefixed node and bakes a `TorusMesh` as a Torus (main `tools/BundleElements/SceneGeometryExtractor.cs:23`–`:25`, `:118`–`:121`).
+- **`Specs` row.** Main `VisibleSolidColliderTests.cs:54`: `ArtSpec(Solid, Hollow, Arc, Decorative, MovingRoots)`; the `ball` row at `:109` is `new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], [])`. The contract's row `new(["Visual/Sphere"], ["Visual/Band"], [], [], [])` has the same shape and names the planned nodes. The theory runs over `Specs.Keys` (`:172`), so the row is executed without any other edit.
+- **Rest pose.** The band plane is tilted 35 degrees, so its lowest point is 55 degrees from the resting point and 0.099 m above the bench; a ball without spin rests on its sphere (contract `:130`).
+- **R3 (drop).** Rebound height does not depend on mass. The larger radius raises the Baseball's peak by about 9 mm (recorded 0.166 m becomes about 0.175 m); the nearest ball stays the Bowling ball at −0.119 m, about 0.29 m away against 0.15 m. The existing assertions hold unchanged.
+- **R4 (Fan).** Main `ConicalAirflow.cs:19`–`:26`: impulse = force · weight · pressure · seconds · (flow − v)/flow. Fan: force 9 N, flow 12 m/s, power force · 12, so the source cap is force · seconds and does not bind (`elements/Fan/FanElementDeclaration.cs:22`, `:48`–`:51`; `ConicalAirflow.cs:31`). All three balls declare the same four samples of weight 0.25 (Baseball `:27`–`:30`, Basketball `:30`–`:33`, Tennis `:27`–`:30`). After 0.1 s: 12(1 − e^(−0.5)) = 4.72, 12(1 − e^(−0.214)) = 2.31 and 12(1 − e^(−0.075)) = 0.87 m/s; ratios 2.04 and 5.44 against 1.5 and 3. Fan at (0, 5, 0), ball at (3, 5, 0) is the construction `FanGuidanceTests.cs:27`–`:29` already uses.
+- **R4 self-shadowing.** `AirflowLineClear` skips only the receiver's own collider slot (main `WorkshopPhysicsEngine.Airflow.cs:151`), so the Baseball's band is an obstacle to its own samples. In the authored pose the +y or −y sample's ray passes 0.0168 m from the band centreline, 2.8 mm clear of the 0.014 m tube; the query tolerance is 0.2 mm (`PhysicalTolerance.cs:10`). So no sample is lost and the expected ratios are 2.04 and 5.44. The Basketball's clearance is 8.7 mm. See N3.
+- **R5 (plate).** Inclusive comparison on summed mass (main `engine/gpu/ContactLoadSensorDeclaration.cs:27`); default minimum 0.5 kg, range 0.1 to 16 kg (`PressurePlateElementDeclaration.cs:39`). 0.15 and 0.30 kg are below 0.5; 0.30 ≥ 0.25; two Tennis balls are 0.70 kg. Top face half-width 0.9 m; ring outer radius 0.318 m; a ball at ±0.5 m clears the ring and the studs. `PlacedParts.Plate` is public and takes the minimum (`PlacedParts.cs:58`).
+- **R6 (cannon).** Width window 0.6 to 0.84 m (main `CannonElementDeclaration.cs:31`–`:32`; `ChamberOccupancyTests.cs:15`–`:18`). Width is taken over every collider of the payload (`WorkshopPhysicsEngine.Chambers.cs:117`–`:138`): 0.52 m across the sphere, up to 0.54 m across the band. It stays `Loading`.
+- **Nothing else on main breaks.**
+  - Palette order 68 and colour unchanged. Cream `#e8dccb` and Coral `#d96b58` are both in the approved palette (main `DESIGN.md:80`), so keeping the published colours is correct. The dropped tan `#e8b764` is the activation-link and Underweight cue colour and `#ed6378` is the Balloon's (`DESIGN.md:211`, `:227`).
+  - `PackageRuntimeParityTests.cs:154`, `:160` select the sphere with a predicate, so a second collider passes.
+  - `PalettePlacementTests.cs:825`–`:830`, `WorkbenchCapacityTests` and `WorkshopIntegrationHarnessTests.cs:694` derive per part or check membership only.
+  - `FanGuidanceTests.cs:36` needs more than 0.1 m/s; 4.7 expected.
+  - No level, fixture or other test names the Baseball's values (search of main for `baseball` outside the package and its tests: lists and planning documents only).
+- **Coverage binding and source hash.** The task hash covers the spec text, the ledger entry and the S636 block (main `NamedPackageSources.cs:77`–`:79`). `docs/coverage/source-inventory.json:591` stores a hash for `sequence-task-530`, but the published Baseball slice changed the enriched hash without touching `docs/coverage/` (no such path in `git diff --stat 8d1d68aa origin/main`) and its full round passed, so no committed file expects the enriched value. The task has no proof owner, so no stored proof goes stale. The contract's claim at `:112` is right; see N1 for its wording.
+- **Probe.** All eleven cited symbols exist at the cited lines and all cited tests exist on main. Two citations are loose (N3).
+- **Forward-only.** The withdrawn "heavier striker" role is deleted with its test and helper; nothing reads the old values; saves carry only the part id. `TennisBallTests.ConfiguredMassChangesMomentumTransferredToAnEqualRadiusPayload` exists (main `TennisBallTests.cs:118`) and covers the generic law. The history file `spec-named-el-239.md` is left as evidence. One wording problem: B2.
+- **Budget and size.** 3,310 words; eight matrix rows; one coherent slice.
+
+## Blocking findings
+
+### B1. Intent contract: "every changed or new test runs the simulation" is false for the R2 tests (wrong specified behaviour)
+
+- Where: contract `:30`.
+- Defect: `SceneAndIconExposeBandedSphereMatchingContactGeometry` and the `VisibleSolidColliderTests` row read the production scene and bundle; they do not run the simulation. The sentence is inside `<intent-contract>` and becomes read-only.
+- Consequence: a reviewer holding the slice to its intent must either fail the R2 tests or ignore an Always rule.
+- Fix: replace line `:30` with: "Every changed or new test runs real production code with the tolerances fixed here: the C# simulation for motion rows (R3 to R8), the production bundle and package scene for geometry rows (R1, R2)."
+
+### B2. AC1 and task 4 contradict each other on seam names in the tests (wrong specified behaviour)
+
+- Where: contract `:163` against `:155` and `:199`.
+- Defect: AC1 says no seam node remains "in the package or its tests". Task 4 and the R2 control tell the test to assert that `Visual/SeamLeft` and `Visual/SeamRight` do not exist, which keeps both old names in the test file. AC1 also says no "0.25 m radius" remains, while R5 uses a 0.25 kg plate minimum, the declaration keeps 0.25 sample weights and the Tennis control is 0.25 m.
+- Consequence: the Forward-Only Auditor can fail either reading; the implementer cannot satisfy both.
+- Fix, task 4 (`:155`): replace "`Visual/SeamLeft` and `Visual/SeamRight` do not exist" with "the `Visual` node has exactly two mesh children, `Sphere` and `Band`". Fix, table row R2 control (`:199`): "`Visual` has exactly the two mesh children". Fix, AC1 (`:163`): "…then rows R1 and R2 hold, and the package and its tests name no seam node and no Baseball mass of 0.65 kg, inertia of 0.01625 or Baseball radius of 0.25 m."
+
+### B3. "The slice adds no file" is false; the whitespace check would miss the new files (wrong specified behaviour)
+
+- Where: contract `:140`, `:187`.
+- Defect: the contract itself and `run-logs/spec-repair-baseball-el-239.md` (owned at `:108`) are new files on the implementation checkout. `git diff --check` ignores untracked files; the protocol's handoff step 4 requires `git add -N` on owned new files first.
+- Fix, `:140`: "Every owned source, test and planning path is already tracked on main. The only new files are this contract and its run log; neither is compiled." Fix, `:187`: "`git add -N` on the contract and the run log, then `git diff --check <baseline_revision>` -- expected: no output."
+
+### B4. The in-flight statement is stale and permits running beside EL-223 (wrong specified behaviour)
+
+- Where: contract `:142`, `:206`.
+- Evidence: at this audit the EL-223 worktree (`tim-cluster2-after-baseball`, still `fa86969f`) holds a staged `elements/PassiveImpactScoop/` package, `PassiveImpactScoopTests.cs` and a 10,940-line evidence file. It is being implemented, not planned. Its tree has not yet changed `tools/Coverage/` or the Baseball spec; its contract still plans to (`spec-named-el-223.md:84`, `:213`–`:215`). It also owns `docs/planning/elements/README.md`, `named-elements.md` (its own row), `deferred-work.md`, `CuriousContraptions.slnx` and the test project file, and it plans to replace the coverage test this contract names for AC4 with `CurrentCatalogueTests.DecisionAndSliceOwnedPackagesUseOneCurrentContract` (`:237`). It changes one comment in `elements/Ball/BallElementDeclaration.cs`, no value.
+- Defect: AGENTS.md "One slice at a time" allows parallel work only for read-only drafting and an Early level proof. This repair is neither, yet `:142` describes two slices in flight that "publish serially". The shared-file list names three files; there are at least five. The AC4 row names a test that may not exist at the baseline.
+- Consequence: a merge on the Baseball spec's binding line and on `README.md`, and an acceptance row with no test.
+- Fix, replace the EL-223 bullet at `:142` with: "EL-223 (`tim-cluster2-after-baseball`) is being implemented from `fa86969f`. This slice does not run beside it: it starts from published main, either before EL-223's candidate is committed or after EL-223 is published; the coordinator chooses and records which. Shared files: `docs/planning/elements/EL-239-baseball.md` (EL-223 changes the `**Decision:**` line to `**Ownership:** Decision [S636](…)`), `docs/planning/elements/README.md`, `docs/planning/invest/named-elements.md`, `TODO.md`, the sprint status and `deferred-work.md`. If this slice starts after EL-223, the planner re-reads every `path:line` in this Code Map on the new baseline before dispatch, and the binding section is kept in the Ownership syntax. If it starts first, EL-223 merges main once and its real-repository coverage test must still read the rewritten Baseball documents." Fix, AC4 row (`:206`): "the `CurrentCatalogueTests` method that reads the actual repository's Baseball binding on the baseline (on `fa86969f`: `NamedPackageUsesItsExistingTaskAcceptanceWithoutCatalogueAlias`); `CurrentCapabilityInputsTests.NamedPackageClosureIsRequiredWithoutGrantingCompletion` or its successor".
+
+### B5. R5 can pass without a ball on the plate, and has no observation window (test)
+
+- Where: contract `:158`, `:202`.
+- Defect: "leaves the plate off" is a negative. The two-ball placement is proven to register by the 0.25 kg row, but the one-ball placement never switches in any row, so a ball that misses or rolls off passes. No window is stated.
+- Fix, row R5 (`:202`), test column: "`TwoBaseballsLeaveADefaultPlateOff`, a theory of six cases (minimum, load, expected): (0.5, one Baseball, off), (0.5, two Baseballs, off), (0.5, two default Tennis balls, on), (0.25, two Baseballs, on), (0.25, one Baseball, off), (0.1, one Baseball, on). Construction and observation as `TennisInteractionTests.TwoDefaultTennisBallsLoadThePlateWhileOneStaysBelowThreshold` (main `TennisInteractionTests.cs:32`–`:47`): plate top at bench + 0.22 m, balls released 0.34 m above it, `Latched` looked for over 2,400 ticks (the 20 s resting guard that test already uses). Each 'off' case also asserts at the end that every ball's centre is within 1 mm of plate top + 0.26 m and below 0.05 m/s, so the ball is resting on the plate." Control column: "two Tennis balls switch it; one Baseball switches a 0.1 kg plate (the centre placement registers)". The intent row R5 is unchanged; the 0.1 kg case is an added control, not a new acceptance.
+
+### B6. R6's control is in another test with another construction (test)
+
+- Where: contract `:158`, `:203`.
+- Defect: "stays `Loading` for 600 ticks" passes if the ball is misplaced or the cannon is built wrongly. The cited control (`ChamberOccupancyTests`) is a law fixture with a bare sphere, not this construction.
+- Fix, row R6 (`:203`): "`BaseballNeverSeatsInTheCannon`: a theory over the payload in the construction of `CannonIntegrationTests.Vertical` (main `CannonIntegrationTests.cs:209`–`:222`, built in the test with the payload's part id; that helper is not edited). Basketball: `ChamberRegions[0].Phase` reaches `Seated` within 600 ticks. Baseball: the phase is `Loading` at tick 600 and was never `Seated`, with `Occupancy` 1 (it is in the chamber)." Control column: "the Basketball seats in the same construction". Boundary unchanged.
+
+## Non-blocking findings (apply with the above)
+
+- **N1. Constraints the record edits must keep, or AC4 fails** (product defect if missed). Contract `:101`–`:103`, `:159`. Add to task 5: "line 1 stays `# EL-239 · Baseball`; the file has exactly one `## Package source binding` heading and it is the last `## ` section" (main `NamedPackageSources.cs:64`–`:66`, `:86`–`:90`). Add to task 6: "the `element-239` ledger entry keeps exactly one `](../requirements.md#todo-N)` link and exactly one `Owner **S636**`; the S636 block gains no `<a id=` anchor and stays non-empty" (`:95`–`:98`, `:103`–`:107`, `:138`–`:141`). At `:112` replace "and the scout confirms" with the evidence in "What was checked" above.
+- **N2. Collider order** (product defect if missed). Contract `:150`. The airflow receiver names collider 0 of body 0 (main `BaseballElementDeclaration.cs:28`) and the extractor numbers proxies in scene order. Add: "`col_visual_band` follows `col_sphere`, so collider 0 stays the sphere". `load_steps` stays 6 (five sub-resources before and after); "correct `load_steps`" at `:92` can say so.
+- **N3. Probe wording.** Add a row 12: "A receiver whose body has a second collider keeps its samples unless that collider crosses the sample ray | present | `WorkshopPhysicsEngine.Airflow.cs:141`–`:162` | `FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow(Ball, true)`", and in row R4's boundary (`:201`) replace the "one of four samples lost" clause with "in the authored pose the band clears the nearest sample ray by 2.8 mm against the 0.2 mm query tolerance, so all four samples count". For row 5 cite `ConicalAirflowTests` (main `ConicalAirflowTests.cs:23`–`:28`) for the linear-slip law; for row 7 add `ChamberOccupancyTests.CurrentMaterialDeterminesOccupancyAndSeatingThroughTransport` for "every collider".
+- **N4. Exact float literals for the torus** (test). Contract `:155`. The baked values are (0.242f + 0.27f) · 0.5f and (0.27f − 0.242f) · 0.5f; the Basketball's test needed `.013999999f` (main `BasketballResourceTests.cs:53`). Say: "centreline and tube equal those f32 expressions", not the decimals 0.256 and 0.014.
+- **N5. Element spec sections** (document). Contract `:159`. Main `docs/planning/elements/README.md:21`–`:31` names the six sections: Identity, Declaration, Engine capabilities, Legacy harvest, Acceptance outline, Open questions. Task 5's fourth section is "sources". Write: "Legacy harvest: none, the Baseball has no legacy implementation; Files harvested: none", and put the sources and owner decisions under Identity.
+- **N6. Test totals.** Contract `:141`. With B5 and B6 the delta is known: −1 (deleted fact), +1 (R4), +6 (R5), +2 (R6), +1 (`Specs` row), so 7,294 becomes 7,303 if the baseline is still `fa86969f`. State it.
+- **N7. Review tier wording.** Contract `:86`. Data-only is admissible under the protocol's definition: the probe is all present; the declaration stays constant data; `BaseballTests` is the package's test; the `Specs` entry is one row in an existing table keyed by part; the planning edits are this identity's own rows and decision record; no helper changes (the new tests use `FanIntegrationTests.Fan`, `TennisBallTests.Ball` and `Scene`, and `PlacedParts.Plate`, all already accessible). Two things to state so the coordinator can confirm it: `TODO.md` is at the repository root, outside the literal list, and is the coordinator's brief; and the `Specs` hunk and the `scope-corrections.md` hunk are to be opened at the tier check. Adding a `BaseballBand` member to `AssignedCompoundFeatureTests.Feature` would be a new member and would make the slice engine tier; the contract rightly does not plan it.
+- **N8. Scope guard.** Contract `:188`. Add `CuriousContraptions.Abstractions* CuriousContraptions.Simulation CuriousContraptions.Bundle CuriousContraptions.Core CuriousContraptions.tests/CuriousContraptions.tests.csproj` to the pathspec so the whole Never list is checked.
+
+## Decisions
+
+- Decisions 1 to 8 in the contract (`:126`–`:134`) are defensible and none cuts scope or waives a gate. Decision 3 is confirmed by `DESIGN.md:80`.
+- None needs the owner. For the coordinator: the order of this repair and EL-223 (B4).
+- For the owner's information only: "the lightest ball" is true at default settings (Tennis 0.35 kg, Balloon 0.5 kg, Basketball 1 kg, Bowling 4 kg); a player can set a Tennis ball's mass below 0.15 kg (range from 1/1024 kg, main `TennisBallElementDeclaration.cs:16`). The fan response also depends on the ball's orientation, because the band can shadow a sample when the ball has turned; the Basketball already behaves this way.
+
+## Evidence limits
+
+- Nothing was built or run. The R3, R4, R5 and R6 expectations are derived from the code and declared values, not measured.
+- The pressure scale of a self-contained Fan was not traced; it multiplies all three balls equally and does not change the R4 ratios.
+- The EL-223 worktree was read only for its status, its changed-path list and the lines of its draft contract that name shared files. It is uncommitted and may change.
+- The Soccer ball and Cannonball family contract was not re-audited; its overlap is as the contract states.
+- The Forward-Only and Element-Free Engine review layers will judge the implemented diff; this audit covers the plan only.

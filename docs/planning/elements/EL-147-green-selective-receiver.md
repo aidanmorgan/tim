@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-147 delivery slice](../invest/named-elements.md#element-147). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
-
-The selective receivers (EL-146 to EL-152) and the broadband detector (EL-214) share one body, aperture and switched contact; they differ in the acceptance rule, marks and icon.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after its audit and the owner decisions of 22 November 2026. Legacy citations use `path@a6c914e:Lstart-Lend`. Lengths are metres. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions). [EL-146](EL-146-red-selective-receiver.md) is the receiver family lead for the probe, sources and conformance; this identity's declaration is CAT-032's (coordinator decision 27).
 
 ## 1. Identity
 
@@ -15,43 +13,25 @@ The selective receivers (EL-146 to EL-152) and the broadband detector (EL-214) s
 | Type | Optical |
 | Anchor | [requirements.md#element-147](../requirements.md#element-147); named entry [named-elements.md#element-147](../invest/named-elements.md#element-147); source record [todo-300](../requirements.md#todo-300) |
 | Owner | S502 |
-| Refines CAT | [CAT-032 green_receiver](CAT-032-green_receiver.md) (`green_receiver`, "Green receiver"). One catalogue part satisfies both identities; not a second implementation. |
-| Related | EL-146, EL-148 (sibling primary channels); EL-149 to EL-152 (mixed); EL-214 broadband; EL-144 green filter and EL-177 green laser |
-| Roadmap story | [EL-147 delivery slice](../invest/named-elements.md#element-147); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | Candidate **Duplicate closure** of [CAT-032 green_receiver](CAT-032-green_receiver.md) (`green_receiver`, "Green receiver"), closed inside the Colour receivers Family slice. No delta from CAT-032. |
+| Acceptance authority | The CAT-032 spec's acceptance rows are the single authority (coordinator decision 16, 22 November 2026). This identity's source outcome, "missing required channel, wrong channel and absent supply remain independent negative controls", is CAT-032 row **R2** (no green in the beam), rows **R3 and R5** (green present, other channels too strong) and the **control of R1** (absent supply); the ledger row cites the package and those tests. This spec carries no rows of its own. |
+| Planned package | none of its own; CAT-032's `green_receiver` (`elements/GreenReceiver/`) |
+| Roadmap story | Story 13.2 |
+| Status | not started; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL (which follows ENGINE-SPATIAL-QUERIES) and ENGINE-SIGNAL-NODES |
 
 ## 2. Declaration
 
-- **Bodies and shapes:** one static rigid body: opaque cream plate 0.26 × 1.4 × 1.4 m at the origin; opaque navy base 0.85 × 0.18 × 1.6 m at (0, −0.88, 0); pick radius 1.1 m. Types: static `RigidBodyDeclaration`, two box `ColliderDeclaration`s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
-- **Mass and material:** static, zero mass; contact material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`) via `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- **Constraints and joints:** none.
-- **Typed ports:** optical `Main` at (−0.18, 0, 0), normal −X, finite disc radius 0.55, Absorb, front only; electrical `PowerIn` (Input) at (0, −0.6, 0.65) and `Supply` (Output) at (0, −0.6, −0.65) (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`).
-- **Sensors and activation:** matches when G ≥ threshold **and** G ≥ 0.9 × (R + G + B), with power summed over all emitters in one snapshot; while matched the contact routes `PowerIn` → `Supply`. No hysteresis; light never creates electricity.
-- **Work and energy stores:** none.
-- **Parameters:** `threshold` — f32, 0.05–2, default 0.25, game optical power (`ReceiverParameter.Threshold`). Fixed purity 0.9; channel fixed at `Green`. Mode: "threshold. OpticalChannel=Green".
-- **Cosmetic curves and UI bindings:** disc eases slate `#556573` → gold `#f7cb52` over 0.125 s smoothstep from committed activity (endpoint drive); green marks show the channel separately from activity ([DESIGN.md](../../../DESIGN.md#colour-optics)).
-- **Art (DESIGN.md palette):** cream plate `#fff8e9`, navy foot `#293954`, disc r 0.55, cream ring r 0.33, gold centre r 0.08, two green bar marks `#62aa78` at (−0.15, 0.6, 0), gold port studs.
-- **Catalogue and inventory entry:** id `green_receiver`, title "Green receiver", category Optics, colour (1, 0.97, 0.91), parameters `{"threshold": 0.25}`. Description: "Requires at least 90% green light and sufficient channel power. Switches a separate electrical supply." Icon `ui/WorkshopIcons.cs@a6c914e:L72-L72` (current, kept).
-
-### Variants
-
-One; red and blue receivers are separate identities. The three independent negative controls are proof cases.
+The `green_receiver` declaration, art and bindings are [CAT-032's declaration](CAT-032-green_receiver.md#declaration); this identity adds none (coordinator decision 27, 23 November 2026).
 
 ## 3. Engine capabilities
 
-Binding shard ([element-02.json](../../coverage/engine/element-02.json)): FiniteLedger, GeometryQuery, OpticalAbsorption, OpticalTransport, SensibleHeat, SignalPropagation, StateTransaction ([element-map row](../general-engine-element-map.md) omits StateTransaction).
-
-**Exists now:** static body, colliders, material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn`/`Supply` sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`).
-
-**Missing:** OpticalTransport Absorb aperture with snapshot readings — Story 13.2 (S484: S485, S486, S488, [decisions](../invest/decisions.md#s484)); switched electrical contact — Story 8.1 plus 13.2 (S257); OpticalAbsorption/SensibleHeat — S489/S543, mode-specific; package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
-
-**Element dependencies:** a green source (EL-177, or amber laser through EL-144), CAT-005 battery, a load (CAT-035 lamp), CAT-066 wall.
+The probe is [EL-146 section 3](EL-146-red-selective-receiver.md#3-engine-capabilities) row for row, with the same citations: present R1, R2, R3, R4, R12, R13; present-untested R11; narrower R9 (owner ENGINE-SPATIAL-QUERIES) and R10 (ENGINE-OPTICAL); missing MS (ENGINE-SIGNAL-NODES) and M2, M4, M5, M6 (ENGINE-OPTICAL). Counts 6 / 1 / 2 / 5.
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-147](../requirements.md#element-147); [todo-300](../requirements.md#todo-300); CAT row [current-cat-032](../requirements.md#current-cat-032); refinement **optical-pairings** (S694); campaign first use 51–60 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
 
-**Legacy** (shared optical facts S1–S7 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); receiver body, contact, indicator and tests harvested in full in [EL-146](EL-146-red-selective-receiver.md#4-sources-and-legacy) and apply unchanged):
+**Legacy** (shared optical facts S1–S8 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); receiver body, contact, indicator and tests harvested in full in [EL-146](EL-146-red-selective-receiver.md#4-sources-and-legacy) and apply unchanged):
 1. Receiver body, aperture, ports, route, threshold validation and indicator — `parts/LightReceiverPart.cs@a6c914e:L11-L59`. Carry forward behaviour; not the per-part callback or Godot materials.
 2. Green mask (0, 1, 0), strength = G, purity 0.9 — `engine/OpticalColour.cs@a6c914e:L10-L15`, `engine/OpticalColour.cs@a6c914e:L35-L48`. Carry forward.
 3. Catalogue entry and scene (Colour = 2) — `parts/catalog/green_receiver.tres@a6c914e:L6-L12`, `parts/scenes/green_receiver.tscn@a6c914e:L1-L5`. Carry forward the entry.
@@ -59,18 +39,26 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Files harvested:** `parts/LightReceiverPart.cs`, `parts/catalog/green_receiver.tres`, `parts/scenes/green_receiver.tscn`, `engine/OpticalColour.cs`, `engine/MachineData.cs`, `CuriousContraptions.tests/ColourOpticsTests.cs`, `CuriousContraptions.tests/ElectricalContactBindingTests.cs`, `CuriousContraptions.tests/ReceiverAnimationTests.cs`, `CuriousContraptions.tests/OpticalRuntimeCheckpointTests.cs`.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** place a battery, a triggered amber laser, a green filter, the green receiver and a lamp from the actual drawer; wire battery → laser, battery → receiver `PowerIn`, receiver `Supply` → lamp; aim with the gizmo. Run.
-- **Positive:** filtered green (0.78 from amber) lights the disc and lamp.
-- **Negative / controls (independent):** (a) missing green — beam blocked or green below 0.25; (b) wrong channel — red-only or blue-only beam; (c) absent supply — disc lights, lamp off. Also unfiltered amber (G only 37% of total), back face, occluder.
-- **Boundaries:** 0.25 / 0.249; purity 0.91 / 0.898; threshold edits 0.05–2; disc edge 0.55 m.
-- **Run/Reset:** Reset clears reading, contact and indicator. **Save/Load:** threshold, placement, wiring.
-- **Integrations:** Story 13.2 suite `tools/e2e/cat-receivers-primary.test.ts`. Binding criteria: [element-147](../requirements.md#element-147), [current-cat-032](../requirements.md#current-cat-032).
+**Authority.** Acceptance is [CAT-032's rows](CAT-032-green_receiver.md#acceptance-outline) R1 to R12, with their fixtures, tolerances and stall guards. This identity's outcomes map to **R2**, **R3 and R5**, and the **control of R1**; the ledger row cites those tests. No row is stated or inherited here; in particular the purity cases use a contaminant that is not green, as CAT-032 states them.
+
+**Behaviour and numbers.** Strength is the green reading when green is at least 90 % of the total. A green laser gives (0, 10, 0) W: on. The amber laser through a green filter gives (0, 7.8, 0) W: on, 3.1 times the default 2.5 W. An unfiltered amber beam is 7.8 ÷ 21 = 37.1 % green: off. A red laser gives no green: off. The contact closes one tick after the strength commits.
 
 ## 6. Open questions
 
-1. "Declared thresholds" versus one authorable threshold and fixed purity (as EL-146 question 1).
-2. No hysteresis at the threshold (as EL-146 question 2); owner S486.
-3. Heating from absorbed power; owner S489/S543.
-4. Confirm CAT-032 alone satisfies EL-147.
+None open: thresholds (K-6), hysteresis (K-4), absorbed heat (K-10), coupling and the closure with CAT-032's rows as the single authority (coordinator decision 16) are decided as in [EL-146 section 6](EL-146-red-selective-receiver.md#6-open-questions).
+
+Needs the owner: none.
+
+## 7. Integration
+
+As [EL-146 section 7](EL-146-red-selective-receiver.md#7-integration); channel partners are the green laser [EL-177](EL-177-green-laser-emitter.md) and the green filter [EL-144](EL-144-green-optical-filter.md). Coverage binding (planned, not yet live): catalogue key `green_receiver` (CAT-032). A closed duplicate has no binding section of its own: it is covered by the package of the part that satisfies it and by the closure record, which the coverage follow-on story S7 must admit (owner decision 15 widens the reader).
+
+## 8. Delivery
+
+Closed inside the Colour receivers Family slice. Prerequisites, in order: the engine programme (owner decision 3a) including ENGINE-SPATIAL-QUERIES; ENGINE-SIGNAL-NODES; ENGINE-OPTICAL as corrected in the batch summary; a laser. Files (CAT slice): `elements/GreenReceiver/`, one guarded solution line, rows in `SelectiveReceiverTests` and `VisibleSolidColliderTests`, the ledger row. Review tier: data-only if the probe passes. Disqualifiers: as EL-146.
+
+## 9. Engine conformance
+
+Verdict: **Conforms**, on the seven points as [EL-146 section 9](EL-146-red-selective-receiver.md#9-engine-conformance): the receiver family's declaration with the required set {Green}; no engine code names it; it couples through a signal node only; colliders, flush art and the disc binding are separate layers; counts are fixed; its tests are CAT-032's scenarios.

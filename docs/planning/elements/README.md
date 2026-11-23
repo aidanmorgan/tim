@@ -5,7 +5,7 @@ One full declaration readiness spec per puzzle element, written by [Story 7.0](.
 The index has three groups, laid out by batch letter:
 
 1. [Catalogue specs](#catalogue-specs): the 72 CAT specs (`CAT-NNN-<kind>.md`), batches A–E.
-2. [Named-identity specs](#named-identity-specs): 276 specs, one per named puzzle-element identity (`EL-NNN-<slug>.md`, `TH-NN-<slug>.md`, `RAD-NN-<slug>.md`, `GAP-NN-<slug>.md`), batches F–O.
+2. [Named-identity specs](#named-identity-specs): 302 specs, one per named puzzle-element identity (`EL-NNN-<slug>.md`, `TH-NN-<slug>.md`, `RAD-NN-<slug>.md`, `GAP-NN-<slug>.md`): batches F–O, the campaign-taught parts EL-217 to EL-241, and EL-242.
 3. [Index-only entries](#index-only-entries): 17 rows (10 umbrella scope-index entries and 7 GAP product features), which get a row but no spec.
 
 ## Current delivery applicability
@@ -16,20 +16,25 @@ These specifications preserve source behavior and historical harvest. Current im
 
 Acceptance outlines are exercised now through production unit/integration tests with positive, negative/control, boundary, tick and Reset/save/load behavior. The Chrome recipes remain pending final-phase proof. Do not write/run/provision browser tests until every required element and all source modes/variants pass native proof. A shared family example never closes its distinct named variants.
 
+## Readiness and decisions
+
+Every spec was brought to one current text on 22–23 November 2026 by the readiness batches A to O and the new-identities batch; each batch's summary in the [readiness folder](readiness/) records its decisions, gaps and proposed text for other documents. Binding on every spec: the [element-spec decisions of 22 November 2026](readiness/owner-decisions-2026-11-22.md) (owner decisions, and coordinator decisions under the owner's standing delegation) and the [engine conformance standard](readiness/engine-conformance.md). The [engine stories index](readiness/engine-stories-index.md) maps every capability a spec marks missing or narrower to its one owning engine story. Every spec of an undelivered identity, and every residual of a delivered one, is blocked on the engine programme (owner decision 3a) and names the stories it needs beyond it.
+
 ## How to read a spec
 
-Every spec has six sections, in this order:
+Each spec is one current text: no section overrides another. Section numbers differ between batches (each batch summary states its layout). The content comes in this order; some batches merge or omit parts 7 to 9 (several named-identity batches have no Integration or Delivery section, and some delivered CAT specs give their conformance verdict inside Engine capabilities):
 
-1. **Identity.** CAT ID or named identity, kind, requirement anchor, mapped identities, roadmap story (epic.story) and status: delivered, partial or not started. A named-identity spec also names the CAT spec it refines or extends, where one exists.
-2. **Declaration.** Bodies and shapes (metres), mass and material, constraints and joints, typed sockets and ports, sensors and activation, work and energy stores, parameters (type, range, default, unit), cosmetic curves and UI bindings, art (scene, mesh, palette tokens), catalogue and inventory entry. Each item gives a value with its source, or "none" with a reason. Current declaration types are cited where they exist.
-3. **Engine capabilities.** The capability families from the [general-engine element map](../general-engine-element-map.md) row, split into "exists now" (with a file reference) and "missing" (with the story that builds it), plus element dependencies.
-4. **Legacy harvest.** One row per behaviour fact, value, edge case or boundary found in the legacy, each with a pinned citation and a disposition:
-   - **carry forward**: the fact is behaviour or data the element must keep;
-   - **do not carry forward**: the fact is a legacy mechanism that conflicts with current contracts (f16 values, a CPU solver path, a per-element update loop, a proof-grade certificate, a string-typed closed set), with the reason.
+1. **Identity and disposition.** CAT ID or named identity, kind, requirement and ledger anchors, mapped identities, roadmap story and status, and the disposition: delivered, single element, Family slice member, refinement with its own rows, or Duplicate closure of the part that satisfies it. A named-identity spec also names the CAT spec it refines or extends, where one exists.
+2. **Declaration**, with **Art and solidity** and **Behaviour and numbers** (a section of their own in some batches). The declaration in three separately declared layers with compiled counts: colliders (shapes, dimensions, bodies, materials), visuals (each art node, and what moves it: a body pose, a presentation binding or nothing; every drawn solid has a collider or is flush or decorative for a stated reason) and animation (presentation bindings that read committed state and write nothing back); then joints, drives, typed ports and domain nodes, sensors, stores and parameters (type, range, default, unit). A delivered part's declaration is the delivered one.
+3. **Engine capabilities.** The capability probe: each capability the part needs is present, present but untested, narrower or missing, with a file reference, and every gap names its one owning engine story.
+4. **Sources and legacy** (the delivered CAT specs keep a **Legacy harvest** with its **Files harvested** list; Batch D keeps a closing **Historical evidence** appendix). Pinned evidence of past behaviour, never an added prerequisite.
+5. **Acceptance.** Rows, each a scenario through the real production simulation: positive, control and boundary cases, Run/Reset and save/load, with the named test. It points to the requirement row rather than restating it. Chrome recipes are kept for the post-catalogue browser phase.
+6. **Open questions.** Each decided item cites its owner or coordinator decision; anything still open says who decides.
+7. **Integration.** Collaborators and cross-element rows, with the slice that runs each.
+8. **Delivery.** Slice shape, prerequisites in order, and a delivered part's residuals.
+9. **Engine conformance.** The verdict (Conforms, Conforms with fixes, or Does not conform) against the conformance standard's seven points, with the flat-state counts.
 
-   The section ends with a **Files harvested** list of exact paths; the ledger is compiled from these lists.
-5. **Acceptance outline.** Actual Chrome UI construction recipe, positive behaviour, meaningful negative or control, boundaries, Run/Reset restoration, Save/Load and integrations. It points to the requirement row rather than restating it.
-6. **Open questions.** Owner decisions the legacy and the requirements leave unsettled, written as "unspecified — owner decision", or "none".
+A named identity that will get a package of its own ends with **Coverage binding (planned, not yet live)**: the values its delivering slice will write in the binding section the Coverage tool reads (pattern: [EL-239 Baseball](EL-239-baseball.md)) and what they still lack. It is blocked on the coverage follow-on story S7 (owner decision 15). A spec does not carry the live binding heading until every field resolves.
 
 **Citations.** `path@a6c914e:Lstart-Lend` resolves with `git show a6c914e:<path> | sed -n 'start,endp'` and stays retrievable from git history after the purge. Current (surviving) declarations are cited the same way so the line ranges are stable. Untracked build output is not harvested.
 
@@ -37,7 +42,7 @@ Every spec has six sections, in this order:
 
 **Story numbers.** Roadmap story numbers in this index and in every spec follow the owner's 9 Oct 2026 roadmap reorder; the old-to-new mapping is in [owner reordering dependencies](../invest/vertical-delivery.md#owner-reordering-dependencies). Story 10.1 is ENGINE-CYLINDER.
 
-**Status.** All 348 specs and the closing index/ledger have fresh independent scoped documentation review in [review-7-0-resumed](../../../_bmad-output/implementation-artifacts/review-7-0-resumed.md), including supporting full named-identity coverage. **done** means declaration readiness is reviewed, not that the element is implemented or runtime-qualified. Original historical batch summaries were not reused as proof. "Refines CAT" names the CAT spec the identity refines or extends; related or sibling parts alone do not count.
+**Status.** The tree holds 374 specs (72 CAT and 302 named-identity). The 348 specs of Story 7.0 (72 CAT and 276 named-identity) and the closing index/ledger have fresh independent scoped documentation review in [review-7-0-resumed](../../../_bmad-output/implementation-artifacts/review-7-0-resumed.md), including supporting full named-identity coverage; EL-217 to EL-241 were audited and repaired on 22–23 November 2026 ([new-identities readiness](readiness/new-identities.md)). **done** means declaration readiness is reviewed, not that the element is implemented or runtime-qualified. Original historical batch summaries were not reused as proof. "Refines CAT" names the CAT spec the identity refines or extends; related or sibling parts alone do not count.
 
 ## Catalogue specs
 
@@ -47,22 +52,22 @@ Every spec has six sections, in this order:
 
 | CAT | Kind | Spec | Roadmap story | Spec status |
 | --- | --- | --- | --- | --- |
-| CAT-001 | ball | [CAT-001-ball](CAT-001-ball.md) | delivered (CAT-001-I; Epics 1–2) | done |
-| CAT-002 | ball_detector | [CAT-002-ball_detector](CAT-002-ball_detector.md) | 6.8 | done |
-| CAT-004 | basket | [CAT-004-basket](CAT-004-basket.md) | delivered (CAT-004-I; Story 3.1) | done |
-| CAT-014 | bowling | [CAT-014-bowling](CAT-014-bowling.md) | 6.1 (delivered) | done |
-| CAT-015 | bumper | [CAT-015-bumper](CAT-015-bumper.md) | 6.2, 6.3 (partial) | done |
-| CAT-022 | delay | [CAT-022-delay](CAT-022-delay.md) | delivered (Story 4.2 cosmetic) | done |
-| CAT-023 | domino | [CAT-023-domino](CAT-023-domino.md) | 5.1, 5.2 (delivered; offset centre of mass open) | done |
-| CAT-030 | funnel | [CAT-030-funnel](CAT-030-funnel.md) | 6.11 | done |
-| CAT-035 | lamp | [CAT-035-lamp](CAT-035-lamp.md) | delivered (CAT-035-I) | done |
-| CAT-048 | pipe | [CAT-048-pipe](CAT-048-pipe.md) | 6.6, 6.7 | done |
-| CAT-049 | pipe_bend_45 | [CAT-049-pipe_bend_45](CAT-049-pipe_bend_45.md) | 6.9 | done |
-| CAT-050 | pipe_bend_90 | [CAT-050-pipe_bend_90](CAT-050-pipe_bend_90.md) | 6.10 | done |
-| CAT-054 | ramp | [CAT-054-ramp](CAT-054-ramp.md) | delivered (CAT-054-I; Story 1.4) | done |
-| CAT-062 | spring | [CAT-062-spring](CAT-062-spring.md) | 6.4, 6.5 | done |
-| CAT-063 | switch | [CAT-063-switch](CAT-063-switch.md) | delivered (CAT-063-I; electrical pass-through open) | done |
-| CAT-066 | wall | [CAT-066-wall](CAT-066-wall.md) | delivered (Stories 1.4, 1.5) | done |
+| CAT-001 | ball | [CAT-001-ball](CAT-001-ball.md) | delivered (CAT-001-I; Epics 1–2); residual work after the engine programme (owner decision 3a) | done |
+| CAT-002 | ball_detector | [CAT-002-ball_detector](CAT-002-ball_detector.md) | 6.8 (delivered); residual work after the engine programme (owner decision 3a) | done |
+| CAT-004 | basket | [CAT-004-basket](CAT-004-basket.md) | delivered (CAT-004-I; Story 3.1); residual work after the engine programme (owner decision 3a) | done |
+| CAT-014 | bowling | [CAT-014-bowling](CAT-014-bowling.md) | 6.1 (delivered); residual work after the engine programme (owner decision 3a) | done |
+| CAT-015 | bumper | [CAT-015-bumper](CAT-015-bumper.md) | 6.2, 6.3 (delivered; assistance control in 15.0); residual work after the engine programme (owner decision 3a) | done |
+| CAT-022 | delay | [CAT-022-delay](CAT-022-delay.md) | delivered (Story 4.2 cosmetic); residual work after the engine programme (owner decision 3a) | done |
+| CAT-023 | domino | [CAT-023-domino](CAT-023-domino.md) | 5.1, 5.2 (delivered; offset in CAT-023c); residual work after the engine programme (owner decision 3a) | done |
+| CAT-030 | funnel | [CAT-030-funnel](CAT-030-funnel.md) | 6.11 (delivered; 9R.23 proofs and light owed); residual work after the engine programme (owner decision 3a) | done |
+| CAT-035 | lamp | [CAT-035-lamp](CAT-035-lamp.md) | delivered (CAT-035-I); residual work after the engine programme (owner decision 3a) | done |
+| CAT-048 | pipe | [CAT-048-pipe](CAT-048-pipe.md) | 6.6, 6.7 (delivered; 9R.23 proofs, light and difficulty controls owed); residual work after the engine programme (owner decision 3a) | done |
+| CAT-049 | pipe_bend_45 | [CAT-049-pipe_bend_45](CAT-049-pipe_bend_45.md) | 6.9 (delivered; 9R.23 proofs owed); residual work after the engine programme (owner decision 3a) | done |
+| CAT-050 | pipe_bend_90 | [CAT-050-pipe_bend_90](CAT-050-pipe_bend_90.md) | 6.10 (delivered; 9R.23 proofs owed); residual work after the engine programme (owner decision 3a) | done |
+| CAT-054 | ramp | [CAT-054-ramp](CAT-054-ramp.md) | delivered (CAT-054-I; Story 1.4); residual work after the engine programme (owner decision 3a) | done |
+| CAT-062 | spring | [CAT-062-spring](CAT-062-spring.md) | 6.4, 6.5 (delivered); residual work after the engine programme (owner decision 3a) | done |
+| CAT-063 | switch | [CAT-063-switch](CAT-063-switch.md) | delivered (electrical pass-through by 9.5b); residual work after the engine programme (owner decision 3a) | done |
+| CAT-066 | wall | [CAT-066-wall](CAT-066-wall.md) | delivered (Stories 1.4, 1.5); residual work after the engine programme (owner decision 3a) | done |
 
 ### Batch B: Epics 8 and 9 (11)
 
@@ -142,9 +147,9 @@ Every spec has six sections, in this order:
 
 ## Named-identity specs
 
-276 specs, one per named puzzle-element identity adopted on 24 October 2026 in [named-elements.md](../invest/named-elements.md): 216 EL, 37 TH, 19 RAD (RAD-01..04, 06..10, 12..18 and 20..22) and 4 GAP (GAP-04, 06, 07 and 09). The rows below follow the batch lists in the Story 7.0 spec.
+302 specs, one per named identity in [named-elements.md](../invest/named-elements.md) (276 adopted on 24 October 2026, EL-217 to EL-241 ledgered on 21 November 2026 and EL-242 ledgered on 23 November 2026): 242 EL, 37 TH, 19 RAD (RAD-01..04, 06..10, 12..18 and 20..22) and 4 GAP (GAP-04, 06, 07 and 09). The rows of the 276 follow the batch lists in the Story 7.0 spec.
 
-The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taught parts](../invest/named-elements.md#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)) now include the [Baseball spec](EL-239-baseball.md); the other 24 have no spec here yet. Each spec is written when its slice is planned and is added to this index then; until that point the linked requirement source is the contract.
+The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taught parts](../invest/named-elements.md#campaign-taught-parts-ledgered-on-21-november-2026-el-217-to-el-241)) all have specs: the [Baseball spec](EL-239-baseball.md) and the 24 [campaign-taught specs](#campaign-taught-parts-el-217-to-el-241-24) below. [EL-242](../invest/named-elements.md#element-242), the 45° metal ball pipe bend ledgered on 23 November 2026 (coordinator decision 27), has its own spec, [listed below](#ledgered-23-november-2026-el-242-1).
 
 ### Batch F: Water 1 (22)
 
@@ -258,7 +263,7 @@ The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taug
 | [EL-069](../invest/named-elements.md#element-069) | Moving bucket | [EL-069-moving-bucket](EL-069-moving-bucket.md) | [CAT-004](CAT-004-basket.md) | done |
 | [EL-070](../invest/named-elements.md#element-070) | Moving cage | [EL-070-moving-cage](EL-070-moving-cage.md) | none | done |
 | [EL-071](../invest/named-elements.md#element-071) | Straight metal ball pipe | [EL-071-straight-metal-ball-pipe](EL-071-straight-metal-ball-pipe.md) | [CAT-048](CAT-048-pipe.md) | done |
-| [EL-072](../invest/named-elements.md#element-072) | Curved metal ball pipe | [EL-072-curved-metal-ball-pipe](EL-072-curved-metal-ball-pipe.md) | [CAT-049](CAT-049-pipe_bend_45.md), [CAT-050](CAT-050-pipe_bend_90.md) | done |
+| [EL-072](../invest/named-elements.md#element-072) | Curved metal ball pipe | [EL-072-curved-metal-ball-pipe](EL-072-curved-metal-ball-pipe.md) | [CAT-050](CAT-050-pipe_bend_90.md) (CAT-049 moved to EL-242) | done |
 | [EL-073](../invest/named-elements.md#element-073) | Brick barrier | [EL-073-brick-barrier](EL-073-brick-barrier.md) | [CAT-066](CAT-066-wall.md) | done |
 | [EL-074](../invest/named-elements.md#element-074) | Wood barrier | [EL-074-wood-barrier](EL-074-wood-barrier.md) | [CAT-066](CAT-066-wall.md) | done |
 
@@ -403,7 +408,46 @@ The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taug
 
 | Identity | Name | Spec | Refines CAT | Spec status |
 | --- | --- | --- | --- | --- |
-| [EL-239](../invest/named-elements.md#element-239) | Baseball | [EL-239-baseball](EL-239-baseball.md) | none | implementation verification in progress |
+| [EL-239](../invest/named-elements.md#element-239) | Baseball | [EL-239-baseball](EL-239-baseball.md) | none | delivered on main (`fa86969f`) at 0.65 kg, radius 0.25 m; the Baseball repair (0.15 kg, radius 0.26 m, one proud band; coordinator decision 36) runs before the engine programme (owner decisions 22 and 24g) |
+
+### Campaign-taught parts: EL-217 to EL-241 (24)
+
+Written 21 November 2026 and brought to one current text on 22–23 November 2026 ([new-identities readiness](readiness/new-identities.md)). Every one is blocked on the engine programme (owner decision 3a).
+
+| Identity | Name | Spec | Refines CAT | Spec status |
+| --- | --- | --- | --- | --- |
+| [EL-217](../invest/named-elements.md#element-217) | Reload shuttle with chamber interlock | [EL-217-reload-shuttle](EL-217-reload-shuttle.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-218](../invest/named-elements.md#element-218) | Crank-slider | [EL-218-crank-slider](EL-218-crank-slider.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-219](../invest/named-elements.md#element-219) | Rack-and-pinion slide | [EL-219-rack-and-pinion-slide](EL-219-rack-and-pinion-slide.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-220](../invest/named-elements.md#element-220) | Docking lift | [EL-220-docking-lift](EL-220-docking-lift.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-221](../invest/named-elements.md#element-221) | Parallel gripper | [EL-221-parallel-gripper](EL-221-parallel-gripper.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-222](../invest/named-elements.md#element-222) | Supplied pinball flipper | [EL-222-pinball-flipper](EL-222-pinball-flipper.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-223](../invest/named-elements.md#element-223) | Passive impact scoop | [EL-223-passive-impact-scoop](EL-223-passive-impact-scoop.md) | none | paused until the engine programme lands (owner decision 24g); blocked on the engine programme (owner decision 3a) |
+| [EL-224](../invest/named-elements.md#element-224) | Counterweighted scoop catapult | [EL-224-counterweighted-scoop-catapult](EL-224-counterweighted-scoop-catapult.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-225](../invest/named-elements.md#element-225) | Latched slingshot cradle | [EL-225-latched-slingshot-cradle](EL-225-latched-slingshot-cradle.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-226](../invest/named-elements.md#element-226) | Hinged elastic catapult | [EL-226-hinged-elastic-catapult](EL-226-hinged-elastic-catapult.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-227](../invest/named-elements.md#element-227) | Magnetic impulse relay | [EL-227-magnetic-impulse-relay](EL-227-magnetic-impulse-relay.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-228](../invest/named-elements.md#element-228) | Zipline signal carriage | [EL-228-zipline-signal-carriage](EL-228-zipline-signal-carriage.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-229](../invest/named-elements.md#element-229) | Hydraulic piston | [EL-229-hydraulic-piston](EL-229-hydraulic-piston.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-230](../invest/named-elements.md#element-230) | Spring-return pneumatic piston | [EL-230-spring-return-pneumatic-piston](EL-230-spring-return-pneumatic-piston.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-231](../invest/named-elements.md#element-231) | Double-acting pneumatic piston | [EL-231-double-acting-pneumatic-piston](EL-231-double-acting-pneumatic-piston.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-232](../invest/named-elements.md#element-232) | Gears | [EL-232-gears](EL-232-gears.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-233](../invest/named-elements.md#element-233) | Generator | [EL-233-generator](EL-233-generator.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-234](../invest/named-elements.md#element-234) | Mouse motor | [EL-234-mouse-motor](EL-234-mouse-motor.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-235](../invest/named-elements.md#element-235) | Jack-in-the-box | [EL-235-jack-in-the-box](EL-235-jack-in-the-box.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-236](../invest/named-elements.md#element-236) | Egg timer | [EL-236-egg-timer](EL-236-egg-timer.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-237](../invest/named-elements.md#element-237) | Boxing glove | [EL-237-boxing-glove](EL-237-boxing-glove.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-238](../invest/named-elements.md#element-238) | Selective trap door | [EL-238-selective-trap-door](EL-238-selective-trap-door.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-240](../invest/named-elements.md#element-240) | Waterwheel | [EL-240-waterwheel](EL-240-waterwheel.md) | none | done (audited and repaired, 22–23 November 2026) |
+| [EL-241](../invest/named-elements.md#element-241) | Ball hopper with one-ball escapement | [EL-241-ball-hopper](EL-241-ball-hopper.md) | none | done (audited and repaired, 22–23 November 2026) |
+
+### Ledgered 23 November 2026: EL-242 (1)
+
+Written 23 November 2026 from Batch I's proposed ledger entry and EL-072's family text; blocked on the engine programme (owner decision 3a).
+
+| Identity | Name | Spec | Refines CAT | Spec status |
+| --- | --- | --- | --- | --- |
+| [EL-242](../invest/named-elements.md#element-242) | 45° metal ball pipe bend | [EL-242-45-metal-ball-pipe-bend](EL-242-45-metal-ball-pipe-bend.md) | [CAT-049](CAT-049-pipe_bend_45.md) | written 23 November 2026; no independent audit yet |
 
 ### Batch N: Thermal (37)
 
@@ -480,7 +524,7 @@ The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taug
 
 ## Index-only entries
 
-These 17 rows get no spec: 10 umbrella scope-index entries and 7 GAP product features. With the 276 named-identity specs above they account for the 293 identities the ledger held before 21 November 2026; the 25 identities added that day bring [named-elements.md](../invest/named-elements.md) to 301 named identities and 318 entries.
+These 17 rows get no spec: 10 umbrella scope-index entries and 7 GAP product features. With the 276 named-identity specs of batches F–O they account for the 293 identities the ledger held before 21 November 2026; the 25 identities added that day and EL-242, added on 23 November 2026, bring [named-elements.md](../invest/named-elements.md) to 302 named identities and 319 entries.
 
 ### Umbrella scope-index entries (10)
 

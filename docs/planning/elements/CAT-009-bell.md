@@ -1,80 +1,164 @@
-# CAT-009 · bell — declaration readiness spec
+# CAT-009 · bell — element spec
 
-**Current delivery (24 October 2026):** [CAT-009 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery (24 October 2026):** [CAT-009 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline. Legacy tick counts are at 120 Hz (`reference/cpu/MachineWorld.cs@a6c914e:L20-L21`): 24 ticks = 0.2 s.
+One current text, repaired 22 November 2026 after the Batch D audit, against checkout `8d1d68aa`. Citations without `@` are `path:line` in that checkout; citations with `@a6c914e` are the legacy harvest and appear only in the closing appendix. Values marked *proposed* are starting values ([D1](../invest/delivery-batches.md#3-family-level-decisions)). The shared acoustic facts, laws (L1–L7), capability rows (C1–C13, N1–N13), tolerances and Story 14.0 gaps 1–16 are in [EL-044](EL-044-tone-selective-sound-meter.md) and are cited by number. This spec defines one more capability, **N14** (Story 14.0 gap 17), which the Wind chimes also use.
 
-## Identity
+## 1. Identity and disposition
 
 | Field | Value |
 | --- | --- |
 | CAT ID / kind | CAT-009 · `bell` |
-| Requirement anchor | [CAT-009](../requirements.md#current-cat-009) and its [retained behaviour](../requirements.md#todo-347); D/I/V row [CAT-009-I](../invest/current-consumers.md#cat-009-i) |
+| Requirement anchor | [CAT-009](../requirements.md#current-cat-009) with [todo-347](../requirements.md#todo-347); owner key [CAT-009-I](../invest/current-consumers.md#cat-009-i) |
 | Modes | AcousticTone = Low, Mid, High (each qualified separately) |
-| Mapped identities | None. No EL, TH, RAD or GAP identity names the bell; the [acoustic family](../../component-research.md#sound) lists it as "Struck bell (CAT-009)". |
+| Disposition | To deliver as a single element in Story 14.2, the first acoustic part after the engine story 14.0 (owner, 18 October 2026). No named identity maps to it |
+| Planned package | id and catalogue key `bell`, directory `elements/Bell/`, category `ElementCategory.Control` (there is no Sound category, `CuriousContraptions.Abstractions/ElementCategory.cs:5`). Palette order: 423 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)) |
 | Capability row | [general-engine-element-map, CAT-009](../general-engine-element-map.md) |
-| Roadmap story | Epic 14, Story 14.2 "Service Bell Percussion & Resonant Ringing"; roadmap family "Acoustic emission and reception" ([vertical-delivery](../invest/vertical-delivery.md#existing-element-order)) Current [CAT-009 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Not started. |
+| Status | Not started; blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` and `ENGINE-CONTACT-OBSERVATIONS`; then Story 14.0 and `ENGINE-PARAMETER-BOUND-FRAMES` (tone bars) |
 
-## Declaration
+## 2. Declaration
 
-- **Bodies and shapes.** One static body with a sphere collider of radius 0.75 m at the origin (`parts/BellPart.cs@a6c914e:L32-L32`, `L89-L89`). The bell shell is artwork.
-- **Mass and material.** Static. Contact material: the legacy static default restitution 1, threshold 0.1, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`); the ordinary solver alone supplies rebound and the bell adds no velocity (`parts/BellPart.cs@a6c914e:L84-L84`).
-- **Constraints and joints.** None.
-- **Typed sockets and ports.** None; no electrical supply, no activation input (`parts/BellPart.cs@a6c914e:L8-L8`; `CuriousContraptions.tests/BellTests.cs@a6c914e:L56-L56`).
-- **Sensors and activation.** Impact trigger on its own collider: an impact counts when the other body has mass > 0 and approach speed ≥ 0.8 m/s (`parts/BellPart.cs@a6c914e:L33-L33`, `L59-L65`).
-  - Strength = clamp(other mass × approach speed / 6, 0.05, 1) (`parts/BellPart.cs@a6c914e:L66-L67`).
-  - Rearm: at least 24 ticks (0.2 s) between pulses; impacts in the same tick coalesce to the strongest, independent of body order (`parts/BellPart.cs@a6c914e:L34-L34`, `L68-L80`).
-  - Emits one omnidirectional acoustic pulse at the bell's committed position, direction = bell up, tone = the declared band (`parts/BellPart.cs@a6c914e:L81-L83`).
-  - Active while a pulse is younger than 0.15 s (`parts/BellPart.cs@a6c914e:L54-L58`).
-- **Acoustic pulse law (shared with CAT-060, 061, 069).** Speed 12 m/s, range 8 m, local duration 0.15 s, cone half-angle 35° (cos 0.819152) for cones. At a point d metres away the pulse is non-zero only while 0 ≤ (t − emission) − d/12 < 0.15 s and d ≤ 8, with level strength / (1 + 0.08 d²). It expires ⌈(8/12 + 0.15)/tick⌉ ticks after emission (`engine/Acoustics.cs@a6c914e:L8-L47`).
-- **Work and energy stores.** None.
-- **Parameters.**
+Closest delivered shapes: the Impact switch for a static part that observes a real hit (`elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs:12`, `:79`) and the Funnel for a hollow tapered collider (`elements/Funnel/FunnelElementDeclaration.cs:10`). Interfaces: `IMechanicalElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:7`), `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`), and the acoustic emitter interface Story 14.0 adds.
 
-  | Parameter | Type | Range | Default | Unit |
-  | --- | --- | --- | --- | --- |
-  | tone | enum ToneBand | Low, Mid, High | Mid | — |
+| Item | Declaration |
+| --- | --- |
+| Body | one static body; colliders come from the scene (section 3). Material restitution 1, friction 0.3, rolling resistance 0, threshold 0.1 m/s: the delivered static default (`ImpactSwitchElementDeclaration.cs:50`) |
+| Emitter | one, at the local origin: kind Pulse, pattern Omnidirectional, tone = `tone`, speed 12 m/s, range 8 m, duration 0.15 s |
+| Excitation (N14) | a contact on any of this body's four colliders by any dynamic body, with approach speed at or above 0.8 m/s. Strength = clamp(m × v / 6, 0.05, 1), m the striker's mass in kg and v the approach speed in m/s. Minimum interval 0.2 s. Strikes committed in one tick give one emission with the greatest strength |
+| Stores, ports, constraints | none. Footprint 1 body, 0 moving |
 
-  `parts/BellPart.cs@a6c914e:L35-L35`, `L50-L53`; `engine/Acoustics.cs@a6c914e:L8-L8`. The catalogue declares no numeric parameters (`parts/catalog/bell.tres@a6c914e:L5-L11`).
-- **Cosmetic curves and UI bindings.**
-  - Wobble of the bell body about Z on each committed pulse: underdamped oscillation with decay 7 /s, frequency 48 rad/s, velocity 5 per unit strength, presentation clock; pose = (5/48) e^(−7t) sin(48t) × strength, summed over occurrences (`parts/BellPart.cs@a6c914e:L46-L48`; `CuriousContraptions.tests/AcousticMotionTests.cs@a6c914e:L22-L35`).
-  - Wavefront rings, omnidirectional (`parts/BellPart.cs@a6c914e:L41-L41`). The surviving caller passes the positional tuple (0.75, 0, 1, 0.009, 0.35, Strength, 64) after its ring/pattern arguments. Its record definition is absent at baseline a6c914e, so the full field mapping is a baseline gap (Open question 6); no earlier-revision definition is treated as baseline evidence. A visible ring's outer radius is initial radius + distance × radius per distance + thickness (`CuriousContraptions.tests/AcousticWavefrontTests.cs@a6c914e:L63-L68`). The art supplies 15 torus meshes (5 × 3 axes) of radius 1 and half-width 0.009, each mesh set separately to 64 rings (`parts/BellPart.cs@a6c914e:L98-L109`, `L104-L104`). The current visual contract is in [presentation bindings](../../presentation-bindings.md) (0 → 8 m over 8/12 s).
-  - Audio: synthesized Bell voice, 0.7 s, −15 dB, max distance 20, polyphony 2 (`parts/BellPart.cs@a6c914e:L110-L112`). Tone frequencies Low 220, Mid 440, High 880 Hz at 22,050 Hz mono 16-bit; partials ×2.76 (decay 8 /s) and ×5.4 (decay 12 /s); 3 ms attack (`engine/AcousticAudio.cs@a6c914e:L11-L31`). Playback never feeds simulation.
-- **Art.** Ring "thickness" values are torus half-widths: inner radius r − t, outer r + t (`engine/PartArt.cs@a6c914e:L22-L23`). Shell cylinder (top radius 0.25, bottom 0.59, height 0.7) `#e8b764` at (0, 0.025, 0); crown sphere of radius 0.26 scaled 0.6 in Y at (0, 0.32, 0); rim torus radius 0.6, half-width 0.035 (inner 0.565, outer 0.635), `#fff8e9` at (0, −0.325, 0); clapper rod radius 0.06, height 0.24, `#293954` at (0, −0.37, 0); clapper ball of radius 0.1 `#66b8c9` at (0, −0.49, 0); fixed hanger radius 0.07, height 0.22, `#293954` at (0, 0.55, 0); pick radius 0.85 (`parts/BellPart.cs@a6c914e:L86-L97`). Catalogue colour (0.91, 0.72, 0.39) (`parts/catalog/bell.tres@a6c914e:L11-L11`); icon `ui/WorkshopIcons.cs@a6c914e:L36-L36`.
-- **Catalogue and inventory entry.** Id `bell`, title "Bell", category Sound; description "Strike with a moving ball or weight to ring in every direction. Harder, heavier impacts sound louder. Needs separation before another strike, at most five times per second; gentle resting contact stays silent. No battery needed. A powered sound meter can turn the sound into a signal; opaque obstacles block reception." (`parts/catalog/bell.tres@a6c914e:L5-L11`).
+| Parameter | Kind | Unit | Min | Max | Default | Editor policy |
+| --- | --- | --- | --- | --- | --- | --- |
+| `tone` | Choice: Low, Mid, High | none | 0 | 2 | 1 (Mid) | reject; build-only |
 
-## Engine capabilities
+The threshold, reference momentum, floor and interval are fixed declared values ([D13](../invest/delivery-batches.md#3-family-level-decisions)). The target set is every dynamic body, not only payloads, so a Weight or a lever arm also rings it. Presentation: `Visual/Clapper` local rotation Z from the emission event cue (`PresentationDriver.Event`, `CuriousContraptions.Abstractions/ElementPresentation.cs:21`), one eased swing of 0.1 rad over 0.4 s (`PresentationCurve.SmoothRiseFall`, overlap `SaturatingSum`, `:87`–`:88`); one of three `ToneBars` nodes shown by `tone` (C13); three wavefront rings per emission and the bell voice are the engine story's cues. Catalogue: title "Bell", colour gold (0.91, 0.72, 0.39); description: "Strike it with a moving ball or weight and it rings in every direction. Harder, heavier hits ring louder; resting on it is silent. No battery needed. A sound meter can turn the ring into a signal."
 
-Families: the [CAT-009 row](../general-engine-element-map.md) and `docs/coverage/catalogue-elements.json` (AcousticPropagation, AnimationEvaluation, AnimationLifecycle, ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction).
+## 3. Art and solidity
 
-- **Exists now.** Static sphere colliders and contact; `ContactTriggerDeclaration` qualifies a real impact by pre-response normal approach speed, independent of catalogue kind, and reads back approach speed per occurrence (`engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L22`); animation worker and cosmetic curves (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L48`).
-- **Missing.**
-  - Acoustic occurrence record (tone, pattern, strength from mass × speed, 0.2 s rearm, same-tick strongest coalescing): Story 14.2.
-  - Acoustic propagation, occlusion and reception: Story 14.1 (CAT-060), under decision owner S528 ([decisions](../invest/decisions.md#s528)): S530 arrival combination, S529 event routing.
-  - Occurrence-driven oscillation cosmetic, wavefront rings and tone-mapped audio (the current feedback sources are Activation, Timer, ContactWork, Capture): Story 14.2.
-- **Element dependencies.** A striking ball (Basketball CAT-001 or other); Sound meter (CAT-060) for the meter integration; Battery (CAT-005), Hold timer (CAT-033) and Powered gate (CAT-051) for the legacy chain; Wall (CAT-066) as occluder.
-
-## Legacy harvest
-
-| # | Fact | Citation | Disposition |
+| Node | Mesh and colour | Class | Moved by |
 | --- | --- | --- | --- |
-| 1 | Collider, threshold, strength, rearm, coalescing and emission as in Declaration. | `parts/BellPart.cs@a6c914e:L32-L85` | Carry forward as declaration data. The per-part `ObserveContact` callback is not carried forward. |
-| 2 | Acoustic pulse law and expiry. | `engine/Acoustics.cs@a6c914e:L11-L47` | Carry forward. |
-| 3 | Reception: strongest direct arrival wins (not additive); a source never hears itself; a disabled source or receiver neither emits nor hears; opaque colliders on the straight path block it; acoustic solve runs before the electrical solve each tick. | `engine/Acoustics.cs@a6c914e:L49-L80`; `engine/physics/BodyQueryGeometry.cs@a6c914e:L74-L79`; `reference/cpu/MachineWorld.cs@a6c914e:L855-L861` | Carry forward pending S530. The string-ordinal source ordering is not carried forward. |
-| 4 | At most 1024 acoustic events per tick. | `reference/cpu/MachineWorld.cs@a6c914e:L22-L22` | Carry forward as a capacity bound, subject to Epic 16 qualification. |
-| 5 | Acceptance: a 1 kg ball at 4 m/s from any of six axes rings once against a rotated bell; its rebound speed is 4 × bounce ± 0.001 (no energy added); no penetration; strength 0.666–0.667; the level 3 m away on every axis at emission + 31 ticks is 0.387–0.388. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L31-L59` | Carry forward. |
-| 6 | Acceptance chain: bell (−3, 6, 0), ball dropped from (−3, 9, 0), meter (1, 6, 0) → hold timer → powered gate. Rings only with a ball; the meter hears only without the Wall at (−1, 6, 0); the gate opens only when the meter is also supplied; meter triggers iff the gate opened. Reset clears pulses, count and wobble; Save/Load reproduces the outcome; swapping part identities changes nothing. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L60-L102` | Carry forward. |
-| 7 | Acceptance: gentle resting contact stays silent; an impulse of 6 m/s × mass rings once; separation rearms and a second impulse rings again. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L103-L125` | Carry forward. |
-| 8 | Acceptance: 0.7 m/s does not ring; 2 m/s with 0.1 kg rings at the 0.05 floor; 2 m/s with 4 kg rings at the cap 1. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L126-L143` | Carry forward. |
-| 9 | Acceptance: rapid real strikes keep ≤ 5 pulses in flight and give 9–10 pulses in 240 ticks; the Bell waveform is 30,870 bytes; presentation never changes physics and the wobble decays to rest. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L144-L175` | Carry forward. |
-| 10 | Acceptance: two simultaneous impacts (0.1 kg and 1 kg at 6 m/s) give one pulse of strength 1 regardless of order; wobble is 0.07–0.08 rad 0.02 s later. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L176-L199` | Carry forward. |
-| 11 | Undefined pattern, tone or voice and strengths 0, −1, 1.1, NaN, ∞ reject; samples beyond range or at expiry are 0. | `CuriousContraptions.tests/BellTests.cs@a6c914e:L200-L223` | Carry forward; enums end to end, no string names. |
-| 12 | Hidden rendering still rings; a disabled payload or disabled bell does not. | `CuriousContraptions.tests/ContactParticipationTests.cs@a6c914e:L20-L75` | Carry forward. |
-| 13 | Only committed waves render: 3 rings visible for an omnidirectional pulse after 12 ticks, centred on the origin with radius initial + distance × radius per distance + thickness; a 0.01 m/s contact emits nothing; hiding hides rings; Reset restores ring transforms and radii; Load starts with none. | `CuriousContraptions.tests/AcousticWavefrontTests.cs@a6c914e:L27-L87` | Carry forward as presentation acceptance. |
-| 14 | Committed kicks only; a failed tick and live activity do not kick; multiple occurrences before rendering all contribute. | `CuriousContraptions.tests/AcousticMotionTests.cs@a6c914e:L36-L109` | Carry forward the committed-only rule; the failed-tick part is not carried forward (no faulting ticks). |
-| 15 | Playback volume of a strength-0.5 pulse is −21.02 dB, consistent with −15 dB + 20 log10(strength); staging is silent until publish. | `CuriousContraptions.tests/SceneAcousticRunTests.cs@a6c914e:L50-L70` | Carry forward as audio mapping. |
-| 16 | Failed emission restores queue, cooldown and retry. | `CuriousContraptions.tests/AcousticEmitterCheckpointTests.cs@a6c914e:L26-L92` | Do not carry forward: no faulting ticks under clamp-or-continue. |
-| 17 | No level uses the bell. | `docs/coverage/catalogue-elements.json` (empty fixture list) | Recorded. |
+| `Shell` | hollow taper, outer radius 0.25 m at y 0.375 to 0.59 m at y −0.325, wall 0.05 m, open below, gold `#e8b764` | hollow: Frustum collider | nothing |
+| `Crown` | sphere r 0.25 m at (0, 0.375, 0), gold (*proposed*) | solid: sphere collider | nothing |
+| `Rim` | torus, centreline 0.6 m, tube 0.035 m, at y −0.325, cream `#fff8e9` | solid: Torus collider | nothing |
+| `Hanger` | cylinder r 0.07 m, 0.2 m long, at (0, 0.70, 0), navy `#293954` | solid: Cylinder collider | nothing |
+| `Clapper` | rod r 0.06 m and ball r 0.1 m (navy and cyan `#66b8c9`), hanging inside the shell with the ball's centre at y −0.19 m, so it ends 0.035 m above the mouth | decorative: swung by a binding, and enclosed by the shell | the emission binding |
+| `ToneBars` | three authored nodes of one, two and three navy bars printed flush on the shell | decorative: printed flat | visibility by `tone` |
+| wavefront rings | thin, translucent, shadow-free | decorative: glow | engine cue |
+
+The shell is drawn hollow because the hollow Frustum is the tapered collider that exists; a ball smaller than the 1.08 m mouth can enter from below, and only such a ball can reach the clapper, which it passes through. The clapper alone moves: a rocking shell would leave its collider behind. The tone bars make the three tones readable without sound or colour. Icon: the bell pictogram. At a glance it differs from every other sound part by the tapered hanging shape with no cabinet and no socket.
+
+## 4. Engine capabilities
+
+| Capability | Mark | Evidence or owner |
+| --- | --- | --- |
+| Static scene body (C1) | present | EL-044 C1 |
+| Frustum, Torus, sphere and Cylinder colliders in contact (C10) | present | `ColliderShapeKind` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`); `VisibleSolidColliderTests.ABallDroppedOntoTheBumpersUpperRingStopsAtItsDrawnTube` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:609`), `CatalogueIntegrationTests.AFunnelGuidesAnOffsetBallThroughTheDetectorAndLightsItsLamp` (`CuriousContraptions.tests/CatalogueIntegrationTests.cs:241`) |
+| Generic lifecycle (C9) | present | EL-044 C9 |
+| A hit qualified by approach speed that can repeat | narrower | `SignalContactDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:51`) latches once per Run (`ContactActivationTests.CommittedContactLatchesSourceAndDeclaredTargetOnceWithoutMutatingPriorCheckpoint`, `CuriousContraptions.tests/ContactActivationTests.cs:105`); a repeating hit with a cooldown exists only on contact work that pays energy (`WorkshopPhysicsLawSensorWorkTests.CooldownEligibilityIsPerBodyAndOpensAtTheExactSeventyTwoStepBoundary`, `CuriousContraptions.tests/WorkshopPhysicsLawSensorWorkTests.cs:253`). Owner: `ENGINE-CONTACT-OBSERVATIONS` (the repeating qualified hit; engine-stories-index C23), with the emission it excites in Story 14.0 (N14) |
+| Event cue presentation (C12) | narrower | Story 14.0: no acoustic event kind today (N12) |
+| Art shown by a Choice parameter (C13) | narrower | `ENGINE-PARAMETER-BOUND-FRAMES` (choice-bound values, coordinator decision 16) |
+| Emission, propagation, occlusion (N1), with an omnidirectional pattern | missing | Story 14.0; its text names only a direction cone (pattern text in the [batch summary](readiness/batch-d.md)) |
+| Tone band on the emission (N2) | missing | Story 14.0 |
+| Acoustic event, wavefront cue, presentation-only audio (N12) | missing | Story 14.0, gap 11 |
+| Committed acoustic read model (N13) | missing | Story 14.0, gap 14; the acceptance rows read emissions and levels through it |
+| **N14** an emitter excited by a qualified contact: declared colliders, a declared body target set, an approach threshold, strength from striker momentum with a declared reference, floor and cap, a minimum interval, strongest in a tick | missing | Story 14.0, gap 17 |
+
+Counts: 3 present, 0 untested, 3 narrower, 5 missing. Nothing here needs element-specific engine code: the emitter and its excitation are declaration rows, and the Wind chimes declare the same capability with other values.
+
+## 5. Behaviour and numbers
+
+- **Strength.** Momentum of approach over 6 kg·m/s, so harder and heavier hits are louder (the requirement's "mass/impact-dependent"). It does not depend on bounce. Examples: Basketball (1 kg) at 4 m/s, 0.67; Bowling ball (4 kg) from 1.5 m/s, 1; Tennis ball (0.35 kg) at 4 m/s, 0.23; below 0.3 kg·m/s, the 0.05 floor.
+- **Threshold 0.8 m/s** is the Impact switch's default (`ImpactSwitchElementDeclaration.cs:33`): one meaning of "a real hit" across parts. Resting and gentle contact are silent.
+- **Reach** (L3). A default Sound meter (threshold 0.25) hears a full ring to 6.1 m and a 0.67 ring to 4.6 m, and never hears a Tennis ball's 0.23; the most sensitive meter (0.05) hears that to 6.8 m.
+- **Interval 0.2 s**, in seconds ([D10](../invest/delivery-batches.md#3-family-level-decisions)): with a lifetime of 8/12 + 0.15 = 0.82 s, at most five emissions are in flight.
+- **No added impulse.** The bell is an ordinary static collider; the striker rebounds by contact alone.
+- **Tick order (acoustic, Story 14.0's to confirm).** The contact commits in the mechanical substeps of tick t; the emission is created in the acoustic field phase of tick t + 1 (`docs/gpu-f32-physics.md:165`–`:171` draws the field phase as Phase 2, before the substeps); a meter's pulse and contact follow by EL-044 L7. This is the acoustic phase, not the optical solve, which runs after the last substep ([EL-176 section 10](EL-176-red-laser-emitter.md#optical-conventions), item 4).
+
+## 6. Acceptance
+
+Planned class `BellTests`, real production simulation. Emissions and levels are read through the committed acoustic read model (N13) and a declared receiver fixture of Story 14.0, because the Sound meter is delivered next. Tolerances T-level and the 5 s stall guard are EL-044's. The 0.05 m/s bands around the threshold exceed contact-speed jitter and stay far from 0.8.
+
+| # | Given / When / Then | Test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| 1 | A 1 kg ball meets the bell at 4 m/s: one emission, strength 0.667 within T-level; a receiver 3 m away reads 0.388 within T-level; the ball leaves no faster than it came | `ARealStrikeRingsOnceWithMomentumStrength` | the same ball lowered onto the bell: silent | six approach directions on a rotated bell; each tone |
+| 2 | Approach at 0.75 m/s is silent; at 0.85 m/s it rings | `ApproachBelowThresholdIsSilent` | row 1 | the two speeds |
+| 3 | A 0.1 kg ball at 2 m/s (0.033 unclamped) rings at 0.05; a Bowling ball at 2 m/s (1.33 unclamped) rings at 1 | `StrengthHasAFloorAndACap` | row 1 | — |
+| 4 | A ball that strikes and stays in contact rings once; lifted and dropped again it rings again | `RestingContactRingsOnceAndSeparationRearms` | — | two balls striking 0.1 s apart give one emission; 0.3 s apart give two |
+| 5 | Strikes arriving faster than the interval for 2 s: successive emissions at least 0.2 s apart within one tick, at most five in flight | `RapidStrikesAreRateLimited` | one strike a second: one emission each | — |
+| 6 | A 0.1 kg and a 1 kg ball at 6 m/s in one tick: one emission of strength 1, in either body order | `SimultaneousStrikesKeepTheStrongest` | each alone | — |
+| 7 | A ball passing 2 m away in depth rings nothing; a Wall between bell and receiver gives level 0 | `ADepthMissOrAWallGivesNoReception` | row 1 | Wall moved until the path just clears |
+| 8 | Reset clears emissions in flight, the interval and the clapper; save then load round-trips `tone` | generic `CatalogueIntegrationTests.EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad` (`:273`) plus `ResetClearsEmissionsAndRearm` | — | Reset with an emission in flight |
+| 9 | `tone` outside 0–2 is refused atomically with a typed reason | `AnUndefinedToneIsRefused` | 0, 1 and 2 accepted | — |
+| 10 | Muted and audible runs give identical emissions | `MutingAudioChangesNothing` | — | — |
+| 11 | Every drawn solid has its collider and no collider is without art; the bars shown match `tone` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` with a `bell` row; `ToneBarsFollowTheChoice` | — | — |
+| 12 | Meter integration: a struck bell 4 m from a supplied Sound meter opens a Powered gate through a Hold timer | `SoundMeterTests.ABellStrikeOpensTheGateThroughTheMeter`, run in Story 14.1 | Wall between; meter unsupplied | — |
+
+There is no port, so no wrong-kind connection case. Requirement criteria: threshold (2); mass and impact dependence (1, 3); omnidirectional (1); separation rearm (4); bounded and strongest retriggering (5, 6); each tone (1, 11); rest, gentle, depth miss and cap controls (1, 2, 5, 7); meter integration (12); artwork and voice adding no impulse (1, 10). Chrome recipe: post-catalogue.
+
+## 7. Integration
+
+Works with every ball and the Weight as strikers (delivered); Wall as occluder (delivered); Sound meter [CAT-060](CAT-060-sound_meter.md), [EL-044](EL-044-tone-selective-sound-meter.md) and the other sound receivers (planned after it). Campaign: first use in levels 71–80, first taught at **75a** with the Sound meter, whose acceptance source it is (coordinator decision 36; [per-level allocation](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)), reuse 81–100, 117–125, 136–150 ([campaign reservations](../invest/campaign-reservations.md)); no level places it today. Coverage binding: catalogue key `bell`. Lesson-fixture story (S8) only where a level pre-places it.
+
+## 8. Delivery
+
+- **Shape.** One element slice. Data-only review tier if Story 14.0 delivers N1, N2, N12, N13 and N14; otherwise the missing one is an engine slice first.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; in particular `ENGINE-SPATIAL-QUERIES` (Story 14.0 takes its reception and occlusion candidates from it) and `ENGINE-CONTACT-OBSERVATIONS` (N14 reads qualified contacts found by index, not by scanning rows); then Story 14.0 amended with gaps 11, 12, 13, 14 and 17 and the omnidirectional pattern; `ENGINE-PARAMETER-BOUND-FRAMES` (the tone bars shown by the `tone` Choice; coordinator decision 16). No other element.
+- **Requirement checkbox.** "Meter integration" is row 12, which runs in Story 14.1; the CAT-009 checkbox is ticked by that later slice, not by Story 14.2.
+- **Files.** Adds `elements/Bell/` (`Bell.csproj`, `BellElementDeclaration.cs`, `bell.tscn`, `icon.svg`) and `CuriousContraptions.tests/BellTests.cs`; one line in `CuriousContraptions.slnx`; one row in the visible-solid table. Membership tables are derived ([registration derivation](../../../_bmad-output/implementation-artifacts/spec-registration-derivation.md)); until [S3](../../../_bmad-output/implementation-artifacts/spec-s3-remaining-per-package-lists.md) lands it also edits that contract's five test-side lists.
+- **Disqualified if** the slice's probe finds no contact-excited emitter, a strength law that needs this package's id, or a Frustum collider that cannot stand for the drawn shell.
+
+## 9. Open questions
+
+Resolved:
+
+1. Threshold quantity: approach speed of 0.8 m/s. The requirement row governs over the story's "kinetic energy" ([D15](../invest/delivery-batches.md#3-family-level-decisions)).
+2. Story order: 14.0, then this part, then the Sound meter (owner, 18 October 2026).
+3. Rearm: 0.2 s of game time ([D10](../invest/delivery-batches.md#3-family-level-decisions)).
+4. Material: the static default ([D19](../invest/delivery-batches.md#3-family-level-decisions)).
+5. Art: the hanging bell of [DESIGN.md](../../../DESIGN.md) "Impact bell" ([D9](../invest/delivery-batches.md#3-family-level-decisions)).
+6. Wavefront cue: the engine story's (gap 11); the legacy positional tuple is not used.
+7. Decided under the standing delegation: strength from striker momentum (one generic contact quantity); a hollow shell with a round crown (the collider shapes that exist); the emitter at the body origin; tone bars (the three tones must be readable).
+
+8. Clapper and shell (owner decision, 22 November 2026): the clapper swings and the shell stays still, and the clapper is shortened to end inside the shell. It is decorative, moved by a binding. [DESIGN.md](../../../DESIGN.md) "Impact bell" is being updated to that form.
+
+Nothing needs the owner.
+
+## Engine conformance
+
+Against the owner's conformance addendum of 22 November 2026 (element-free engine gate in [AGENTS.md](../../../AGENTS.md); design contracts D1–D7 in `_bmad/custom/element-free-engine-design.md`). **Verdict: conforms on paper; buildable once Story 14.0 delivers the emitter and its contact excitation.**
+
+1. **Declaration data only.** A static body, four colliders, one emitter row, one excitation row, one parameter and its presentation bindings. No contact callback, pulse list or cooldown in the part.
+2. **Generic laws.** Rebound: the contact law with declared material. Ringing: the contact-excited emitter law (N14), stated without reference to any part and also declared by the Wind chimes. Hearing: the propagation, occlusion and reception law (L1–L7).
+3. **Layers.** Colliders: four hidden proxies (Frustum, sphere, Torus, Cylinder) on the static body. Visuals: the nodes of section 3; none is a collider. Animation: the clapper binding and the tone-bar visibility read committed state and write nothing back.
+4. **One-way flow and typing.** The swing and the voice read the committed emission; muting changes nothing (row 10). Tone and pattern are enums end to end.
+5. **Flat state.** 1 static body; 4 colliders (1 Frustum, 1 sphere, 1 Torus, 1 Cylinder); 0 joints, drives, stores, ports and signal or supply nodes; 1 emitter with 1 excitation row; 1 event kind; 4 presentation bindings (clapper and three bar visibilities) plus the engine's cues. All fixed at compile time.
+6. **Performance.** Four colliders, each backing a drawn solid of a different primitive; none is cosmetic. The body is static. Emissions in flight are bounded by the interval and lifetime (at most five). Reception work is Story 14.0's to bound from compiled counts, with no fixed scene ceiling, its candidates coming from `ENGINE-SPATIAL-QUERIES` (see the batch summary). The excitation rows use `ENGINE-CONTACT-OBSERVATIONS`' indexed lookup.
+7. **Tests are scenarios.** Rows 1–12 run the production simulation; Story 14.0's own fixtures prove the law without this package.
+
+## Appendix: Historical evidence
+
+Evidence of the legacy part at `a6c914e`, kept so the harvest stays traceable. Nothing here is a requirement, a tolerance or a design instruction; sections 1–9 are the spec. The legacy part collided as a sphere of radius 0.75 m around a smaller drawn shell and ran its own contact callback; neither is the design. Legacy tick counts, decibel values and byte counts in the cited files are history only.
+
+| # | Fact | Citation |
+| --- | --- | --- |
+| 1 | Legacy collider, threshold, strength, rearm, coalescing and emission lived in the part's contact callback (behaviour restated in section 2) | `parts/BellPart.cs@a6c914e:L32-L85` |
+| 2 | Acoustic pulse law and expiry (EL-044 A2–A5) | `engine/Acoustics.cs@a6c914e:L11-L47` |
+| 3 | Reception: strongest direct arrival, no self-hearing, opaque blocking (EL-044 A6) | `engine/Acoustics.cs@a6c914e:L49-L80`; `engine/physics/BodyQueryGeometry.cs@a6c914e:L74-L79`; `reference/cpu/MachineWorld.cs@a6c914e:L855-L861` |
+| 4 | A legacy cap on acoustic events per tick; the current bound is Story 14.0's, from compiled counts | `reference/cpu/MachineWorld.cs@a6c914e:L22-L22` |
+| 5 | A 1 kg ball from any of six axes rang a rotated bell once and gained no energy (row 1) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L31-L59` |
+| 6 | Chain: bell, meter, hold timer, powered gate, with Wall and unsupplied controls and Reset (row 12) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L60-L102` |
+| 7 | Gentle resting contact was silent; separation rearmed (row 4) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L103-L125` |
+| 8 | Below-threshold approach was silent; light and heavy strikers hit the floor and the cap (rows 2, 3) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L126-L143` |
+| 9 | Rapid strikes stayed bounded; presentation never changed physics (rows 5, 10) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L144-L175` |
+| 10 | Two simultaneous impacts gave one pulse of the greater strength in either order (row 6) | `CuriousContraptions.tests/BellTests.cs@a6c914e:L176-L199` |
+| 11 | Undefined pattern, tone or voice and out-of-range strengths were refused | `CuriousContraptions.tests/BellTests.cs@a6c914e:L200-L223` |
+| 12 | Hidden rendering still rang; a disabled bell or payload did not | `CuriousContraptions.tests/ContactParticipationTests.cs@a6c914e:L20-L75` |
+| 13 | Only committed waves rendered; Reset restored the rings | `CuriousContraptions.tests/AcousticWavefrontTests.cs@a6c914e:L27-L87` |
+| 14 | Only committed occurrences moved the art | `CuriousContraptions.tests/AcousticMotionTests.cs@a6c914e:L36-L109` |
+| 15 | Playback volume followed strength; staging was silent until publish | `CuriousContraptions.tests/SceneAcousticRunTests.cs@a6c914e:L50-L70` |
+| 16 | A failed emission restored queue and cooldown: a faulting-tick mechanism, not carried | `CuriousContraptions.tests/AcousticEmitterCheckpointTests.cs@a6c914e:L26-L92` |
+| 17 | No level used the bell | `docs/coverage/catalogue-elements.json` (empty fixture list) |
+| 18 | Legacy art, voice and catalogue entry | `parts/BellPart.cs@a6c914e:L86-L112`; `engine/AcousticAudio.cs@a6c914e:L11-L31`; `parts/catalog/bell.tres@a6c914e:L5-L11` |
 
 **Files harvested:**
 - `parts/BellPart.cs`
@@ -92,29 +176,5 @@ Families: the [CAT-009 row](../general-engine-element-map.md) and `docs/coverage
 - `CuriousContraptions.tests/AcousticMotionTests.cs`
 - `CuriousContraptions.tests/SceneAcousticRunTests.cs`
 - `CuriousContraptions.tests/AcousticEmitterCheckpointTests.cs`
-- `CuriousContraptions.tests/AcousticWavefrontBindingTests.cs` (presentation-binding validation for any acoustic source: capacity, hidden frames, invalid declarations; no bell-specific values)
+- `CuriousContraptions.tests/AcousticWavefrontBindingTests.cs` (presentation-binding validation for any acoustic source; no bell-specific values)
 - `CuriousContraptions.tests/AcousticMotionBindingTests.cs` (fan-out preflight and invalid occurrence rejection; no bell-specific values)
-
-Baseline gap: the wavefront record definition was deleted before a6c914e; the surviving caller tuple and test assertions above are the harvested facts.
-
-## Acceptance outline
-
-Point of truth: [CAT-009](../requirements.md#current-cat-009) and [retained behaviour](../requirements.md#todo-347).
-
-- **Chrome construction.** Through the real palette, place a Bell and a ball above it with the move gizmo; set the tone with the real configuration control; for the integration, add a Battery-supplied Sound meter facing the bell.
-- **Positive.** Run: the ball strikes the bell, one pulse is emitted (wavefront and wobble visible), the meter needle rises.
-- **Negative or control.** A ball resting gently on the bell, a 0.7 m/s nudge, a depth miss and a Wall between bell and meter each give no reception; rapid strikes are capped.
-- **Boundaries.** Threshold 0.8 m/s; strength floor 0.05 and cap 1; 0.2 s rearm; ≤ 5 pulses in flight; Low, Mid and High each qualified.
-- **Run/Reset.** Reset clears pulses, count, rings and wobble exactly.
-- **Save/Load.** Tone and placement survive; the outcome repeats.
-- **Integrations.** Sound meter → hold timer → powered gate; muted audio leaves the outcome identical.
-
-## Open questions
-
-1. **Threshold quantity.** The requirement and legacy use approach speed ≥ 0.8 m/s; Story 14.2 says "kinetic energy exceeding threshold". Owner decision.
-2. **Story order.** CAT-009 requires meter integration. After the 9 Oct 2026 reorder, propagation and reception land with the Sound meter in Story 14.1, before the Bell (Story 14.2), so the meter is available for the Bell's integration proof. The meter's own acceptance uses the Bell as its source, which is open scheduling item (c) in `epics.md`.
-3. **Rearm in seconds or ticks.** Legacy is 24 ticks at 120 Hz; the current engine runs 60, 120 or 240 Hz (`engine/gpu/WorkshopCadence.cs@a6c914e:L6-L6`). Decide whether the declaration is 0.2 s.
-4. **Static contact material.** No bell-specific restitution or friction. Owner decision.
-5. **"Service bell".** Story 14.2 calls it a service bell; legacy art is a hanging bell. Confirm the art.
-
-6. **Wavefront field mapping.** Unspecified — owner decision: confirm the intended declaration mapping for the preserved caller tuple because the baseline has no defining record. Preserve the independently sourced radius formula and art values; do not infer missing field names from positional values alone.

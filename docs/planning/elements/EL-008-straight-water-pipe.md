@@ -1,94 +1,147 @@
 # EL-008 · Straight water pipe — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-008 delivery slice](../invest/named-elements.md#element-008). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-008 delivery slice](../invest/named-elements.md#element-008). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md) and are cited by number. This spec holds the **pipe-kit values** that [EL-009](EL-009-water-elbow-45.md) to [EL-013](EL-013-water-nozzle.md) cite. Sizes are in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-008 · Straight water pipe · Water |
-| Requirement anchor | [element-008](../requirements.md#element-008); source record [todo-335](../requirements.md#todo-335); integration task [sequence-task-385](../requirements.md#sequence-task-385) |
-| Named entry | [element-008](../invest/named-elements.md#element-008); per-element proof owner S429 |
-| CAT spec refined | None. The clear ball pipe [CAT-048](../requirements.md#current-cat-048) (Stories 6.6–6.7) is a separate element: it carries balls by contact, this one carries liquid in the network. |
-| Related identities | Pipe kit: [EL-009](EL-009-water-elbow-45.md), [EL-010](EL-010-water-elbow-90.md), [EL-011](EL-011-water-t-junction.md), [EL-012](EL-012-water-pipe-cap.md), [EL-013](EL-013-water-nozzle.md); supplies [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md) |
-| Roadmap story | [EL-008 delivery slice](../invest/named-elements.md#element-008); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-008 · Straight water pipe · Water |
+| Anchors | [element-008](../requirements.md#element-008), co-anchored `sequence-task-561`; source record [todo-335](../requirements.md#todo-335); integration [sequence-task-385](../requirements.md#sequence-task-385); ledger [element-008](../invest/named-elements.md#element-008), owner S429 |
+| Disposition | To deliver as a single element, first of the "Water pipe kit" run ([delivery batches 1b](../invest/delivery-batches.md#1b-runs-each-its-own-slice-planning-reference-only)). Not a duplicate of the Clear pipe ([CAT-048](../requirements.md#current-cat-048), `pipe`): different bore, opaque, and a liquid fitting; balls do not pass it |
+| Planned package | id `water_pipe`, directory `elements/WaterPipe/`, title "Water pipe" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` |
+| Related | Kit: [EL-009](EL-009-water-elbow-45.md), [EL-010](EL-010-water-elbow-90.md), [EL-011](EL-011-water-t-junction.md), [EL-012](EL-012-water-pipe-cap.md), [EL-013](EL-013-water-nozzle.md); supplies [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md) |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+### Pipe-kit values (shared by EL-008 to EL-013, EL-003, EL-019, EL-020, EL-022)
 
-**Shared pipe-kit values** (EL-008 to EL-013):
-- Mouth join: two standard mouths join when their positions lie within 0.15 m and their outward normals are within 10° of opposite; the join then snaps them coincident (**proposed**: legacy ball pipes snapped from 0.12 m along, 0.05 m across and 0.08 rad off, and refused 0.72 m and 40°, see Sources facts 1–3).
-- Sealed conduits are lossless: head passes unchanged through any joined chain (**proposed**: keeps "a sealed pipe carries head uphill" readable; [component research](../../component-research.md#water), line 13).
-- Water in transit inside a conduit = bore area × centreline length, counted in the ledger's "in transit" term (line 12).
-- An unjoined mouth that water reaches discharges as a free stream by the orifice law at full bore; it never feeds a neighbour it is not joined to.
+- Pipe bore radius 0.10 m, outer radius 0.14 m (L5). Every kit collider is a true hollow shape from the admitted set.
+- A kit mouth sits on the end face of the tube. The earlier 0.06 m proud collar is drawn as a flush navy band, so a kit part needs no collar collider.
+- Fitting interiors are lossless (L7). A route's flow depends on its apertures and elevations, never on how many kit pieces build it.
+- Kit colour: opaque cream `#fff8e9` with navy `#293954` end bands. The Clear ball pipe is transparent cyan and 6.5 times wider.
+- Kit material: the family vessel material (EL-001).
+- A pipe-bore mouth axis is 0.15 m above its part's base when the part rests on the bench, and no kit part reaches more than 0.15 m below its axis. Kit parts therefore sit on the bench beside a bench tank, whose mouth is at 0.15 m.
+- Every kit mouth socket declares capture distance 0.20 m and capture angle 20° (L5). The ball pipe's 0.45 m was sized for a bore radius of 0.65 m; the Tap is only 0.30 m long.
+- A kit route obeys the crest rule (L7): it cannot carry liquid over a point above its supply surface. Only a crested fitting with a prime (the Siphon, Batch G) can.
 
-**Element declaration:**
-- **Bodies and shapes.** One static body: a sealed tube, outer radius 0.14 m, standard bore, with a standard collar at each end (**proposed**: wall 0.04 m reads as solid toy tubing). No cylinder collider exists (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`); the outside is one box 0.28 × 0.28 × L m (**proposed** stand-in until a capsule/cylinder shape lands). Balls never enter the bore.
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** `WaterMouthA` and `WaterMouthB`, standard mouths on the axis at ±(L/2 + 0.06) m facing outward. Symmetric: either end may be inlet. Domain `Water` (**proposed**).
-- **Sensors and activation.** None.
-- **Work and energy stores.** None; transit volume π · 0.10² · L (0.063 m³, about one step, at the default 2 m).
-- **Parameters.**
+### Element declaration
 
-  | Name | Type | Range | Default | Unit | Source |
-  | --- | --- | --- | --- | --- | --- |
-  | Length | f32 | 0.5–6.0, step 0.25 | 2.0 | m | parameter named by component research line 28; range/default **proposed** (short joins down to 0.5 m; a 2 m default spans a tank-to-basin gap) |
+Closest delivered shape: the Clear pipe (`elements/Pipe/PipeElementDeclaration.cs:13`), copied in form.
 
-- **Cosmetic curves and UI bindings.** None (static) ([component research](../../component-research.md#water), line 28); collars show seated versus open state by a gold seam ring on joined mouths (**proposed**).
-- **Art.** Cream tube `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`), navy collars `#293954` (`DESIGN.md@a6c914e:L147-L147`), gold seated ring `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`) (**proposed**: opaque cream distinguishes it from the transparent cyan ball pipe, `DESIGN.md@a6c914e:L181-L181`).
-- **Catalogue and inventory entry.** Id `water_pipe`, title "Water pipe", category "Water", kind `WaterPipe` (all **proposed**).
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, `IParameterizedGeometryElement`, the liquid fitting declaration of `ENGINE-LIQUID` (W4, W7).
+- **Body.** One static body, mass 0. Axis local X; origin at the centre. L is `length`.
+- **Collider (one).** Tube: bore 0.10, outer radius 0.14, length L; its half-length is bound to `length` (multiplier 0.5), as the Clear pipe's shell (`PipeElementDeclaration.cs:52`).
+- **Liquid node.** One fitting, zero volume, no seat.
+- **Mouths.** `Start` at (−L/2, 0, 0), normal −X; `End` at (+L/2, 0, 0), normal +X; pipe bore, Bidirectional; positions bound to `length` (`TubeMouthParameterBinding`, as `PipeElementDeclaration.cs:46`). Either end may be upstream.
 
-**Variants.** The requirements row lists no variants. Elbows, T, cap and nozzle are separate identities EL-009 to EL-013.
+| Parameter | Type | Unit | Default | Min | Max | Editor policy |
+| --- | --- | --- | --- | --- | --- | --- |
+| `length` | Real f32 | `ParameterUnit.Metre` | 2.0 | 0.5 | 6.0 | Reject; build only; resize handle |
+
+- **Presentation.** `Visual/Tube` `ScaleY` and the two bands' `LocalX` from `length` through `PresentationParameterBinding`, as the Clear pipe (`PipeElementDeclaration.cs:22`–`:24`). No liquid-driven binding: the pipe is opaque.
+- **Palette.** `ElementCategory.Structure`; palette order 522; the kit takes six consecutive orders: pipe 522, 45° elbow 523, 90° elbow 524, T 525, cap 526, nozzle 527 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour cream.
+
+### Art and solidity
+
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Tube` | Tube, outer radius 0.14, bore 0.10, length L, cream | solid, hollow; the Tube collider | body pose (static); length by the parameter |
+| `Visual/BandStart`, `Visual/BandEnd` | Navy bands 0.06 wide at each end, flush | decorative: printed flat | parameter binding (position) |
+| `Loc_Port_mouth_start`, `Loc_Port_mouth_end` | Locators, bore 0.10 | none | nothing |
+
+Icon: a short cream tube with two dark end bands. It differs from the Clear pipe by being opaque and thin, and from the Tap by having no bonnet.
+
+### Behaviour and numbers
+
+- **A pipe changes where liquid leaves, not how hard it is to push.** A full Water tank with a pipe on its mouth and the pipe's far end free has two apertures (the tank mouth join and the free end): K = K₀/√2 = 0.05904. With the pipe level at tank-floor height the tank empties in 2·A·√d₀ / K = 2 / 0.05904 = **33.9 s**, the same for a 0.5 m pipe and a 6 m pipe.
+- **A falling pipe adds head.** If the free end is z below the tank floor, Q = K·√(d + z): with z = 1.0 m and d = 1.0 m, Q = 0.05904 × 1.414 = 0.0835 m³/s.
+- **A rising pipe delivers only below the surface.** A free end above the supply surface passes nothing ([EL-002](EL-002-header-tank.md) rows H1, H2).
+- **A disconnected mouth cannot feed its neighbour.** A pipe mouth is not an open aperture (L9): a stream that reaches it from outside meets the tube wall or the bench and is spilled. Liquid enters a pipe only through a join.
+- **Joins.** The authoring snap with the kit's declared capture values: within 0.20 m and 20° a free mouth of equal bore snaps; an occupied mouth takes no second pipe; a mover that is locked never snaps (L6). The harvest's 0.15 m and 10° and the ball pipe's 0.45 m are not used.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-008`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W2 Tube collider; W5 parameter-bound collider and mouths | present | the whole body |
+| W22, W23 authored state, refusals | present | `length` |
+| W4 fluid port contract | present, untested | fitting |
+| W3 mouth sockets, snap, equal bore, occupied mouth | narrower | the equal-bore and occupied-mouth rules are delivered; declared capture values and socket ids are `ENGINE-CAPABILITY-INSTANCES`'; compiling the join to an edge is `ENGINE-LIQUID`'s |
+| W7 fittings, apertures and flow | missing | `ENGINE-LIQUID` |
+| W8 free end and stream | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static box body (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); resizable-length pattern (parked ball-pipe `PipeDimensions` clamps length 1–8 m, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L29`, excluded from the build by `CuriousContraptions.csproj@a6c914e:L29-L29`); typed connections without a Water domain (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L12`), historical capacity 8 edges (`engine/gpu/WorkshopConnections.cs@a6c914e:L65-L67`), replaced by scene-sized current tables.
-- **Missing.** Water network nodes and head propagation ([S416](../invest/decisions.md#s416) advection → S418, pressure-work → S419); mouth-join TopologyTransaction (EL-001 open question 3); connection-table sizing from the compiled scene, with explicit atomic memory-admission refusal. Required in the linked delivery slice.
-- **Element dependencies.** A supply with an outlet mouth (EL-001, EL-002, EL-003); a receiver (EL-004) or nozzle (EL-013).
+Counts: 5 present, 1 untested, 1 narrower, 2 missing; one owner. Every geometric capability this part needs is delivered; only the liquid network is missing.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, one collider, one fitting, two mouths, one parameter.
+2. **Generic laws.** Through-flow is L7 across a lossless fitting. "A disconnected mouth cannot feed its neighbour" is L6 (no join, no edge) and L9 (a mouth is not an aperture).
+3. **Three layers.** *Collider:* one Tube. *Visuals:* the table above. *Animation:* none in a Run.
+4. **One-way flow and typing.** Mouth ids and roles are enums.
+5. **Flat-state counts.** Bodies 1 (static); colliders 1 Tube; joints 0; drives 0; sensors 0; liquid nodes 1 fitting; mouths 2; seats 0; bindings 3 parameter; parameters 1.
+6. **Performance fitness.** One collider against the Clear pipe's three, because the bands are flush. Joined fittings merge into one network node at compile, so a long run of pipes costs the solve nothing more than one.
+7. **Tests are scenarios.** Rows P1 to P10.
 
 ## Sources and legacy
 
-- Requirements row: "A disconnected mouth cannot feed its neighbour." No variants.
-- Component research "Water pipe kit (EL-008–013)": sealed network nodes, parameter length, compatible-mouth snapping with seated collars (line 28). Refinement [S705](../invest/refinements.md#s705) straight. Family boundary [fluids](../invest/profiles.md#fluids).
-- **Legacy search.** No liquid pipe exists. The ball pipe's mouth-snapping tests give carry-forward join rules:
+- Requirement: "Sealed oriented conduit joins compatible fluid mouths"; outcome "A disconnected mouth cannot feed its neighbour." No variants.
+- Component research [water](../../component-research.md#water) line 28; refinement [S705](../invest/refinements.md#s705); family boundary [fluids](../invest/profiles.md#fluids).
+- **Legacy search.** No liquid pipe. The ball pipe's snap tests give the join rules, all of which the delivered snap already has:
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | A pipe placed 0.12 m along and 0.05 m across from the joined position, rotated 0.08 rad, snaps to coincident mouths (< 0.0001 m apart, normals dot < −0.9999); the query does not mutate the part; once joined, the same part no longer reports a snap. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L15-L52` | Carry forward as the join acceptance (coincident, opposite, idempotent, query is pure). Do not carry forward the ball-travel assertions or Godot types. |
-| 2 | Snapping is refused while running and for parts of another world; it works again after Reset; running leaves pose and bodies unchanged. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L54-L85` | Carry forward: joins are an authoring-only transaction. |
-| 3 | Mouths 0.72 m apart, or 40° wrong-facing, do not snap. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L87-L101` | Carry forward as the wrong-facing / distant control. |
-| 4 | An occupied mouth and a locked part are not snap candidates; deleting the occupant frees the mouth. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L103-L121` | Carry forward. |
-| 5 | Ball-pipe catalogue: length bits 17203 (half-precision 3.5996 m, i.e. 3.6 m), title "Clear pipe", colour (0.40, 0.72, 0.79). | `parts/catalog/pipe.tres@a6c914e:L8-L20` | Do not carry forward (CAT-048 owns it; half-precision lane). Recorded so the water pipe is not confused with it. |
+| 1 | A pipe placed near the joined position snaps to coincident mouths (< 0.0001 m, normals dot < −0.9999); the query does not change the part; once joined it reports no further snap. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L15-L52` | Carried forward; delivered (`engine/TubeMouthSnap.cs:27`). |
+| 2 | Snapping is refused while running and works again after Reset. | `TubePlacementSnapTests.cs@a6c914e:L54-L85` | Carried forward: joins are authoring only (L6). |
+| 3 | Distant or wrong-facing mouths do not snap. | `TubePlacementSnapTests.cs@a6c914e:L87-L101` | Carried forward with the kit's declared 0.20 m and 20°. |
+| 4 | An occupied mouth and a locked part are not candidates; deleting the occupant frees the mouth. | `TubePlacementSnapTests.cs@a6c914e:L103-L121` | Carried forward; delivered. |
+| 5 | Ball-pipe catalogue values (3.6 m, "Clear pipe"). | `parts/catalog/pipe.tres@a6c914e:L8-L20` | Not carried (CAT-048 owns them). |
+
+**Files harvested:** `CuriousContraptions.tests/TubePlacementSnapTests.cs`, `parts/catalog/pipe.tres`.
 
 ## Acceptance outline
 
-Point of truth: [element-008](../requirements.md#element-008).
+Authority: [element-008](../requirements.md#element-008). Tolerances L17. Planned class `WaterPipeTests`. The supply is a Water tank.
 
-- **Chrome recipe.** Place a Water tank and Tap; drag a Water pipe until `WaterMouthA` snaps to the tap's `WaterOutlet` (seated ring appears); resize it with the length handle; place a Catch basin under `WaterMouthB`.
-- **Positive.** Water travels the pipe and discharges from mouth B into the basin; a rising pipe still delivers while its outlet is below the tank surface.
-- **Negative / control.** Move the pipe 0.3 m away from the tap before Run (mouth not joined): the tap discharges onto the pipe's outside and the tray; the pipe carries nothing. A second pipe beside, not joined, to mouth B receives nothing.
-- **Boundaries.** Join at 0.15 m / 10° admits; 0.2 m or 15° refuses. An occupied mouth refuses a third pipe. Length 0.5 and 6.0 admit; outside rejects. Join attempts during Run are refused and change nothing.
-- **Run/Reset.** Transit volume returns to 0 exactly. **Save/Load.** Length, pose and joins survive reload.
-- **Integrations.** [sequence-task-385](../requirements.md#sequence-task-385): kit pieces join by compatible water ports; a capped route cannot leak through an invisible connection.
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| P1 | Given a full tank with a level pipe joined to its mouth and a basin under the pipe's free end, when Run advances 10 s, then the tank holds (1 − 10/33.9)² = 0.497 m³ within 0.05 m³ and the basin holds the loss | `WaterPipeTests.AJoinedPipeCarriesTheSeriesFlow` | P2 | — |
+| P2 | Given the pipe moved 0.3 m from the tank mouth, then the pipe carries nothing: the basin under its far end holds 0 and the tank's loss is in `Spilled` | `WaterPipeTests.ADisconnectedMouthCarriesNothing` | P1 | — |
+| P3 | Given a second pipe lying 0.3 m beyond the first pipe's free end and in line with it, then it carries nothing and the stream is spilled or caught by what lies below | `WaterPipeTests.AStreamDoesNotEnterAPipeMouth` | joined end to end, both carry | — |
+| P4 | Given pipes of `length` 0.5 and 6.0 in two lanes, then the tank volumes after 10 s are equal within 0.01 m³ | `WaterPipeTests.LengthDoesNotChangeTheFlow` | — | both limits |
+| P5 | Given a pipe falling 1.0 m to its free end, then the starting flow is 0.0835 m³/s within 10% | `WaterPipeTests.AFallingPipeAddsItsDropToTheHead` | level pipe: 0.0590 m³/s | — |
+| P6 | Given a water pipe offered to a tank mouth within 0.20 m and 20°, then it snaps; beyond either, or to an occupied mouth, or to a clear ball pipe mouth, it does not | `WaterPipeTests.WaterMouthsSnapByTheirDeclaredCapture` | — | just inside and just outside each limit |
+| P7 | Given `length` outside 0.5 to 6.0 or non-finite, then it is refused whole; inside, collider and mouths follow it | `WaterPipeTests.LengthIsBoundedAndDrivesTheTube` | default | next f32 beyond each limit |
+| P8 | Given a Tennis ball dropped on the pipe, then it rests on the tube (visible = solid) | `WaterPipeTests.TheTubeIsSolidOutside` | — | — |
+| P9 | Given a run, then Reset restores the tank; save and load keep `length` and pose and the same mouths are joined | `WaterPipeTests.ResetAndSaveLoadKeepTheRoute` | — | — |
+| P10 | Given a full tank and a route of elbows and pipes that rises 0.5 m above the tank's surface and then falls to a free end below the tank's floor, when Run advances 10 s, then nothing flows (crest rule) | `WaterPipeTests.AKitRouteDoesNotSiphonOverACrest` | the same route with its highest datum 0.2 m below the surface flows | the tank draining until its surface falls below the crest stops the flow |
+
+**Kit integration ([sequence-task-385](../requirements.md#sequence-task-385)).** "Kit pieces join by compatible water ports; a capped route cannot leak through an invisible connection" is one cross-kit row, `WaterPipeKitTests.EveryKitPieceJoinsAndACappedRouteHoldsItsVolume`, run in the slice that delivers the last kit piece. Chrome recipe (pending): a tank and tap, a Water pipe dragged until it snaps, resized, ending over a basin.
 
 ## Open questions
 
-1. Lossless pipes versus a per-length head loss (affects EL-002 lift and EL-013 reach).
-2. Join tolerance 0.15 m / 10°: confirm.
-3. The retired 8-edge capacity is not a supported bound. This slice must use scene-sized connection tables and define atomic memory-admission refusal under the current architecture.
-4. Should a water pipe be a hollow collider so balls can also pass, or stay a solid outside?
-5. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). The orifice law and Cd = 0.6 are the S416 advection decision (→ S418).
+All resolved; none needs the owner.
+
+1. Head loss per length: none (kit values; L7).
+2. Join tolerance: 0.20 m and 20°, declared on the sockets (one join mechanism, D3).
+3. Capacity of the network: no fixed edge count is carried from the legacy; `ENGINE-LIQUID` states its table capacities and the typed refusal (L18).
+4. Hollow so balls can pass: the collider is a true hollow Tube because the art is hollow, but nothing in the catalogue fits a 0.10 m bore. Ball routing stays the Clear pipe's.
+
+## Integration
+
+- **Works with.** Every part with a pipe-bore mouth; none delivered. It does not join the delivered Clear pipe family (different bore).
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-335`, shared by six identities; `sequence-task-561` not co-anchored with a todo; no `s429` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element; the kit run is EL-008, the elbow Family slice, EL-011, EL-012, EL-013.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID`; EL-001; EL-004 for the receiver; S7. Row P10 needs the elbow family.
+- **Files.** Adds `elements/WaterPipe/WaterPipe.csproj`, `WaterPipeElementDeclaration.cs`, `water_pipe.tscn`, `icon.svg`, `CuriousContraptions.tests/WaterPipeTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A Tube collider with a 0.10 m bore refused by admission; fitting-to-store joins that add an aperture each side instead of one; a second bore class not kept apart by the snap.

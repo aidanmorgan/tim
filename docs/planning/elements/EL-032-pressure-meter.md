@@ -1,92 +1,131 @@
-# EL-032 · Pressure meter named-identity spec
+# EL-032 · Pressure meter — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-032 delivery slice](../invest/named-elements.md#element-032). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery (24 October 2026):** [EL-032 delivery slice](../invest/named-elements.md#element-032). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-This is the Story 7.0 full spec for named identity EL-032. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa` and repaired the same day against the independent audit `docs/planning/elements/readiness/audits/elements-batch-g.md` and the owner decisions of 22 November 2026. Liquid conventions L1 to L18 and probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md), which has adopted Batch G's LG1 to LG8 into L3 to L15; LG numbers are kept as short names (LG1 = L5 and L6; LG2 = L3 and L7; LG3, LG4, LG5 = L4, L11, L12; LG6 = L15; LG7 = L12; LG8 = L13). The further additions adopted by coordinator decision 21 (nesting and envelope shielding, buoyancy reaction on a carrying body, contents at the liquid centroid, overlapping shapes counted once, porous and sealed interiors, a mouth below the floor datum, the relief mouth, the crest rule with granted work head, no crest lift limit) are now written into EL-001's rows (its "Batch G's additions" paragraph maps A1 to A9 to L3, L4, L5, L7, L8, L9 and L12; the long wording stays in [readiness/batch-g.md](readiness/batch-g.md) section 2) and are cited here as **L-additions A1 to A9**. Probe rows G1 to G8 are in section 3 of that file. All are cited by number and not restated. Box sizes are full extents in metres.
 
-## 1. Identity
+The meter-family body, ports, switch form and lamp are in [EL-030](EL-030-flow-meter.md) and are cited, not restated.
+
+## Identity
 
 | Field | Value |
 | --- | --- |
-| ID | EL-032 |
-| Name | Pressure meter |
-| Type | Water |
-| Anchor | [requirements.md#element-032](../requirements.md#element-032); [named-elements.md#element-032](../invest/named-elements.md#element-032); scope index [todo-339](../requirements.md#todo-339) |
-| Proof owner | S453 |
-| CAT spec refined | none. Related: [CAT-060 Sound meter](CAT-060-sound_meter.md) (dial and threshold-output precedent) |
-| Related identities | [EL-030 Flow meter](EL-030-flow-meter.md), [EL-031 Volume meter](EL-031-volume-meter.md) (separate readings); [EL-026 Communicating tank](EL-026-communicating-tank.md); [EL-033 Fluid accumulator](EL-033-fluid-accumulator.md); the hydraulic piston ([todo-428](../requirements.md#todo-428)) |
-| Roadmap story | [EL-032 delivery slice](../invest/named-elements.md#element-032); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Identity | EL-032 · Pressure meter · Water |
+| Anchors | [element-032](../requirements.md#element-032), co-anchored `sequence-task-585`; source record [todo-339](../requirements.md#todo-339); integration [sequence-task-390](../requirements.md#sequence-task-390); ledger [element-032](../invest/named-elements.md#element-032), owner S453 |
+| Disposition | Member of the Family slice "Meters" with [EL-030](EL-030-flow-meter.md) and [EL-031](EL-031-volume-meter.md). Its deltas from the Flow meter: it reads the node pressure in pascals absolute, and it has one socket, not two (a gauge on a port, not in a line) |
+| Planned package | id `pressure_meter`, directory `elements/PressureMeter/`, title "Pressure meter" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-SIGNAL-NODES`, `ENGINE-GAS-NETWORK` and `ENGINE-LIQUID` |
+| Related | [EL-030](EL-030-flow-meter.md), [EL-026](EL-026-communicating-tank.md), [EL-033](EL-033-fluid-accumulator.md), [EL-229](EL-229-hydraulic-piston.md), the pneumatic gauge [EL-043](EL-043-pneumatic-pressure-gauge.md) (the same pascal convention on gas) |
 
-## 2. Declaration
+## Declaration
 
-- **Bodies and shapes.** One static gauge (part root): a short stem Box 0.12 × 0.25 × 0.12 m ending in one water port, under a round dial housing Box 0.35 × 0.35 × 0.12 m. **Proposed**: a dead-ended gauge on a T or tank port, visibly unlike the inline meters.
-- **Mass and material.** Static. The shared static water-vessel material: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0 (**proposed** reuse of the Receiver material, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`, as Batch F's vessels use).
-- **Liquid.** Dead-ended: the gauge draws no liquid and holds none in the ledger (**proposed**: measuring must not deplete a store). Family density ρw = 16 kg/m³ (**proposed**, shared with Batch F; see [EL-023](EL-023-archimedes-screw.md)), so each metre of head reads ρw·g·h = 157 Pa.
-- **Constraints.** None.
-- **Typed ports.**
+Body, colliders, family vessel material, ports, switch form and lamp: the meter family of [EL-030](EL-030-flow-meter.md). Package deltas:
 
-  | Port | Domain | Direction | Local position (m) | Notes |
-  | --- | --- | --- | --- | --- |
-  | `WaterMouth` | Water | Input | (0, −0.3, 0) | Single standard sensing mouth; sealed dead end |
-  | `PressureOut` | Activation | Output | (0.2, 0.1, 0) | True while gauge pressure meets the threshold |
+- **Socket.** One: `Start` at (−0.15, 0, 0), normal −X, pipe bore, Bidirectional, a declared snap socket (L5) with capture distance 0.20 m and angle 20°. The tube's other end is closed and carries no socket, so the fitting is a dead end and passes no flow. It declares no store and so no thermal node.
+- **Reading.** The committed pressure of the fitting node at the socket datum, Pa absolute (L13): 101 325 + 156.96 × (total head at the node − socket elevation). An unjoined socket, or one joined to a dry mouth, reads ambient, 101 325 Pa. A gas node's pressure never shares this reading: gas and liquid meet only through a head-capped edge (L13, L15).
+- **Node levels.** On at `threshold`; off at `threshold` − 8 Pa (0.05 m of depth).
 
-  `WaterMouth` **proposed** (the water family's single-mouth name, as in Batch F); `ActivationOut` exists (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L10`). Signal only.
-- **Sensors and activation.** Reading state is a closed enum `PressureReading { Disconnected, Reading }` (**proposed**: the outcome distinguishes "cannot report supplied pressure" from a reading of zero). `Disconnected` when `WaterMouth` has no water connection or the connected node holds no liquid at the port; otherwise the gauge pressure p = ρw·g·(free-surface height above the port) for open stores, or the network node pressure for sealed routes (S419). `PressureOut` true when state is `Reading` and p ≥ `threshold` for `dwell` ticks; false below 0.8 × `threshold` (**proposed** hysteresis).
-- **Work and energy stores.** None.
-- **Parameters.**
+| Parameter | Type | Unit | Default | Min | Max | Editor policy |
+| --- | --- | --- | --- | --- | --- | --- |
+| `threshold` | Real f32 | Pa absolute (unit member missing, W13) | 101 403 | 101 341 | 101 796 | Reject; build only |
 
-  | Name | Type | Range | Default | Unit | Source / justification |
-  | --- | --- | --- | --- | --- | --- |
-  | `threshold` | f32 | 10–2000 | 80 | Pa | **proposed**: 0.51 m of head at 157 Pa per metre, about half a default tank depth |
-  | `dwell` | u32 | 1–240 | 6 | ticks | dwell in ticks sourced for level sensors ([component research](../../component-research.md#water)); default **proposed** |
-  | `full_scale` | f32 | 200–4000 | 400 | Pa | **proposed**: 2.55 m of head, covering the tallest default stack |
+The limits are 0.10 m and 3.0 m of depth (101 325 + 156.96 × 0.10 = 101 340.7, rounded up to 101 341; 101 325 + 156.96 × 3.0 = 101 795.9); the default is 0.5 m (101 403.5, rounded down). At the minimum the off level is 101 341 − 8 = 101 333 Pa, above ambient, so the node can turn off when the reading returns to 101 325 Pa; at 101 333 the off level would be ambient itself. Near 10⁵ an f32 resolves 0.008 Pa, far finer than the 2 Pa tolerance of L17.
 
-- **Cosmetic curves and UI bindings.** The needle follows the committed pressure ("Needle/dial ← committed reading", [component research](../../component-research.md#water)) with a 0.16 s SmoothStep easing (**proposed**; `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L19`). In `Disconnected` the needle rests on a navy "no supply" peg below zero, so disconnection reads differently from 0 Pa. The lamp follows `PressureOut`.
-- **Art.** Cream dial `#fff8e9` with navy ticks `#293954`, gold needle `#f7cb52`, cyan stem window `#66b8c9`, slate-to-gold lamp (`#556573` off) ([DESIGN sound meter](../../../DESIGN.md#sound-meter) language). **Proposed**.
-- **Catalogue and inventory entry.** Id `pressure_meter`, title "Pressure meter", category Water (**proposed**). Counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- **Presentation.** `Visual/Needle` `LocalRotationZ` from the committed reading, 101 325 to 101 825 Pa, clamped (W12, missing). `Visual/Lamp`: the family lamp of EL-030 (three `StateValues` bindings on the part's threshold node, slate off and gold on).
+- **Palette.** `ElementCategory.Control`; palette order 419, after the flow meter (417) and the volume meter (418) (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour cyan.
 
-**Variants.** The requirements row lists no variants; EL-032 is one declaration.
+### Art and solidity
 
-## 3. Engine capabilities
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Body` | Tube 0.30 long, outer radius 0.14, cream `#fff8e9`, its far end closed by a flush disc | solid; the Tube collider | body pose (static) |
+| `Visual/Case` | Box 0.24 × 0.24 × 0.08, cyan `#66b8c9` | solid; its box collider | body pose |
+| `Visual/Dial` | Cream face with navy `#293954` ticks and a printed "P" in a ring | decorative: printed flat | nothing |
+| `Visual/Needle` | Gold `#f7cb52` needle, flush | decorative: printed flat, moved by a binding | presentation binding |
+| `Visual/Lamp` | Flush disc on the face | decorative: printed flat (glow) | presentation binding |
+| `Loc_Port_mouth_start`, `Loc_Port_PowerIn`, `Loc_Port_Supply` | Locators | none | nothing |
 
-Families ([element-map row](../general-engine-element-map.md), [coverage binding](../../coverage/engine/element-01.json) `element-032`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, SignalPropagation, StateTransaction (coverage only), TopologyTransaction.
+Icon: a stub of pipe, closed at one end, carrying a square dial with a "P". It differs from the other meters by the glyph and the closed end.
 
-**Exists now**
-- Activation output and signal wiring: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L10`.
-- Gravity constant used for hydrostatic head: `engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`.
+### Behaviour and numbers
 
-**Missing**
-- Head/pressure model at a water port, open and sealed: [S416 pressure-work](../invest/decisions.md#s416) → S419; required in the linked delivery slice.
-- Water ports and the `Disconnected` topology state: S416 with [S257](../invest/decisions.md#s257); required in the linked delivery slice.
-- Threshold-with-dwell evaluation on a fluid reading and a reading feedback source: required in the linked delivery slice.
+- **It reads head, not flow or amount.** Joined to a socket of a Linked tank ([EL-026](EL-026-communicating-tank.md), socket at floor height): 101 325 + 156.96 × depth. Full (1.0 m): **101 482 Pa**. Half: 101 325 + 78.48 = 101 403.5 Pa. Empty: 101 325 Pa.
+- **Narrow and tall beats wide and low.** A full Linked tank (0.25 m³, 1.0 m deep) reads 101 482 Pa; a Water tank holding more (0.40 m³, 0.40 m deep over its 1.0 m² floor) reads 101 325 + 156.96 × 0.40 = **101 388 Pa** at its socket: 94 Pa less. This is the lesson Pressure, Not Plenty.
+- **A raised tank.** At the foot of a riser from a Header tank whose surface is 3.0 m above the meter: 101 325 + 470.9 = 101 796 Pa, the top of the scale.
+- **A sealed charge.** On a full Fluid accumulator ([EL-033](EL-033-fluid-accumulator.md), head 2.0 m at full): 101 325 + 156.96 × 2.0 = **101 639 Pa**.
+- **Disconnected or depressurised.** Unjoined, or joined to an empty tank, it reads 101 325 Pa and the node is off. It cannot report a pressure nothing supplies.
+- **Switching.** On a Linked tank draining through a Tap on its other socket (K = 0.0482, A = 0.25 m²): the node is on while the depth is at least (101 403 − 101 325) / 156.96 = 0.497 m, and turns off at (101 395 − 101 325) / 156.96 = 0.446 m, that is (2 × 0.25 / 0.0482) × (1 − √0.446) = 10.37 × 0.332 = **3.4 s** after a full start, plus the 0.1 s hold: 3.5 s. The tank is empty at 10.37 s.
+- **While liquid moves.** The meter's node is a dead end, so its pair with the tank's socket carries no flow and reads the tank's surface. On a fitting that carries flow, a node's head lies between its neighbours' (L7); it is still the committed node pressure.
+- **Tick order.** As EL-030 (L16, D7).
 
-**Element dependencies.** A store or sealed route with a free port (EL-026 tank, EL-011 T junction, EL-033 accumulator); a signal consumer.
+## Engine capabilities
 
-## 4. Sources and legacy
+| Row | Mark | Use here |
+| --- | --- | --- |
+| W1, W2 body and Tube; W17 switched route; W22, W23 authored state and refusals | present | as EL-030 |
+| W4 fluid port contract | present, untested | fitting and socket |
+| W3 snap sockets | narrower: socket count, package-local ids, capture distance 0.20 m and angle 20°, and outlets that are not joinable are `ENGINE-CAPABILITY-INSTANCES`; compiling joins to edges is `ENGINE-LIQUID`; the port record is `ENGINE-GAS-NETWORK` | 1 socket, 0 immersed ports, 0 outlets |
+| W16 threshold node on a committed scalar | narrower | `ENGINE-SIGNAL-NODES` |
+| Lamp from the threshold node's committed phase | narrower | delivered for contact-load nodes (EL-030's row); general threshold node: `ENGINE-SIGNAL-NODES` |
+| W7 fitting; the committed node pressure (L13) as a threshold input | missing | `ENGINE-LIQUID` |
+| W12 driver for a committed pressure; W13 Pa unit | missing | W12: `ENGINE-LIQUID`; W13's Pa unit: `ENGINE-GAS-NETWORK`, which lands first (EL-001 W13; engine stories index C5; owner decision 18, 22 November 2026) |
 
-- **Requirement row** ([element-032](../requirements.md#element-032)): "Measures local supported fluid pressure." Outcome: "Disconnected or depressurised port cannot report supplied pressure." No variants.
-- **Integration task** [sequence-task-390](../requirements.md#sequence-task-390); refinement [S708 pressure-meter](../invest/refinements.md#s708): "Measure actual pressure."
-- **Research** ([component research](../../component-research.md#water)): separate pressure reading; recipe 13 "Pressure, Not Plenty": choose an elevated narrow tank rather than a large low tank to lift a loaded hydraulic piston.
-- **Campaign**: first use 61–70; reuse 81–100, 126–140, 146–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
-- **Legacy.** None found. Searched the Epic 7 deletion scope at `a6c914e` for "pressure meter", "gauge", "water", "liquid": no element source. Legacy "pressure" hits are the world air-pressure scalar for the Balloon, harvested in [CAT-003](CAT-003-balloon.md).
+Counts, one per capability: 5 present (W1, W2, W17, W22, W23), 1 untested (W4), 3 narrower (W3, W16, lamp), 4 missing (W7, node-pressure observation, W12, W13). No thermal row: the part declares no store.
 
-**Files harvested:** none.
+### Engine conformance (22 November 2026)
 
-## 5. Acceptance outline
+1. **Declaration data only.** The meter-family declaration with one socket, one observation kind, one parameter.
+2. **Generic laws.** Pressure is the hydrostatic relation of L2 at a network node (L13). "A disconnected port reports nothing" is a fitting with no wet neighbour.
+3. **Three layers.** As EL-030.
+4. **One-way flow and typing.** Liquid → observation → signal → next tick's electrical solve; physics → presentation. Pascals absolute throughout, as Batch H's gas parts.
+5. **Flat-state counts.** Bodies 1 (static); colliders 2 (1 Tube, 1 box); joints 0; drives 0; sensors 0; signal nodes 1 (threshold); supply routes 1; liquid nodes 1 fitting; thermal nodes 0 (no store); sockets 1; immersed ports 0; outlets 0; wire ports 2; bindings 4 (needle 1, lamp 3); parameters 1.
+6. **Performance fitness.** As EL-030; a dead-end fitting adds no flow unknown.
+7. **Tests are scenarios.** Rows M1 to M8.
 
-Follow the [EL-032 row](../requirements.md#element-032).
-- **Chrome UI recipe.** In free play place a Communicating tank (EL-026) with 0.5 m³ and connect the pressure meter's `WaterMouth` to the tank's `WaterMouthA` with a short Straight water pipe, using real snapping; wire `PressureOut` to a signal lamp. Run, then fill the tank further from a tap.
-- **Positive.** The needle shows ρw·g·depth at the port (157 Pa per metre) and rises as the tank fills; the lamp lights once 80 Pa (0.51 m above the port) is met.
-- **Negative/control.** Remove the pipe (or cap the port): the needle rests on the "no supply" peg and the lamp stays off. Drain the tank below the port: the reading drops to `Disconnected`, not a stale value.
-- **Boundaries.** Two tanks of equal depth at different widths read the same pressure; raising the tank on a block raises downstream pressure in a sealed route; a 2.55 m head reaches full scale; the gauge never changes any store's volume.
-- **Run/Reset.** Reading state, value and output restore exactly.
-- **Save/Load.** `threshold`, `dwell`, `full_scale`, pose and links round-trip.
-- **Integrations.** Hydraulic piston, EL-033 accumulator charge level, recipe "Pressure, Not Plenty".
+## Sources and legacy
 
-## 6. Open questions
+- Requirement: "Measures local supported fluid pressure"; outcome "Disconnected or depressurised port cannot report supplied pressure." No variants.
+- Integration [sequence-task-390](../requirements.md#sequence-task-390); refinement [S708](../invest/refinements.md#s708) ("Measure actual pressure"). Component research [water](../../component-research.md#water): recipe Pressure, Not Plenty.
+- **Legacy.** None at `a6c914e`. **Files harvested:** none.
 
-1. Gauge versus absolute pressure (proposed gauge; absolute needs a world atmosphere from EnvironmentState, S470): owner decision.
-2. Whether a sealed but liquid-empty route reads `Disconnected` or 0 Pa: S419 decision (proposed `Disconnected`).
-3. Liquid density ρw = 16 kg/m³ (proposed), which sets every pressure value, is one water-family constant shared with Batch F's EL-001–EL-022 specs: owner decision under S418/S420.
-4. Shared static water-vessel material (restitution 0.12, friction 0.3, proposed): owner decision.
+## Acceptance outline
+
+Authority: [element-032](../requirements.md#element-032). Tolerances L17 (2 Pa). Planned class `PressureMeterTests`. Unless stated, the meter is joined to the `Start` socket of a Linked tank whose `End` carries a Tap with a free end over a Catch basin.
+
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| M1 | Given the tank authored at 0.25, 0.125 and 0 m³ (depths 1.0, 0.5 and 0 m) with the tap at `opening` 0, then the reading is 101 482, 101 403.5 and 101 325 Pa within 2 Pa | `PressureMeterTests.TheReadingIsTheHydrostaticPressure` | M2 | — |
+| M2 | Given the meter unjoined beside a full tank, then it reads 101 325 Pa within 2 Pa and the node is off | `PressureMeterTests.ADisconnectedPortReadsAmbient` | M1 | meter 0.3 m from the socket (not joined) |
+| M3 | Given a full Linked tank (other socket capped) and a Water tank authored at 0.40 m³, each with a meter on a socket, then the Linked tank's reading exceeds the Water tank's by 94 Pa within 4 Pa (two readings, 2 Pa each), although the Water tank holds more | `PressureMeterTests.DepthNotVolumeSetsThePressure` | — | — |
+| M4 | Given a Battery on `PowerIn` and a Powered gate ([CAT-051](CAT-051-powered_gate.md); a Signal lamp is a signal load and cannot sit on `Supply`) on `Supply`, the tank full and the tap at `opening` 1, when the tank drains, then the gate is supplied with its blade raised at first, loses supply from 3.5 s within 10%, and its blade is below 0.05 m within 3 s after (spring return decays at 2 /s, EL-030) | `PressureMeterTests.TheRouteFollowsTheThreshold` | no Battery: the gate is never supplied | `threshold` 101 796: never supplied |
+| M5 | Given M4's construction, when Run advances until the tank is under 0.004 m³ (hand time 10.4 s; stall guard 32 s; the level declares a Run length of 35 s (`ENGINE-RUN-LENGTH`)), then the reading returns to 101 325 Pa within 2 Pa and the node is off | `PressureMeterTests.ADepressurisedPortReadsAmbient` | M1 | `threshold` 101 341 (minimum): the node, on at 101 341, is off once the tank is empty |
+| M6 | Given a full Fluid accumulator with the meter on its socket, then the reading is 101 639 Pa within 2 Pa | `PressureMeterTests.ItReadsASealedCharge` | an empty accumulator: 101 325 Pa within 2 Pa | — |
+| M7 | Given `threshold` below 101 341, above 101 796 or non-finite, then it is refused with a typed reason | `PressureMeterTests.AThresholdOutsideItsLimitsIsRefused` | limits admitted | next f32 beyond each limit |
+| M8 | Given a run, then Reset restores the node to off and the lamp to slate; save and load keep `threshold`, pose, join and wires | `PressureMeterTests.ResetAndSaveLoadKeepTheMeter` | the state before Reset differs | — |
+
+Generic cover: W22, W23. M3 needs EL-001 and EL-012; M6 runs in the EL-033 slice.
+
+## Open questions
+
+All resolved; none needs the owner.
+
+1. Absolute or gauge pascals: absolute (L1), as the pneumatic gauge. The dial's zero mark is ambient.
+2. One socket or in line: one. A gauge in a line would need a second, capped socket at every use.
+3. Range to 3.0 m: the Header tank's highest surface above the bench. Minimum 0.10 m so the off level stays above ambient (the Level switch's minimum moved to 0.10 m for the same reason).
+
+## Integration
+
+- **Works with.** Battery, Powered gate (delivered); EL-026, EL-001, EL-002, EL-003, EL-012, EL-033, EL-229 (not delivered).
+- **Campaign.** Chapter 7, levels 61–70; reuse 81–100, 126–140, 146–150. Needs the lesson-fixture story (S8).
+
+## Delivery
+
+- **Slice shape.** Family slice "Meters".
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (stream samples, immersion and point queries, L18), `ENGINE-ISLANDS-SLEEP` (a change of contents or level wakes what it loads; not delivered, and nothing here assumes sleeping exists) and `ENGINE-CAPABILITY-INSTANCES` (declared sockets, outlets and immersed-port locators); then `ENGINE-GAS-NETWORK` (the one fluid port record); then `ENGINE-LIQUID`; then `ENGINE-THERMAL` (every liquid store is a thermal node, owner decisions 18 and 20); `ENGINE-SIGNAL-NODES`; `ENGINE-RUN-LENGTH` (row M5). Then EL-001, EL-003, EL-004, EL-012, EL-026; S7. Row M6 waits for EL-033.
+- **Files.** Adds `elements/PressureMeter/PressureMeter.csproj`, `PressureMeterElementDeclaration.cs`, `pressure_meter.tscn`, `icon.svg`, `CuriousContraptions.tests/PressureMeterTests.cs`; edits `CuriousContraptions.slnx` and this spec. Other lists as EL-001.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A part cannot declare a single socket; no committed node pressure; no Pa unit; no presentation driver for a threshold node's committed phase.
+
+## Coverage binding (planned, not yet live)
+
+Blocked on the coverage follow-on story S7. The named-identity binding section (the EL-239 form) cannot be written yet: umbrella `todo-339`; `sequence-task-585` co-anchored with `element-032`, not with a todo; no `s453` anchor.

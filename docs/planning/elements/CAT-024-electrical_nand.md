@@ -14,30 +14,29 @@ Story 7.0 Batch B declaration spec (CAT-024-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-024](../requirements.md#current-cat-024); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-137 Electrical NAND gate](../invest/named-elements.md#element-137). No TH/RAD/GAP identity. |
 | Roadmap story | 9.7 "Electrical Logic Gates NAND & NOR" (Epic 9), shared with CAT-025 Current [CAT-024 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Story 9.7a candidate: package `elements/ElectricalNand`, shared `Nand` law, ordered supply resolve and typed `NonmonotoneFeedback` refusal implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md)); independent review and publication pending; browser qualification pending post-catalogue. |
+| Status | Story 9.7a candidate: package `elements/ElectricalNand`, shared `Nand` law, ordered supply resolve and typed `NonmonotoneFeedback` refusal implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-7a-electrical-nand.md)); **delivered**, scoped native and publication Pass `b35be7`; browser qualification pending post-catalogue ("candidate" is the slice's wording at the time). Every residual slice, the EL-137 closure review included, is blocked on the engine programme (owner decision 3a, 22 November 2026); the engine gaps are those of [CAT-013](CAT-013-both_gate.md#3-engine-capabilities-and-conformance): `ENGINE-SIGNAL-NODES` (its self-edge rule row) and `ENGINE-CAPABILITY-INSTANCES` (audit E2 and E3). |
 
 ## 2. Declaration
 
-| Item | Declaration (value · source) |
-| --- | --- |
-| Bodies and shapes | Same as CAT-013: static box 1.7 × 1.3 × 0.65 m and foot 1.85 × 0.16 × 0.85 m at y −0.75 ([CAT-013 §2](CAT-013-both_gate.md#2-declaration)). |
-| Mass and material | Static; legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 ([CAT-013 §2](CAT-013-both_gate.md#2-declaration)). |
-| Constraints and joints | none |
-| Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
-| Sensors and activation | none |
-| Work and energy stores | none. A logically true Nand with no inputs (row 00) still needs real `PowerIn` supply; it never creates power ([todo-362](../requirements.md#todo-362)). |
-| Parameters | `Operation = Nand`, fixed by catalogue kind. Current closed value `LogicGateOperation.Nand = 1` in the package declaration; 4 was the legacy scene integer (`parts/scenes/electrical_nand.tscn@a6c914e:L1-L5`) and is not carried forward. |
-| Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Nand shows its toolbox pictogram on the face and gold truth-row dots for rows 00, 01, 10 at x −0.21, −0.07, 0.07 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L79-L79`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes rather than the legacy textured quad (Story 9.7a assumption A1). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
-| Catalogue / inventory | Id `electrical_nand`, Title "Not both gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_nand.tres@a6c914e:L1-L11`). No level places or grants it. |
+The delivered declaration is `elements/ElectricalNand/ElectricalNandElementDeclaration.cs` with the scene `elements/ElectricalNand/electrical_nand.tscn` (read on `8d1d68aa`). It is the [CAT-013 section 2](CAT-013-both_gate.md#2-declaration) declaration with the values below changed. The body, material, ten colliders, four ports and nine lamp bindings are identical (file comparison), and so are the three layers: colliders from hidden proxies, art never used as a collider, bindings that change lamp colour only.
 
-## 3. Engine capabilities
+| Item | Value |
+|---|---|
+| Id and title | `electrical_nand`, "Not both gate" (`:12–14`) |
+| Category and palette order | Control, 27 (`:13`, `:17`) |
+| Operation | `LogicGateOperation.Nand` (`:35`), nonmonotone |
+| Description | "Passes the separate bottom supply when the numbered inputs are not both powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`:15`) |
+| Printed art (rendering graph) | `Visual/Pictogram/*`: navy strokes with a hollow inversion ring (`printed-ring.obj`). `Visual/TruthDot00`, `TruthDot01`, `TruthDot10`: gold discs (`printed-disc.obj`) at x −0.21, −0.07 and 0.07, y −0.4 (`electrical_nand.tscn:151–162`). All are decorative, printed flat at z 0.37025, and moved by nothing |
+| Icon and coverage key | `elements/ElectricalNand/icon.svg`; `electrical_nand` |
+| Compiled counts per instance | 1 static body; 10 colliders (3 boxes, 7 spheres); 0 joints; 0 signal nodes; 1 supply node; 0 stores; 4 ports; 9 bindings |
 
-Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
+The pictogram with its ring and the three-dot truth row tell it from its siblings without colour.
 
-- **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
-- **Missing:** none after Story 9.7a. Story 9.6 delivered the gate element, `FirstIn`/`SecondIn` sockets and electrical-input cosmetic source; Story 9.7a adds the Nand operation value, settled (condensation-ordered) supply evaluation, the typed nonmonotone-feedback refusal, the pictogram and the truth dots.
-- **Dependencies:** CAT-005 Battery; CAT-013 Both gate declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); input "power switches" need the CAT-063 Switch supply mode (open question 1 here).
+## 3. Engine capabilities and conformance
+
+The generic laws, the capability probe (6 present, 0 untested, 1 narrower, 0 missing), the conformance verdict (conforms with one fix, the unread `ElectricalNodes` ratings) and the performance fitness, with the reason for ten colliders, are those of [CAT-013 section 3](CAT-013-both_gate.md#3-engine-capabilities-and-conformance). The one difference is data: `Nand` is nonmonotone, so the supply network's cycle rule refuses any loop through this node before a solve. No engine code names this package.
+
+**Dependencies.** Battery; a condition switch (each condition is a Battery through an Impact switch contact); a supplied consumer (Powered gate). All are delivered.
 
 ## 4. Legacy harvest
 
@@ -83,4 +82,13 @@ Authority: [CAT-024](../requirements.md#current-cat-024), [todo-362](../requirem
 ## 6. Open questions
 
 1. **Input "power switches".** Resolved (Story 9.7a D5, after owner scheduling item b): each condition is a Battery → Impact Switch (CAT-063) `PowerIn`→`Supply` contact from Story 9.5b; battery-enabled conditions are supplemental proof only.
-2. Consumer for the output: as [CAT-013 open question 1](CAT-013-both_gate.md#6-open-questions).
+2. Consumer for the output: resolved; the Powered gate ([CAT-013 §6 decision 1](CAT-013-both_gate.md#6-current-delivery-decisions-22-october-2026)).
+
+## 7. Delivered state, integration and residuals (22 November 2026)
+
+Checked against `elements/ElectricalNand`, its scene and its tests on published main `8d1d68aa`. Nothing was built or run. The shared gate declaration, laws, capability probe and conformance are in CAT-013 [section 2](CAT-013-both_gate.md#2-declaration) and [section 3](CAT-013-both_gate.md#3-engine-capabilities-and-conformance); this part's values are in section 2 above.
+
+- **Disposition.** Delivered CAT part: package `elements/ElectricalNand`, id `electrical_nand`, display name "Not both gate", category Control, palette order 27 (`elements/ElectricalNand/ElectricalNandElementDeclaration.cs:12–17`). Story 9.7a Pass `b35be7` (`sprint-status.yaml:279`). No slice is planned. [EL-137](EL-137-electrical-nand-gate.md) is a candidate Duplicate closure of this part.
+- **Tests** (`ElectricalNandTests`). Truth and supply: `SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer`, `TrueRowWithoutSupplyWireNeverCreatesPower`. Retraction, save, load and Reset: `ClosingBothSwitchesRetractsTheOutputAndSaveLoadAndResetAreExact`. Order and reconvergence: `PlacementAndWiringOrderPreserveTruthTableAndConsumerResponse`, `ReconvergentConditionRetractsOutputOnTheSameTick`. Feedback refusal: `ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve`, `LongLoopRefusalNamesTheFirstPartsAndCountsTheRest`. Lamps and printing: `ElectricalNandPresentationTests.PictogramTruthDotsAndThreeLampsFollowCommittedRowsThroughReset`.
+- **Residuals.** A wire from this gate's own `Supply` to its own input is refused as `InvalidConnection`, not with the loop message EL-137 requires; owner `ENGINE-SIGNAL-NODES` (its self-edge rule row); the EL-137 closure review is blocked on that row, after the engine programme (owner decision 3a). The Workbench connect tool refuses a same-part target (`ui/WorkshopConnections.cs:106`), so only a save or a command can carry this wire; it is not a player-reachable defect. The unread `ElectricalNodes` ratings (`:33`) are a required forward-only refactor, as for [CAT-013](CAT-013-both_gate.md#7-delivered-state-integration-and-residuals-22-november-2026). Requirement row CAT-024 stays unchecked until the browser phase.
+- **Integration.** Condition sources: a Battery through an Impact switch contact. Consumer: Powered gate. No campaign level places it. Coverage binding: catalogue key `electrical_nand`.

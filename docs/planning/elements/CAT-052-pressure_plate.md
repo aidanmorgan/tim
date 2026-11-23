@@ -6,7 +6,7 @@ Story 7.0 Batch B declaration spec (CAT-052-D). Legacy citations are pinned to `
 
 **Colliders (owner, 25 October 2026, "visible = solid"):** since [`elements-visible-solid-sweep`](../../../TODO.md) the three sockets collide as spheres r 0.075 at (∓1.18, −0.08, 0) and (0, −0.08, 1.18), appended after the base and the sensing top (collider 1, which the contact load names) (`elements/PressurePlate/pressure_plate.tscn`; `VisibleSolidColliderTests`). They take the plate's one material, restitution 0.1, which a ball dropped onto the PowerIn socket shows (product restitution 0.055). Placement bounds every collider (`PlacementPose`), so the sockets now count toward the bench edge: the plate reaches x ±1.255 and z +1.255 (one-sided: −z still ends at the base's −1.1) against the base's ±1.1 (`PlacementPoseTests.ProudSocketsCountTowardTheBenchEdge`). A ball on the sensing top still opens the plate's gate (`PressurePlateTests.TheSocketCollidersLeaveTheSensingTopAndItsActivationUnchanged`).
 
-**Uncollided:** the four studs (spheres r 0.055 at (±1, 0.015, ±1)) and the ochre ring on the top (torus r 0.3, tube 0.018 at y 0.084, 2.2 cm above the sensing face) have no collider (`VisibleSolidColliderTests`). Owned by [`engine-multi-collider-dynamic`](../../../TODO.md): a stud is below the sphere radius minimum in `ColliderDeclaration.Validate` (`engine/gpu/PhysicsDeclarations.cs`), and a sixth collider would take the identity the contact-load row holds (part base + 6), which `WorkshopPhysicsCompiler.ColliderSlots` reports and the bundle refuses when it installs. The ring is a torus: [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) added the kind, but as the plate's sixth collider it would take the contact-load row's identity too, so it also waits for that slice (a filled disc would hold a centred ball, its cross-section at the ring's top about 0.12 m inside the 0.282 m bore, off the sensing face).
+**Studs and ring.** Since `engine-multi-collider-dynamic` (published `28a2d302`) the four studs and the ochre ring collide through the hidden proxies `col_stud_0`–`3` and `col_visual_ring` (`elements/PressurePlate/pressure_plate.tscn:119–142`). The ring is a torus, so a centred ball still reaches the sensing face through its bore, and it is a supporting collider of the contact-load sensor, so a flat load resting on it counts.
 
 ## 1. Identity
 
@@ -16,41 +16,111 @@ Story 7.0 Batch B declaration spec (CAT-052-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-052](../requirements.md#current-cat-052); retained behaviour [todo-265](../requirements.md#todo-265) |
 | Mapped identities | none owned. Related but distinct: [EL-059 Weight tray](../invest/named-elements.md#element-059) ("loaded support exposes measured force or threshold state"); no legacy implementation links them, so its requirement row stands as the source. |
 | Roadmap story | 9.1 "Pressure Plate Surface Contact Load Sensor" (Epic 9) Current [CAT-052 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | not started |
+| Status | **Delivered** (22 November 2026 check): package `elements/PressurePlate`, id `pressure_plate`; Story 9.1, repaired by 9R.4 and 9R.5, generic instance by C-Plate (native Pass `146588`). Sprint key `9-1-pressure-plate-surface-contact-load-sensor` stays in-progress only for its Chrome clause. Residuals: [section 7](#7-delivered-state-integration-and-residuals-22-november-2026). Every residual slice (the single-impact and ring-support tests, the refusal wording and ratings refactors) is blocked on the engine programme (owner decision 3a, 22 November 2026); the part's engine gap, contact-load rows evaluated against every contact and only on a static owner, is owned by `ENGINE-CONTACT-OBSERVATIONS`. |
 
 ## 2. Declaration
 
-| Item | Declaration (value · source) |
-| --- | --- |
-| Bodies and shapes | One static body with two collision boxes: base 2.2 × 0.2 × 2.2 m centred at y −0.12 (top at −0.02) and top plate 1.8 × 0.1 × 1.8 m centred at y 0.03, so the sensing face is at y 0.08 with half size 0.9 (`parts/PressurePlatePart.cs@a6c914e:L14-L15`, `parts/PressurePlatePart.cs@a6c914e:L45-L46`; legacy `AddBox` = collision box, [CAT-005 §2](CAT-005-battery.md#2-declaration)). The top stays physically and visually fixed (no decorative depression). The three socket spheres follow as colliders 2–4 (Colliders above). |
-| Mass and material | Static. Contact material restitution 0.1, bounce threshold 0.1 m/s, friction 0.3 (`parts/PressurePlatePart.cs@a6c914e:L28-L28`; field order restitution, bounce threshold, friction: `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`), unlike the static default restitution 1. Declare through `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L45`) as f32; that record stored half-precision at a6c914e, listed as remaining f32 migration (`docs/gpu-f32-physics.md@a6c914e:L94-L94`), and is f32 since Story 9A.44. |
-| Constraints and joints | none |
-| Typed sockets and ports | `PowerIn` Electrical Input at (−1.18, −0.08, 0); `Supply` Electrical Output at (1.18, −0.08, 0) (`parts/PressurePlatePart.cs@a6c914e:L29-L33`). Electrical route `PowerIn`→`Supply` closed while the plate's held level is high (`parts/PressurePlatePart.cs@a6c914e:L34-L35`; release hold below). `ActivationOut` Activation Output at (0, −0.08, 1.18), a **level** listed before `Supply` (Story 9R.5 D3, D4): it drives Signal lamps only (Q2 below); a Counter, Delay or latch input is refused with "A level output can only light a Signal lamp." No activation input: a delay→plate link is refused (harvest P13). |
-| Sensors and activation | A declared contact-load sensor (`SignalContactLoadDescriptor`, C-Plate) on the plate's own static frame, all f32: the face is baked collider 1 (the top box, half size 0.9); a dynamic body's resting contact counts when it touches that face, its normal aligns with local +Y by at least 1 − 10⁻⁶, its gap is at most the contact distance d = 0.0001 m or it carried normal contact impulse in the substep (a landing that bounces from the speculative gap presses the plate on its impact tick; engine restitution slice, 24 Oct 2026), and its point lies in the face's x–z footprint x ∈ [−0.9 − d, 0.9 + d], z ∈ [−0.9 − 10⁻⁶, 0.9 + 10⁻⁶]; the face is identified by its collider, normal and gap, never by a y band. The minimum mass is the `minimum_mass` parameter; the release hold is declared as 0.1 s. The shared compiler reads the declaration (`WorkshopPhysicsCompiler.ContactLoadSensorFor`); no code names the plate (legacy source: `parts/PressurePlatePart.cs@a6c914e:L21-L25`; `engine/physics/ConvexSweep.cs@a6c914e:L46-L46`). Phases `Empty` (no qualifying mass), `Underweight` (0 < mass < minimum), `Loaded` (mass ≥ minimum) (`engine/physics/PhysicsContactLoadSensor.cs@a6c914e:L7-L7`, `engine/physics/PhysicsContactLoadSensor.cs@a6c914e:L46-L47`). One committed level (the `ContactLoadSource` node) drives both the `ActivationOut` lamp and the supplied contact: high on the first Loaded tick (no dwell); with n ticks since the last Loaded tick it stays high while n ≤ 11 and is low from n = 12, a release hold of 0.1 s = 12 ticks at 120 Hz (Q3 below). The hold is committed checkpoint state: the node's memory row holds the boundary its level is due to clear. The gate's drive reads the committed level at the next tick. |
-| Work and energy stores | none; the plate closes a supplied contact and creates no supply, latch or impact command ([todo-265](../requirements.md#todo-265)). |
-| Parameters | `minimum_mass`: float kilograms, range 0.1–16 inclusive, default 0.5 (`parts/PressurePlatePart.cs@a6c914e:L36-L41`, `parts/catalog/pressure_plate.tres@a6c914e:L14-L14`). Captured at Run; changing it during Run is rejected (P15). Carry forward as f32 kg. |
-| Cosmetic curves and UI bindings | Four corner studs: slate `#556573` when Empty, ochre `#e8b764` when Underweight, easing to gold `#f7cb52` when Loaded (eased at rate 8 per second with SmoothStep) (`parts/PressurePlatePart.cs@a6c914e:L56-L62`). No current cosmetic source for a contact-load phase (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`). |
-| Art | Navy `#293954` base; cream `#fff8e9` top; four stud spheres r 0.055 at (±1, 0.015, ±1); `#e8b764` socket spheres r 0.075 at (±1.18, −0.08, 0) and, for `ActivationOut`, at (0, −0.08, 1.18) (`Loc_Port_activation_out`, Story 9R.5 D3); `#e8b764` centre ring r 0.3, thickness 0.018 at (0, 0.084, 0) — "a quiet central load target, not a control overlay" (`parts/PressurePlatePart.cs@a6c914e:L42-L54`). Selection ring 1.5 (`parts/PressurePlatePart.cs@a6c914e:L44-L44`). Catalogue colour (0.91, 0.72, 0.39) is not used on a visible surface. Toolbox icon (current, survives): `ui/WorkshopIcons.cs@a6c914e:L84-L84`. Design: "Pressure plate" row of [DESIGN.md · Motion and state feedback](../../../DESIGN.md#motion-and-state-feedback). |
-| Catalogue / inventory | Id `pressure_plate`, Title "Pressure plate", Category Control, colour (0.91, 0.72, 0.39), Parameters `{"minimum_mass": 0.5}`; Description: "Closes its electrical contact while enough mass rests directly on the top face. Needs a battery or other supply. The default threshold is 0.5: one tennis ball is too light." (`parts/catalog/pressure_plate.tres@a6c914e:L8-L14`). No level places or grants it. |
+The delivered declaration is `elements/PressurePlate/PressurePlateElementDeclaration.cs` with the scene `elements/PressurePlate/pressure_plate.tscn` (read on `8d1d68aa`). It implements `IMechanicalElement`, `ISupplyElement`, `ISignalElement` and `ISceneGeometryElement` (`:10`). The legacy sources of the carried values are in section 4.
 
-Reference masses for acceptance: Basketball 1 kg and Bowling ball 4 kg (`engine/gpu/WorkshopConstruction.cs@a6c914e:L48-L51`); Domino 0.4 kg (`engine/gpu/WorkshopDomino.cs@a6c914e:L9-L9`); legacy tennis ball 0.35 kg (`parts/catalog/tennis.tres@a6c914e:L14-L14`) and weight 4 kg (`parts/catalog/weight.tres@a6c914e:L14-L14`).
+**Body and material.** One static body (`KinematicMode.Static`, `:64`), no mass, no joint, no payload (`:66–74`). Material: restitution 0.1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:57`), all f32. The top is fixed; nothing depresses.
 
-## 3. Engine capabilities
+**Colliders (physics graph).** Ten, baked in scene order from hidden proxies (`pressure_plate.tscn:101–150`). Physics reads no art.
 
-Families ([map row](../general-engine-element-map.md)): ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction. Map note: "Shared contact-load sensor counts bodies once with declared region/normal filters; not proximity or free supply."
+| # | Shape | Size (m) | Centre (m) |
+|---|---|---|---|
+| 0 | box | 2.2 × 0.2 × 2.2 | (0, −0.12, 0) |
+| 1 | box | 1.8 × 0.1 × 1.8 | (0, 0.03, 0); its top, y 0.08, is the sensing face |
+| 2 | sphere | r 0.075 | (−1.18, −0.08, 0), the `PowerIn` socket |
+| 3–6 | sphere | r 0.055 | (±1, 0.015, ±1), the studs |
+| 7 | torus, axis Y | radii 0.282 to 0.318 (tube 0.018) | (0, 0.084, 0), the ring |
+| 8–9 | sphere | r 0.075 | (1.18, −0.08, 0) and (0, −0.08, 1.18), the `Supply` and `ActivationOut` sockets |
 
-**Exists now**
-- Static box bodies, colliders and materials: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L119`, `engine/gpu/WorkshopPhysicsCompiler.cs`.
-- Other declared sensors on the shared solver, evaluated at substep endpoints: residence (one named body, dwell) `engine/gpu/PhysicsDeclarations.cs@a6c914e:L122-L142`; contact trigger (impact approach speed) `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`; orientation `engine/gpu/OrientationSensorDeclaration.cs@a6c914e:L24-L34`. None of these measures resting mass; the contact-load sensor below does.
+Placement bounds every collider, so the plate reaches x ±1.255 and z +1.255 at the bench edge.
 
-- The generic contact-load sensor (Stories 9.1, 9R.4, 9R.5; declared by C-Plate): `SignalContactLoadDescriptor` / `IContactLoadSensorElement` in the package selects the compiled `ContactLoadSensorDeclaration` row (owned frame, face collider, x–z footprint, local normal and minimum alignment, contact gap, minimum mass) and the `ContactLoadSource` level node with its release hold; per tick the shared tracker sums the mass of each distinct dynamic body in direct qualifying contact and publishes `Empty`/`Underweight`/`Loaded`. The plate is a `WorkshopGenericInstance` whose `minimum_mass` is set through the generic editor (Reject policy).
-- Stud colour feedback from the committed load phase and the supplied contact `PowerIn`→`Supply` closed while the held level is high (declared presentation and supply route).
-- Palette placement rests a dropped Dynamic part on the face instead of straddling it (F.6 F-1, `engine/PlacementPose.cs`).
+**Visuals (rendering graph).** No art mesh is used as a collider.
 
-**Missing**
-- none for this element; browser qualification is pending at the post-catalogue E2E phase.
+| Art node | Mesh and colour | Solidity | Moved by |
+|---|---|---|---|
+| `Visual/Visual_Base` | box 2.2 × 0.2 × 2.2 m, navy `#293954` | solid, collider 0 | nothing |
+| `Visual/Visual_Top` | box 1.8 × 0.1 × 1.8 m, cream `#fff8e9` | solid, collider 1 | nothing |
+| `Visual/Stud_0`–`3` | spheres r 0.055 m, slate, ochre or gold by load phase | solid, colliders 3–6 | nothing (colour bindings only) |
+| `Visual/Visual_Ring` | torus, radii 0.282 to 0.318 m, ochre `#e8b764` | hollow, collider 7 | nothing |
+| `Visual/Visual_Socket_PowerIn`, `_Supply`, `_ActivationOut` | spheres r 0.075 m, ochre | solid, colliders 2, 8, 9 | nothing |
 
-**Element dependencies**: dynamic loads (Basketball CAT-001, Bowling CAT-014, Domino CAT-023 delivered; Tennis CAT-064 and Weight CAT-067 later); Battery (CAT-005) and a supplied consumer for an observable output ([current-consumers](../invest/current-consumers.md#cat-052-i) names Motor, CAT-042; the legacy tests used Powered gate, CAT-051).
+Selection radius 1.5 (`:12`). Icon `elements/PressurePlate/icon.svg`. At a glance it is the low square slab with a cream top, four corner studs and a centre ring; no other delivered part is a flat square pad.
+
+**Animation (animation graph).** Twelve presentation bindings (`:14–25`): the red, green and blue albedo of each stud take a state value from `CommittedContactLoadPhase` of node `signal`: slate (85, 101, 115)/255 when Empty, ochre (232, 183, 100)/255 when Underweight, gold (247, 203, 82)/255 when Loaded. The change is immediate (Linear, duration 0). They read the committed phase and write nothing back.
+
+**Ports** (`:47–49`), in declared order. There is no activation input.
+
+| `PortId` | Domain | Direction | Role | Signal kind | Position (m) | Facing |
+|---|---|---|---|---|---|---|
+| `PowerIn` | Electrical | Input | PowerIn | — | (−1.18, −0.08, 0) | −X |
+| `ActivationOut` | Signal | Output | ActivationOut | Level | (0, −0.08, 1.18) | +Z |
+| `Supply` | Electrical | Output | Supply | — | (1.18, −0.08, 0) | +X |
+
+**Parameter** (`:39`). It is captured at Run; the editor refuses an out-of-range value and never clamps.
+
+| Name | Kind | Unit | Minimum | Maximum | Default | Editor policy | Run edit |
+|---|---|---|---|---|---|---|---|
+| `minimum_mass` | Real | kilogram | 0.1 | 16 | 0.5 | Reject (default) | Build-only |
+
+**Sensor node, supply node and event.** One signal node `signal`, a `SignalContactLoadDescriptor` (`:93`), with `ActivationOut` on its output (`:95–98`):
+
+| Field | Value |
+|---|---|
+| Frame | package body 0 |
+| Region collider | 1 (the top box); its x–z footprint bounds the sensor |
+| Local normal and minimum alignment | +Y; 1 − 10⁻⁶ |
+| Contact distance and depth margin | 10⁻⁴ m; 10⁻⁶ m |
+| Minimum mass | the `minimum_mass` parameter, compared inclusively |
+| Release hold | 0.1 s, 12 ticks at 120 Hz |
+| Supporting colliders | 1 and 7 (the top and the ring) |
+
+One supply node `contact`, a `SupplyContactDescriptor` closed while `signal` is `Latched`, between `PowerIn` and `Supply` (`:78–83`). Event `ContactLoad` (`:60`). `ElectricalNodes` holds one `Switch` row (`:85–88`); its ratings are unread (section 7).
+
+**Compiled counts per instance.** 1 static body; 10 colliders (2 boxes, 7 spheres, 1 torus); 0 joints; 0 drives; 1 contact-load sensor row; 1 signal node with one committed memory row; 1 supply node; 0 stores; 3 ports; 12 bindings. All are fixed at compile.
+
+**Catalogue.** Id `pressure_plate`, title "Pressure plate", category Control, palette order 21, colour (0.91, 0.72, 0.39), description "Senses resting mass on its top plate. Closes an internal electrical circuit while its threshold mass is met." (`:29–36`). Coverage key `pressure_plate`.
+
+## 3. Engine capabilities and conformance
+
+Map families, for navigation only (D14): ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction.
+
+**Generic laws.** The package holds no script, callback, update loop or state machine. No rule reads "when a ball touches the plate"; each row is a law any package could declare.
+
+| Behaviour | General law | Declared values |
+|---|---|---|
+| A body rests on it with little bounce | rigid contact with the product pair law for restitution, and friction | ten colliders; restitution 0.1 |
+| It senses resting mass | contact-load sensor: each tick it sums the mass of each distinct dynamic body whose committed contact on a supporting collider lies in the region footprint, aligns with the normal and is within the contact distance or carried normal impulse; the phase is Empty, Underweight or Loaded by an inclusive comparison | the sensor fields above |
+| Its level comes on at once and releases after a hold | signal network level-source rule: high on the first Loaded tick; with n ticks since the last Loaded tick it stays high while n ≤ 11 and is low from n = 12 | release hold 0.1 s |
+| Its output is a level only a level indicator accepts | signal network level rule (`LevelDrivesLevelInputOnly`) | `PortSignalKind.Level` |
+| The contact is closed while the level is high | supply network contact rule | `SignalContactState.Latched` |
+| Studs | presentation bindings on the committed load phase | the twelve bindings |
+
+**Capability probe.** 7 present, 0 untested, 0 narrower, 0 missing.
+
+| Capability | Status | Symbol | Test |
+|---|---|---|---|
+| Contact-load sensor: each directly touching body once, inclusive threshold | present | `SignalContactLoadDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:58–60`) | `PressurePlateTests.ContactLoadSensorTracker_CountsEachBodyOnceAndSumsBodies`; `PressurePlateTests.OneDominoIsUnderweightAndTwoDominoesSum`; `PressurePlateTests.OnlyDirectContactCountsForAStack` |
+| Only the top face counts; rotated mounting | present | the same descriptor | `PressurePlateTests.ContactLoadSensorTracker_CountsOnlyRestingContactsOnTheFace`; `PressurePlateTests.ContactLoadSensorTracker_TransformsARotatedFrame` |
+| Per-instance threshold and its boundary | present | `ParameterDescriptor` range | `PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate`; `PressurePlateTests.AMinimumOneF32AboveTheBodyMassStaysUnderweight`; `DeclaredContactLoadTests.AMissingOrOutOfRangeMinimumMassIsRefusedAtBothBoundaries` |
+| Held level: immediate on, 0.1 s release | present | release hold on the node | `PressurePlateTests.TheLevelIsHighOnTheFirstQualifyingTick`; `PressurePlateTests.ABounceGapOfElevenStaysLitAndTwelveShowsOneDarkTick`; `DeclaredContactLoadTests.TheHoldIsATenthOfASecondAtEachCadence` |
+| Supplied contact and level output | present | `SupplyContactDescriptor`; `PortSignalKind.Level` | `PressurePlateTests.ALoadedPlateWithoutSupplyLeavesItsGateClosed`; `PressurePlateTests.APlateActivationOutLightsOnlyASignalLamp`; `PressurePlateTests.TheLampAndTheSuppliedContactShareOneHeldLevelOnEveryTick` |
+| Run, Reset and save | present | committed checkpoint | `PressurePlateTests.ABenchOfManyActivationPartsRunsResetsAndSavesWithNoActivationLimit`; `PressurePlateTests.TheReleaseHoldIsCommittedCheckpointState`; `DeclaredContactLoadTests.AdmittedMinimumMassesRoundTripAtBothBoundaries` |
+| Stud colour by load phase | present | `PresentationDriver.CommittedContactLoadPhase` | `ComposableAnimationMappingTests` (the Underweight colour assertion at `:586–600`) |
+
+**Conformance (owner addendum, 22 November 2026): conforms with fixes.**
+- Declaration data only: holds. A search of `engine`, `ui` and every non-test `CuriousContraptions.*` project for the package id, class and namespace found no reference (`docs/planning/elements/readiness/audits/elements-batch-b.md` §5). The sensor is compiled from the descriptor; no code names the plate.
+- Naming residue, a required forward-only refactor (section 7): the generic level rule's refusal message names a product, "A level output can only light a Signal lamp." (`engine/gpu/WorkshopConnections.cs:150`); `ENGINE-CAPABILITY-INSTANCES` rewords it to "A level output connects only to an input that admits a level." (audit E4; the one wording, as CAT-035 states), with the pinned constant `PressurePlateTests.cs:698`.
+- Three layers: hold. Every static proud solid has its own collider, the ring a true hollow one; the studs' bindings change colour only; nothing is moved by a binding.
+- One-way flow, typing and flat state: hold, with the counts in section 2. The sensor reads committed contacts; presentation reads the committed phase.
+- Tests are scenarios, with one gap: no test drives a single impact to a consumer (section 7).
+- The unread `ElectricalNodes` ratings are a required forward-only refactor (section 7).
+
+**Performance fitness.** The body is static and is never integrated. Ten colliders against the two of the original slab has one reason: visible = solid. Each stud and socket is a drawn sphere standing clear of the slab, so each has its own primitive, and the ring stands 2.2 cm above the sensing face; it is a torus, not a disc, because a disc would hold a centred ball off the face. No collider is cosmetic. The sensor's region is bounded: it counts only the committed contacts of its two supporting colliders inside the region footprint. Engine gap, not an element fault: the engine finds those contacts by scanning every contact for every contact-load row (work proportional to loads × contacts, `CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:220`–`237`), and only a static owner is admitted; owned by `ENGINE-CONTACT-OBSERVATIONS` (rows found by compiled handle, on any owner). The cost of the colliders for many instances is the recorded, unmeasured engine gap "Per-instance collider growth from visible = solid" (`_bmad-output/implementation-artifacts/deferred-work.md:177–179`), owned by the performance qualification gate P0-034. The authorities state no per-part budget, so none is claimed here.
+
+**Dependencies.** Dynamic loads (Basketball, Bowling ball, Domino, Tennis ball, Weight); Battery and a supplied consumer (Powered gate); a Signal lamp for the level. All are delivered.
 
 ## 4. Legacy harvest
 
@@ -107,7 +177,7 @@ Authority: [CAT-052](../requirements.md#current-cat-052), [todo-265](../requirem
 
 - **Construction (Chrome UI).** Place Pressure plate, Battery and the consumer; Connect battery→plate (`Supply`→`PowerIn`) and plate→consumer; drop or place a Basketball/Bowling ball above the top face with the ordinary placement tools.
 - **Positive.** A body of at least the threshold mass resting directly on the top face closes the contact; studs ease to gold.
-- **Negative / controls.** Rolling off or lifting opens it, and darkens a lamp on `ActivationOut`, on the 12th tick after the last Loaded tick (the 0.1 s release hold; boundaries 11 / 12 / 13; P11, P15); a bounce whose contacts are 11 or fewer ticks apart keeps it steadily closed and lit; the `ActivationOut` level is refused by Counter, Delay and latch inputs; a below-threshold body leaves the studs ochre and the contact open (P11); contact on the side or underside, or a body beside the plate, does not count (P12, P16); no supply → studs gold but consumer off (P11).
+- **Negative / controls.** Rolling off or lifting opens it, and darkens a lamp on `ActivationOut`, on the 12th tick after the last Loaded tick (the 0.1 s release hold; boundaries 11 / 12 / 13; P11, P15); a bounce whose contacts are 11 or fewer ticks apart keeps it steadily closed and lit; a single impact closes the contact for no longer than the 0.1 s release hold (owner decision 8; planned `PressurePlateTests.ASingleImpactClosesTheContactForItsHoldOnly`); the `ActivationOut` level is refused by Counter, Delay and latch inputs; a below-threshold body leaves the studs ochre and the contact open (P11); contact on the side or underside, or a body beside the plate, does not count (P12, P16); no supply → studs gold but consumer off (P11).
 - **Boundaries.** Exactly-at-threshold mass is Loaded (P18); two light bodies together reach the threshold (P11); a compound or stacked load counts each directly touching body once (P15); thresholds 0.1 and 16 accepted, out-of-range rejected (P14); rotated mounting (P12).
 - **Run/Reset.** Reset gives mass 0, Empty, slate studs, inactive (P11).
 - **Save/Load.** `minimum_mass` round-trips (P13).
@@ -115,6 +185,25 @@ Authority: [CAT-052](../requirements.md#current-cat-052), [todo-265](../requirem
 
 ## 6. Open questions
 
-1. **Threshold.** The Story 9.1 AC says activation for "mass > 0.2 kg"; the requirement row and the legacy say default 0.5 kg with an inclusive threshold (mass ≥ minimum). A Domino (0.4 kg) presses at 0.2 but not at 0.5. Which default and which comparison: unspecified — owner decision. **Decided (owner decision h; delivered by C-Plate): `minimum_mass` is f32 kg, range 0.1–16 inclusive, default 0.5, compared inclusively (mass ≥ minimum); it supersedes 9.1's "> 0.2 kg". The editor refuses out-of-range values (no clamp).**
-2. **Output to a Signal lamp.** The Story 9.1 AC wires the plate "to a Signal lamp"; the legacy and the requirement give the plate only a supplied electrical contact, the lamp is activation-only (CAT-035), and the supply network (Story 8.1) now precedes Story 9.1. Whether 9.1 proves the plate through the Story 8.1 supplied contact, or the plate gains an activation output the requirement does not define: unspecified — owner decision. **Decided 18 Oct 2026 (coordinator under owner delegation; delivered by Story 9R.5): the plate gains an `ActivationOut` level output, high while Loaded (with the Q3 release hold) and low otherwise; like the latch's output it drives Signal lamps only.** Rationale: the player sees at a glance whether the plate is pressed, and 9.1's AC becomes achievable.
-3. **Bouncing impacts.** The Story 9.1 AC and the requirement require that impact-only contact does not give sustained activation. The legacy counted any qualifying contact present at the tick, with no rest or dwell qualifier, so a bounce could close the contact for the ticks it touches. Whether a dwell or rest-speed qualifier is required, and its value: unspecified — owner decision. **Decided 18 Oct 2026 (coordinator override; delivered by Story 9R.5): no dwell; activation is immediate on the first qualifying tick, and release is held for 0.1 s (12 ticks at 120 Hz) after the last qualifying tick.** One held level governs both the lamp and the supplied contact. A ball bouncing on the plate therefore keeps the lamp lit and the contact closed through the bounce and releases 0.1 s after it leaves. Rationale: without the hold, the lamp flickers and downstream logic chatters on every bounce; the hold adds no lag at activation.
+1. **Threshold.** The Story 9.1 AC says activation for "mass > 0.2 kg"; the requirement row and the legacy say default 0.5 kg with an inclusive threshold (mass ≥ minimum). A Domino (0.4 kg) presses at 0.2 but not at 0.5. Which default and which comparison was the question. **Decided (owner decision h; delivered by C-Plate): `minimum_mass` is f32 kg, range 0.1–16 inclusive, default 0.5, compared inclusively (mass ≥ minimum); it supersedes 9.1's "> 0.2 kg". The editor refuses out-of-range values (no clamp).**
+2. **Output to a Signal lamp.** The Story 9.1 AC wires the plate "to a Signal lamp"; the legacy and the requirement give the plate only a supplied electrical contact, the lamp is activation-only (CAT-035), and the supply network (Story 8.1) now precedes Story 9.1. Whether 9.1 proves the plate through the Story 8.1 supplied contact, or the plate gains an activation output the requirement does not define was the question. **Decided 18 Oct 2026 (coordinator under owner delegation; delivered by Story 9R.5): the plate gains an `ActivationOut` level output, high while Loaded (with the Q3 release hold) and low otherwise; like the latch's output it drives Signal lamps only.** Rationale: the player sees at a glance whether the plate is pressed, and 9.1's AC becomes achievable.
+3. **Bouncing impacts.** The Story 9.1 AC and the requirement require that impact-only contact does not give sustained activation. The legacy counted any qualifying contact present at the tick, with no rest or dwell qualifier, so a bounce could close the contact for the ticks it touches. Whether a dwell or rest-speed qualifier is required, and its value was the question. **Decided 18 Oct 2026 (coordinator override; delivered by Story 9R.5) and confirmed by owner decision 8 (22 November 2026): no dwell; activation is immediate on the first qualifying tick, and release is held for 0.1 s (12 ticks at 120 Hz) after the last qualifying tick.** One held level governs both the lamp and the supplied contact. A ball bouncing on the plate therefore keeps the lamp lit and the contact closed through the bounce and releases 0.1 s after it leaves. Rationale: without the hold, the lamp flickers and downstream logic chatters on every bounce; the hold adds no lag at activation.
+
+## 7. Delivered state, integration and residuals (22 November 2026)
+
+Checked against `elements/PressurePlate`, its scene and its tests on published main `8d1d68aa`, and against `origin/main` `25df3cd5`, which changes none of them. Nothing was built or run.
+
+**Disposition.** Delivered CAT part: package `elements/PressurePlate`, id `pressure_plate`, category Control, palette order 21 (`elements/PressurePlate/PressurePlateElementDeclaration.cs:29–34`). No slice is planned for this identity. It owns no named identity; EL-059 is a separate element. Every residual below is blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element.
+
+**Residuals.**
+- **Single impact (owner decision 8, 22 November 2026).** The 0.1 s single-impact pulse is confirmed: any qualifying impact closes the contact on its impact tick and for 11 more ticks (the 0.1 s release hold); a steady bounce keeps it closed; a ball that comes to rest gives the same final state. The requirement row's impact-only control is reworded to "a single impact closes the contact for no longer than the 0.1 s release hold" (the `requirements.md` edit belongs to that file's owner). The single-impact test is added: `PressurePlateTests.ASingleImpactClosesTheContactForItsHoldOnly` — a Basketball thrown across the plate so that it strikes once and lands off it; the supplied contact to a Powered gate is closed on no more than 12 consecutive ticks and open at the end. Control: the same ball coming to rest on the plate stays closed. Rows in [batch B readiness](readiness/batch-b.md) (gap 6).
+- **Ring as a support.** The sensor's supporting colliders are 1 and 7. `DeclaredContactLoadTests.TheDeclaredSensorCompilesItsRegionAndMembersForEveryPlate` asserts the pair, and the tilted roll-off touches the ring in passing (`PressurePlateTests.cs:529–531`), but no test rests a flat load on the ring and expects Loaded. One positive row is added when the plate is next touched.
+- **Required forward-only refactors.** Reword the level rule's refusal to "A level output connects only to an input that admits a level." (`ENGINE-CAPABILITY-INSTANCES`, audit E4; one wording with CAT-035 and CAT-037). Remove the unread `ElectricalNodes` ratings (12 V, 0.05 Ω, 100 W, `PressurePlateElementDeclaration.cs:85–88`, only checked finite at `CuriousContraptions.Bundle/BundleValidator.cs:873–876`). The deferred-work text for both is in batch B readiness.
+- Requirement row CAT-052 stays unchecked until the post-catalogue browser phase.
+
+**Integration.**
+- Delivered loads: Basketball 1 kg, Bowling ball 4 kg, Domino 0.4 kg, Weight, and the Tennis ball 0.35 kg, which stays below the 0.5 kg default alone and passes it in pairs (0.7 kg). The Baseball, 0.15 kg (the repair values of coordinator decision 36; published main declares 0.65 kg until the repair publishes), stays below the 0.5 kg default alone and in threes (0.45 kg) and passes it four together (0.6 kg).
+- Delivered consumers: Battery and Powered gate; Signal lamp on the level output.
+- [Current consumers](../invest/current-consumers.md#cat-052-i) names the Motor as the first visible consumer. As decided in [CAT-013 §7](CAT-013-both_gate.md#7-delivered-state-integration-and-residuals-22-november-2026), the native consumer stays the Powered gate and the Motor recipe is kept for the browser phase.
+- Campaign: no level in `content/puzzles.json` places it.
+- Coverage binding: catalogue key `pressure_plate` in `docs/coverage/catalogue-elements.json`.

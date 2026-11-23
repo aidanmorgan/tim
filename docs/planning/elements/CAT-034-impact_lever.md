@@ -1,115 +1,69 @@
 # CAT-034 · impact_lever declaration readiness spec
 
-**Current delivery (24 October 2026):** [CAT-034 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
-
-This is the Story 7.0 CAT-034-D declaration readiness spec for the impact lever. The baseline is commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Legacy world units are carried as metres, as the delivered Switch and Bumper declarations already do (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L122`).
+This is the CAT-034 spec for the Impact lever. Sections 1 to 3 and 5 to 9 describe the delivered package, checked on 22 November 2026 against checkout `8d1d68aa`; published main is now `25df3cd5`, and its two later commits touch none of this package's files. Section 4 is the legacy harvest at `a6c914e`, kept verbatim as evidence; it is not a description of the current part. Browser qualification is pending until the post-catalogue phase.
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
 | CAT ID | CAT-034 |
-| Kind | `impact_lever`, catalogue title "Impact lever" (`parts/catalog/impact_lever.tres@a6c914e:L6-L7`) |
+| Kind | `impact_lever`, catalogue title "Impact Lever" |
 | Requirement anchor | [CAT-034](../requirements.md#current-cat-034); retained behaviour [sequence-task-307 / todo-409](../requirements.md#sequence-task-307) |
-| Mapped identities | None. No EL, TH, RAD or GAP identity in [named-elements.md](../invest/named-elements.md) names an impact lever, teeter-totter or fulcrum beam. Batch A confirms. |
-| Roadmap story | [10.3 Balanced Impact Lever & Pivot Fulcrum](../../../_bmad-output/planning-artifacts/epics.md) (Epic 10) Current [CAT-034 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Harvest-baseline status | Not started. There is no `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`). |
+| Mapped identities | None. No EL, TH, RAD or GAP identity in [named-elements.md](../invest/named-elements.md) names an impact lever, teeter-totter or fulcrum beam. |
+| Roadmap story | 10.3 Balanced Impact Lever and Pivot Fulcrum (Epic 10), with 10.3a and 10.3b |
+| Status | **Delivered.** Package id `impact_lever`, directory `elements/ImpactLever`. Slice records: [10.3](../../../_bmad-output/implementation-artifacts/spec-10-3-impact-lever.md) (commit `441af75a`), [10.3a locators and revolute wire](../../../_bmad-output/implementation-artifacts/spec-10-3a-lever-locators-revolute-wire.md), [10.3b pivot hold](../../../_bmad-output/implementation-artifacts/spec-10-3b-lever-pivot-hold.md) (`3ce30ba3`); all `done`. Browser case pending. Every residual slice (section 8) is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-CAPABILITY-INSTANCES` (rope-port admission that enumerates role names) and `ENGINE-ISLANDS-SLEEP` (the resting beam). |
+| Disposition | Delivered catalogue part; no mapped named identity. EL-096 Tipsy platform, EL-223 Passive impact scoop and EL-224 Counterweighted scoop catapult plan to reuse its hinge-with-stops shape (delivery-batches 1b) but are separate elements. |
 
 ## 2. Declaration
 
-### Bodies and shapes
+### As delivered (checked 22 November 2026)
 
-- **Beam.** One dynamic box with half extents 1.8 × 0.12 × 0.55 m, centred on the pivot. Its length runs along part-local X (`parts/ImpactLeverPart.cs@a6c914e:L16`, `parts/ImpactLeverPart.cs@a6c914e:L59`). Declare it as one `RigidBodyDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`) plus one Box `ColliderDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). A dynamic body admits exactly one homogeneous box or sphere (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L226-L234`), so the beam fits today.
-- **Fixture.** One static body that owns three boxes:
-  - a base box, full size 1.4 × 0.16 × 1 m (half 0.7 × 0.08 × 0.5) at (0, −1.18, 0);
-  - two end-stop boxes with half extents 0.13 × 0.15 × 0.3 m at (±1.5, −1.004, 0).
+This table is the current declaration (`elements/ImpactLever/ImpactLeverElementDeclaration.cs`).
 
-  Sources: `parts/ImpactLeverPart.cs@a6c914e:L60`, `parts/ImpactLeverPart.cs@a6c914e:L64-L70`, and the full-size convention of `AddBox` in `reference/cpu/MachinePart.cs@a6c914e:L352-L356`. Multiple boxes on one static body already have a precedent in the Switch (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L112-L115`).
-- **Pivot post and pin.** These are art only in the legacy, with no collider (`parts/ImpactLeverPart.cs@a6c914e:L61-L63`). The fulcrum is a solid cylinder (Open question 2, answered; Story 10.1 cylinder collider).
-
-### Mass and material
-
-- **Beam mass.** Taken from `beam_mass`, default 2 kg. The inertia is the homogeneous box law m(b²+c²)/3 on half extents (`parts/ImpactLeverPart.cs@a6c914e:L30-L40`). That is the law `RigidMassProperties.Compile` already implements for boxes (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51`), so compile the inertia there rather than authoring it.
-- **Beam material.** Restitution 0, bounce threshold 0.1 m/s, friction 0.3 (`parts/ImpactLeverPart.cs@a6c914e:L41`; the argument order is in `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`). Declare it as a `ContactMaterialDeclaration` with rolling resistance 0, the current value for non-sphere bodies (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L721-L726`).
-- **Fixture material.** The lever does not override it. Static legacy surfaces default to (1, 0.1, 0.3), as recorded for the delivered static parts (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L109-L110`).
-
-### Constraints and joints
-
-- **Hinge.** One revolute hinge joins the beam (body A) to the fixture (body B). Both local frames are identity at the beam centre, so the free axis is part-local Z (`parts/ImpactLeverPart.cs@a6c914e:L20-L27`; the frame's Z is the free axis per `engine/physics/JointEquations.cs@a6c914e:L8-L10`).
-- **Collision and travel.** Connected-body collision is Disabled. Travel is bounded to [−π/6, +π/6] rad with direction Both (`parts/ImpactLeverPart.cs@a6c914e:L17`, `parts/ImpactLeverPart.cs@a6c914e:L26`).
-- **Friction.** The hinge declares a 2 N·m Coulomb friction torque (Story 10.3b; Open question 5).
-- **New declaration type.** No joint declaration exists in `engine/gpu`. Story 6.4 adds the first joint (prismatic). Story 10.3 must add a revolute hinge declaration with a travel interval and a connected-collision policy.
-
-### Typed sockets and ports
-
-- **Legacy.** The legacy lever declares no ports (`parts/ImpactLeverPart.cs@a6c914e:L11-L92` has no port override, and the catalogue entry lists none).
-- **Requirement.** The requirement demands end rope sockets ([CAT-034](../requirements.md#current-cat-034)). Rope sockets need a new rope domain in `WorkshopConnectionDomain` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`), built by Story 10.2. Their positions are unspecified (see Open questions).
-
-### Sensors and activation
-
-None is required. The legacy counted contacts with approach speed ≥ 0.45 m/s and published a `Bounced` event (`parts/ImpactLeverPart.cs@a6c914e:L42-L44`, `parts/ImpactLeverPart.cs@a6c914e:L81-L91`), but no requirement asks for a lever output. That counter is not carried forward (fact 30).
-
-### Work and energy stores
-
-None. The lever is passive: there is no power and no automatic launch (`parts/catalog/impact_lever.tres@a6c914e:L9`). All energy comes from contacts and gravity.
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `beam_mass` | `Kilograms` (f32) | 0.5–20 | 2.0 | kg | `parts/ImpactLeverPart.cs@a6c914e:L46-L53`; `parts/catalog/impact_lever.tres@a6c914e:L12` |
-| `initial_angle` | angle (f32), converted to radians at compile | −30 to 30 | 0.0 | degrees | `parts/ImpactLeverPart.cs@a6c914e:L49-L52`, `parts/ImpactLeverPart.cs@a6c914e:L58`; `parts/catalog/impact_lever.tres@a6c914e:L12` |
-
-`initial_angle` rotates the beam about part-local +Z, and the hinge measures it against the authored frame without re-zeroing (`parts/ImpactLeverPart.cs@a6c914e:L78`; `CuriousContraptions.tests/SceneJointDeclarationTests.cs@a6c914e:L186-L202`). Closed parameter identities are an enum, `ImpactLeverParameter { BeamMass, InitialAngle }` (`parts/ImpactLeverPart.cs@a6c914e:L8`). Wire names convert only at the serialization boundary (`CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L31-L37`).
-
-### Cosmetic curves and UI bindings
-
-- **Curves.** None. The beam artwork follows the committed hinge pose directly, with no easing (fact 22; [DESIGN.md Impact lever](../../../DESIGN.md#impact-lever)). No `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L16-L17`) is needed.
-- **UI.** The legacy pick radius is 2 m (`parts/ImpactLeverPart.cs@a6c914e:L57`). Use the existing move and rotate controls only; add no inspector (DESIGN.md).
-
-### Art
-
-| Item | Value | Source |
+| Item | Delivered value | Source |
 | --- | --- | --- |
-| Scene | `parts/scenes/impact_lever.tscn`, a root `Node3D` with the part script and no authored children | `parts/scenes/impact_lever.tscn@a6c914e:L1-L4` |
-| Beam | cream `#fff8e9`, size 3.6 × 0.24 × 1.1 | `parts/ImpactLeverPart.cs@a6c914e:L73` |
-| Upper inset | cyan `#66b8c9`, size 3.38 × 0.014 × 0.82 at y 0.121 | `parts/ImpactLeverPart.cs@a6c914e:L74` |
-| Lever-arm marks | four gold `#e8b764` bars, size 0.035 × 0.016 × 0.3, at x = ±0.6 and ±1.2, y 0.122 | `parts/ImpactLeverPart.cs@a6c914e:L75-L77` |
-| Pivot post | gold cylinder, radius 0.22, height 1.02, at y −0.59 | `parts/ImpactLeverPart.cs@a6c914e:L61` |
-| Pin | gold cylinder, radius 0.18, length 1.25, along Z | `parts/ImpactLeverPart.cs@a6c914e:L62-L63` |
-| Stop caps | gold cylinders, radius 0.13, height 0.3, at the stop boxes | `parts/ImpactLeverPart.cs@a6c914e:L68` |
-| Foot | navy `#293954` base box | `parts/ImpactLeverPart.cs@a6c914e:L60` |
-| Catalogue colour | RGB 0.4, 0.72, 0.79 (`#66b8c9`) | `parts/catalog/impact_lever.tres@a6c914e:L11` |
+| Interfaces | `IHingeElement`, `ISceneGeometryElement` | `:12` |
+| Bodies | 2 (1 moving): static fixture (root) and dynamic beam `Visual/Beam` | `:37`, `:67`–`:71` |
+| Fixture colliders | `col_base` box 1.4 × 0.16 × 1 m; `col_fulcrum` solid cylinder r 0.22 m, height 1.02 m; `col_stop_left`, `col_stop_right` boxes 0.26 × 0.3 × 0.6 m | `impact_lever.tscn:43`–`:51`, `:58`–`:71` |
+| Beam collider | `col_beam` box 3.6 × 0.24 × 1.1 m centred on the pivot | `impact_lever.tscn:53`–`:54`, `:102` |
+| Beam mass and inertia | mass = `beam_mass`; box moments m(b² + c²)/3 on half-extents (1.8, 0.12, 0.55), declared as polynomials of `beam_mass`; gravity (0, −9.81, 0) | `:108`–`:117` |
+| Materials | fixture: restitution 1, friction 0.3, rolling 0, threshold 0.1 m/s; beam: restitution 0, friction 0.3, rolling 0, threshold 0.1 m/s | `:69`–`:70` |
+| Hinge | revolute about local +Z at the origin, `RevoluteTravel.Limited` to ±π/6 rad, no spring or damping, friction torque 2 N·m, initial angle from `initial_angle`, connected bodies do not collide, no drive | `:91`–`:119` |
+| Parameters | `beam_mass` Real, kg, default 2, 0.5–20; `initial_angle` Real, degrees, default 0, −30 to 30. Both take the descriptor defaults: editor policy Reject, Build only (`CuriousContraptions.Abstractions/ParameterDescriptor.cs:60`–`:61`) | `:25`–`:26` |
+| Ports | `PortId.TieA` at (−1.8, 0, 0), normal −X, and `PortId.TieB` at (1.8, 0, 0), normal +X; both domain Rope, Bidirectional, attachment `Load`, owned by the beam body (package body 1) | `:39`–`:63` |
+| Stores, events, payload | none | `:73`, `:79` |
+| Presentation | body pose: `Visual/Beam` follows package body 1; no curve; pick radius 2 m | `:29`–`:35` |
+| Palette | category Motion, order 34, colour (0.4, 0.72, 0.79), display name "Impact Lever" | `:14`–`:27` |
 
-The palette tokens are cream, cyan inset, gold pivot, marks and stops, and a navy foot, with the navy outline seesaw pictogram ([DESIGN.md Impact lever](../../../DESIGN.md#impact-lever)).
+**Art and solidity.** Not yet in the visible-solid table. From [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md) (row `impact_lever`): base, fulcrum, both stops and `Beam/Visual_Beam` are solid and each has its collider. **Defect: `Beam/Visual_Inset`** (box 3.38 × 0.014 × 0.82 m) **and `Beam/Visual_Mark_0`–`3`** (boxes 0.035 × 0.016 × 0.3 m) are raised 8–10 mm above the beam's top face with no collider (`impact_lever.tscn:35`–`:41`, `:108`–`:124`). Owned by [visible-solid remainder part A](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder.md) (row A7a), status draft: each becomes flat printing no more than 0.5 mm off the face, same position, extent and colour, with no raised volume kept. The harvest art table's separate "Pin" (gold cylinder r 0.18 along Z) is not drawn in the delivered scene.
 
-### Catalogue and inventory entry
+### Notes on the declaration
 
-- **Catalogue.** Id `impact_lever`, title "Impact lever", category "Motion". Description: "A passive hinged beam. A falling load turns one end and can lift a lighter load at the other. Gold marks show the lever arms; fixed stops limit its swing. No power or automatic launch." (`parts/catalog/impact_lever.tres@a6c914e:L6-L9`).
-- **Inventory.** Story 10.3 adds a package declaration and bundle-issued typed id and a `PartInventoryDictionary` allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`). No level at `a6c914e` places the lever or stocks it in an inventory: `content/puzzles.json` has zero `impact_lever` occurrences at that commit.
+- **Passive.** No power, no drive, no automatic launch, no event: all energy comes from contacts, gravity and ropes.
+- **Beam.** Its inertia is the homogeneous box law on the half-extents, declared as polynomials of `beam_mass`. `initial_angle` turns the beam about local +Z; the hinge measures it against the authored frame without re-zeroing.
+- **Stops.** The hinge limit at ±π/6 arrests the beam; the two stop boxes are drawn where the beam meets that limit and stop other bodies. Connected-body collision is off, so the two never fight.
+- **Friction.** The hinge's 2 N·m Coulomb torque is a fixed value with no inspector control. Tipping bound: the lightest Weight (0.25 kg) at a 1.8 m tie port gives 4.4 N·m and must still tip the beam. Holding bound: the equal 4 kg Weight pair's inverted-pendulum stiffness is about 31 N·m/rad, so 2 N·m holds any seed up to about 0.065 rad. A launch loses at most τ·π/3 ≈ 2.1 J of about 90 J.
+- **Art.** Cream `#fff8e9` beam, cyan `#66b8c9` inset, four gold `#e8b764` lever-arm marks at x = ±0.6 and ±1.2, gold fulcrum and stops, navy `#293954` base; DESIGN.md "Impact lever". The beam art follows the committed hinge pose directly, with no easing. Icon: `elements/ImpactLever/icon.svg`, a navy outline seesaw.
+- **Catalogue.** Category Motion, description "A passive hinged beam flings payloads upward when struck by falling weights." No level places the lever.
 
 ## 3. Engine capabilities
 
 The capability families are those in the [CAT-034 map row](../general-engine-element-map.md) and the [catalogue coverage](../../coverage/catalogue-elements.json). They are not repeated here.
 
-**Exists now:**
-- **Dynamic box body.** Box rigid body, homogeneous box inertia and box-box, box-sphere and box-plane contact: `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51` and `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L503` (`collideBoxBox`). The Domino is the nearest dynamic-box precedent (`engine/gpu/WorkshopDomino.cs@a6c914e:L7-L24`).
-- **Contact solver.** TGS Soft contact solve at 480 Hz substeps (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208`), with 8 biased and 4 relax iterations (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`), `makeSoft` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`), `prepareContact` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623`), `solveNormalRow` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774`) and `sweepManifolds` (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878`).
-- **Static fixture.** Multi-box static bodies; current tables are scene-sized. Historical capacities (33 bodies, 64 colliders) are retired: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L164-L168`.
-- **Save codec.** Part pose and rotation: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
+**Capability probe (22 November 2026).** Tests were found by name and line; none was run. Counts: 6 present, 2 present-untested, 0 narrower, 0 missing. The lever declares one generic limited hinge and no engine code names the lever, but three rope-port admission sites enumerate the role names only it declares (`TieA`, `TieB`): `engine/gpu/WorkshopConnections.cs:163`–`:164`, `engine/gpu/ElementPortCatalogue.cs:182`, `CuriousContraptions.Bundle/BundleValidator.cs:543`, `:546`. That is a required engine refactor (section 9, point 2).
 
-**Missing:**
-- **Revolute hinge.** A hinge joint row with a travel interval (end stops) and a connected-collision policy in the worker solver. Story 10.3 builds it, reusing the generic joint rows that Story 6.4 introduces for the prismatic slider.
-- **Rope sockets.** Rope sockets on a moving body, with angular moment-arm coupling. Story 10.2 builds them.
-- **Lever-to-shutter integration.** Story 13.3 (CAT-007).
-- **Bend obstacles.** CAT-049/050 bends; Batch A schedules those stories.
-- **Frustum obstacles.** The funnel (CAT-030), also scheduled by Batch A.
-- **Tube obstacles.** The pipe (CAT-048, Stories 6.6 and 6.7).
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Revolute hinge with a travel interval and connected-collision policy | present | `IHingeElement`, `RevoluteHingeDescriptor`, `RevoluteTravel` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:20`; `CuriousContraptions.Abstractions/MechanicalContractValues.cs:149`, `:129`) | `ImpactLeverTests.AngularLimitsBoundary_StopsArrestTravelWithoutPenetration` (`CuriousContraptions.tests/ImpactLeverTests.cs:380`), `PhysicsSceneDeclaration_RefusesInvalidRevoluteDeclarations` (`:707`) |
+| Hinge Coulomb friction torque | present | `RevoluteHingeDescriptor.FrictionTorque` (`elements/ImpactLever/ImpactLeverElementDeclaration.cs:105`) | `ImpactLeverTests.ASmallLoadIsHeldBelowTheFrictionTorqueAndTipsTheBeamAboveIt` (`:275`), `PivotFrictionHoldsOrYieldsPerLeverInEverySimdLane` (`:617`); generic `RevoluteHingeFrictionTests` |
+| Initial hinge angle from a parameter | present | `MechanicalValue.FromParameter` (`:106`) | `ImpactLeverTests.RunResetRestoration_RestoresAuthoredStateExactly` (`:484`), `OutOfRangeInitialAngle_IsRefused` (`:476`), `SaveLoadPersistenceRoundtrip_RestoresAuthoredState` (`:675`) |
+| Dynamic box with parameter-declared mass and moments | present, untested | `MassFrameDeclaration` (`CuriousContraptions.Abstractions/MassFrameValues.cs:38`) | the beam turns in `AsymmetricLoad_TurnsTheBeamToItsStopAboutTheAuthoredPivot` (`:165`) and range refusal is tested (`:464`), but no test varies `beam_mass` and reads a different motion. Residual row L-R12 |
+| Solid cylinder and box colliders on a static body | present, untested | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | no test brings a body into contact with the fulcrum, the stops or the base (the pivot-hit control lands on the beam above the fulcrum). Part A adds the table row; residual row L-R13 adds contact |
+| Rope ports owned by a moving body (angular moment-arm coupling) | present | `PortDescriptor` with a `PackageBodyIndex` owner (`CuriousContraptions.Abstractions/PortDescriptor.cs:55`) | `ImpactLeverTests.RopeLiftingIntegration_FallingWeightLiftsArm` (`:414`), `RopeLiftingIntegration_TieBLiftsArm` (`:516`) |
+| Several hinges solved together | present | generic revolute rows | `ImpactLeverTests.MultiJointBatching_SolvesConcurrentlyAcrossSimd` (`:562`) |
+| Run/Reset, save and load, parameter refusal at decode | present | generic lifecycle | `ImpactLeverTests.RunResetRestoration_RestoresAuthoredStateExactly` (`:484`), `SaveDecoding_RefusesOutOfRangeValues` (`:690`) |
 
-**Element dependencies:**
-- **Driver and payload.** Bowling ball (CAT-014) as the driver and Basketball (CAT-001) as the payload; both are delivered.
-- **Obstacles.** Wall (CAT-066, delivered) and Bumper (CAT-015, 6.2).
-- **Ropes.** Rope anchor, pulley and weight (CAT-058/053/067, 10.2 and 10.4).
+**Collaborating parts.** Bowling ball as driver, Basketball and Tennis ball as payloads; Wall, Bumper, Pipe, bends and Funnel as obstacles; Rope anchor, Pulley and Weight for ropes. All are delivered. The Beam shutter (CAT-007) is not.
 
 ## 4. Legacy harvest
 
@@ -131,7 +85,7 @@ The capability families are those in the [CAT-034 map row](../general-engine-ele
 | 14 | The pivot post and pin are visual cylinders only. | `parts/ImpactLeverPart.cs@a6c914e:L61-L63` | do not carry forward | The requirement asks for a solid fulcrum. See Open questions. |
 | 15 | Beam artwork, inset, marks and palette are as tabulated in §2 Art. | `parts/ImpactLeverPart.cs@a6c914e:L71-L78` | carry forward | Approved palette. |
 | 16 | The closed parameter set is an enum; undefined values reject at the name boundary. | `parts/ImpactLeverPart.cs@a6c914e:L8`; `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L31-L37` | carry forward | Enum end-to-end. The name strings exist only at serialization. |
-| 17 | Acceptance: with the lever at y 3 and balls at x = ±1, y 3.46, the angle stays ≤ 0.01 rad and the ball heights stay within 0.01 of each other (3.45–3.47) for 1,200 ticks (10 s at 120 Hz); the final hinge speed is ≤ 0.02 rad/s. | `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L39-L61` | carry forward | The equal-load ten-second balance, asserted at every tick (`EqualBallLoads_StayBalancedForTenSeconds`). Since Story 10.3b the hinge's 2 N·m friction (Open question 5) holds equal loads indefinitely. Story 10.3's 4 kg Weight pair stays within 0.01 rad and 0.02 rad/s for a whole 30 s run (the run limit), with no creep and no walking (`SymmetricalLoadBalance_RemainsBalancedForAWholeRun`). A 0.1 N·m Basketball imbalance (x = −1.0 and +1.01 m) is held for 10 s (`UnequalBallLoads_AreHeldByThePivotFriction`), so the balance comes from friction, not mirror symmetry. |
+| 17 | Acceptance: with the lever at y 3 and balls at x = ±1, y 3.46, the angle stays ≤ 0.01 rad and the ball heights stay within 0.01 of each other (3.45–3.47) for 1,200 ticks (10 s at 120 Hz); the final hinge speed is ≤ 0.02 rad/s. | `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L39-L61` | carry forward | The equal-load ten-second balance, asserted at every tick (`EqualBallLoads_StayBalancedForTenSeconds`). Since Story 10.3b the hinge's 2 N·m friction (Open question 5) holds equal loads indefinitely. Story 10.3's 4 kg Weight pair stays within 0.01 rad and 0.02 rad/s for a whole 30 s run (the default Run length, owner decision 13; the maximum is 300 s, owner decision 17), with no creep and no walking (`SymmetricalLoadBalance_RemainsBalancedForAWholeRun`). A 0.1 N·m Basketball imbalance (x = −1.0 and +1.01 m) is held for 10 s (`UnequalBallLoads_AreHeldByThePivotFriction`), so the balance comes from friction, not mirror symmetry. |
 | 18 | Acceptance: at orientations (0,0,0), (15,30,0), (90,0,0) and (0,0,90), with zero gravity, a bowling ball at local (−1.2, 1.3, 0) moving 5 m/s along local −Y turns the beam more than 0.05 rad. Total kinetic energy never exceeds 1.01 × the initial value. | `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L63-L90` | carry forward | The four 3D orientations and no energy gain. |
 | 19 | Acceptance: with a bowling ball dropped from (−1.2, 6, 0) and a ball payload at (1.2, 3.46, 0), the payload peaks above y 4 with upward speed above 2 m/s. A depth miss (z = 2) or a pivot hit (x = 0) keeps the payload below y 3.6. The angle stays within ±π/6, and energy stays ≤ 1.01 × initial over 480 ticks. | `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L92-L126` | carry forward | Positive and negative pair (aligned, missed and pivot). |
 | 20 | Acceptance: Reset restores the saved construction exactly and the beam's presented transform equals its authored transform; a replay after Reset reproduces the state signature. | `CuriousContraptions.tests/ImpactLeverTests.cs@a6c914e:L127-L134` | carry forward | Run/Reset restoration. |
@@ -200,18 +154,69 @@ The requirement row [CAT-034](../requirements.md#current-cat-034), its retained 
 - **Save/Load.** The rotation, `beam_mass` and `initial_angle` round-trip (fact 37).
 - **Integrations.** Ropes from end sockets (10.2), the lever-to-shutter chain (13.3), and resting or sliding distributed loads and beam-on-beam contact, per the requirement row.
 
+**Native tests that exist per requirement criterion (22 November 2026; none was run for this review).** All in `CuriousContraptions.tests/ImpactLeverTests.cs`. Aligned drop launches the payload: `AlignedBowlingBallImpact_FlingsPayloadUpward` (`:73`). Mass × arm: `AsymmetricLoad_TurnsTheBeamToItsStopAboutTheAuthoredPivot` (`:165`). Equal loads for ten seconds and for a whole run: `EqualBallLoads_StayBalancedForTenSeconds` (`:309`), `SymmetricalLoadBalance_RemainsBalancedForAWholeRun` (`:216`). Friction: `:247`, `:275`. Pivot and miss controls: `:358`, `:336`. Stops: `:380`. Ropes from both end sockets: `:414`, `:516`. Parameter extremes and refusal: `:464`, `:476`, `:690`. Reset: `:484`. Save and load: `:675`.
+
+**Residual acceptance rows (requirement criteria with no test found).** Tolerances are chosen from the beam's 30° travel and its 3.6 m length, not from observed output.
+
+| Row | Given / When / Then | Planned test | Control | Boundary | Tolerance and stall guard |
+| --- | --- | --- | --- | --- | --- |
+| L-R1 insufficient energy | Given a Tennis ball (0.35 kg) dropped 0.5 m onto one arm with a Basketball on the other, When Run, Then the payload's height never exceeds its start by more than 5 cm | `ImpactLeverTests.ALightSlowImpactDoesNotLaunchThePayload` | the Bowling ball drop of `:73` launches it | drop heights 0.5 m and 4 m | the 5 cm bound (a visible hop) over a 4 s window |
+| L-R2 four 3D orientations | Given the lever at the four harvest rotations (0, 0, 0), (15, 30, 0), (90, 0, 0) and (0, 0, 90) degrees with the aligned drop moved with it, When Run, Then at each rotation where gravity still loads the arm the payload is launched along the beam's local path, and at (90, 0, 0), where the hinge axis is vertical, a ball rolled into one arm turns the beam to its stop | `ImpactLeverTests.TheLeverWorksInEachOfFourOrientations` (theory) | a drop left at the unrotated position misses | the four rotations | apex height within 10% of the (0, 0, 0) case where a launch applies; beam within 2° of its stop otherwise; 4 s stall guard |
+| L-R3 obstacles | Given, in turn, the workbench surface (the lever placed so an arm end meets the bench before its stop), a Wall, a Bumper, a Pipe, a 90° bend, a Funnel, and a moving obstacle (a Bowling ball rolling through the arm's sweep), When a Weight tips the beam, Then the beam stops on the obstacle without passing through, and an open bore or rim does not block a clear arm | `ImpactLeverTests.TheBeamStopsOnEachObstacleFamilyAndClearsOpenBores` (theory over the seven cases) | the same set-up without the obstacle reaches the stop | obstacle touching at rest; obstacle 1 cm clear | no penetration deeper than 1 cm (the contact slop a player can see); beam angle short of the stop by at least 2°; 3 s stall guard |
+| L-R4 beam on beam | Given two levers with one arm resting on the other's, When a Weight loads the upper, Then both turn and neither interpenetrates | `ImpactLeverTests.OneBeamDrivesAnother` | the lower lever alone stays level | arms overlapping by 5 cm and by 50 cm | as L-R3 |
+| L-R5 distributed loads | Given a Domino lying across one arm, When the beam tips, Then it slides toward the low end and stays on or leaves the beam without energy gain | `ImpactLeverTests.ALyingDominoSlidesDownATippedBeam` | at 0° it stays put | friction holding angle: the pair's friction is √(0.3 × 0.6) ≈ 0.42 (beam 0.3, Domino 0.6, `elements/Domino/DominoElementDeclaration.cs:36`), so it holds to atan(0.42) ≈ 23°; the beam's 30° exceeds that, so it must slide. The Domino's centre of mass is at (0, −0.05, 0) m (approved default, owner decision, 22 November 2026); lying across the arm that offset does not change the slide criterion | total energy never above the initial value by more than 1%; 6 s window |
+| L-R6 Bowling ball against Basketball loading (closes the CAT-014 entry in `deferred-work.md`) | Given a 2 kg Weight resting at x = +1.2 m, When a Bowling ball, then a Basketball, is set on x = −1.2 m, Then the Bowling ball carries the beam to the opposite stop and the Basketball leaves it on the counter-load's stop. Calculation: the counter-load gives 2 × 9.81 × 1.2 = 23.5 N·m; the Bowling ball 4 × 9.81 × 1.2 = 47.1 N·m, a net 23.5 N·m against 2 N·m of friction, so the beam goes over; the Basketball 1 × 9.81 × 1.2 = 11.8 N·m, 11.8 N·m short, so it stays. On an empty beam the Basketball's 11.8 N·m alone would beat the 2 N·m friction, which is why the counter-load is needed | `ImpactLeverTests.ABowlingBallOutweighsACounterLoadThatABasketballCannot` | the Basketball case | none | beam within 2° of the named stop; 3 s |
+| L-R7 slack and taut shutter loads | waits for CAT-007 Beam shutter | in the Beam shutter slice | — | — | — |
+| L-R8 flush markings | row A7a of visible-solid remainder part A | owned by that contract | — | — | — |
+| L-R9 overlap refused | Given a lever whose beam overlaps another part at Run, When Run is requested, Then it is refused with the typed reason `InitialOverlap` and nothing starts | `ImpactLeverTests.ABeamOverlappingAnotherPartAtRunIsRefused` | the same parts 1 cm clear run | none | exact typed refusal |
+| L-R10 art follows the pose | Given the beam at rest, at mid travel and at a stop, and after Reset, When the presentation is read, Then the `Visual/Beam` node's rotation equals the committed hinge angle | `ImpactLeverArtTests.TheBeamArtFollowsTheCommittedBeamPoseAndResets` | none | both stops | 0.1° (3 mm at the beam tip) |
+| L-R11 wrong-kind link | the shared row `RopeTests.ARopePortRefusesANonRopeLinkAndANonRopePortRefusesARopeLink` ([CAT-067](CAT-067-weight.md), section 5); `BundlePortsTests.cs:262`–`:284` has no Rope case | shared | — | — | — |
+| L-R12 beam mass matters | Given two levers with `beam_mass` 0.5 and 20 kg and the same 1 kg load set on one arm, When Run, Then the heavy beam reaches its stop later than the light one | `ImpactLeverTests.AHeavierBeamTurnsMoreSlowlyUnderTheSameLoad` | equal masses arrive together | the two range ends | order only, with arrival times at least 20% apart (inertia differs fortyfold); 6 s |
+| L-R13 fixture is solid | Given a Tennis ball rolled along the bench into the base, and one dropped onto a stop box beside the beam, Then each is stopped at the drawn surface | `ImpactLever` cases in the drop theory of `VisibleSolidColliderTests`, with part A's table row | the same ball with the lever removed passes | none | the theory's own bound |
+
 ## 6. Open questions
 
-1. **Rope sockets.** The requirement requires end rope sockets, but the legacy declared none. Their local positions, count and port identities are unspecified — owner decision.
+1. **Rope sockets.** `TieA` and `TieB` at the beam ends (±1.8, 0, 0), owned by the beam body, attachment `Load`.
 2. **Solid fulcrum — answered.** Owner decision (e), 18 Oct 2026: the fulcrum is a true cylinder. Story 10.1 (ENGINE-CYLINDER) delivered the engine's solid `Cylinder` collider (declared radius, width and mass; exact inertia; closed-form contacts against plane, sphere, box and cylinder; extracted from a `col_cylinder` proxy). The legacy pivot post (radius 0.22, height 1.02) and pin were art only; Story 10.3 declares the fulcrum's cylinder proxy and size in the Impact Lever package.
-3. **Authoritative stop.** The legacy declares both a hinge travel range (±π/6) and solid stop boxes that meet at the same angle. Which one is authoritative, or whether both are retained, is unspecified — owner decision.
-4. **Stop restitution.** The legacy stops are perfectly inelastic (fact 31). Story 10.3's "strikes its end stop and launches the payload" needs no stop restitution, but a non-zero value is unspecified — owner decision.
+3. **Authoritative stop.** Both are kept and they agree: the hinge is `Limited` to ±π/6 and the stop boxes are solid; connected-body collision is off, so the hinge limit arrests the beam and the boxes stop other bodies. One rule per behaviour, so this is not a second path.
+4. **Stop restitution.** None: the hinge declares no stop restitution and the beam's restitution is 0 (D19; the launch needs none).
 5. **Hinge friction — answered (Story 10.3b; the owner delegated the value on 1 November 2026).** The legacy hinge was frictionless, while the requirement lists friction as a closure criterion. Every revolute hinge now declares a Coulomb friction torque τ (N·m, finite and at least 0) as package data. The generic law is a velocity-level friction row on the hinge axis: its per-substep accumulated impulse is clamped to ±τ·h, warm-started and solved with the other joint rows. It holds the beam while the net torque is below τ and resists with τ once the beam turns. τ = 0 is frictionless through the same clamp. The Impact Lever declares τ = 2 N·m, a fixed value with no inspector control:
    - **Tipping bound:** the lightest catalogue body, a 0.25 kg Weight, at the 1.8 m tie port gives 4.4 N·m. It must still tip the lever, so τ is at most half of that.
    - **Holding bound:** the equal 4 kg Weight pair's inverted-pendulum stiffness is about 31 N·m/rad, so τ = 2 N·m holds any seed up to about 0.065 rad. The beam is authored level, so the imbalance it must hold is near zero.
    - **Unaffected outcomes:** rope lifts (about 70 N·m) are unaffected. The 47 N·m single-Weight asymmetry reaches its stop about 4% slower. A launch loses at most τ·π/3 ≈ 2.1 J of about 90 J.
 
    Hinge damping is not added; load-proportional pivot friction is a possible later refinement.
-6. **Parameter controls.** There is no current UI control for `beam_mass` or `initial_angle`. Choose between a selectable authored qualification fixture and a new control — owner decision.
-7. **Campaign placement.** No level uses the lever, so its Epic 15 chapter placement is unspecified.
-8. **Toolbox icon.** No tracked lever icon asset was found under its name. The source of the "navy outline seesaw pictogram" needs confirming.
+6. **Parameter controls.** The generic parameter editor edits both in Build (D11). Editor policy is Reject, unlike the Weight's Clamp; kept as delivered, since an out-of-range typed value is refused visibly either way.
+7. **Campaign placement.** No authored level uses the lever yet. The plan teaches it at level 9 with the Placeable pivot and Linkage connector ([campaign coverage section 6](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)); Epic 15 authors that level; no engine story is needed.
+8. **Toolbox icon.** Delivered as `elements/ImpactLever/icon.svg`.
+9. **Orientations (decided 22 November 2026 under the standing delegation).** The requirement's "four 3D orientations" are the harvest's four rotations, restored in row L-R2; four yaws would not test a tilted or vertical hinge axis.
+
+No item needs the owner.
+
+## 7. Integration
+
+- **Collaborators, all delivered:** Bowling ball (driver), Basketball and Tennis ball (payloads), Weight, Rope anchor and Pulley (ropes; both ends `SimulationDomain.Rope`, Bidirectional), Wall, Bumper, Pipe, both bends, Funnel, Domino.
+- **Not delivered:** Beam shutter CAT-007 (row L-R7).
+- **Campaign.** No level in `content/puzzles.json` places an Impact lever; plan level 9 teaches it. S8 is not needed.
+- **Coverage binding.** Catalogue key `impact_lever` (CAT-034).
+- **Solid rope (owner decision, 22 November 2026).** The rope is solid but is drawn with no collider today; the defect and its repair belong to `ENGINE-CONNECTION-MATERIALS` ([CAT-058](CAT-058-rope_anchor.md)). The two rope-lifting tests (`ImpactLeverTests.cs:414`, `:516`) do not rely on a body passing through a rope. A solid strand tied at a beam end can touch the beam, a stop or the fulcrum as the beam turns: a point for that story's probe, which re-runs both tests and row S-13 of the Beam shutter.
+- **Known UI defect (deferred work, from 10.3a):** `ui/WorkshopConnections.cs` places every port in its part's frame and ignores the owning body, so a body-owned socket marker would be drawn off the turned beam. Rope artwork comes from committed spans and is unaffected. Owner: a follow-up UI slice; browser proof post-catalogue.
+
+## 8. Delivery and residuals
+
+- **Delivered** by 10.3, 10.3a and 10.3b.
+- **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it, the tests-only slice included. The stories that own this part's gaps are `ENGINE-CAPABILITY-INSTANCES` (point 2 of section 9) and `ENGINE-ISLANDS-SLEEP`; the rope rows are re-run by `ENGINE-CONNECTION-MATERIALS` (solid strand) as section 7 says.
+- **Residual slices.** (1) Visible-solid remainder part A (markings redrawn flush; engine tier as that contract states). (2) One test-only slice for L-R1 to L-R6 in `ImpactLeverTests.cs`: data-only tier if only that file changes; engine tier if a shared harness helper is added. It closes the CAT-014 lever-loading entry in `deferred-work.md`. (3) L-R7 inside the Beam shutter slice.
+- **Probe re-check for the test slice:** the lever is static-rooted with one moving body, so a beam-on-beam contact is dynamic box against dynamic box with both hinged; if L-R4 shows interpenetration that is an engine finding returned to planning, not a lever change.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The package fix is the flush redraw of the inset and four marks (section 2, visible-solid remainder part A). No engine code names this element (searched `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions), but one engine refactor is required because of its port roles (point 2).
+
+1. **Declaration data only.** Two bodies, five scene colliders, two materials, one limited hinge with a friction torque, two parameters, two body-owned rope ports, one body-pose binding. No drive, no canned flip, no event. The legacy bounce counter (harvest fact 30) is not carried.
+2. **Generic laws.** The launch: contact impulse on the beam, the hinge constraint about +Z, the limit rows at ±π/6 and contact on the payload. Balance and holding: the hinge's Coulomb friction row clamped to 2 N·m. Rope lifting: the tensile span law acting at a body-owned port, which gives the moment arm. Nothing is triggered by "a ball hits the lever". **Required engine refactor:** rope-port admission enumerates the role names `Tie`, `TieA` and `TieB` at three sites (`engine/gpu/WorkshopConnections.cs:163`–`:164`, `engine/gpu/ElementPortCatalogue.cs:182`, `CuriousContraptions.Bundle/BundleValidator.cs:543`, `:546`). `TieA` and `TieB` exist only because this package has two rope ports, so the engine carries an assumption that came from one element, and a package with three rope ports needs an engine edit (design guide D2). Owned by `ENGINE-CAPABILITY-INSTANCES` (owner decision 3a, 22 November 2026), which removes product shapes from shared contracts, the same class as engine audit findings E3 and E5: "A rope port is admitted by domain Rope, Bidirectional and its declared attachment role; port identity is the typed id, and no admission site enumerates role names. Acceptance: an unfamiliar package with three rope ports is admitted and routes; a rope port refuses a non-rope link with a typed reason."
+3. **Three layers.** Colliders: `col_base`, `col_fulcrum`, `col_stop_left`, `col_stop_right` on the static body; `col_beam` on the beam body. Visuals: base, fulcrum, stops; beam, inset and marks under `Visual/Beam`. Animation: none; the beam art follows its body's pose. After part A the inset and marks are flat printing on the beam.
+4. **One-way flow and typing.** Committed beam pose → art. Typed `PortId.TieA`/`TieB`, `RevoluteTravel`, `ParameterUnit.Degree` converted at compile; f32 values.
+5. **Flat-state counts.** 2 bodies (1 dynamic); 5 colliders (4 boxes, 1 cylinder); 1 revolute joint; 0 drives, sensors, nodes, stores, events; 2 ports; 2 parameters; 1 body-pose binding.
+6. **Performance fitness.** Five primitives, one joint; the static fixture is a static body. Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026). A beam tip moves at most a few metres per second, so tunnelling is not a risk beyond the engine's speculative contacts.
+7. **Scenario tests.** Sections 3 and 5 list scenario tests; the residual rows L-R1 to L-R13 are scenarios of the same hinge and contact laws against other packages.

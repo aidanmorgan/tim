@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-048 delivery slice](../invest/named-elements.md#element-048). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`. Values marked *proposed* have no legacy or requirement source; each carries a one-line justification, stays inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope) and may be revised by the owner. Shared acoustic facts A1–A13 are in [EL-044](EL-044-tone-selective-sound-meter.md#shared-acoustic-family-facts); acoustic route rules R1–R6 in [EL-046](EL-046-listening-horn.md#acoustic-route-rules-shared-by-el-046-el-047-el-048).
+Story 7.0 Batch H named-identity spec, brought to build-ready detail on 21 November 2026 against checkout `8d1d68aa`, and repaired on 22 November 2026 against the independent audit (`docs/planning/elements/readiness/audits/elements-batch-h.md`). Legacy citations are pinned to `a6c914e` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`; citations without `@` are `path:line` in the current checkout. Values marked *proposed* are starting values under [D1](../invest/delivery-batches.md#3-family-level-decisions). Shared acoustic facts A1–A13, laws L1–L7, the capability probe (C1–C13, N1–N13) and tolerances are in [EL-044](EL-044-tone-selective-sound-meter.md); acoustic route rules R1–R6 in [EL-046](EL-046-listening-horn.md#acoustic-route-rules-shared-by-el-046-el-047-el-048).
 
 ## 1. Identity
 
@@ -11,46 +11,95 @@ Story 7.0 Batch H named-identity spec. Legacy citations are pinned to `a6c914e` 
 | Identity / name | EL-048 · Acoustic duct |
 | Type | Sound |
 | Anchor | [requirements.md#element-048](../requirements.md#element-048); scope index [todo-352](../requirements.md#todo-352); [named-elements entry](../invest/named-elements.md#element-048); owner S535 |
-| Related | Refines no CAT spec. Joins [EL-046 Listening horn](EL-046-listening-horn.md) `SoundOut` to [EL-047 Exit horn](EL-047-exit-horn.md) `SoundIn`. Connection-kind sibling of [EL-038 hose](EL-038-pneumatic-hose.md) and [EL-197 wire](EL-197-electrical-wire.md); not the [CAT-048](../requirements.md#current-cat-048) ball pipe (R6). |
-| Roadmap story | [EL-048 delivery slice](../invest/named-elements.md#element-048); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | **To deliver as a single identity that is a connection kind, not a placed part.** It refines no CAT part and duplicates nothing: no delivered connection carries delay or loss. It has two routes (Straight, Elbow), which are a setting of the one connection kind ([D8](../invest/delivery-batches.md#3-family-level-decisions)). |
+| Planned package | **none.** A duct is an authored connection between two ports, like an electrical link; it has no `elements/` directory, no catalogue entry and no palette order. Coverage binding: section 7 (the published form binds a package only; S7 owns the form for a connection kind). |
+| Related | Joins [EL-046 Listening horn](EL-046-listening-horn.md) `SoundOut` to [EL-047 Exit horn](EL-047-exit-horn.md) `SoundIn`. Connection-kind sibling of EL-038 and EL-197; not the [CAT-048](../requirements.md#current-cat-048) ball pipe (R6). **Ordering:** second of the three route slices; its positive rows use EL-046 and observe arrival at the duct's far end, and the audible full-route row runs in the EL-047 slice, planned after it. |
+| Roadmap story | [EL-048 delivery slice](../invest/named-elements.md#element-048) `named-el-048`. |
+| Status | not started. Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (Story 14.0 takes its reception and occlusion candidates from it); then Stories 14.0, 14.2, 14.1 and 14.3 and EL-046. The duct tube is blocked on ENGINE-CONNECTION-MATERIALS (solid strand), owner decision 1. |
 
 ## 2. Declaration
 
-The duct is an authored typed connection from one `SoundOut` to one `SoundIn`, drawn with the Connect control; it is not a placed rigid part.
+The duct is an authored typed connection from one `SoundOut` to one `SoundIn`, drawn with the Connect control. Closest delivered shape: the electrical and signal connections every delivered part already uses, whose admission rules are exercised by `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`). There is no declaration class for it.
 
 | Item | Declaration (value · source) |
 | --- | --- |
-| Bodies and shapes | none for physics: no collider, so balls pass through its visual tube and it never occludes light or sound **proposed** (keeps the duct a pure route; the horns are the physical parts). Visual tube diameter 0.18 m **proposed**. |
+| Bodies and colliders | No body of its own; the duct is not a placed rigid part. Its drawn tube is a **solid strand** (owner decision 1): the colliders are a property of the declared connection material, the Audio duct material with diameter 0.18 m and that material's segment rule applied along the route's segments, generated by `ENGINE-CONNECTION-MATERIALS` and never by per-element code. Blocked on ENGINE-CONNECTION-MATERIALS (solid strand). |
 | Mass and material | none. |
-| Constraints | none; endpoints follow the named sockets under each horn's transform. |
-| Typed ports | Consumes exactly one Acoustic Output (`SoundOut`) and one Acoustic Input (`SoundIn`); the exact-one-port, same-domain, output → input rule of the legacy resolver applies (`engine/ConnectionPort.cs@a6c914e:L40-L67`). An Acoustic socket never accepts Gas, Electrical or Activation links. |
-| Sensors and activation | none. |
-| Work and energy stores | none. Transit rule R3: delay L / 12 m/s, strength × e^(−0.05·L); elbow loss below; each routed pulse traverses a given duct at most once (R5). |
-| Parameters | `route`: closed enum `DuctRoute { Straight, Elbow }` (variants below). Length L is derived from the socket positions, not typed in **proposed** (no numeric placement menu, AGENTS rule); admitted only when 0.2 m ≤ L ≤ 8 m **proposed** (the 8 m upper bound equals the open-air pulse range, A2, so a duct never outranges free air). |
-| Cosmetic curves and UI bindings | A gold `#f7cb52` dot travels along the tube at 12 m/s ← committed routed pulse position (component-research binding "Pulse travel ← committed transit", [component research](../../component-research.md#sound)); dot opacity ∝ strength. |
-| Art | Cream `#fff8e9` tube with navy `#293954` bands every 0.5 m **proposed**: different in shape and colour from the cyan air hose, navy electrical cable and gold activation link (DESIGN preservation check: distinguish connection types through shape as well as colour). |
-| Catalogue / inventory | Id `acoustic_duct`, Title "Sound duct", Category Sound **proposed**; budgeted per level. Description **proposed**: "Carries caught sound from a listening horn to an exit horn, a little later and a little quieter. Unconnected mouths carry nothing." |
+| Constraints | none; its endpoints follow the two sockets under each horn's transform. |
+| Endpoints | One `SoundOut` (Audio, Output, on [EL-046](EL-046-listening-horn.md)) and one `SoundIn` (Audio, Input, on [EL-047](EL-047-exit-horn.md)). A port may carry several ducts (EL-046 R6); only an identical duplicate link is refused, as for every delivered connection (`engine/gpu/WorkshopConnections.cs:132`–`:137`). An Audio port never accepts an Electrical, Signal or Fluid link. |
+| Transit | Rule R3: delay L / 12 s, strength × e^(−0.05·L), × 0.9 for the Elbow route; single traversal per duct by lineage, and relay depth 4 bounds chains of distinct ducts (R5). |
+| Stores | none. |
+| Admission | 0.2 m ≤ L ≤ 8 m, checked when the connection is made and again at Run (a horn may have been moved); outside it the connection is refused with a typed reason. |
 
-**Variants** (campaign coverage lists "each duct route", [campaign-element-coverage](../requirements.md#campaign-element-coverage); recipe "Quiet Corridor" uses a "duct elbow"):
+**Settings of the connection**
 
-| Variant | Geometry | Length L | Extra loss |
+| Name | Type | Unit | Default | Values | Editor policy |
+| --- | --- | --- | --- | --- | --- |
+| `route` | closed enum `DuctRoute` | None | `Straight` | `Straight`, `Elbow` | Reject; chosen in the Connect dialog. |
+
+Length L is derived from the socket positions, never typed in (no numeric placement menu, AGENTS.md).
+
+| Route | Geometry | Length L | Extra loss |
 | --- | --- | --- | --- |
-| Straight | one straight segment between the two sockets | Euclidean socket distance | none |
-| Elbow | two straight segments meeting at one 90° corner, corner chosen on the horizontal plane through the source socket **proposed** (routes around a wall without a free-form path editor) | sum of both segments | × 0.9 per elbow **proposed** (a bend loses a little more than straight run) |
+| Straight | one segment between the two sockets | Euclidean socket distance | none |
+| Elbow | two straight segments meeting at one 90° corner C. With S the source socket position, a the unit world direction the source socket faces, and T the target socket position: t = (T − S)·a and C = S + t·a, so the second segment C → T is perpendicular to the first by construction. The route is admitted only when t ≥ 0.1 m and \|T − C\| ≥ 0.1 m; otherwise choosing Elbow is refused with a typed reason and the connection is unchanged (there is no fallback to Straight). | t + \|T − C\| | × 0.9 |
+
+**Ports.** None of its own; it consumes the two above.
+
+**Presentation.** A cream tube with navy bands every 0.5 m drawn between the sockets along the route's segments; a gold dot travels along it at 12 m/s ← the committed position of each routed occurrence (new committed driver, N7/N12); dot opacity ∝ strength. The tube is link presentation drawn from the connection material, not package art. Unlike the thin delivered wire, which is drawn without a collider (owner decision 1; `ui/WorkshopConnections.cs:272`–`:282`), the 0.18 m tube is solid and carries the colliders its material declares.
+
+**Palette.** None. The Connect control offers "Sound duct" when a `SoundOut` is selected. Budgeted per level as connections are.
+
+### Art and solidity
+
+| Node | Mesh and size | Class |
+| --- | --- | --- |
+| Duct tube | cream `#fff8e9` tube, diameter 0.18 m, navy `#293954` bands every 0.5 m | solid strand: colliders from the connection material (declared diameter 0.18 m, its segment rule), owned by `ENGINE-CONNECTION-MATERIALS` (owner decision 1) |
+| Transit dot | gold `#f7cb52` dot inside the tube | decorative: glow, moved by a binding |
+
+Owner decision 1 (22 November 2026) settles the tube: ropes, cables, hoses and ducts are solid, so balls rest on or bounce off the duct and it is drawn at its full 0.18 m. Its collider is never per-element code: it is generated from the declared connection material, with cost bounded by the compiled declarations. **At a glance** a duct differs from an electrical link, a signal link and an air hose by its banded pattern, not by colour alone.
+
+### Behaviour and numbers
+
+- **Delay L / 12 s** uses the free-air speed (A2), so sound takes as long through a duct as beside it: a 6 m duct is half a second, visible as the dot travels.
+- **Loss 5 % per metre.** An 8 m duct keeps e^(−0.4) = 0.670; a 4 m duct 0.819. Free air over 4 m keeps 1/(1 + 0.08·16) = 0.439, so a duct is the better way to carry sound a long way, which is the lesson.
+- **Elbow × 0.9**: a bend loses a little more than a straight run, so a route round a Wall arrives slightly weaker than an equal-length straight one (0.737 against 0.819 at 4 m).
+- **8 m maximum** equals the open-air range, so one duct never outranges free air; chains of distinct ducts are bounded by relay depth 4 and a duct is never traversed twice by one lineage (R5).
+- **No hidden signal.** With the duct deleted, both horns remain and nothing passes (requirement outcome); two ducts laid side by side, touching, never exchange sound, because routing follows connections, not geometry. Whether a route may pass through another collider is the connection material's admission rule (`ENGINE-CONNECTION-MATERIALS`; the Fibre cable's refusal, owner decision 10, is a precedent, not a rule stated here).
+- **Solid tube.** The tube's colliders occlude free-air sound like any opaque collider (L6); the routed occurrence inside it is not a free-air path and is unaffected.
+- **Tick order.** Transit is part of the Phase 2 acoustic pass.
 
 ## 3. Engine capabilities
 
-Families ([element map row](../general-engine-element-map.md); [binding](../../coverage/engine/element-01.json), proof owner S535): AcousticPropagation, FiniteLedger, GeometryQuery, SignalPropagation (+ StateTransaction).
+Families ([element map row](../general-engine-element-map.md); [binding](../../coverage/engine/element-01.json), proof owner S535): AcousticPropagation, FiniteLedger, GeometryQuery, SignalPropagation (+ StateTransaction). Numbered rows are the shared probe in [EL-044 section 3](EL-044-tone-selective-sound-meter.md#shared-capability-probe).
 
-**Exists now**
-- Typed connection record, validation and contextual Connect UI (activation domain only, capacity 8): `engine/gpu/WorkshopConnections.cs@a6c914e:L11-L13`, `engine/gpu/WorkshopConnections.cs@a6c914e:L83-L99`, `ui/WorkshopConnections.cs@a6c914e:L37-L72`.
+| Capability this identity needs | Mark | Evidence or owner |
+| --- | --- | --- |
+| Typed connections with domain and direction admission | present | `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`); save and load of connections in `ComposableSupplyRoutingTests.SaveLoadAndResetPreservesAuthoredStateAndComposableConnections` (`CuriousContraptions.tests/ComposableSupplyRoutingTests.cs:428`) |
+| An Audio connection domain | narrower | `SimulationDomain.Audio` is an enum member whose ports are refused (`BundlePortsTests.cs:180`); owned by N7 |
+| A connection with a typed setting (`route`), carried through authoring, save and wire, and a length-derived admission range | missing | Story 14.0, gap 6. `WorkshopConnectionDomain` has no Audio member and no delivered connection has a setting (`engine/gpu/WorkshopConnections.cs:132`–`:137` validates identity and domain only) |
+| A committed acoustic read model exposing the routed occurrence at the duct's far end (N13) | missing | Story 14.0, gap 14; rows 1, 2, 3 and 5 observe through it |
+| Routed occurrences with delay, loss, single traversal and relay bound (N7) | missing | Story 14.0, gap 6 |
+| Committed transit position for the dot (N12) | missing | Story 14.0, gap 11 |
+| A drawn link between two Audio sockets | missing | Story 14.0, gap 6 (shared presentation; a second link style, not a per-part rule) |
+| A solid strand: colliders generated from a declared connection material (diameter, segment rule) along a connection's route | missing | `ENGINE-CONNECTION-MATERIALS` (solid strand, owner decision 1); the delivered rope's missing collider is the same story's recorded defect |
+| Reception and occlusion candidates from one persistent broadphase | missing | `ENGINE-SPATIAL-QUERIES` (owner decision 3a) |
 
-**Missing**
-- Acoustic domain, sockets and route rendering — [S257](../invest/decisions.md#s257); first acoustic-route story (required in the linked delivery slice).
-- Routed occurrences with delay, loss and loop rejection — [S528](../invest/decisions.md#s528) event-routing → S529.
+Counts: 1 present, 0 untested, 1 narrower, 7 missing. This identity is almost entirely engine capability: once Story 14.0 delivers gap 6 with the two routes as declared data, what remains for this slice is the Connect entry, the tube art and the tests. Nothing here may be keyed on a horn package's id.
 
-**Dependencies.** EL-046 and EL-047 (its only endpoints); a sound source and a meter to observe.
+**Dependencies.** The engine programme (owner decision 3a: `ENGINE-SPATIAL-QUERIES`); `ENGINE-CONNECTION-MATERIALS` (solid strand); Story 14.0; EL-046 (and EL-047 for the audible proof).
+
+### Engine conformance (22 November 2026)
+
+Checked against the owner's engine-conformance instruction of 22 November 2026 and the documents named in [EL-044](EL-044-tone-selective-sound-meter.md#engine-conformance-22-november-2026). This identity has no package, so points 3 and 5 are answered for the connection kind.
+
+1. **Declaration data only.** The duct is one authored connection in the Audio domain with one typed setting. Its delay, loss, elbow factor, length range and traversal rule are data on the Audio connection kind in the bundle, compiled to route rows; the engine holds no duct constant and no branch on a horn package's id.
+2. **Generic laws.** Route transit R3 (delay = length ÷ speed, loss = e^(−k·length), a per-route-kind factor), single traversal and relay bound R5, typed endpoints R6, with the connection admission rules every domain shares.
+3. **Three layers.** *Colliders:* the tube's strand colliders, generated at Run from the declared connection material (diameter 0.18 m, its segment rule) along the route's one (Straight) or two (Elbow) straight segments, by `ENGINE-CONNECTION-MATERIALS`. *Visuals:* the drawn tube is link presentation from the same material, not package art; the art is never the collider. *Animation:* the transit dot is a read-only binding on committed transit position. Moved by a binding: the dot. The tube art follows its strand segments, which follow the two sockets' poses; between two static horns it does not move.
+4. **One-way flow and typing.** Captured occurrence → route row → release → presentation; nothing returns. `route` is the closed enum `DuctRoute`; the domain is a `WorkshopConnectionDomain` member; length, delay and loss are f32.
+5. **Flat state.** Bodies: none of its own. Colliders: those the connection material's segment rule generates for the route (shape and count are `ENGINE-CONNECTION-MATERIALS`' to state; this spec invents none). Joints 0; drives 0; sensors 0; stores 0. Domain nodes: one fixed row per duct in the acoustic route table (source port, target port, length, loss factor, route kind); in-transit occurrences live in the engine's occurrence table, not in the connection. Bindings: 1 (transit dot).
+6. **Performance fitness.** One row per duct, fixed at Run; length and admission are computed at connection and at Run, never per tick. Per-tick work is proportional to in-transit occurrences, bounded as in [EL-044](EL-044-tone-selective-sound-meter.md#engine-conformance-22-november-2026) point 6 (design contract D5: tables sized at Run from declarations, no scene ceiling). The tube's colliders enter the broadphase of `ENGINE-SPATIAL-QUERIES` like any other; their count is bounded by the compiled declarations (owner decision 1). No collider here is cosmetic: the tube is drawn solid and collides.
+7. **Scenarios.** Rows 1–7 run the real simulation; arrival is read through the committed read model or a meter, never through a duct-specific path.
 
 ## 4. Sources and legacy
 
@@ -61,18 +110,42 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 
 ## 5. Acceptance outline
 
-Acceptance authority: [element-048](../requirements.md#element-048), [acoustic profile](../invest/profiles.md#acoustic), [S528](../invest/decisions.md#s528) event-routing construction.
+Acceptance authority: [element-048](../requirements.md#element-048), [acoustic profile](../invest/profiles.md#acoustic). Planned test class `AcousticDuctTests`. Arrival is observed as the committed routed occurrence at the duct's far end through the committed acoustic read model (EL-044 N13, a Story 14.0 deliverable; no "observation port" exists or is proposed). This is a deliberate delay contract, so transit time is asserted (T-delay); tolerances and stall guard: [EL-044 shared tolerances](EL-044-tone-selective-sound-meter.md#shared-tolerances-and-stall-guards).
 
-- **Construction (actual Chrome UI).** Speaker → Listening horn; select the horn, Connect `SoundOut`, click the Exit horn, choose `SoundOut → SoundIn` and the route (Straight or Elbow) around a Wall; supplied Sound meter facing the exit horn.
-- **Positive.** Each variant separately: the dot travels the tube, the meter triggers after L/12 s; the elbow route arrives slightly weaker than an equal-length straight route.
-- **Negative / control.** Delete the duct: the meter stays silent although both horns remain (outcome); two crossing ducts never exchange pulses; a ball pipe placed mouth-to-mouth carries no sound; a loop exit horn → listening horn → same duct does not grow and triggers once per path, and a second strike triggers again (S528).
-- **Boundaries.** L at 0.2 m and 8 m admitted, beyond 8 m refused at connection; acoustic → gas or electrical socket refused.
-- **Run/Reset.** Reset clears in-transit pulses.
-- **Save/Load.** Endpoints, socket names and `route` round-trip.
-- **Integrations.** Acoustic integration task [sequence-task-407](../requirements.md#sequence-task-407) ("connected horn/ducts carry bounded sound") between [EL-046](EL-046-listening-horn.md) and [EL-047](EL-047-exit-horn.md); interaction process [IX-12 acoustic propagation](../requirements.md#interaction-12) (path and attenuation). Campaign: "each duct route" is named in the sound row of [campaign-element-coverage](../requirements.md#campaign-element-coverage), first use 71–80 (reuse 81–100, 117–125, 136–150).
+| # | Given / When / Then | Test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| 1 | Given a Speaker 2 m in front of a listening horn joined by a Straight duct of L = 4 m, when the speaker pulses, then the occurrence reaches the far end 4/12 = 0.333 s after capture within T-delay, with strength 0.606 × 0.819 = 0.496 within T-level. | `AcousticDuctTests.AStraightDuctDelaysAndWeakensByItsLength` | L = 2 m: 0.167 s and 0.548 | L = 0.2 m and 8 m |
+| 2 | Given the Elbow route with the same total L = 4 m, then delay is the same and strength is 0.447 (× 0.9). | `AcousticDuctTests.AnElbowLosesALittleMore` | row 1 | — |
+| 3 | Given the duct deleted, then nothing arrives although both horns remain (requirement outcome). Given two ducts laid side by side, touching, each carries only its own source. A ball pipe placed mouth to mouth with the horns carries no sound. | `AcousticDuctTests.OnlyAConnectedDuctCarriesSound` | row 1 | — |
+| 4 | Given a loop (exit horn aimed into the listening horn that feeds it), when the speaker pulses once, then the downstream meter triggers once per admissible path, no duct is traversed twice by the same lineage (single traversal per duct; depth 4 bounds chains of distinct ducts), and a second speaker pulse triggers again. Run in the EL-047 slice ([EL-047](EL-047-exit-horn.md) row 9). | `ExitHornTests.ALoopDoesNotGrowAndASecondPulseRoutesAgain` | no loop: one trigger | — |
+| 5 | Given sockets 0.19 m or 8.1 m apart, then the connection is refused with a typed reason; at 0.2 m and 8 m it is admitted. Given a horn moved after connection so L leaves the range, then Run is refused with the same reason and nothing changes. | `AcousticDuctTests.LengthOutsideItsRangeIsRefused` | — | first f32 beyond each limit |
+| 6 | Given a `SoundOut` linked to an Electrical, Signal or Fluid input, a `SoundOut` to a `SoundOut`, or an identical duplicate duct, then it is refused with a typed reason. Given the Elbow route chosen where t < 0.1 m or the second segment is shorter than 0.1 m, then the choice is refused and the connection keeps its previous route. | generic `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` once the Audio domain is admitted; `AcousticDuctTests.AnUnbuildableElbowOrDuplicateDuctIsRefused` | a second, different duct on the same port is admitted | t = 0.09 m and 0.11 m |
+| 7 | Reset clears every in-transit occurrence; save then load round-trips both endpoints, socket names and `route`; an undefined `route` value in a save is refused. | `AcousticDuctTests.ResetClearsTransitAndSaveLoadKeepsTheRoute` | — | Reset with an occurrence mid-duct |
+
+**Chrome recipe (pending, post-catalogue).** Speaker → Listening horn; select the horn, Connect `SoundOut`, click the Exit horn, choose `SoundOut → SoundIn` and the route (Straight or Elbow) around a Wall; supplied Sound meter facing the exit horn.
 
 ## 6. Open questions
 
-1. **Connection or part.** A duct as a connection (proposed) versus placed straight/elbow segments that seat mouth to mouth like the clear pipe: owner decision.
-2. **Collision.** Whether a duct should be solid (blocking balls and light): owner decision.
-3. **Elbow placement.** Automatic corner (proposed) versus a draggable corner handle: owner decision.
+**Resolved.**
+
+1. **Connection or part.** A connection: [D19](../invest/delivery-batches.md#3-family-level-decisions) (the spec's proposal). Placed duct segments would repeat the ball-pipe kit for a second medium and need a mouth-joining graph for sound; one Connect gesture is the simpler lesson.
+2. **Elbow placement.** Automatic corner as declared above, no draggable handle: D19; a handle is a new editing control no lesson needs.
+3. **Routes as entries.** One connection kind with a `route` setting, satisfying the campaign's "each duct route": [D8](../invest/delivery-batches.md#3-family-level-decisions).
+4. **Coordinator decisions, 22 November 2026 (owner's standing delegation), applied in the audit repair.** (a) The elbow corner is the projection of the target onto the source socket's facing axis, refused when either segment would be shorter than 0.1 m: the earlier "horizontal plane" wording did not give a 90° corner in general. (b) R5 is single traversal per duct by lineage. (c) Arrival is observed through the Story 14.0 read model (N13). (d) A port may carry several ducts. (e) Coverage for a connection kind has no published form; S7 owns it and this spec proposes no line. (f) The tube question is decided by owner decision 1 (22 November 2026): the 0.18 m duct tube is a solid strand whose colliders come from the declared connection material, blocked on ENGINE-CONNECTION-MATERIALS (solid strand). The earlier recommendation to draw it without a collider, and the wire-width fallback, are withdrawn.
+
+**Needs the owner.** None.
+
+## 7. Integration
+
+- **Works with:** EL-046 and EL-047 (its only endpoints); a sound source and a meter to observe; Wall (delivered) as the obstacle a route goes round.
+- **Campaign:** chapter 8, levels 71–80 ("each duct route"), first taught at **79a**, after the Listening horn and before the Exit horn in the same level (coordinator decision 36; [per-level allocation](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)); reuse 81–100, 117–125, 136–150. [sequence-task-407](../requirements.md#sequence-task-407); process [IX-12](../requirements.md#interaction-12).
+- **Coverage binding (planned, not yet live).** Blocked on the coverage follow-on story S7. The package binding section that main's `tools/Coverage/NamedPackageSources.cs` reads, in the form published for EL-239, binds a package id only, and this identity has no package: S7 must define how a connection kind is covered, and this spec proposes no line of its own. It also lacks what the package identities lack: its ledger entry links only the umbrella `todo-352` (no co-anchored `sequence-task-NNN`, shared by nine identities) and its ledger owner S535 has no `<a id="s535">` anchor in `docs/planning/invest/scope-corrections.md`.
+- **Lesson fixtures (S8):** a level that pre-wires a duct needs authored connections between fixtures, which S8 must cover.
+
+## 8. Delivery
+
+- **Slice shape.** Single identity. Expected to be small once the engine provides gap 6: the Connect entry and tube art (shared presentation data), tests, and the ledger row.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (Story 14.0 takes its reception and occlusion candidates from it); then `ENGINE-CONNECTION-MATERIALS` (solid strand, owner decision 1) for the tube's colliders; Story 14.0 amended with gaps 6, 11 and 14; Stories 14.2, 14.1 and 14.3; EL-046; S7 (connection-kind coverage).
+- **Files.** No package. Adds `CuriousContraptions.tests/AcousticDuctTests.cs` (no `Compile` line is needed: main compiles every top-level `*.cs` of the test project by one rule) and the connection kind's data and link presentation wherever Story 14.0 places them (the probe names the files).
+- **Review tier.** All six layers expected: it changes shared connection presentation and has no package, so it is not a data-only package slice. If Story 14.0 delivers the link style too, this becomes tests and ledger only and may be reviewed at the data-only tier.
+- **Disqualified if** the probe finds connections cannot carry a setting or a length check without a rule naming the duct, that the transit rule lives outside the engine's acoustic pass, or that the tube's colliders would need code naming the duct rather than its declared connection material. Each is engine work first.

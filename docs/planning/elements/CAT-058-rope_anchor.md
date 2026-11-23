@@ -1,8 +1,6 @@
 # CAT-058 · rope_anchor declaration readiness spec
 
-This is the Story 7.0 CAT-058-D declaration readiness spec for the rope anchor. It also carries the route, length and tension facts of the rope connector itself (EL-205), which has no catalogue entry of its own; [CAT-053 pulley](CAT-053-pulley.md) and [CAT-067 weight](CAT-067-weight.md) cross-reference this file for them. Baseline commit is `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge; current-engine files are cited at the same commit.
-
-Current implementation authority: package/bundle discovery and .tscn assets; C# f32 generic constraints and typed command/query/event interfaces. Pinned source/API citations below describe harvest baseline. Native unit/integration acceptance applies now; Chrome recipes are retained post-catalogue. Entry decisions 1–7 are resolved below for 10.2b by the coordinator on 30 October 2026, using retained source behavior and current runtime-control conventions. The [implementation contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md) records the complete current design and candidate evidence. The candidate implements the straight-rope scope; independent review/publication remain pending, and pulley/browser qualification is not claimed.
+This is the CAT-058 spec for the Rope anchor. It also carries the facts of the rope connection itself (EL-205), which has no catalogue entry; [CAT-053 pulley](CAT-053-pulley.md) and [CAT-067 weight](CAT-067-weight.md) refer here for them. Sections 1 to 3 and 5 to 9 describe the delivered package and connection, checked on 22 November 2026 against checkout `8d1d68aa`; published main is now `25df3cd5`, and its two later commits touch none of this package's files. The [10.2b contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md) records the rope design. Section 4 is the legacy harvest at `a6c914e`, kept verbatim as evidence; it is not a description of the current part. Browser qualification is pending until the post-catalogue phase.
 
 ## 1. Identity
 
@@ -11,92 +9,56 @@ Current implementation authority: package/bundle discovery and .tscn assets; C# 
 | CAT ID | CAT-058 |
 | Kind | `rope_anchor`, catalogue title "Rope anchor" |
 | Requirement anchor | [CAT-058](../requirements.md#current-cat-058); retained behaviour [todo-140](../requirements.md#todo-140) and [todo-141](../requirements.md#todo-141) |
-| Mapped identities | [EL-064 Metal loop anchor](../invest/named-elements.md#element-064) (candidate — Batch A confirms); [EL-205 Rope](../invest/named-elements.md#element-205) (candidate — Batch A confirms; the rope is a connection, not a catalogue part) |
-| Roadmap story |10.2b Rope Anchor, tensile rope and cutting;10.2c owns later pulley routing. [Independent contracts](../../../_bmad-output/planning-artifacts/epics.md#story-102b-rope-anchor-tensile-rope-and-cutting-cat-058). |
-| Status | 10.2b implementation candidate; independent review/publication pending; pulley and browser qualification later |
+| Mapped identities | [EL-064 Metal loop anchor](../invest/named-elements.md#element-064), a candidate Duplicate closure, and [EL-205 Rope](../invest/named-elements.md#element-205), blocked on `ENGINE-CONNECTION-MATERIALS` (section 8); the rope is a connection, not a catalogue part |
+| Roadmap story | 10.2b Rope anchor, tensile rope and cutting ([contract](../../../_bmad-output/planning-artifacts/epics.md#story-102b-rope-anchor-tensile-rope-and-cutting-cat-058)); 10.2c pulley routing and 10.4 qualification followed |
+| Status | **Delivered.** Package id `rope_anchor`, directory `elements/RopeAnchor`. Slice record [10.2b](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md) (`done`, commit `d2862ebe`). Browser case pending (post-catalogue E2E). Every residual slice (section 8) is blocked on the engine programme (owner decision 3a, 22 November 2026); the story that owns this part's gap is `ENGINE-CAPABILITY-INSTANCES` (rope-port admission by role names), and the rope's missing strand collider belongs to `ENGINE-CONNECTION-MATERIALS` (solid strand). |
+| Disposition | Delivered catalogue part. EL-064 Metal loop anchor is a candidate Duplicate closure; EL-205 Rope is blocked on `ENGINE-CONNECTION-MATERIALS` (solid strand) ([section 8](#8-delivery-and-residuals)). |
 
 ## 2. Declaration
 
-### Bodies and shapes
+### As delivered (checked 22 November 2026)
 
-- One static box body. Legacy collider: box centred at (0, 0, −0.12) m with full size 0.55 × 0.55 × 0.16 m (half-extents 0.275, 0.275, 0.08) — `parts/RopeAnchorPart.cs@a6c914e:L15-L16`; `AddBox` stores half of the authored size (`reference/cpu/MachinePart.cs@a6c914e:L352-L355`).
-- Current types: `RigidBodyDeclaration` with `RigidMotionKind.Static` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`) and one `ColliderShapeKind.Box` `ColliderDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`).
-- Pick (selection) radius 0.55 m — `parts/RopeAnchorPart.cs@a6c914e:L15`.
+This table is the current declaration (`elements/RopeAnchor/RopeAnchorElementDeclaration.cs`).
 
-### Mass and material
+| Item | Delivered value | Source |
+| --- | --- | --- |
+| Interfaces | `IMechanicalElement`, `ISceneGeometryElement` | `:7` |
+| Body | one static body (footprint 1 body, 0 moving); zero mass frame | `:14`, `:24`, `:26` |
+| Collider | `col_mount` box 0.55 × 0.55 × 0.16 m centred at (0, 0, −0.12), so its front face is at z −0.04 | `rope_anchor.tscn:19`–`:20`, `:32`–`:34` |
+| Material | restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s | `:21` |
+| Parameters | none. Rope length is a value of the connection (0.05–200 m, measured at connect time), not of the anchor | `:12` |
+| Port | `PortId.Tie`, domain Rope, Bidirectional, role `Tie`, attachment `Anchor`, position (0, 0, 0.18), normal +Z | `:17`–`:18` |
+| Stores, events, payload, presentation bindings | none; pick radius 0.55 m | `:13`, `:22`, `:25` |
+| Palette | category Motion, order 32, colour (0.84, 0.61, 0.28) | `:9`–`:12` |
 
-- None for mass: the anchor is static; static declarations require zero mass, velocity, gravity and drag (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`).
-- Material: legacy static parts used restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236`). The anchor declared no override. Declare through `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`) with rolling resistance 0, the current value for non-sphere bodies (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L721-L726`). Values are an owner decision (Open question 4).
+**Art and solidity.** `Visual_Mount` is solid with `col_mount`. **Defect: `Visual_Eye`**, the gold torus of ring radius 0.2 m and tube radius 0.0275 m lying in the plane z 0.18 (`rope_anchor.tscn:14`–`:17`, `:28`–`:30`), has no collider. Its front reaches z 0.2075, which is 0.2475 m in front of the mount face, and its back at z 0.1525 floats 0.19 m off that face with nothing drawn between them. Owned by [visible-solid remainder part A](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder.md) (row A1: a torus collider of the drawn shape; a ball small enough for the opening passes through to the mount), status draft. The floating gap is an art observation for that contract; it is not a solidity defect. The rope itself is drawn by the engine from committed span state and is no package mesh. **Defect: the drawn rope has no collider.** Ropes are solid (owner decision, 22 November 2026: ropes, cables, hoses and ducts get colliders; thin wires stay drawings and the Balloon string keeps its exception). The repair is owned by the connection-materials engine story `ENGINE-CONNECTION-MATERIALS` (proposed in [Batch I's summary](readiness/batch-i.md)): the strand's collider is a property of the declared connection material (declared diameter, segment rule), never per-element code, with its cost bounded by compiled declarations.
 
-### Constraints and joints
+### Notes on the declaration and the rope connection
 
-- The anchor owns no joint. It is a fixed endpoint of a rope route; the rope constraint is declared once per complete route (see Legacy harvest R11–R17).
-- New declaration type required (Story 10.2): a rope-route constraint declaration listing ordered body-local attachment points, the authored maximum length, and connected-body collision enabled. No such type exists in `engine/gpu`.
-
-### Typed sockets and ports
-
-- One socket `Tie`, domain `Rope`, direction bidirectional, local position (0, 0, 0.18) m — `parts/RopeAnchorPart.cs@a6c914e:L9-L12`. Attachment role `Anchor`: accepts exactly one rope end (`engine/RopeNetwork.cs@a6c914e:L76-L77`).
-- Current `WorkshopConnectionDomain` has only `Activation` and `Electrical`; `WorkshopSocket` has no `Tie` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`). Story 10.2 adds the rope domain, the `Tie` socket and the attachment role as enums.
-- Wire names at the serialization boundary: socket `tie`, domain `rope`, link field `rope_length` (`engine/MachineData.cs@a6c914e:L67-L70`, `engine/MachineData.cs@a6c914e:L103-L150`).
-
-### Sensors and activation
-
-None — the anchor has no sensor, activation input or output in legacy or requirements.
-
-### Work and energy stores
-
-None — a fixed endpoint stores no energy. The rope is tension-only and massless in legacy (R14); it stores no elastic energy.
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| (anchor) none | — | — | — | — | `parts/catalog/rope_anchor.tres@a6c914e:L14` (`Parameters = {}`) |
-| Rope length (per span, on the connection) | f32 | 0.05–200 (legacy) | straight-line distance between the two tie sockets at connect time | m | `engine/ConnectionPort.cs@a6c914e:L47-L52`; `reference/cpu/MachineWorld.cs@a6c914e:L686-L691` |
-
-### Cosmetic curves and UI bindings
-
-- No cosmetic curve on the anchor. Rope artwork (all routes): free spans straight when taut and curved when slack, unfinished threading dashed and carrying no tension, gold endpoint knots, no pulley knots; slack curve is a length-matched visual approximation, not collision geometry — `DESIGN.md@a6c914e:L284`.
-- The current `AnimationFeedbackSource` closed set (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L6-L7`) has no rope source; Story 10.2 adds the committed-route binding for rope artwork.
-
-### Art
-
-- Scene `parts/scenes/rope_anchor.tscn` is a bare `Node3D` with the part script (`parts/scenes/rope_anchor.tscn@a6c914e:L1-L6`); all meshes are built in code.
-- Meshes: cream (`#fff8e9`) mount box matching the collider; catalogue-colour ring radius 0.2 m, thickness 0.055 m at z 0.16 m, rotated 90° about X — `parts/RopeAnchorPart.cs@a6c914e:L16-L18`. DESIGN: "Anchor eyes are gold on cream mounts" (`DESIGN.md@a6c914e:L284`).
-- Palette: "Pulley / rope anchor" RGB 0.84, 0.61, 0.28 (`#d69c47`) — `DESIGN.md@a6c914e:L187`; `parts/catalog/rope_anchor.tres@a6c914e:L13`.
-- Toolbox pictogram (navy stroke): rounded square, centre circle r 5, stem down — `ui/WorkshopIcons.cs@a6c914e:L97`.
-
-### Catalogue and inventory entry
-
-- Id `rope_anchor`, title "Rope anchor", category "Ropes", description "A fixed tie-off for a rope. Connect a weight to make a hanging load or pendulum." — `parts/catalog/rope_anchor.tres@a6c914e:L8-L14`.
-- Declare RopeAnchor metadata, typed parameters/ports and package-owned .tscn in `elements/RopeAnchor`; bundle discovery supplies catalogue/inventory identity. No WorkshopPartKind or manual Free inventory row. Legacy registration citations remain harvest evidence, not instructions.
+- **The anchor.** A static body with no mass, joint, sensor, store or parameter. Its `Tie` is at the centre of the eye and takes exactly one rope end. Any placement rotation turns collider, port and art together. Material: restitution 1, so a ball's own restitution governs its rebound.
+- **The rope.** A connection in the Rope domain between two rope ports, with one value, its length: measured between the two Tie positions when the link is made, 0.05–200 m inclusive, kept across moves and mass edits and measured again on reconnection. Loads and anchors take one end; guides take two spans. Branches, cycles, a guide as an end, a route with no dynamic participant and an over-length route between immovable ends are refused before installation.
+- **Law.** Massless, tension-only and inextensible in play: one projected length row per complete route in the solver's ordinary schedule, with the contact regularisation (60 Hz, damping ratio 10) as numerical conditioning, not a material. A slack or open route applies nothing.
+- **States.** Geometry is Open (incomplete or cut), Slack or Taut; integrity is Intact or Cut. A cut requested while Running or Paused is queued and takes effect at the next committed step; Reset restores the authored rope; a Build save stores the uncut construction.
+- **Art.** Cream `#fff8e9` mount, gold eye; DESIGN.md: "Anchor eyes are gold on cream mounts". Catalogue colour `#d69c47`. Icon: `elements/RopeAnchor/icon.svg`. Rope strands are straight when taut, curved to their length when slack and dashed when open, with gold knots at the two ends; all of it is drawn by the engine from committed state. Under Batch I's connection-materials design (`ENGINE-CONNECTION-MATERIALS`) the delivered rope becomes the first declared connection material, with its strand diameter (0.04 m) as material data.
+- **Catalogue.** Category Motion, description "A fixed tie-off for a rope. Connect a load to suspend it or make a pendulum."
 
 ## 3. Engine capabilities
 
 Capability families: see the CAT-058 row of the [general-engine element map](../general-engine-element-map.md) and the `rope_anchor` entry in [catalogue-elements.json](../../coverage/catalogue-elements.json). Not duplicated here.
 
-**Exists now**
+**Capability probe (22 November 2026).** Tests were found by name and line; none was run. Counts: 6 present, 1 present-untested, 0 narrower, 0 missing. No engine code names the Rope anchor. One admission rule is not general (section 9, point 2).
 
-- Static box body and collider: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`.
-- Contact material and the Box2D v3 TGS Soft contact solver (soft parameters `makeSoft`, 480 Hz substeps, 8 biased + 4 relax iterations): `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878-L884`.
-- Typed connection storage and validation pattern: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L62`.
-- Save codec version enum: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Static box collider from a scene proxy | present, untested | `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`) | no test brings a body into contact with `col_mount`; the rope tests place the part and never touch it. Part A's row A1 drops a ball through the eye onto the mount and adds the table row |
+| Rope port with `Anchor` role | present | `RopeAttachmentRole` (`CuriousContraptions.Abstractions/PortDescriptor.cs:74`) | `RopeTests.ACompleteRopeSupportsItsLoadWhileAnUnconnectedLoadFalls` (`CuriousContraptions.tests/RopeTests.cs:21`), `StaticFeasibleRoutesDisplayAndImmovableOverlengthRoutesRefuseAtomically` (`:490`) |
+| Measured connection length, 0.05–200 m, kept across moves | present | `TensileSpanDeclaration` (`CuriousContraptions.Abstractions/TensileSpanDeclarationValues.cs:25`) | `RopeTests.AuthoredLengthBoundariesRoundTrip` (`:131`), `InvalidLengthsRefuseBeforeInstallation` (`:145`), `MeasurementPersistsAcrossMovesAndMassEditsButReconnectMeasuresAgain` (`:343`) |
+| Tension-only row with mass-weighted reaction | present | `TensileConstraintSolver` (`CuriousContraptions.Simulation/TensileConstraintSolver.cs:27`) | `RopeTests.TheLengthRowHasMassWeightedReactionAndNeverCreatesKineticEnergy` (`:408`), `SlackRopeDoesNotAccelerateTheFallingLoad` (`:34`), `InwardMotionAndCoincidentSlackDoNotReceiveConstraintImpulse` (`:431`) |
+| Committed Open/Slack/Taut and Intact/Cut state; queued runtime cut | present | typed cut command and rope read | `RopeTests.CutWaitsForCommittedStepAndSurvivesDiscardThenResetRestoresTheRope` (`:151`), `MalformedCutCommandsAndCommittedGeometryRefuseWithoutChangingTheInstalledWorld` (`:505`) |
+| Rope artwork from committed attachments | present | rope read codec | `RopeTests.SlackArtworkMatchesLengthAndRemainsFiniteForVerticalAndCoincidentEndpoints` (`:217`), `RopeReadCodecAcceptsRotatedSocketsAndMovingCommittedBodies` (`:647`) |
+| Angled and pulley routes | present | `RopeGeometry.EvaluateRoute` (`engine/gpu/RopeGeometry.cs:83`) | `RopeTests.SinglePulleyRedirectionSupportsSuspendedWeight` (`:804`), `ThreeDimensionalReleaseSwingsWithoutLosingItsTether` (`:194`) |
 
-**Current 10.2b candidate**
-
-- Rope/Tie/Bidirectional and declared attachment roles; parameter-evaluated Weight eye and static RopeAnchor package.
-- Canonical straight routes, measured 0.05–200m spans, graph refusal and one projected tensile row in the existing TGS schedule. Open guide topology has no equation; finite-radius guided geometry remains 10.2c.
-- Committed Open/Slack/Taut geometry and Intact/Cut integrity; Running/Paused cut queues until the next committed physical step. Reset restores authored endpoints and length; Building saves omit cut state.
-- Retained strand/knot artwork follows committed attachments. Native proof and review status live in the implementation contract; browser qualification is pending.
-
-**Later gates**
-- Pendulum and counterweight qualification on the same rope law — Story 10.4.
-
-**Element dependencies**
-
-- Needs a dynamic load to show behaviour: [CAT-067 weight](CAT-067-weight.md) (first visible interaction is anchor-supported hanging Weight, `docs/planning/invest/current-consumers.md` CAT-058-I).
-- Shares the rope law with [CAT-053 pulley](CAT-053-pulley.md); angled/pulley routes are a CAT-058 acceptance item.
-- Tether integration with [CAT-065 trampoline](CAT-065-trampoline.md) (R23).
+**Collaborating parts.** A dynamic load, first the [CAT-067 weight](CAT-067-weight.md); the [CAT-053 pulley](CAT-053-pulley.md) shares the rope law; the [CAT-065 trampoline](CAT-065-trampoline.md) has tether tests.
 
 ## 4. Legacy harvest
 
@@ -170,14 +132,48 @@ Requirement row: [CAT-058](../requirements.md#current-cat-058); story 10.2.
 - **Save/Load.** Save and reload preserve `tie` endpoints and `rope_length` values; unknown sockets or domains reject.
 - **Integrations.** Pendulum with CAT-067 (story 10.4), pulley routes with CAT-053, tether over CAT-065.
 
+**Native tests that exist per requirement criterion (22 November 2026; none was run for this review).** Hanging load and its control: `RopeTests.cs:21`. Slack: `:34`, `:431`. Incomplete route: `:230`, `:448`. Wrong endpoint, branching and cycle refusal: `:230`, `:545`, `:949`. Angled and pulley routes: `:194`, `:804`. Force reaction: `:362`, `:408`. Artwork follows the attachment: `:217`, `:647`. Reset and save preserve endpoints and lengths: `:151`, `:131`, `:261`, and the generic `CatalogueIntegrationTests.EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad` (`CatalogueIntegrationTests.cs:273`). The anchor has no parameter to refuse.
+
+**Residual.** (1) A rope port linked with a non-rope kind is not tested: `BundlePortsTests.cs:262`–`:284` has no Rope case. Shared planned row `RopeTests.ARopePortRefusesANonRopeLinkAndANonRopePortRefusesARopeLink`, typed `InvalidConnection` ([CAT-067](CAT-067-weight.md), section 5). (2) "Open routes dashed" is a drawn style: native tests assert the committed `Open` state (`:230`) and finite slack artwork (`:217`), not the dash pattern; it stays with the post-catalogue browser case. (3) The eye's solidity and contact with the mount: row A1 of visible-solid remainder part A.
+
 ## 6. Open questions
 
 Resolved entry decisions — coordinator,30October2026. These are explicit implementation decisions, not a claim of a new owner answer. They settle the former blockers; the [10.2b contract](../../../_bmad-output/implementation-artifacts/spec-10-2b-rope-tie-load.md#design-notes) supplies the current command/read and numerical details.
 
 1. Connect-time world Tie distance sets per-span length, inclusive0.05–200m. Moves and mass edits preserve it; reconnect remeasures. Zero, missing, nonfinite and outside values refuse. No separate length editor in10.2b.
 2. Massless, tension-only/inextensible gameplay uses the shared projected soft-constraint law. Explicitly extend the existing contact regularization policy (60Hz, damping ratio10) to the new length row through effective-mass spring/damping coefficients. This is numerical conditioning, not a rope material or elastic-energy store. Verify gameplay support, release and energy behavior; do not inherit historical precision pins or a second solver.
-3. Rope has no mass/collider. Slack sag is a length-matched cosmetic approximation driven by committed attachments, with no physical work.
+3. The rope has no mass. It is solid (owner decision, 22 November 2026), but the delivered rope has no collider yet: a recorded visible-solid defect owned by `ENGINE-CONNECTION-MATERIALS`, which gives every thick strand a collider from its declared material. Until then a body passes through a drawn rope. Slack sag is a length-matched drawing driven by committed attachments and does no physical work; how a solid slack strand hangs is that story's to define.
 4. Anchor uses the sourced restitution1, threshold0.1m/s, friction0.3 and rolling0; static mass0. Existing full3D placement rotations transform collider, Tie and art. No separate wall-mount attachment mechanic is added.
 5. Rope is a connection, with no separate inventory stock or metre budget. Existing level endpoint stock and connection permissions still apply.
 6. Open means incomplete or cut; Slack means current geometric length below authored maximum; otherwise Taut. No inherited0.001m deadband or universal epsilon. State classification does not assert nonzero tension. Coincident positive-length endpoints are slack and never fault a tick.
-7. Cutting remains required in10.2b. Running/Paused accept a typed span-targeted CutRope request through the existing command path. Applied acknowledges queued input; the UI says Cut queued until the next successful committed step removes that route's tensile row and publishes Cut/Open. Paused waits for Step/Resume; no artificial time advance. Pending/already-cut route and unknown span refuse typed without altering other routes. Discarded candidates do not publish or consume an unapplied request. Reset clears cuts and restores original authored endpoints/lengths; Building-only Save/Load stores the uncut authored construction. Build-mode connection deletion/Undo is distinct. Steel-cable resistance remains EL-067; finite-radius pulley routing remains10.2c.
+7. Cutting remains required in10.2b. Running/Paused accept a typed span-targeted CutRope request through the existing command path. Applied acknowledges queued input; the UI says Cut queued until the next successful committed step removes that route's tensile row and publishes Cut/Open. Paused waits for Step/Resume; no artificial time advance. Pending/already-cut route and unknown span refuse typed without altering other routes. Discarded candidates do not publish or consume an unapplied request. Reset clears cuts and restores original authored endpoints/lengths; Building-only Save/Load stores the uncut authored construction. Build-mode connection deletion/Undo is distinct. Steel-cable resistance remains EL-067; finite-radius pulley routing remains10.2c. The control exists in the game; a level may withhold it, like any player control, as authored level data (coordinator decision 24l, 23 November 2026).
+
+No item needs the owner.
+
+## 7. Integration
+
+- **Collaborators, all delivered:** Weight (`Load`), Pulley (`Guide`), Impact lever (`TieA`/`TieB`, `Load`), Trampoline (tether tests `TrampolineTests.cs:2112`, `:2140`), Linear pusher (`LinearPusherTests.HeadTransfersLoadThroughCargoToARopeAndDisconnectingTheRopeReleasesTravel`, `LinearPusherTests.cs:179`). Both ends of every link are `SimulationDomain.Rope`, Bidirectional.
+- **Not delivered:** EL-067 Steel cable (a connection material; needs `ENGINE-CONNECTION-MATERIALS`), EL-066 Scissors and EL-068 Tin snips (cutters), EL-063 Cable winch, EL-065 Load hook.
+- **Campaign.** No level in `content/puzzles.json` places a Rope anchor: levels 19 and 20 tie Weights through Pulleys only. The plan teaches the anchor at level 12c, where the authored `pulley_depth` becomes the anchor's lesson; the content slice must add the anchor to that level (it places none today), and a pendulum lesson is further Epic 15 work that would need no engine story.
+- **Coverage binding.** Catalogue key `rope_anchor` (CAT-058).
+
+## 8. Delivery and residuals
+
+- **Delivered** by 10.2b; extended by 9A.46a, 10.2c and 10.4.
+- **Blocked on the engine programme (owner decision 3a, 22 November 2026).** The residual slice and the closure review below wait for it. The story that owns this part's gap is `ENGINE-CAPABILITY-INSTANCES` (section 9, point 2).
+- **Residual slice.** Visible-solid remainder part A: the eye's torus collider and the package's table row; engine tier, as that contract states. Probe re-check: `col_mount` stays collider 0 (the eye is appended), and the Tie stays at the eye centre (0, 0, 0.18).
+- **EL-064 Metal loop anchor: candidate Duplicate closure**; no delta. Its requirement row names no cable, and what a rope port admits does not depend on a connector material today. Closure check as recorded in [EL-064](EL-064-metal-loop-anchor.md): the hanging-load test and its unconnected control (`RopeTests.cs:21`), the Reset and save rows (`:151`, `:131`). Its ledger outcome "disconnected rope carries no anchored tension" is the control of `:21` and `:448`. One of its closure rows uses the player's runtime cut, which stays (owner decision of 22 October 2026: Story 10.2 keeps runtime rope cutting). The closure review runs after the engine programme (owner decision 3a).
+- **EL-205 Rope:** its behaviour is delivered by the Rope connection domain with no package, and its outcome "slack rope cannot push or pull until tension develops" is `RopeTests.cs:34` and `:431`. It cannot be closed yet: it is blocked on `ENGINE-CONNECTION-MATERIALS` (solid strand). The connection-material story converts the delivered rope in the same change and re-runs the closure rows recorded in [EL-205](EL-205-rope.md).
+- **Solid strand (owner decision, 22 November 2026).** The delivered rope is drawn with no collider: a visible-solid defect owned by `ENGINE-CONNECTION-MATERIALS`. No rope test found by name relies on a body passing through a rope; `RopeTests.SlackAndCutConnectionsKeepOrdinaryLoadContact` (`RopeTests.cs:385`) is about contact between the loads. That story's probe must re-run every rope, pulley, lever and tether test, because a solid strand can touch the wheel it wraps, the beam or frame it is tied to, and a load swinging through it. For light the same holds, with no optical exception ([EL-176](EL-176-red-laser-emitter.md) section 10, item 6): today the delivered rope lets light through as it lets bodies through, and once `ENGINE-CONNECTION-MATERIALS` gives it a collider it occludes like any collider.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The package fix is the eye's collider (section 2, visible-solid remainder part A). No engine code names this element (searched `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions). Two engine items touch the rope it anchors: admission by role name (point 2) and the missing strand collider (point 3).
+
+1. **Declaration data only.** One static body, one box collider, one material, one port with `RopeAttachmentRole.Anchor`. No code.
+2. **Generic laws.** Supporting a load: the tension-only span law between two rope ports, with the anchor's body static, so the reaction goes to an immovable body. Slack, open and cut states are states of the generic span, not of the anchor. Contact with the mount: ordinary contact. **Required engine refactor:** a rope port is not admitted by domain, direction and attachment role alone. Three admission sites enumerate the role names `Tie`, `TieA` and `TieB` (`engine/gpu/WorkshopConnections.cs:163`–`:164`, `engine/gpu/ElementPortCatalogue.cs:182`, `CuriousContraptions.Bundle/BundleValidator.cs:543`, `:546`), so a package with a third or differently named rope port needs an engine edit, against design guide D2. Owned by `ENGINE-CAPABILITY-INSTANCES` (owner decision 3a, 22 November 2026), which removes product shapes from shared contracts, the class of engine audit findings E3 and E5: "A rope port is admitted by domain Rope, Bidirectional and its declared attachment role; port identity is the typed id, and no admission site enumerates role names."
+3. **Three layers.** Colliders: `col_mount`; part A appends a torus for the eye. Visuals: `Visual_Mount`, `Visual_Eye`. Animation: none on the part. Rope strands and knots are drawn by the engine from committed span state for every rope connection; they are not package art. The strand has no collider today, which breaks visible = solid for a thick strand; the collider layer for strands is `ENGINE-CONNECTION-MATERIALS`'s to add, as material data.
+4. **One-way flow and typing.** Committed span state → rope artwork; nothing flows back. Typed `PortId`, `SimulationDomain`, `RopeAttachmentRole`; the connection length is f32.
+5. **Flat-state counts.** 1 static body; 1 box collider, 2 after part A; 0 joints, drives, sensors, nodes, stores, events, bindings; 1 port; 0 parameters. Each rope connection adds one span row, counted per connection at compile time.
+6. **Performance fitness.** One static primitive, two after part A; the eye torus is required by visible = solid. Island sleeping is not implemented; a resting body is still stepped (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026). The anchor's body is static, so the gap concerns the loads it holds, not the part.
+7. **Scenario tests.** `RopeTests` runs real constructions through the production simulation; no test depends on an anchor-specific path.

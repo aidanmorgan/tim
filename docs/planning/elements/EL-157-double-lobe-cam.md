@@ -16,63 +16,54 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Refines / extends | No CAT spec. Same cam-unit layout as [EL-156](EL-156-single-lobe-cam.md); drive from [CAT-042 motor](CAT-042-motor.md); follower slider as [CAT-062 spring](CAT-062-spring.md) |
 | Related | EL-156 Single-lobe cam, EL-158 Rise-hold-fall cam |
 | Roadmap story | [EL-157 delivery slice](../invest/named-elements.md#element-157); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Status | Not started; blocked on the engine programme (owner decision 3a), relying most on ENGINE-SUPPLY-DEMAND (the Battery and Motor train) and ENGINE-ISLANDS-SLEEP; then S7. |
 
 ## 2. Declaration
 
-### Bodies and shapes
-- **Housing (static).** Base box 1.0 × 0.16 × 0.8 m and follower guide frame 0.5 × 1.2 × 0.12 m (full extents) — **proposed**: identical to EL-156 so the three cams are interchangeable on a route.
-- **Cam (dynamic shaft body).** Convex prism 0.12 m thick with polar profile r(θ) = r₀ + h·(1 − cos 2θ)/2, r₀ = 0.3 m — **proposed**: two equal lobes 180° apart; r₀ matches the sourced 0.3 m motor rotor radius (`parts/MotorPart.cs@a6c914e:L24-L26`).
-- **Follower (dynamic box).** Flat-faced, full extents 0.3 × 0.6 × 0.12 m — **proposed**, as EL-156.
-- Current shapes lack a convex prism (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L6-L7`); legacy shafts used convex hulls (`engine/SceneRotaryShaft.cs@a6c914e:L29-L42`).
+### Disposition and current declaration (21 November 2026)
 
-### Mass and material
-- Cam 0.5 kg (the sourced rotor mass, `parts/MotorPart.cs@a6c914e:L24-L24`) and follower 0.3 kg — **proposed**, as EL-156.
-- Cam–follower material restitution 0, friction 0.1 — **proposed**: lift equals profile displacement without bounce.
+**Disposition.** Member of the Family slice **Cam profiles** with siblings EL-156 and EL-158. Planned package id `cam_double`, directory `elements/CamDouble/`, class `CamDoubleElementDeclaration : ISliderElement, IHingeElement, ISceneGeometryElement`. Category Motion, palette order 127 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)), display name "Double-lobe cam", description "Two lifts of its follower each turn." It has a behaviour delta from EL-156 (two lifts per revolution), so it is a family member, not a duplicate. The Status row above stays "not started".
 
-### Constraints and joints
-- Cam hinge about local Z, unbounded, connected collision disabled (`engine/SceneRotaryShaft.cs@a6c914e:L25-L28`).
-- Follower slider along local +Y, travel 0–0.3 m (slider pattern `parts/SpringPart.cs@a6c914e:L35-L48`); return spring 20 N/m with no preload, damping 1 N·s/m — **proposed**, as EL-156. Two lobes make the profile acceleration (h/2)·4·ω², four times a single lobe of the same lift at equal shaft speed. Held down by g + k·h/m, the follower stays on the cam up to about 8.6 rad/s at the default 0.12 m lift and visibly floats above it, inside the motor's 0–20 rad/s range.
+Checked against this checkout (`8d1d68aa`); it is the whole declaration. The housing (body 0), follower slider (body 1), cam hinge, `DriveIn` port, materials and presentation bindings are those of the [EL-156 current declaration](EL-156-single-lobe-cam.md#current-declaration-21-november-2026) with no change; footprint 3 bodies, 2 moving, 1 prismatic, 1 revolute. Only the cam body differs:
 
-### Typed ports
-| Socket | Domain | Direction | Binding | Source |
-| --- | --- | --- | --- | --- |
-| `DriveIn` | Mechanical | Input | cam hinge, −1 coordinate per radian | `parts/ConveyorPart.cs@a6c914e:L64-L71` |
-| `LinkageOut` | Mechanical (linear) | Output | follower slider, +1 coordinate per metre | **proposed**, shared with EL-111 and EL-156 |
+| Item | Value |
+| --- | --- |
+| Colliders on body 2 | two cylinders, each radius 0.18, half-width 0.06, axis along hinge Z, centred (−0.12, 0, 0) and (+0.12, 0, 0) in the cam frame. They overlap; a flat follower rides their common outline |
+| Mass frame | 0.5 kg, centre of mass on the axis (balanced), principal moments 0.00465 (along the line of centres), 0.01185 (across it) and 0.0153 (axial) kg·m² |
+| Initial angle | 0: the line of centres is horizontal, so the follower starts at its lowest point |
+| Follower rest | foot 0.18 m above the axis (centre at y 0.98, the hinge being at y 0.50 as in EL-156); slider travel −0.005 to +0.3 m as in EL-156. The cam sweeps to 0.30 m from the axle, 0.12 m clear of the base top; the follower contact is at most 0.12 m off the axis, inside the 0.22 m half-foot |
 
-### Sensors and activation
-None. Two separately observable lifts come from geometry alone.
+As for EL-156: there is no convex prism collider and none is needed; `lift` is fixed (0.12 m, D13); there is no `LinkageOut` socket; `CoordinatePerRadian` is +1; no parameters.
 
-### Work and energy stores
-Spring and follower potential energy, supplied only through `DriveIn`.
+### Art and solidity (21 November 2026)
 
-### Parameters
+`Base`, `GuidePlate` and `Visual/Follower` as EL-156 (solid, same colliders). `Visual/Cam` is one mesh whose outline is the union of two discs of radius 0.18 m with centres 0.24 m apart, width 0.12 m: solid, matched by the two cylinders exactly. Two gold lobe marks and the axle cap are flush inlays (decorative, printed flat). Icon: a peanut-shaped cam under a flat-footed bar. It differs from EL-156 (one round disc) and EL-158 (disc with an arc band) by its two-lobed outline and two marks.
 
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `lift` | f32 | 0.05–0.15 | 0.12 | m | **proposed**: the two-lobe profile is convex only while h ≤ r₀/2 = 0.15 m, so the range stops there |
+### Behaviour and numbers (21 November 2026)
 
-### Cosmetic curves and UI bindings
-Cam and follower follow committed poses; two gold lobe marks, one per lobe, so each lift is separately visible — **proposed**. UI: `lift` via the contextual configuration pattern (`ui/WorkshopConfiguration.cs@a6c914e:L43-L75`).
+- Follower height above rest: y(θ) = 0.12·|sin θ|. Two lifts of 0.12 m per revolution, 180° apart.
+- At each valley the profile has a corner: the follower arrives at 0.12·ω m/s downward and leaves at the same speed upward (0.72 m/s at the Motor's default 6 rad/s). Restitution is 0, so this is a firm tap, not a bounce. It is the real behaviour of a two-disc cam and is why the lesson speed is 2 rad/s.
+- Contact is kept while 0.12·ω² is below g + k·y/m = 9.81 + 8 = 17.8 m/s² at the top: up to about 12 rad/s.
+- Peak shaft load about 0.65 N·m; the cam is balanced. A Motor at its 0.1 N·m floor stalls on the rise.
+- No signal read; no tick-order rule.
 
-### Art
-Drivetrain colour `#d69c47` cam with two gold `#f7cb52` lobe marks; cream `#fff8e9` follower; navy `#293954` base ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
+### Harvest-era subsections — removed; the text is in git history.
 
-### Catalogue and inventory entry
-Id `cam_double`, title "Double-lobe cam", category Motion — **proposed**. Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
-
-### Variants
-One outcome in the row; no variants.
+The current declaration above is the whole declaration. Two separately observable lifts come from geometry alone; spring and follower potential energy are supplied only through `DriveIn`. Colours as EL-156: cam `#d69c47` with two gold `#f7cb52` lobe marks, one per lobe, follower cream `#fff8e9`, navy `#293954` base. One outcome in the row; no variants.
 
 ## 3. Engine capabilities
 
 Families: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, ShaftTorque, plus StateTransaction ([map row](../general-engine-element-map.md); [element-02.json](../../coverage/engine/element-02.json)).
 
-**Exists now**
-- Box contact with friction and restitution: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L719`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L886-L900`.
+### Capability probe (21 November 2026)
 
-**Missing**
-- Convex prism collider (GeometryQuery/ContactImpulse), owner S345; hinge (Story 10.3); slider spring (Story 6.4); mechanical input (Story 11.1); linear output domain required in the linked delivery slice (S257, [decisions](../invest/decisions.md#s257)).
+The harvest-era "Exists now" and "Missing" lists (baseline `a6c914e`) are removed; their text is in git history. Every row of the [EL-156 probe](EL-156-single-lobe-cam.md#capability-probe-21-november-2026) applies unchanged (6 present, 2 present-untested: a slider-carried box riding a hinge-carried cylinder, and an offset collider on a hinge-carried body). This identity adds one row:
+
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Several colliders on one moving body, each keeping its own contact | present | `HingeBodyDescriptor.Colliders`, `CuriousContraptions.Abstractions/MechanicalContractValues.cs:123` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`); `EveryDeclaredChildUsesItsCommittedMotionAndResetAndRefusesForeignSets` (`:1021`) |
+
+Counts: 7 present, 2 present-untested, 0 narrower, 0 missing. Beyond the engine programme (owner decision 3a), no specific engine story is a prerequisite.
 
 **Dependencies.** A shaft source such as CAT-042 (Story 11.1); shares every capability with EL-156, so it should follow it.
 
@@ -100,12 +91,66 @@ Follow [element-157](../requirements.md#element-157) and the [mechanics profile]
 - **Chrome UI recipe.** Place battery, motor and the double-lobe cam; connect `Supply` → `PowerIn` and `Drive` → `DriveIn`; feed balls onto the follower ledge. Run for one revolution.
 - **Positive.** One revolution gives two follower lifts, each releasing one ball; the lift count per revolution is 2.
 - **Negative/control.** Replacing it with EL-156 under the same drive gives one lift per revolution; an unpowered cam gives none; half a revolution gives exactly one lift.
-- **Boundaries.** `lift` 0.05 and 0.15; shaft speeds below and above about 8.6 rad/s at the default lift (follower keeps or loses contact); reverse rotation.
+- **Boundaries.** Shaft speeds below and above about 12 rad/s (follower keeps or loses contact); reverse rotation.
 - **Run/Reset.** Cam angle and follower height return to authored values.
-- **Save/Load.** `lift`, pose and links round-trip.
+- **Save/Load.** Pose and Mechanical links round-trip.
 - **Integrations.** Cam, crank, clutch/brake and ratchet integration task under [todo-375](../requirements.md#todo-375); campaign row "Gears ... each cam profile ...": first use 31–40, reuse 41–50, 61–90, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); paired with EL-156 as its single-lobe contrast.
+
+### Acceptance rows (21 November 2026)
+
+Native tests in the family class `CamTests`; measurement, tolerance (±0.02 m of lift) and lift-counting rule as in the [EL-156 acceptance rows](EL-156-single-lobe-cam.md#acceptance-rows-21-november-2026). The shared rows C3 (undriven), C5 (reverse), C6 (weak Motor), C7 (carries a ball), C8 (Reset and load), C9 (wrong connection, generic) and C10 (art and solidity) run for this package as theory rows. Rows of its own:
+
+| # | Given / When / Then | Test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| D1 | Given Battery → Motor (`speed` 2 rad/s) → cam, when the cam has turned three revolutions (guard 30 s), then exactly six lifts are counted, each peaking within 0.12 ± 0.02 m | `ADoubleLobeCamLiftsItsFollowerTwicePerRevolution` | D2 | — |
+| D2 | Source outcome. Given the same rig with `cam_single` in place of `cam_double`, then three lifts are counted in three revolutions, so the two counts differ and one revolution of this cam is never one cycle | `TheSingleLobeCamGivesHalfAsManyLiftsInTheSameRig` | D1 | — |
+| D3 | Given the shaft stopped (Motor `speed` set to 0) after half a revolution, then exactly one lift has been counted and the follower is back within 0.02 m of rest | `HalfARevolutionGivesExactlyOneLift` | D1 | half revolution |
+| D4 | Given the shaft stopped anywhere on a rise, then the lift equals 0.12·|sin θ| for the committed angle within ±0.02 m | `APartialTurnLiftsOnlyTheProfileHeightAtThatAngle` (theory row) | D1 | — |
+| D5 | Given `speed` 8 rad/s, then lifts still equal twice the revolutions; given 20 rad/s, then the follower stays inside its travel | `TheFollowerKeepsCountBelowTheFloatSpeedAndStaysBoundedAboveIt` (theory row) | D1 | either side of the 12 rad/s float speed |
+
+No parameter, so no parameter refusal row.
+
+### Integration and delivery (21 November 2026)
+
+- Works with the same parts as EL-156. Campaign: "each cam profile", first use levels 31–40, reuse 41–50, 61–90, 136–150; it is taught against EL-156 as the contrast.
+- Coverage binding: a final package-source-binding section in this spec, as EL-239 on published main; blocked on S7 (section 7). A level placing it as a fixture needs S8.
+- Delivery: inside the Family slice `family-cam-profiles` described in the [EL-156 delivery section](EL-156-single-lobe-cam.md#delivery-21-november-2026); files `elements/CamDouble/CamDouble.csproj`, `CamDoubleElementDeclaration.cs`, `cam_double.tscn`, `icon.svg`, rows in `CamTests.cs`; engine review tier (two present-untested capabilities).
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), which includes ENGINE-SUPPLY-DEMAND (the Motor's work debited from its Battery) and ENGINE-ISLANDS-SLEEP; then S7 (the coverage follow-on, which widens the reader, owner decision 15). S3 preferred.
+- Disqualifies the plan, in addition to EL-156's items: the follower chatters or sticks at the valley corner at 2 rad/s (more than one counted lift per lobe), or resting on both cylinders at once produces drift along the slider. Either is an engine contact defect for its own slice.
 
 ## 6. Open questions
 
-1. Must the two lobes be equal (proposed) or independently sized? Unspecified — owner decision.
-2. Output: typed linear socket (proposed) or contact-only follower? Owner decision.
+None open. Resolved 21 November 2026:
+
+1. The two lobes are equal. D19 (the spec's proposal); unequal lobes are not asked for by any row.
+2. Output: contact-only follower. D19.
+3. `lift` is fixed at 0.12 m. D13.
+4. Hinge at y 0.50 and the 0.44 m follower foot follow EL-156 (22 November 2026); this cam itself never reached the base.
+
+## Engine conformance (22 November 2026)
+
+Checked against the owner addendum of 22 November 2026; the reasoning is that of [EL-156](EL-156-single-lobe-cam.md#engine-conformance-22-november-2026), with these differences.
+
+1. **Declaration data only.** As EL-156, with two overlapping cylinders on the cam body. No profile function or lift count exists in code; two lifts per revolution are the outline of two discs.
+2. **Generic laws.** As EL-156. y(θ) = 0.12·|sin θ| is a hand consequence; the valley corner is real contact between the follower and the second cylinder.
+3. **Three layers.** Colliders: five (base, guide plate, follower box, two cam cylinders). Visuals: the cam mesh is the union of the two discs, matched exactly by the two cylinders; marks inlaid flush. Animation: none; both moving art nodes follow their bodies.
+4. **Flow and typing.** As EL-156.
+5. **Flat state.** Bodies 3 (1 static, 2 dynamic); colliders 5 (boxes 3, cylinders 2); joints 2 (1 prismatic, 1 revolute); drives 0; sensors 0; domain nodes 0; stores 0; presentation bindings 2 (body).
+6. **Performance.** One more collider than EL-156, because the outline has two lobes. Nothing is cosmetic in physics. No island sleeping exists today; a resting cam and follower cost nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
+7. **Tests are scenarios.** Rows D1 to D5 and the shared family rows run the production simulation.
+
+**Verdict: conforms.**
+
+## 7. Coverage binding (planned, not yet live)
+
+Published main binds a named-identity package through a final section of the identity's spec headed "Package source binding", read by `tools/Coverage/NamedPackageSources.cs` (pattern: EL-239 Baseball on published main). The section is not written here: the reader parses every spec that carries that heading and fails the whole coverage run when a field does not resolve. **Blocked on the coverage follow-on story S7.** S7 widens the reader (owner decision 15), including for companion packages and TH, RAD and GAP identities.
+
+| Field | Planned value |
+| --- | --- |
+| Package | `cam_double` |
+| Named identity | EL-157, `../invest/named-elements.md#element-157` |
+| Acceptance | `todo-424`; no sequence task yet |
+| Decision | S345, `../invest/scope-corrections.md#s345` |
+| Mode records | `Configuration=Fixed` |
+
+What it lacks today: `scope-corrections.md` has no `s345` block on published main; `todo-424` is a scope-index row shared by EL-156, EL-157 and EL-158 with no sequence-task anchor directly after it, which the reader requires; and one task source can bind only one package.

@@ -2,9 +2,9 @@
 
 **Current delivery (24 October 2026):** [CAT-051 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) the sleeve is a true Tube from the 0.65 m bore to its drawn 0.70 m over the 0.8 m sleeve, and each 0.78 m collar a true Tube from the bore to 0.78 m over its 0.18 m, reaching the mouths at x ±0.49 ([hollow geometry](../../hollow-geometry-design.md)); the sleeve's 16-box approximation is deleted, and a ball dropped on a collar stops at the drawn 0.78 m (`VisibleSolidColliderTests`). The PowerIn socket (sphere r 0.09 at (0, 1.65, 0.92)) and the indicator (sphere r 0.07 at (0.42, 1.65, 0.55)) collide as drawn (coordinator decision, 25 October 2026). Material: the frame now declares this doc's restitution 0.1, as the blade already did (it declared 1). Pair restitution is the product, as it was in the legacy engine, so 1 made a ball leave the frame at its own restitution; a drop onto the housing tests 0.55 × 0.1.
+**Colliders (owner, 25 October 2026, "visible = solid"):** every part a player sees as solid collides with its true shape. Since [`engine-hollow-shapes`](../../../_bmad-output/planning-artifacts/epics.md#story-engine-hollow-shapes) the sleeve is a true Tube from bore radius 0.65 m to its drawn outer radius 0.70 m over the 0.8 m sleeve, and each 0.78 m collar a true Tube from the bore to 0.78 m over its 0.18 m, reaching the mouths at x ±0.49 ([hollow geometry](../../hollow-geometry-design.md)); the sleeve's 16-box approximation is deleted, and a ball dropped on a collar stops at the drawn 0.78 m (`VisibleSolidColliderTests`). The PowerIn socket (sphere r 0.09 at (0, 1.65, 0.92)) and the indicator (sphere r 0.07 at (0.42, 1.65, 0.55)) collide as drawn (coordinator decision, 25 October 2026). Material: the frame now declares this doc's restitution 0.1, as the blade already did (it declared 1). Pair restitution is the product, as it was in the legacy engine, so 1 made a ball leave the frame at its own restitution; a drop onto the housing tests 0.55 × 0.1.
 
-Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision). The blade law is shared with [CAT-007 beam shutter](CAT-007-beam_shutter.md) through one legacy controller, `engine/SlidingBlade.cs`. The two parts differ only in geometry, material, mouths and integrations.
+Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision). The blade law is the generic sprung prismatic slider with a supplied drive, which the planned [CAT-007 beam shutter](CAT-007-beam_shutter.md) declares too. The two parts differ only in geometry, mouths and integrations.
 
 ## 1. Identity
 
@@ -15,100 +15,57 @@ Story 7.0 CAT-051-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Requirement anchor | [CAT-051](../requirements.md#current-cat-051); retained behaviour [todo-244](../requirements.md#todo-244); consumers [CAT-051-I](../invest/current-consumers.md#cat-051-i) |
 | Mapped identities | None found in [named-elements](../invest/named-elements.md). EL-184 mechanical ball gate (linkage-driven) and EL-163 powered ball diverter are separate elements. |
 | Roadmap story | 8.2 Powered Gate Passageway Barrier ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 8) Current [CAT-051 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Status (22 November 2026) | **Delivered.** Package id `powered_gate`, directory `elements/PoweredGate`, palette category Motion, order 20 (`elements/PoweredGate/PoweredGateElementDeclaration.cs:24`–`:29`). Slice records: [8.2 Powered gate](../../../_bmad-output/implementation-artifacts/spec-8-2-powered-gate.md) (first commit `8f682f84`, 18 October 2026); the declared drive and Blocked state by [C-Gate](../../../_bmad-output/implementation-artifacts/spec-c-gate.md); true Tube sleeve and collars by `engine-hollow-shapes`. Residuals (section 8): a declared spring rest coordinate so the blade closes in every orientation (owner decision, 22 November 2026), beam occlusion, supply drain, one clearing-and-retry test. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-JOINT-KINDS` (spring rest position), `ENGINE-OPTICAL` (occlusion and the sleeve's Transmit response), `ENGINE-SUPPLY-DEMAND` (drain) and `ENGINE-ISLANDS-SLEEP` (power-bound trials and the resting blade). Browser qualification pending. Checked on `8d1d68aa`; published main is now `25df3cd5`, and its two extra commits touch none of this package's files. |
 
 ## 2. Declaration
 
-### Bodies and shapes
-All positions are part-local metres; `AddBox` takes full size and stores half extents (`reference/cpu/MachinePart.cs@a6c914e:L352-L356`).
-- **Fixed frame (static body)** (`parts/PoweredGatePart.cs@a6c914e:L32-L46`):
-  - central translucent sleeve: tube proxy with half-length 0.4, inner radius = bore, outer radius 0.70, not opaque;
-  - two cream collars at x = ±0.4: half-length 0.09, inner = bore, outer 0.78, opaque;
-  - navy actuator housing box at (0, 1.65, 0), full size 0.8 × 0.65 × 1.8;
-  - two cream rails at z = ±0.82, centre y 0.65, full size 0.24 × 1.7 × 0.12.
-  Current frame colliders (`elements/PoweredGate/powered_gate.tscn`): the sleeve Tube, 0.8 long, from the 0.65 m bore to 0.70 m; the two collar Tubes, 0.18 long at x ±0.4, from the bore to 0.78 m; the housing and the two rails as above; the PowerIn socket sphere r 0.09 at (0, 1.65, 0.92); and the indicator sphere r 0.07 at (0.42, 1.65, 0.55).
-  The tube proxy field order is pose, half-length, inner, outer, opaque (`engine/TubeProxy.cs@a6c914e:L6`). The sleeve and collar radii equal the current pipe profile: bore 0.65, middle 0.70, end 0.78, collar 0.09 (`engine/gpu/WorkshopPipe.cs@a6c914e:L9-L19`). The gate's legacy bore reference `PipePart.BoreRadius` no longer exists at `a6c914e` (Open question 2). The hollow colliders need the annular profile from Stories 6.6 and 6.7 (`engine/gpu/AnnularProfile.cs`).
-- **Blade (dynamic body).** Box half extents (0.06, 0.72, 0.72), body-local at the origin when closed (`parts/PoweredGatePart.cs@a6c914e:L22`, `parts/PoweredGatePart.cs@a6c914e:L46`). Its full height of 1.44 m exceeds the 1.3 m bore diameter, so a closed blade covers the bore. A box collider and `RigidMassProperties.Compile` cover it now (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51`).
+### Delivered declaration (22 November 2026)
 
-### Mass and material
-- Blade mass 1 kg, homogeneous box inertia m(b² + c²)/3 per axis (`engine/SlidingBlade.cs@a6c914e:L14`, `engine/SlidingBlade.cs@a6c914e:L23-L26`). The current box formula matches (`engine/gpu/RigidMassProperties.cs@a6c914e:L39-L48`).
-- Material: restitution 0.1, bounce threshold 0.1 m/s, friction 0.3 (`parts/PoweredGatePart.cs@a6c914e:L23`; field order `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`). Use `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`) with rolling resistance 0, the current value for non-sphere bodies (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L721-L726`).
+Read from `elements/PoweredGate/PoweredGateElementDeclaration.cs` and `powered_gate.tscn`.
 
-### Constraints and joints
-- One prismatic (slider) guide from blade to frame. Both frames sit at the origin with rotation vector (−π/2, 0, 0), so opening travels along part-local +Y. Travel range [0, 1.55 m], both directions, connected-body collision disabled (`engine/SlidingBlade.cs@a6c914e:L28-L34`; stroke `parts/PoweredGatePart.cs@a6c914e:L15`; +Y confirmed by `CuriousContraptions.tests/SceneBodyDynamicsTests.cs@a6c914e:L311`). Story 6.4 adds the slider.
-- A return spring of stiffness 14 N/m at rest 0, with damping 4 N·s/m in both directions, acts on the guide whether or not the gate is powered (`engine/SlidingBlade.cs@a6c914e:L17-L18`, `engine/SlidingBlade.cs@a6c914e:L41-L42`).
+- **Interfaces.** `ISliderElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:15`), `ISupplyElement` (`CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs:11`), `ISceneGeometryElement` (`:14`). Footprint: 2 bodies, 1 moving, 1 prismatic (`:34`).
+- **Frame colliders (scene, static).** Sleeve Tube 0.8 m long, bore radius 0.65 m to outer radius 0.70 m; two collar Tubes 0.18 m long at x ±0.4, bore to 0.78 m; housing box 0.8 × 0.65 × 1.8 m at (0, 1.65, 0); two rail boxes 0.24 × 1.7 × 0.12 m at (0, 0.65, ±0.82); `PowerIn` socket sphere r 0.09 m at (0, 1.65, 0.92); indicator sphere r 0.07 m at (0.42, 1.65, 0.55).
+- **Blade (dynamic).** Box half extents (0.06, 0.72, 0.72) m; 1 kg; moments (0.3456, 0.1740, 0.1740) kg·m² (`:80`–`:83`).
+- **Material, both bodies.** Restitution 0.1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:45`–`:49`).
+- **Slider (`:76`–`:86`).** Along +Y, travel 0 to 1.55 m; return spring 14 N/m with damping 4 N·s/m; blade and frame do not collide. Supplied drive: target 1.55 m, at most 2.8 m/s on a 14 m/s² stopping profile, 60 N and 120 W.
+- **Parameters, stores, events.** None (`:32`, `:52`).
+- **Ports.** `PowerIn`: `PortRole.PowerIn`, Electrical, Input, at (0, 1.65, 0.92), normal +Z; its supply consumer's target is the slider drive (`:36`–`:39`, `:88`–`:90`). Two tube mouths, Start at (−0.49, 0, 0) facing −X and End at (0.49, 0, 0) facing +X, bore radius 0.65 m, are scene locators (`Loc_Port_mouth_start`, `Loc_Port_mouth_end`), not connection ports.
+- **Electrical node.** `("motor", Consumer, 12 V, 24 Ω, 0 F, 20 W)` (`:92`–`:95`): validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by `ENGINE-SUPPLY-DEMAND` or removed forward-only. Supply is on/off. The 20 W figure against the drive's 120 W bound has no behavioural effect.
+- **Presentation (`:16`–`:21`).** Pick radius 1.5 m; `Visual/Blade` follows body 1; the indicator takes one colour per `CommittedActuatorState`: slate `#556573` unpowered, gold `#f7cb52` powered, ochre `#e8b764` blocked.
 
-### Typed sockets and ports
-- One electrical input, PowerIn, at (0, 1.65, 0.92) (`parts/PoweredGatePart.cs@a6c914e:L24-L25`). It exists in the current enum (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`) but no gate port table exists yet.
-- The activation domain is rejected: a Delay cannot connect to the gate, while a Battery connects electrically (`CuriousContraptions.tests/PoweredGateTests.cs@a6c914e:L118-L128`).
-- Tube mouths Start at (−0.49, 0, 0) facing −X and End at (0.49, 0, 0) facing +X, each with the common bore (`parts/PoweredGatePart.cs@a6c914e:L26-L30`; record `engine/TubeMouth.cs@a6c914e:L9`). They snap to pipe mouths (`parts/catalog/powered_gate.tres@a6c914e:L11`).
-
-### Sensors and activation
-- None. The gate emits no activation output. When powered it records a `Powered` event (`parts/PoweredGatePart.cs@a6c914e:L62`), which is presentation only.
-
-### Work and energy stores
-- No store. Powered drive: target speed = sign(d)·min(2.8, √(2·14·|d|)), where d = 1.55 − opening. Effort is ≤ 60 N, power ≤ 120 W and work ≤ 120 W × step (`engine/SlidingBlade.cs@a6c914e:L15-L20`, `engine/SlidingBlade.cs@a6c914e:L43-L46`). The return spring stores elastic energy ½·14·x².
-- *Declared (C-Gate, 22 Oct 2026):* the package's slider declares this drive as a `PrismaticDriveDescriptor` (target 1.55 m, maximum speed 2.8 m/s, stopping acceleration 14 m/s², effort 60 N, power 120 W), enabled by its PowerIn supply route. The one generic engine law holds against the slider's own spring and the blade's weight along the axis, clamps the force to the effort, then to |F·v| ≤ the power. The unloaded gate peaks at 107.5 W (measured), so the newly enforced cap leaves its trajectory bit-identical.
-
-### Parameters
-None. The catalogue declares no `Parameters` (`parts/catalog/powered_gate.tres@a6c914e:L6-L13`), and the requirement row says "declared geometry, typed ports and any source-owned settings; no parameter absence inferred". The fixed declaration constants are:
-
-| Constant | Type | Value | Unit | Source |
-| --- | --- | --- | --- | --- |
-| stroke | f32 | 1.55 | m | `parts/PoweredGatePart.cs@a6c914e:L15` |
-| blade mass | f32 | 1 | kg | `engine/SlidingBlade.cs@a6c914e:L14` |
-| maximum speed | f32 | 2.8 | m/s | `engine/SlidingBlade.cs@a6c914e:L15` |
-| acceleration (stopping profile) | f32 | 14 | m/s² | `engine/SlidingBlade.cs@a6c914e:L16` |
-| return stiffness | f32 | 14 | N/m | `engine/SlidingBlade.cs@a6c914e:L17` |
-| damping | f32 | 4 | N·s/m | `engine/SlidingBlade.cs@a6c914e:L18` |
-| drive effort | f32 | 60 | N | `engine/SlidingBlade.cs@a6c914e:L19` |
-| drive power | f32 | 120 | W | `engine/SlidingBlade.cs@a6c914e:L20` |
-
-### Cosmetic curves and UI bindings
-- Indicator: Blocked `#e8b764`, powered `#f7cb52`, otherwise `#556573` (`parts/PoweredGatePart.cs@a6c914e:L57-L63`). DESIGN calls these slate, gold and ochre ([DESIGN.md](../../../DESIGN.md), "Powered gate" row).
-- State enum `GateState { Closed, Opening, Open, Closing, Blocked }`, classified from the committed coordinate and speed (`engine/SlidingBlade.cs@a6c914e:L7`, `engine/SlidingBlade.cs@a6c914e:L49-L53`). The blade mesh is a rigid map of the blade body (`parts/PoweredGatePart.cs@a6c914e:L11-L13`). Use a cosmetic binding (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L20`); no gate-state feedback source exists yet.
+The declaration's own summary comment (`:10`–`:13`) still describes the deleted 16-box sleeve ring and says the collars are not yet solid. The scene and the tests are as stated here; the comment is stale and is corrected by the next slice that edits the package.
 
 ### Art
-- Scene `parts/scenes/powered_gate.tscn` holds only the script (`parts/scenes/powered_gate.tscn@a6c914e:L1-L6`). Build meshes (`parts/PoweredGatePart.cs@a6c914e:L32-L51`):
-  - sleeve colour (0.40, 0.72, 0.79, alpha 0.16), cream collars `#fff8e9`, navy housing `#293954`, cream rails;
-  - gold blade `#f7cb52`;
-  - socket sphere radius 0.09, `#e8b764`, at (0, 1.65, 0.92);
-  - indicator radius 0.07 at (0.42, 1.65, 0.55);
-  - pick radius 1.5 m.
-- Design authority: [DESIGN.md](../../../DESIGN.md) "Powered gate" row: blade retracts along local +Y; one original icon; standard move/rotate gizmo; mouth snapping.
-- Toolbox pictogram: `ui/WorkshopIcons.cs@a6c914e:L88`.
+- Sleeve (0.40, 0.72, 0.79, alpha 0.16), cream collars and rails `#fff8e9`, navy housing `#293954`, gold blade `#f7cb52`, socket `#e8b764`. Design authority: [DESIGN.md](../../../DESIGN.md) "Powered gate" row. Icon `elements/PoweredGate/icon.svg`.
+- **Art and solidity as shipped (table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:78`–`:81`).** Solid with a matching collider: `Visual_Housing`, `Visual_Rail_Start`, `Visual_Rail_End`, `Visual_Socket`, `Visual_Indicator` on the frame and `Blade/Visual_Blade` on the blade body. Hollow with a matching Tube collider: `Visual_Sleeve`, `Visual_Collar_Start`, `Visual_Collar_End`. Decorative: none. No visible-solid defect: neither `spec-engine-art-solidity.md` nor any `spec-elements-visible-solid-remainder*.md` contract lists a Powered gate node to repair. At a glance it differs from a Pipe by the navy actuator box and gold blade standing above the sleeve.
 
 ### Catalogue and inventory entry
-- Id `powered_gate`, title "Powered gate", category Motion, colour (0.97, 0.796, 0.322), description "Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes." (`parts/catalog/powered_gate.tres@a6c914e:L8-L13`). No level in `content/puzzles.json` at `a6c914e` places or stocks it.
+- Id `powered_gate`, title "Powered gate", category Motion, order 20, colour (0.97, 0.796, 0.322), description "Electricity retracts the gold shutter. Without power it returns closed, stopping if a ball blocks its path. Its mouths snap to tubes." (`elements/PoweredGate/PoweredGateElementDeclaration.cs:24`–`:29`). "Without power it returns closed" is false today for a mount past horizontal (section 6, question 1) and becomes true with the declared spring rest coordinate. No level in `content/puzzles.json` places or stocks it.
 
 ## 3. Engine capabilities
 
 Capability families: see the [CAT-051 map row](../general-engine-element-map.md) and [catalogue coverage](../../coverage/catalogue-elements.json). They are not duplicated here.
 
-*Current (C-Gate, 22 Oct 2026):* the slider, its spring and damping, the electrical supply route and the bounded drive all exist as generic declared capabilities: `PrismaticSliderDescriptor` with its `PrismaticDriveDescriptor`, compiled to a prismatic row and a separate `PrismaticDriveDeclaration` row, and executed by `PrismaticConstraintSolver.ApplySuppliedDrives`. No solver, compiler or warm-up code names the gate. The committed prismatic record carries a moving-contact lane, which `ActuatorDriveRead.Blocked` reads. The lists below are the 7.0 readiness record.
+The slider, its spring and damping, the electrical supply route and the bounded drive are generic declared capabilities: `PrismaticSliderDescriptor` with its `PrismaticDriveDescriptor`, compiled to a prismatic row and a separate `PrismaticDriveDeclaration` row, and executed by `PrismaticMotorSolver.BeginSubstep`, `Solve`, `Observe` and `MeasureWork` (`CuriousContraptions.Simulation/PrismaticMotorSolver.cs:24`, `:70`, `:99`, `:117`). No solver, compiler or warm-up code names the gate. The committed prismatic record carries a moving-contact lane, which `ActuatorObservations.IsBlocked` reads (`engine/gpu/PhysicsPresentationRead.cs:15`).
 
-**Exists now**
-- Dynamic box blade and static box frame parts: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`, `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51`.
-- Box contact in the TGS Soft solver, in the simulation worker:
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236` soft parameters;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L503` box-box;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623` prepareContact;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774` normal row;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878` sweep.
-- Pipe profile constants: `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L20` (parked CAT-048 work).
-- Electrical domain and PowerIn socket: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
+**Capability probe (22 November 2026, this checkout).** Tests are in `CuriousContraptions.tests/`; they were found by name and line, and none was run.
 
-**Missing**
-- Slider joint with limits; spring and damping along the slider: Story 6.4.
-- Hollow annular sleeve and collar colliders; mouth snapping: Stories 6.6 and 6.7 (CAT-048).
-- Electrical supply and powered state: Story 8.1.
-- Bounded slider drive with a stopping-speed profile: Story 11.3 builds it for the pusher; Story 8.2 reuses it for the gate.
-- Gate port table, part kind and indicator binding: Story 8.2.
+| # | Capability the behaviour uses | Status | Symbol | Exercising test |
+| --- | --- | --- | --- | --- |
+| 1 | Prismatic slider with limits, spring and damping | present | `PrismaticSliderDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:104`), `PrismaticConstraintSolver` (`CuriousContraptions.Simulation/PrismaticConstraintSolver.cs:65`) | `PoweredGateTests.PhysicsCompiler_CompilesGateWithDynamicBladeAndPrismaticJoint` (`PoweredGateTests.cs:151`); `LatchSupplyFixtureTests.ResetWhenOpenClearsDownstreamAndSpringCloses` (`:173`) |
+| 2 | Supplied prismatic drive bounded in speed, effort and power | present, with an engine cost gap | `PrismaticDriveDescriptor` (`MechanicalContractValues.cs:89`); the power bound is enforced by a whole-world snapshot and up to eleven re-solves of the substep (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Motors.cs:35`–`:66`) | `DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep` (`:92`), `ASuppliedBoxWithTheGatesBladeAndLimitsButNoDeclaredDriveNeverActuates` (`:244`) |
+| 3 | On/off supply from `PowerIn`; Electrical only | present | `SupplyDriveTarget` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:52`) | `PoweredGateTests.Connections_AcceptsElectricalAndRejectsActivation` (`:131`), `DeclaredDirectGraphFollowsOnlyItsSource` (`:209`) |
+| 4 | True hollow Tube colliders for the sleeve and collars | present | `ColliderShapeKind.Tube` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `PoweredGateTests.PoweredGateScene_ExtractsItsSleeveCollarsFrameSocketsAndThreePortLocators` (`:56`); `VisibleSolidColliderTests.ABallDroppedOntoEachSolidFeatureStopsAtItsDrawnSurfaceAndReboundsAtTheProductRestitution` (`:550`, features `GateHousing` `:468` and `GateCollar` `:510`) |
+| 5 | Tube mouths that snap to pipe mouths | present | `TubeMouthDescriptor` (`CuriousContraptions.Abstractions/SceneGeometry.cs:39`) | `TubeMouthSnapTests.APoweredGateSnapsOntoAPipeMouth` (`:203`) |
+| 6 | Blocked state from the committed moving-contact lane; indicator from committed actuator state | present | `PresentationDriver.CommittedActuatorState` (`CuriousContraptions.Abstractions/ElementPresentation.cs:24`) | `DeclaredPrismaticDriveTests.BlockedNeedsContactInteriorAndRestTogether` (`:387`); `LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed` (`:289`); `DeclaredPresentationTests` (`DeclaredPresentationTests.cs:120`, `:184`) for the indicator colour per state |
+| 7 | Reset; save and load | present | n/a (generic lifecycle) | `LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery` (`:330`), `SaveLoadPreservesFiveSocketsAndReplaysIdentically` (`:351`) |
+| 8 | A beam occluded by the committed blade, rails and housing, and passed by the clear sleeve | **missing** | no beam contract exists in the engine | `ENGINE-OPTICAL`, under the optical conventions of [EL-176](EL-176-red-laser-emitter.md) section 10: every collider absorbs by default, so the sleeve Tube declares Transmit (1, 1, 1) as a criterion of `ENGINE-OPTICAL` (item 6). The acceptance row runs in the first optical element slice that places a gate (CAT-036 Laser or CAT-007 Beam shutter) |
+| 9 | Drive work debiting the source (drain) | **missing** | supply is binary | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`; owner decision 3a, 22 November 2026) |
+| 10 | A slider spring with a declared rest coordinate, so the closed blade is preloaded | **missing** | a spring's rest is its coordinate zero, and preload through the limits is refused (`CuriousContraptions.Bundle/MechanicalValueDomain.cs:81`) | `ENGINE-JOINT-KINDS`, spring rest position (owner decision 6; coordinator decision 21, 22 November 2026) |
 
-**Element dependencies**
-- CAT-005 Battery.
-- CAT-048 Pipe for mouths and routes.
-- Integration partners: CAT-033 Hold timer, CAT-020 Counter, CAT-052 Pressure plate, CAT-016 Cannon (muzzle obstruction) and CAT-071 Wound spring (plunger block). See facts 22–25.
+Counts: 7 present, 0 untested, 0 narrower, 3 missing. Row 2 is present for behaviour; its enforcement cost is owned by `ENGINE-ISLANDS-SLEEP`, whose contract confines drive-budget trials to the island they affect.
+
+**Element dependencies.** Battery; Pipe for mouths and routes; supply partners Hold timer, Counter and Pressure plate; obstruction partners Cannon (muzzle) and Wound spring (plunger). All delivered, but the campaign teaches the Counter, Pressure plate, Cannon and Wound spring after the gate (taught at 24 with the Hold timer), so the gate rows that use them (facts 22 to 25) are cross-part rows owned by those parts' slices (coordinator decisions 36 and 41).
 
 ## 4. Legacy harvest
 
@@ -178,16 +135,78 @@ This outline points to [CAT-051](../requirements.md#current-cat-051), [todo-244]
 - **Negative/control.** Unpowered, the ball stays upstream (fact 13). A Delay link is rejected (fact 12).
 - **Boundaries.** Loaded or blocked closing stops at the ball without crushing it (fact 14); supply interruption mid-stroke; clearing and retry; rotated passage (fact 13); horizontal mounting (fact 11).
 - **Run/Reset.** Reset closes the blade exactly and keeps connections (fact 12).
-- **Save/Load.** A round trip preserves pose, mouths and connection; the replay is identical.
+- **Save/Load.** A round trip preserves pose, mouths and connection; a reloaded construction behaves the same in the tested cases.
 - **Integrations.** Hold timer, counter and pressure plate supplies; cannon muzzle and wound-spring plunger obstruction (facts 22–25), each after its partner element's story.
-  - *Status (Story 9.4c, 22 Oct 2026):* `CuriousContraptions.tests/LatchSupplyFixtureTests.cs` ([spec](../../../_bmad-output/implementation-artifacts/spec-9-4c-latch-fixture-deferred-integrations.md)) proves natively the supply interruption mid-stroke (latch Reset), the spring-damper return (facts 15, 19) and the fact-14 behaviour: the closing blade stops on a ball partly through the opening, the ball is not ejected and penetration stays within the game envelope. The "State Blocked" part of fact 14 was not proven there: a blade at rest on the ball keeps a −1.083e-5 m/s velocity residual, so the old `ActuatorDriveRead.Blocked` (1e-5 m/s) read false.
-  - *Status (C-Gate, 22 Oct 2026):* "State Blocked" is proven natively. With [open question 3](#6-open-questions) decided, the blade resting on the ball reads Blocked on every tick after rest, and the indicator shows the ochre cue through the wire. Free powered travel, the spring return, the mid-stroke cut, both stops, a ball pressing on the closed blade's face, and an inverted or tilted mount resting in its interior with nothing in the way all read not Blocked (`LatchSupplyFixtureTests`, `DeclaredPrismaticDriveTests`, `DeclaredPresentationTests`). Browser case `cat-051-interrupt` is pending post-catalogue E2E.
+- **Status of the Blocked state.** Proven natively: the closing blade stops on a ball partly through the opening without ejecting it, reads Blocked on every tick after rest and shows the ochre cue; free travel, the spring return, a mid-stroke cut, both stops and a ball pressing on the closed blade's face read not Blocked (`LatchSupplyFixtureTests`, `DeclaredPrismaticDriveTests`, `DeclaredPresentationTests`). Browser case `cat-051-interrupt` is pending post-catalogue E2E.
+
+**Native tests that exist (22 November 2026), in `CuriousContraptions.tests/`.** Each criterion of [CAT-051](../requirements.md#current-cat-051) against its test:
+
+| Criterion | Test (file line) |
+| --- | --- |
+| Electrical-only supply retracts the blade within its bounds; no activation input | `DeclaredPrismaticDriveTests.ThePoweredGateOpensToItsTargetWithinItsDeclaredSpeedEffortAndPowerOnEverySubstep` (92); `PoweredGateTests.Connections_AcceptsElectricalAndRejectsActivation` (131) |
+| Unpowered | `LatchSupplyFixtureTests.AuthoredDisabledBatteryNeverOpensAfterSet` (236), `BallUpstreamAtCutStaysUpstream` (273) |
+| Loaded or blocked closing; no teleport through an obstruction | `LatchSupplyFixtureTests.BallPartlyThroughStopsClosingBladeUncrushed` (289); `DeclaredPrismaticDriveTests.BlockedNeedsContactInteriorAndRestTogether` (387) |
+| Supply interruption | `LatchSupplyFixtureTests.MidStrokeResetStopsDriveAndReturnsClosed` (188), `SupplyOffOnKeepsMemoryAndRepowersWithoutNewSet` (250) |
+| Rotated passage | `DeclaredPrismaticDriveTests.ABallRestingAgainstTheClosedTiltedBladePassesDownstreamWhenEnabledDuringRun` (403). `AnUnpoweredInvertedOrTiltedMountRestingInItsInteriorWithNothingInTheWayIsNotBlocked` (`:335`–`:351`) pins today's 0.70 m hang and is replaced in the rest-coordinate slice |
+| Matching tube mouths | `TubeMouthSnapTests.APoweredGateSnapsOntoAPipeMouth` (203) |
+| Rails, housing and blade collide as drawn | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (186) |
+| Reset, save and load | `LatchSupplyFixtureTests.RunResetRestoresLatchOffBladeClosedAuthoredBattery` (330), `SaveLoadPreservesFiveSocketsAndReplaysIdentically` (351) |
+| Supplied by a Counter and by a Pressure plate | `CatalogueIntegrationTests.AClockCountsTwoPulsesThenTheSuppliedCounterOpensItsGate` (69), `AWeightLoadsItsPlateAndOnlyTheWiredSupplyOpensTheGate` (139) |
+
+**Not yet covered (residual acceptance, owned in section 8).**
+- *Closes in every orientation (owner decision, 22 November 2026).* Given an unpowered gate mounted upright, on its side (rolled 90°, travel horizontal) and inverted (rolled 180°), when Run for 6 s, then the blade rests at its closed stop (opening below 5 mm) in all three; and given each mount supplied, then the blade reaches the open stop (within 2 cm of 1.55 m) inside a 4 s stall guard; control: the inverted mount with the rest coordinate left at zero hangs open (the delivered behaviour); boundary: a 135° mount. Planned `DeclaredPrismaticDriveTests.AnUnpoweredBladeClosesUprightOnItsSideAndInverted` (theory) and `ASuppliedBladeOpensFullyInEveryOrientation`, replacing the test at `:335`–`:351`.
+- *Clearing and retry.* Given a blade resting Blocked on a ball partly through the opening, when supply returns, the blade lifts and the ball rolls clear, and supply is cut again, then the blade reaches its closed stop (opening below 5 mm, far smaller than any ball that could pass) within a 5 s stall guard and reads not Blocked; control: with supply never restored the blade stays Blocked on the ball for the same 5 s. Planned `LatchSupplyFixtureTests.ABlockedBladeClosesFullyOnceTheBallHasCleared`.
+- *Beam occlusion.* Given a beam aimed through the bore, when the blade is closed, then the receiver reads none of the beam's channels, and with the blade fully open it reads them; control: a beam aimed beside the frame is unaffected by the blade, and with the blade open a ball resting in the bore blocks the beam while the clear sleeve alone does not; boundary: a blade stopped part-way blocks when its edge crosses the beam axis. Tolerances are the optical set (coordinator decision 21, 22 November 2026): ±2 % power, a 1 s guard, 0.5° direction and ±0.02 m end points. Planned in the first optical slice that places a gate, after `ENGINE-OPTICAL`.
+- *Hold timer supply.* `HoldTimerTests.cs` references the gate; the test name was not confirmed in this pass.
 
 ## 6. Open questions
 
-1. Is the return spring (14 N/m) the declared fail-closed law, or should closing be an explicit actuator? The requirement says "acceleration-limited physical gold blade" but names no spring. **Decided by the owner, 18 Oct 2026 (epics scheduling item h):** the return spring is the fail-closed law. *Recorded (C-Gate):* an unpowered inverted mount therefore rests open at its spring-gravity equilibrium, 9.81/14 ≈ 0.70 m (0.50 m at 135°), and reads not Blocked.
-2. The legacy gate cites `PipePart.BoreRadius`, which no longer exists at `a6c914e`. Confirm that the gate bore is `PipeDimensions.BoreRadius` (0.65 m). Unspecified — owner decision.
-3. Which f32 thresholds replace the 1e-5 m endpoint tolerance and the 1e-5 m/s Blocked speed? **Decided under owner delegation (coordinator, 22 Oct 2026; owner-overridable):** Blocked means something is in the way. It requires the blade to have taken a positive normal contact impulse from a body other than its frame during the tick (the committed moving-contact lane), an interior coordinate more than the envelope's 0.5 mm resting contact slop from both stops, and an axial speed below the envelope's 0.01 m/s at-rest speed.
-4. Blocked classification ignores power: a powered blade jammed while opening reads Blocked. Should there be distinct blocked-opening and blocked-closing states? **Decided under owner delegation (coordinator, 22 Oct 2026):** no. No requirement asks for them, so Blocked stays a single state.
-5. Does the supply draw finite energy from the Battery (CAT-005) or stay a binary enable, as legacy did? Unspecified — owner decision. *Coordinator decision (22 Oct 2026, under owner delegation; recorded by Story 9A.39):* deferred to Story 11.1 (Motor), the first declared power demand, which owns EL-196's per-load demand law and settles whether the gate's drive draws source energy. Until then the gate's drive debits no source energy; Story 9A.39 preserved that zero debit exactly (its native traces are bit-identical to the record path).
-6. **Epic story vs requirement conflict.** Story 8.2 opens the gate on "an activation pulse", but CAT-051 is electrical-only and rejects activation links ([CAT-051](../requirements.md#current-cat-051); fact 12). Is the story corrected to electrical supply, or is an activation-to-supply relay intended? Unspecified — owner decision.
+**All six are resolved; none needs the owner.**
+
+| # | Resolution | Authority |
+| --- | --- | --- |
+| 1 | The return spring is the fail-closed law (owner, 18 October 2026), and it closes the blade in every mounting orientation with no orientation limit (owner decision, 22 November 2026). The spring declares a rest coordinate below the closed stop, so the closed blade is preloaded: a rest coordinate outside travel, which `SliderTravel` admits, with the starting offset a separate value (`ENGINE-JOINT-KINDS`). Worked value: rest 0.85 m below closed at 14 N/m gives 14 × 0.85 = 11.9 N of closing preload, above the blade's 9.81 N weight, so an inverted blade stays closed with 2.1 N to spare. Fully open and upright the drive must hold 14 × (1.55 + 0.85) + 9.81 = 33.6 + 9.81 = 43.4 N, inside its 60 N; on its side 33.6 N; inverted 33.6 − 9.81 = 23.8 N. Today the rest is the coordinate zero, so an inverted unpowered blade hangs open by 9.81 ÷ 14 = 0.70 m (0.50 m at 135°), which the delivered test at `DeclaredPrismaticDriveTests.cs:335`–`:351` pins | Owner decisions of 18 October and 22 November 2026; required change in section 8 |
+| 3 | Blocked means something is in the way: a positive normal contact impulse from a body other than the frame during the tick, an interior coordinate more than the envelope's 0.5 mm resting contact slop from both stops, and an axial speed below the envelope's 0.01 m/s at-rest speed | Coordinator under the standing delegation, 22 October 2026 |
+| 4 | Blocked stays a single state; no requirement asks for blocked-opening and blocked-closing | Coordinator under the standing delegation, 22 October 2026 |
+| 2 | The gate's bore is the pipe bore, 0.65 m: its sleeve and collar Tubes and both mouths use it, and a pipe snaps onto either mouth | Delivered; `TubeMouthSnapTests.APoweredGateSnapsOntoAPipeMouth` |
+| 5 | Supply is on/off now. Drain is one demand law for every powered part, the engine story `ENGINE-SUPPLY-DEMAND` (owner decision 3a, 22 November 2026) | Owner, 3 November 2026 ([deferred work](../../../_bmad-output/implementation-artifacts/deferred-work.md)) |
+| 6 | The requirement row governs: the gate is electrical only. An activation pulse opens it only through a supplied part in its route (an Impact switch or State latch closing the supply), which is what the story's lesson needs | D15; `PoweredGateTests.Connections_AcceptsElectricalAndRejectsActivation`, `LatchSupplyFixtureTests.SetClosesRouteOneTickAfterStrikeWithoutTopologyChange` |
+
+The questions were: 1 whether the spring is the fail-closed law; 2 the bore; 3 the Blocked thresholds; 4 one or two Blocked states; 5 supply drain; 6 activation against electrical opening.
+
+## 7. Integration
+
+- **Supply collaborators (all delivered; each `Supply` is an Electrical output into the gate's Electrical `PowerIn`).** Battery, Impact switch, State latch, Hold timer, Counter, Pressure plate and the electrical gates.
+- **Passage collaborators (delivered).** Pipe and both bends at either mouth (bore radius 0.65 m); every ball. A Basketball (radius 0.34 m) and a Bowling ball pass the open bore; the 1.44 m blade covers the bore, 1.3 m across, when closed.
+- **Later partners.** Cannon muzzle and Wound spring plunger obstruction (facts 22 to 25) are owned by those parts' specs; optical parts (Epic 13) for beam occlusion.
+- **Campaign.** No level in `content/puzzles.json` places or stocks the Powered gate. It is taught by a level still to be authored; nothing blocks that authoring.
+- **Coverage binding.** Catalogue key `powered_gate` (CAT-051) in `docs/coverage/catalogue-elements.json`. No named identity maps to it (EL-184 and EL-163 are separate elements).
+- **Lesson fixtures.** Not needed for the part.
+
+## 8. Delivery and residuals
+
+Delivered as recorded in section 1. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes further element work.
+
+| Residual | Owner | Tier | Prerequisite |
+| --- | --- | --- | --- |
+| Beam occlusion by the committed blade and frame; the clear sleeve passes light | First optical element slice that places a gate; the sleeve's Transmit (1, 1, 1) is a criterion of `ENGINE-OPTICAL` ([EL-176](EL-176-red-laser-emitter.md) section 10, item 6) | Data-only if `ENGINE-OPTICAL` publishes occlusion by any collider with a test; otherwise engine | the engine programme, then `ENGINE-OPTICAL` |
+| Declared spring rest coordinate, then the gate declares it (rest 0.85 m below closed), with the three-orientation rows and the corrected inverted-mount test | `ENGINE-JOINT-KINDS` (owner decision 6; coordinator decision 21): "A prismatic slider declares its spring rest coordinate, which may lie outside its travel (a preload); `SliderTravel` admits it; the starting offset stays a separate value. An unpowered spring-closed slider closes upright, on its side and inverted." The Powered gate and the Beam shutter are its consumers. Then a data-only gate package slice | Engine, then data-only | the engine programme, then `ENGINE-JOINT-KINDS` |
+| Supply drain (120 W drive; the unread node fields are consumed or deleted) | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`), which re-qualifies the gate's supply cases | Engine | the engine programme, of which it is a story |
+| Power bound enforced by whole-world snapshot and re-solve; no island sleeping | `ENGINE-ISLANDS-SLEEP`: its contract confines drive-budget trials to the island they affect, so the cost becomes proportional to the gate's island, not removed; and it adds island sleeping, which is not implemented today | Engine | the engine programme, of which it is a story |
+| Clearing-and-retry test | The next slice that touches the package or its fixture; a missing test is a patch | Data-only | the engine programme |
+| Stale summary comment in the declaration (`PoweredGateElementDeclaration.cs:10`–`:13`) | The same slice | Data-only | the engine programme |
+| Browser qualification (`cat-051-interrupt` and the recipe in section 5) | Post-catalogue E2E phase | n/a | n/a |
+
+No named identity is closed by this part. **What a residual slice's capability probe must re-check:** for occlusion, that the optical engine tests a ray against Tube, box and sphere colliders of a moving body at its committed pose; for the rest coordinate, that preload through a declared rest does not need the limit refusal at `MechanicalValueDomain.cs:81` relaxed for any other package, and that the Beam shutter can declare the same field; for drain, that prismatic and revolute drives share one demand law and that an exhausted source lets the spring close the blade (the fail-closed law of question 1).
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** Fixes in the package: the stale class comment and the missing spring rest coordinate (points 1 and 2). No engine code names this element (searched `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions).
+
+1. **Declaration data only.** Two bodies, scene colliders, one sprung slider with a supplied drive, one port, one electrical node, a one-consumer supply graph, three presentation bindings. **Fix:** the class summary comment at `elements/PoweredGate/PoweredGateElementDeclaration.cs:10`–`:13` still describes the deleted box-ring sleeve. The electrical node's numbers are validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by `ENGINE-SUPPLY-DEMAND` or removed forward-only; its 20 W against the 120 W drive has no behavioural effect.
+2. **Generic laws.** Opening: the supplied prismatic drive law with speed, acceleration, effort and power bounds. Closing: the slider's 14 N/m spring and 4 N·s/m damper plus gravity. Blocked closing: contact between the blade and a ball. Passing a ball: contact with tube colliders at bore radius 0.65 m. **Required change (owner decision, 22 November 2026):** the blade must close unpowered in every orientation; today an inverted blade hangs 0.70 m open. The repair is general data, a declared spring rest coordinate (`ENGINE-JOINT-KINDS`, spring rest position), not gate logic.
+3. **Three layers.** Colliders: three tubes, three boxes and two spheres on the static frame; the blade box on its body. The sleeve Tube declares the optical response Transmit (1, 1, 1) under `ENGINE-OPTICAL`; every other collider takes the default Absorb ([EL-176](EL-176-red-laser-emitter.md) section 10, item 6). Visuals: the matching meshes. Animation: indicator albedo from `CommittedActuatorState`. The blade art follows its body.
+4. **One-way flow and typing.** Physics → committed actuator state → presentation. Typed `PortId`, `CoordinateKind`, `SupplyTerminal`; f32 values.
+5. **Flat-state counts** (from `powered_gate.tscn` and the declaration). 2 bodies (1 dynamic); 9 colliders (3 tubes, 4 boxes, 2 spheres); 1 prismatic joint; 1 drive; 0 sensors, stores, events; 1 electrical node; 1 supply consumer; 1 anchor point; 1 port; 0 parameters; 3 presentation bindings and 1 body-pose binding.
+6. **Performance fitness.** Nine colliders, the most among the slider parts, because the sleeve and collars are true tubes (the hollow-shapes slice replaced a sixteen-box ring with them). Static frame. Two engine gaps, both owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026). First, for this and every bounded prismatic drive, the power bound is enforced by a whole-world snapshot and up to eleven re-solves of the substep (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Motors.cs:35`–`:66`), scene-proportional work; that story confines drive-budget trials to the island they affect, so the cost becomes island-proportional. The revolute drive clamps in its own row. Second, island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP`.
+7. **Scenario tests.** `PoweredGateTests`, `DeclaredPrismaticDriveTests` and `CatalogueIntegrationTests` run the production simulation; the generic drive test also uses a synthetic declaration.

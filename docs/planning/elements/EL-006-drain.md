@@ -1,74 +1,118 @@
 # EL-006 · Drain — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-006 delivery slice](../invest/named-elements.md#element-006). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-006 delivery slice](../invest/named-elements.md#element-006). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md) and are cited by number. Box sizes are full extents in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-006 · Drain · Water |
-| Requirement anchor | [element-006](../requirements.md#element-006); source record [todo-334](../requirements.md#todo-334); integration task [sequence-task-384](../requirements.md#sequence-task-384) |
-| Named entry | [element-006](../invest/named-elements.md#element-006); per-element proof owner S427 |
-| CAT spec refined | None. |
-| Related identities | [EL-001](EL-001-finite-reservoir.md), [EL-004](EL-004-catch-basin.md), [EL-007](EL-007-open-gutter.md), pipe kit EL-008–EL-012, EL-031 Volume meter |
-| Roadmap story | [EL-006 delivery slice](../invest/named-elements.md#element-006); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-006 · Drain · Water |
+| Anchors | [element-006](../requirements.md#element-006), co-anchored `sequence-task-559`; source record [todo-334](../requirements.md#todo-334); integration [sequence-task-384](../requirements.md#sequence-task-384); ledger [element-006](../invest/named-elements.md#element-006), owner S427 |
+| Disposition | To deliver as a single element. The only sink node in Batch F |
+| Planned package | id `drain`, directory `elements/Drain/`, title "Drain" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` |
+| Related | [EL-001](EL-001-finite-reservoir.md), [EL-004](EL-004-catch-basin.md), [EL-007](EL-007-open-gutter.md), EL-031 |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: a one-box static part such as the Wall (`elements/Wall/WallElementDeclaration.cs`).
 
-**Element declaration:**
-- **Bodies and shapes.** One static body: a low square grate box 1.0 × 0.08 × 1.0 m lying on the bench, with a recessed intake aperture 0.8 × 0.8 m (**proposed**: flat enough for balls to roll over, wide enough to receive a gutter end or a tipped bucket). Collider: one box for the frame rim; the grate surface is a box top 0.01 m below the rim.
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** `OpenMouth` intake (the 0.8 × 0.8 m grate plane, facing up) and `WaterInlet` standard mouth on one side so a pipe can discharge directly into the sink. Domain `Water` (**proposed**).
-- **Sensors and activation.** Drained-volume total is readable by the goal evaluator and by EL-031 through committed reads (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`).
-- **Work and energy stores.** An accounted sink: unbounded capacity, drained volume D recorded in the ledger term "sinks" ([component research](../../component-research.md#water), line 12). Liquid is never deleted. Intake rate is bounded by the grate's orifice law with Δh = local pooled depth over the grate, area 0.8 × 0.8 m × open-area fraction 0.5 (**proposed**: a grate is half bars); excess pools on the grate and then spills off its edge as conserved floor water.
-- **Parameters.** None authored (**proposed**: a boundary element; position only).
-- **Cosmetic curves and UI bindings.** Swirl ring in the grate ← committed intake rate; a small counter dial ← total drained volume D (**proposed**: makes "accounted" visible).
-- **Art.** Navy grate `#293954` (`DESIGN.md@a6c914e:L147-L147`) in a cream frame `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`), gold counter needle `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`) (**proposed** reuse).
-- **Catalogue and inventory entry.** Id `drain`, title "Drain", category "Water", kind `Drain` (all **proposed**).
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, the liquid sink declaration of `ENGINE-LIQUID` (W4, W9).
+- **Body.** One static body, mass 0. Origin at the box centre.
+- **Collider (one).** Box 1.0 × 0.08 × 1.0. The grate is drawn flush with the top face, so a ball rolls over it.
+- **Material.** Family vessel material (EL-001).
+- **Sink.** Local id 1. Open aperture: rectangle 0.8 × 0.8 at y = +0.05, 0.01 m above the box's top face; the interior (L4) is the 0.01 m slab between them. A stream sample that reaches the box top inside that region ends in the interior and enters the sink in that step; it is added to the world `Drained` account and to this sink's own committed total. A sink has no capacity and no rate limit, and nothing ever leaves it.
+- **Mouths.** None. A pipe drains into it by ending above the grate.
+- **Parameters.** None.
+- **Presentation.** `Visual/Needle` `LocalRotationZ` from this sink's committed drained total, linear from 0 to 1.0 m³ over 270°, clamped (W12, missing).
+- **Palette.** `ElementCategory.Structure`; palette order 519 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour navy (41/255, 57/255, 84/255).
 
-**Variants.** The requirements row lists no variants.
+### Art and solidity
+
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Frame` | Box 1.0 × 0.08 × 1.0, cream `#fff8e9` | solid; the box collider | body pose (static) |
+| `Visual/Grate` | Navy `#293954` bars, 0.8 × 0.8, on the top face | decorative: printed flat | nothing |
+| `Visual/Dial` | Cream dial with navy ticks in one corner of the top face | decorative: printed flat | nothing |
+| `Visual/Needle` | Gold `#f7cb52` needle on the dial, flush | decorative: printed flat and moved by a binding | presentation binding |
+
+Icon: a square grate with a small dial. It differs from the Pressure plate (a raised plate with studs) by its barred grate and dial.
+
+### Behaviour and numbers
+
+- **Accounted, never deleted.** Everything that enters is in `Drained` and stays in the ledger identity (L10).
+- **Only what crosses the intake.** A stream landing on the 0.1 m frame border, on the bench beside it, or blocked by a solid goes to `Spilled`, not `Drained`.
+- **Example.** A full tank through an open tap over the drain: after 12 s the tank has lost 1 − 0.505 = 0.495 m³ ([EL-003](EL-003-tap.md) row T1) and the dial reads 0.495 m³; when the tank is empty the dial reads 1.0 m³, full scale.
+- **Bodies.** A ball is a body, not liquid; it rests on or rolls over the box and is never captured.
+- **Why no rate limit.** The requirement asks for an accounted boundary. A grate that backs up would need a pooled store on top of it and a second overflow, for no lesson.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-006`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body and baked collider | present | frame |
+| W22 authored state | present | pose |
+| W4 fluid port contract | present, untested | sink declaration |
+| W8 stream capture at an open aperture | missing | `ENGINE-LIQUID` |
+| W9 sink node, `Drained` account, ledger identity | missing | `ENGINE-LIQUID`; its text names spill and overflow but not a sink (gap) |
+| W12 driver for a committed sink total | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static box geometry (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); committed goal reads (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Sink ledger term, packet capture across the grate plane, pooled-depth intake ([S416](../invest/decisions.md#s416) advection → S418; "drain under pressure/head", pressure-work → S419). Required in the linked delivery slice.
-- **Element dependencies.** A liquid source (EL-001 + EL-003, EL-007 end, EL-014 tip).
+Counts: 2 present, 1 untested, 0 narrower, 3 missing; one owner.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, one collider, one sink with an aperture, one binding.
+2. **Generic laws.** Capture is L8; accounting is L10. No rule says "when liquid touches the drain".
+3. **Three layers.** *Collider:* one box. *Visuals:* the table above; all marks are flush. *Animation:* the needle follows the committed total.
+4. **One-way flow and typing.** As EL-001.
+5. **Flat-state counts.** Bodies 1 (static); colliders 1 box; joints 0; drives 0; sensors 0; liquid nodes 1 sink; mouths 0; open apertures 1; bindings 1; parameters 0.
+6. **Performance fitness.** One collider. A sink is one row with one accumulator.
+7. **Tests are scenarios.** Rows D1 to D6.
 
 ## Sources and legacy
 
-- Requirements row: "Only liquid crossing its intake enters the tracked sink." No variants.
-- Component research: "a drain is an accounted sink" (line 30); conservation identity with sinks (line 12); floor handling "visible drains" (line 20). Refinement [S704](../invest/refinements.md#s704) drain: "Drain under pressure/head and empty control." Family boundary [fluids](../invest/profiles.md#fluids).
-- **Legacy search.** Same scope and terms as EL-001 plus "drain" and "sink": hits are unrelated (event-queue and allocation-site wording); no liquid sink exists at a6c914e.
+- Requirement: "An explicit boundary collects and accounts for discharged liquid"; outcome "Only liquid crossing its intake enters the tracked sink." No variants.
+- Component research [water](../../component-research.md#water): "a drain is an accounted sink" (line 30); ledger identity with sinks (line 12). Refinement [S704](../invest/refinements.md#s704): "Drain under pressure/head and empty control."
+- **Legacy search.** EL-001's scope plus "drain" and "sink": only unrelated queue wording; no liquid sink at a6c914e. **Files harvested:** none.
 
 ## Acceptance outline
 
-Point of truth: [element-006](../requirements.md#element-006).
+Authority: [element-006](../requirements.md#element-006). Tolerances L17. Planned class `DrainTests`. The source is a Water tank and an open Tap.
 
-- **Chrome recipe.** Place a Water tank, Tap and gutter whose low end overhangs a Drain placed with the move gizmo; a second lane overhangs the bench 1 m from the drain.
-- **Positive.** Liquid falling on the grate enters the sink; the counter dial rises by what the tank lost, minus transit.
-- **Negative / control.** The offset lane: water lands on the floor tray; the drain total stays 0 (only liquid crossing the intake counts). Empty tank: drain total stays 0.
-- **Boundaries.** A stream heavier than the grate's intake rate pools and spills off the drain edge onto the tray, still conserved. A Basketball rolled over the drain passes over the grate (no capture of bodies).
-- **Run/Reset.** Drain total returns to 0 exactly. **Save/Load.** Pose and joins survive reload.
-- **Integrations.** [sequence-task-384](../requirements.md#sequence-task-384): visible drain loss.
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| D1 | Given the tap stream landing inside the grate, when Run advances 12 s, then `Drained` equals the tank's loss (0.495 m³ within 0.05 m³) and `Spilled` is 0 | `DrainTests.LiquidCrossingTheIntakeIsDrainedAndCounted` | D2 | — |
+| D2 | Given the drain moved 1.0 m aside, then `Drained` is 0 and `Spilled` equals the tank's loss | `DrainTests.OnlyLiquidCrossingTheIntakeIsDrained` | D1 | a stream landing on the 0.1 m frame border is spilled, not drained |
+| D3 | Given an empty tank, then `Drained` stays 0 for 10 s ("empty control") | `DrainTests.AnEmptySupplyDrainsNothing` | D1 | — |
+| D4 | Given a bare tank mouth at 1.0 m depth (0.0835 m³/s) over the grate ("under head"), then the drain takes all of it; `Spilled` stays 0 | `DrainTests.TheDrainTakesAnyRate` | — | — |
+| D5 | Given a Basketball rolled across the drain, then it crosses and is not captured, and `Drained` is unchanged | `DrainTests.ABallRollsOverTheGrate` | — | — |
+| D6 | Given a run, then Reset zeroes `Drained` and the needle; save and load keep the pose | `DrainTests.ResetZeroesTheDrainedTotal` | the total before Reset is positive | needle at full scale for 1.0 m³ and clamped beyond |
+
+Generic cover: W22. Later-partner row: the drain term of sequence-task-384 is `CatchBasinTests.ATankEmptiesThroughATapIntoABasin` (EL-004 row B7), completed in this slice. Chrome recipe (pending): a Water tank (EL-001) and an open Tap (EL-003) whose stream lands inside a Drain's grate (D1); the same tank and tap with the Drain moved 1.0 m aside, so the stream lands on the bench (D2). It uses only parts taught before the Drain (level 61; the Drain is taught at 61a, coordinator decision 37); the Open gutter (EL-007) is taught later, at 61b, and is not used.
 
 ## Open questions
 
-1. Grate open-area fraction 0.5 and the resulting intake limit: is a rate-limited drain wanted, or should any liquid crossing the intake enter immediately?
-2. Does drained water count as permanently lost for puzzle budgets ("use less water" remix), or may a level reuse it?
-3. Should a drain also accept balls (a trapdoor-like sink), or only liquid?
-4. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). The orifice law and Cd = 0.6 are the S416 advection decision (→ S418).
+All resolved; none needs the owner.
+
+1. Rate-limited grate: no; any liquid crossing the intake enters at once (reason above).
+2. Is drained liquid lost for a puzzle budget: yes, it is in `Drained` and never returns; a level that wants to count it reads the total (L13).
+3. Balls: never captured; the grate is a flush print on a solid box.
+4. Side pipe inlet: dropped (D19). No requirement or lesson uses it, and a pipe can end above the grate.
+
+## Integration
+
+- **Works with.** EL-001, EL-003, EL-004, EL-007, EL-014; none delivered. Delivered balls roll over it.
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-334`; `sequence-task-559` not co-anchored with a todo; no `s427` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID` including a sink node; EL-001; EL-003; EL-004 (for B7); S7.
+- **Files.** Adds `elements/Drain/Drain.csproj`, `DrainElementDeclaration.cs`, `drain.tscn`, `icon.svg`, `CuriousContraptions.tests/DrainTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** No sink node; a per-sink total that presentation cannot read; drained volume missing from the ledger identity.

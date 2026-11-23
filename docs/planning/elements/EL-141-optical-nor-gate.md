@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-141 delivery slice](../invest/named-elements.md#element-141). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the outlet direction.
-
-The five optical gates (EL-138 to EL-142) share one body, one aperture layout and one control law; they differ only in the Boolean operation, catalogue entry, truth relief and icon.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after its audit and the owner decisions of 22 November 2026. Legacy citations use `path@a6c914e:Lstart-Lend`. Lengths are metres; local +X is the outlet direction. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions). [EL-138](EL-138-optical-and-gate.md) is the gate family lead for the probe, sources and conformance; this identity's declaration is CAT-045's (coordinator decision 27).
 
 ## 1. Identity
 
@@ -15,75 +13,54 @@ The five optical gates (EL-138 to EL-142) share one body, one aperture layout an
 | Type | Optical |
 | Anchor | [requirements.md#element-141](../requirements.md#element-141); named entry [named-elements.md#element-141](../invest/named-elements.md#element-141); source record [todo-367](../requirements.md#todo-367) |
 | Owner | S513 |
-| Refines CAT | [CAT-045 optical_nor](CAT-045-optical_nor.md) (`optical_nor`, "Neither light gate"). One catalogue part satisfies both identities; not a second implementation. |
-| Related | EL-138 to EL-140, EL-142 (sibling operations); EL-136 electrical NOR (separate identity); CAT-036 laser and EL-176 to EL-178 (sources) |
-| Roadmap story | [EL-141 delivery slice](../invest/named-elements.md#element-141); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | Candidate **Duplicate closure** of [CAT-045 optical_nor](CAT-045-optical_nor.md) (`optical_nor`, "Neither light gate"), closed inside that part's slice. No delta from CAT-045. |
+| Acceptance authority | The CAT-045 spec's acceptance rows are the single authority (coordinator decision 16, 22 November 2026). This identity's source outcome, "prove every input combination plus absent carrier; logically true cannot create power", is CAT-045 rows **G1 and G2**; the ledger row cites the package and those tests. This spec carries no rows of its own. |
+| Planned package | none of its own; CAT-045's `optical_nor` (`elements/OpticalNor/`) |
+| Roadmap story | Story 13.8 |
+| Status | not started; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL (which follows ENGINE-SPATIAL-QUERIES) and ENGINE-SIGNAL-NODES |
 
 ## 2. Declaration
 
-- **Bodies and shapes:** one static rigid body: opaque cube 1.4 × 1.4 × 1.4 m at the origin; opaque base 1.8 × 0.18 × 1.8 m at (0, −0.85, 0); pick radius 1.3 m. Types: static `RigidBodyDeclaration` and two box `ColliderDeclaration`s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
-- **Mass and material:** static, zero mass. Contact material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`) via `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`), rolling resistance 0.
-- **Constraints and joints:** none.
-- **Typed ports (optical apertures, closed enum `OpticalPortId`):** `First` (A) at (−0.76, 0, 0), normal −X; `Second` (B) at (0, 0.76, 0), normal +Y; both finite discs radius 0.43, Absorb, transmission (1, 1, 1). `Carrier` at (0, 0, 0.76), normal +Z, radius 0.43, Route when open and Absorb when closed, transmission (0.9, 0.9, 0.9). Outlet (0.76, 0, 0), direction +X. Front incidence only. No electrical or activation ports.
-- **Sensors and activation:** two hysteretic controls on broadband strength (mean RGB): on at ≥ 0.25, held while > 0.225 game optical power; sampled after the trace, decision advanced once before the next optical solve (next-tick). Reset: A = B = false, open = NOR(false, false) = **open**, so a present carrier passes from the first Run tick.
-- **Work and energy stores:** none; output = 0.9 × routed carrier power.
-- **Parameters:** none authorable. Constants: operation `Nor` (`LogicGateKind`), on 0.25, off 0.225, retention 0.9. Mode: "Logic=Nor".
-- **Cosmetic curves and UI bindings:** control lamps slate `#556573` → gold `#f7cb52` follow committed A/B at rate 12 /s; output lamp follows committed output RGB beam ink at rate 12 /s; typed Boolean observations {First, Second, IsOpen} and output R, G, B scalar observations. The outlet lights only when a carrier exits; an open NOR without carrier stays slate ([DESIGN.md](../../../DESIGN.md#optical-logic-gates)).
-- **Art (DESIGN.md palette):** cyan cube `#66b8c9`, navy foot `#293954`, cream control rims `#fff8e9` (one mark on A, two on B), ochre carrier and outlet rims `#e8b764`, slate lenses `#556573`. Truth relief: raised gold dot on row 00 only.
-- **Catalogue and inventory entry:** id `optical_nor`, title "Neither light gate", category Optics, colour (0.40, 0.72, 0.79). Description: "The numbered cream inputs control a separate gold-rimmed carrier. Passes 90% of the carrier when neither control is lit. Changes apply next simulation tick; control beams never supply output light." Icon `ui/WorkshopIcons.cs@a6c914e:L78-L78` (shared with `electrical_nor`; current, kept).
-
-### Variants
-
-One; no variants are named. Carrier present/absent is a proof dimension.
-
-| A | B | Open | Output with carrier P | Output without carrier |
-| --- | --- | --- | --- | --- |
-| off | off | yes | 0.9 P | 0 |
-| off | on | no | 0 | 0 |
-| on | off | no | 0 | 0 |
-| on | on | no | 0 | 0 |
+The `optical_nor` declaration, art and bindings are [CAT-045's declaration](CAT-045-optical_nor.md#declaration); this identity adds none (coordinator decision 27, 23 November 2026).
 
 ## 3. Engine capabilities
 
-Binding shard ([element-02.json](../../coverage/engine/element-02.json)): FiniteLedger, GeometryQuery, OpticalTransport, SignalPropagation, StateTransaction ([element-map row](../general-engine-element-map.md) omits StateTransaction).
-
-**Exists now:** static box body and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); contact material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-
-**Missing**
-- OpticalTransport emission (Story 13.1), Route and Absorb apertures (Story 13.5), switched carrier (Story 13.8). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
-- SignalPropagation and StateTransaction for hysteretic controls and next-tick commit (S486); FiniteLedger for retention (S485).
-- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) and no optical port in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`. S257 keeps optical control distinct from electrical or activation wiring.
-
-**Element dependencies:** carrier and control sources (CAT-036 or EL-176 to EL-178, Story 13.1; CAT-005 battery, Story 8.1); an outlet observer (CAT-038 or EL-214, Story 13.2); CAT-066 wall (delivered).
+The probe is [EL-138 section 3](EL-138-optical-and-gate.md#3-engine-capabilities) row for row, with the same citations: present R1, R2, R12; narrower R9 (owner ENGINE-SPATIAL-QUERIES) and R11 (ENGINE-OPTICAL); missing MS and MB (ENGINE-SIGNAL-NODES) and M2 to M6 (ENGINE-OPTICAL). Counts 3 / 0 / 2 / 7. Nor is not monotone (`CuriousContraptions.Abstractions/ElectricalContractValues.cs:23`–`:25`); an optical loop through this gate advances one step per tick, because a reading acts only from the next tick.
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-141](../requirements.md#element-141): carrier output follows neither input present; prove every input combination plus absent carrier. [todo-367](../requirements.md#todo-367). CAT row [current-cat-045](../requirements.md#current-cat-045). Refinement **optical-nor** ([refinements](../invest/refinements.md)): those controls, and all ten logic gates retain feedback bounds and Reset. Campaign: optical logic first use 51–60 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
 
-**Legacy.** The complete gate harvest, including Boolean observations, lamp-source binding and parameter-ownership tests, is in [CAT-045-optical_nor](CAT-045-optical_nor.md#legacy-harvest) (shared gate facts from [CAT-043-optical_and](CAT-043-optical_and.md#legacy-harvest)); the shared gate body and control law are restated in full in [EL-138](EL-138-optical-and-gate.md#4-sources-and-legacy) items 1–16 and apply unchanged; shared optical facts S1–S7 are in [CAT-036-laser](CAT-036-laser.md#legacy-harvest). NOR-specific facts:
+**Legacy.** The complete gate harvest, including Boolean observations, lamp-source binding and parameter-ownership tests, is in [CAT-045-optical_nor](CAT-045-optical_nor.md#legacy-harvest) (shared gate facts from [CAT-043-optical_and](CAT-043-optical_and.md#legacy-harvest)); the shared gate body and control law are restated in full in [EL-138](EL-138-optical-and-gate.md#4-sources-and-legacy) items 1–16 and apply unchanged; shared optical facts S1–S8 are in [CAT-036-laser](CAT-036-laser.md#legacy-harvest). NOR-specific facts:
 1. Apertures, outlet, retention, Route-when-open — `parts/OpticalLogicPart.cs@a6c914e:L13-L14`, `parts/OpticalLogicPart.cs@a6c914e:L51-L58`. Carry forward.
 2. NOR truth `!first && !second` — `engine/LogicGate.cs@a6c914e:L16-L16`; reset sets open = evaluate(false, false), which is true for NOR — `engine/LogicGate.cs@a6c914e:L73-L77`; hysteresis and validation — `engine/LogicGate.cs@a6c914e:L44-L71`. Carry forward.
 3. Catalogue entry and scene (Operation = 3) — `parts/catalog/optical_nor.tres@a6c914e:L6-L11`, `parts/scenes/optical_nor.tscn@a6c914e:L1-L5`. Carry forward the entry.
 4. Acceptance: NOR rows 00→open, others closed, with and without carrier; reconfiguration restores the open initial decision — `CuriousContraptions.tests/LogicGateTests.cs@a6c914e:L13-L13`, `CuriousContraptions.tests/OpticalLogicTests.cs@a6c914e:L28-L69`. Carry forward.
 5. Acceptance: failed-tick rollback and atomic output observation — `CuriousContraptions.tests/OpticalControlCheckpointTests.cs@a6c914e:L45-L84`, `CuriousContraptions.tests/OpticalObservationTests.cs@a6c914e:L66-L117`; typed Boolean control observations for every truth row — `CuriousContraptions.tests/BooleanObservationTests.cs@a6c914e:L60-L111`. Carry forward (rollback at the later fault gate).
-6. Per-part advance hook — `parts/OpticalLogicPart.cs@a6c914e:L50-L50`. Do not carry forward the hook; keep next-tick ordering (Open question 5).
+6. Per-part advance hook — `parts/OpticalLogicPart.cs@a6c914e:L50-L50`. Do not carry forward the hook; keep next-tick ordering (section 6).
 
 **Files harvested:** `parts/OpticalLogicPart.cs`, `parts/catalog/optical_nor.tres`, `parts/scenes/optical_nor.tscn`, `engine/LogicGate.cs`, `engine/SceneBooleanObservation.cs`, `engine/OpticalColour.cs`, `engine/OpticalNetwork.cs`, `reference/cpu/MachinePart.cs`, `reference/cpu/MachineWorld.cs`, `CuriousContraptions.tests/OpticalLogicTests.cs`, `CuriousContraptions.tests/LogicGateTests.cs`, `CuriousContraptions.tests/OpticalControlCheckpointTests.cs`, `CuriousContraptions.tests/OpticalObservationTests.cs`, `CuriousContraptions.tests/BooleanObservationTests.cs`, `CuriousContraptions.tests/ParameterValidationOwnershipTests.cs`, `CuriousContraptions.tests/BooleanColourBindingTests.cs`. No legacy level uses it.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** place a battery, three lasers (A, B, carrier), the NOR gate and a broadband receiver on its outlet axis from the actual drawer; wire supplies and triggers with the connection UI; aim with the rotation gizmo. Run.
-- **Positive:** with only the carrier lit the receiver reads 0.9 × carrier from the first tick; it stays lit until a control goes high.
-- **Negative / controls:** lighting A or B darkens the outlet on the next tick; no carrier with both controls dark (dark outlet: an open gate creates nothing); occluders; wrong-face and rear incidence.
-- **Boundaries:** next-tick close after the first control rises and reopen after the last falls; 0.25 / 0.225 boundaries; shared range and 16-interaction budget.
-- **Run/Reset:** Reset restores A = B = false and the open decision, clears output and lamps. **Save/Load:** construction round-trips.
-- **Integrations:** NOR as an inverter (one control unused); chaining; Story 13.8 suite `tools/e2e/cat-optical-logic.test.ts`. Binding criteria: [element-141](../requirements.md#element-141), [current-cat-045](../requirements.md#current-cat-045).
+**Authority.** Acceptance is [CAT-045's rows](CAT-045-optical_nor.md#acceptance-outline) G1 to G13, with their fixtures, tolerances and stall guards. This identity's outcomes map to **G1** and **G2**; the ledger row cites those tests. No row is stated or inherited here: the AND gate's expected values do not hold for Nor (it is open with both controls dark and closed with both lit), and CAT-045 states its own.
+
+**Behaviour and numbers.** A control is on at a mean of 2.5 W (an amber laser gives 7.0 W) and releases below 2.25 W. An amber carrier leaves as (9.0, 7.02, 2.88) W while neither control is on. Three amber lasers demand 75 W of the Battery's 120 W. After Reset both controls are off, so Nor is **open**: a supplied carrier passes from the start of a Run until a control is lit, and the tick after that it is absorbed.
 
 ## 6. Open questions
 
-1. Story 13.8 wording ("emitted output laser beams") versus the required separate carrier; requirement presumed binding.
-2. Confirm CAT-045 alone satisfies EL-141 (no separate named part).
-3. The gate starts open at Reset, so the carrier passes on tick 1 before any control is sampled. Legacy intends this; owner to confirm it is the taught behaviour.
-4. Broadband-mean control strength (see EL-138 question 3); confirm under S485.
-5. Tick order: legacy advanced the gate before the networks and traced optics before the electrical solve; the current pipeline runs electrical before optics. On which tick does a control change switch the carrier? Unspecified — owner decision (S486; as EL-138 question 5).
+None open. Story wording: the requirement row governs (D15, K-8). Duplicate closure with CAT-045's rows as the single authority (coordinator decision 16). Mean control strength kept (K-7). Tick order and coupling: coordinator decision 16.
+
+Needs the owner: none.
+
+## 7. Integration
+
+As [EL-138 section 7](EL-138-optical-and-gate.md#7-integration). Coverage binding (planned, not yet live): catalogue key `optical_nor` (CAT-045). A closed duplicate has no binding section of its own: it is covered by the package of the part that satisfies it and by the closure record, which the coverage follow-on story S7 must admit (owner decision 15 widens the reader).
+
+## 8. Delivery
+
+Closed inside CAT-045's slice, or inside one gate Family slice if proposal K-17 is accepted. Prerequisites, in order: the engine programme (owner decision 3a) including ENGINE-SPATIAL-QUERIES; ENGINE-SIGNAL-NODES; ENGINE-OPTICAL as corrected in the batch summary; a laser and a detector. Files (CAT slice): `elements/OpticalNor/`, one guarded solution line, rows in `OpticalGateTests` and `VisibleSolidColliderTests`, the ledger row. Review tier: data-only if the probe passes after the engine stories. Disqualifiers: as EL-138.
+
+## 9. Engine conformance
+
+Verdict: **Conforms**, on the seven points as [EL-138 section 9](EL-138-optical-and-gate.md#9-engine-conformance): two receivers, two threshold nodes, one boolean node (Nor) and one relay; no engine code names it and no logic runs inside the optical solve; colliders (two boxes), flush art and colour bindings are separate layers; counts are fixed at compile time; its tests are CAT-045's scenarios.

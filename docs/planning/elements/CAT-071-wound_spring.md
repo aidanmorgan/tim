@@ -1,108 +1,82 @@
 # CAT-071 · wound_spring declaration readiness spec
 
-**Current delivery (24 October 2026):** [CAT-071 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** [CAT-071 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-Story 7.0 CAT-071-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable after the Epic 7 purge. Current-engine files are cited at the same commit. This page records the declaration knowledge the legacy holds; it does not restate the requirement row. Visual authority is the [Latched wound-spring launcher](../../../DESIGN.md#latched-wound-spring-launcher) section of DESIGN.md.
+Current contract for a delivered part, repaired on 22 November 2026 after the independent audit (`docs/planning/elements/readiness/audits/elements-batch-c.md`). Checked against `elements/WoundSpring/` on checkout `spec-drafts` (`8d1d68aa`); published main is `25df3cd5`, and its two later commits touch neither this package nor its tests. Sections 1–3 and 5–9 are current. Section 4 is the legacy harvest at `a6c914e`, kept verbatim as evidence; where it differs from the delivered declaration (the latch controller and its phases, the ratchet as a travel direction, the single accepted-work ledger, the Empty answers of rows 16 and 29), the declaration governs. On the Empty answers (second audit X-2, 23 November 2026): the delivered retention answers Empty only within `ActuatorStopSlopMetres` (5e-4 m) of travel 0 (`CuriousContraptions.Simulation/SimPrismaticRetention.cs:44`), and the retained bound keeps the deepest point of an upright head's first drop at Run start (`SimPrismaticRetention.cs:78`): the static sag is 0.5 × 9.81 ÷ 160 = 0.031 m at the default stiffness and the undamped head is held near twice that, 0.061 m, with at most 2(m·g)² ÷ k = 0.30 J (harvest row 31's bound), so it answers Released; only a head held within the slop (the inverted mount of `WoundSpringControlTests.cs:291`) answers Empty. After such a release the winding transmission stays disengaged until the head comes back within the slop (`SimPrismaticRetention.cs:85`); the undamped head swings back to about travel 0, so it probably re-arms, but no test covers the upright case. Raised to the coordinator with EL-225 and EL-235, where damping or friction can stop the return short (owner of any remedy: the holds on a coordinate of `ENGINE-JOINT-KINDS`). Visual authority is the [Latched wound-spring launcher](../../../DESIGN.md#latched-wound-spring-launcher) section of DESIGN.md.
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
 | CAT ID | CAT-071 |
-| Kind | `wound_spring`, catalogue title "Wound spring", category "Motion" (`parts/catalog/wound_spring.tres@a6c914e:L6-L8`) |
+| Kind | `wound_spring`, catalogue title "Wound spring", category Motion |
 | Requirement anchor | [CAT-071](../requirements.md#current-cat-071); retained behaviour [todo-394](../requirements.md#todo-394); DESIGN source record [todo-085](../requirements.md#todo-085) |
-| Mapped identities | None. [EL-056 Ratchet](../invest/named-elements.md#element-056), [EL-063 Cable winch](../invest/named-elements.md#element-063) and [EL-194 Springboard](../invest/named-elements.md#element-194) are separate elements. Batch A confirms. |
-| Roadmap story | [11.4a Wound spring](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-071 mode and mapped named-identity obligation. |
-| Harvest-baseline status | Not started. `WorkshopPartKind` has no wound-spring member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Mapped identities | None. [EL-056 Ratchet](../invest/named-elements.md#element-056), [EL-063 Cable winch](../invest/named-elements.md#element-063) and [EL-194 Springboard](../invest/named-elements.md#element-194) are separate elements. |
+| Roadmap story | [11.4a Wound spring](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership) |
+| Status | **Delivered.** Package id `wound_spring`, directory `elements/WoundSpring`. Slice record [11.4a](../../../_bmad-output/implementation-artifacts/spec-11-4a-wound-spring.md), published in commit `494c3711`; the record's front matter still says `status: 'in-progress'` (a stale status, see section 8). Browser case pending. Every residual slice (section 8) is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP` (the resting head and shaft) and `ENGINE-OPTICAL` (the sleeve's Transmit response). |
+| Disposition | Delivered catalogue part; no mapped named identity. EL-235 Jack-in-the-box and EL-225 Latched slingshot cradle plan to reuse its retained store as separate elements (delivery-batches 1b). |
 
 ## 2. Declaration
 
-### Bodies and shapes
-Positions in metres, part frame. The plunger axis is local +Y.
-- **Static housing (root body).** Every legacy `AddBox` is a box collider (`reference/cpu/MachinePart.cs@a6c914e:L352-L356`). Navy base box at (0, −1, 0), size 1.55 × 0.2 × 1.35. Two cream guide rails at (±0.6, −0.05, 0), size 0.13 × 1.8 × 0.2 (`parts/WoundSpringPart.cs@a6c914e:L183-L185`).
-- **Guide sleeve (collider).** A fixed open tube along local Y, centred at (0, 0.5, 0): half-length 0.9 (length 1.8), inner radius 0.41, outer radius 0.49, transparent (Opaque false), axis rotated X→Y. It holds an incoming ball above the head (`parts/WoundSpringPart.cs@a6c914e:L190-L193`; the tube proxy's second field is HalfLength, `engine/TubeProxy.cs@a6c914e:L6`). The current `ColliderShapeKind` has only Sphere, Box and Plane (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L7-L7`), so this needs the hollow tube collider of CAT-048.
-- **Plunger head (internal dynamic body).** A solid sphere of radius 0.32 m. Its rest coordinate is 0.9 m along local Y; travel runs down to 0.9 − stroke (`parts/WoundSpringPart.cs@a6c914e:L41-L43`, `parts/WoundSpringPart.cs@a6c914e:L235-L250`). It is one internal body with the closed role `InternalBodyRole.Plunger` and a derived identity (`engine/MachineData.cs@a6c914e:L26-L45`).
-- **Winding shaft (internal dynamic body).** A wheel of radius 0.26 m and width 0.1 m, hinged at (−0.62, −0.55, 0.5) (`parts/WoundSpringPart.cs@a6c914e:L71-L71`, `parts/WoundSpringPart.cs@a6c914e:L96-L96`, `parts/WoundSpringPart.cs@a6c914e:L195-L196`; `engine/SceneRotaryShaft.cs@a6c914e:L13-L13`).
-- Current types: `RigidBodyDeclaration` and `ColliderDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`) cover the housing and head. The shaft wheel needs a cylinder or hull shape.
+The current declaration is `elements/WoundSpring/WoundSpringElementDeclaration.cs`; the scene is `elements/WoundSpring/wound_spring.tscn`.
 
-### Mass and material
-- Head: 0.5 kg, bounce 0, drag 0 (`parts/WoundSpringPart.cs@a6c914e:L43-L43`, `parts/WoundSpringPart.cs@a6c914e:L247-L247`). Its sphere inertia fits `RigidMassProperties` (`engine/gpu/RigidMassProperties.cs@a6c914e:L17-L51`).
-- Shaft: 0.25 kg (`parts/WoundSpringPart.cs@a6c914e:L71-L71`). A cylinder inertia law is missing.
-- Housing, sleeve and shaft friction values are not recorded. Use `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`); see Open questions.
+| Item | Delivered value | Source |
+| --- | --- | --- |
+| Interfaces | `ISliderElement`, `IHingeElement`, `IMechanicalTransmissionElement`, `IPrismaticRetentionElement`, `ISignalElement`, `ISceneGeometryElement` | `:8`–`:9` |
+| Bodies | 3 (2 moving): static housing (root), plunger head `Visual/Head`, winding shaft `Visual/Shaft`; 1 prismatic and 1 revolute constraint | `:18`, `:27`–`:29` |
+| Housing colliders | base and two rail boxes; guide sleeve, an open tube of outer radius 0.49 m, bore radius 0.41 m and half-length 0.9 m | `wound_spring.tscn:85`–`:100`; sleeve figures from visible-solid part B, row B8 |
+| Head | sphere (`col_Head`), mass 0.5 kg, moments 0.02048 kg·m² each (0.4·m·r² at r 0.32 m) | `:35`–`:36` |
+| Shaft | wheel (`col_Wheel`), mass 0.25 kg, radius 0.26 m, width 0.1 m, cylinder moments (transverse, axial, transverse), principal frame turned onto the hinge axis | `:42`–`:49` |
+| Materials | all three bodies: restitution 0, friction 0.3, rolling resistance 0, threshold 0.1 m/s | `:27`–`:29` |
+| Slider | along local +Y from rest (0, 0.9, 0); travel [−`stroke`, 0]; axial spring stiffness `stiffness`; no damping; no drive; connected bodies do not collide | `:30`–`:37` |
+| Hinge | shaft at (−0.62, −0.55, 0.5), `RevoluteTravel.Continuous`, no friction, no drive | `:45`–`:49` |
+| Transmission | shaft angle to plunger travel, ratio `winding_lead` (m/rad), `TransmissionConstraintKind.NonPositiveVelocity` (winding only; reverse freewheels) | `:52`–`:54` |
+| Retention | one retention on the plunger coordinate, released by a signal request | `:55`–`:56`, `:66`–`:69` |
+| Parameters | `stiffness` N/m, default 160, 40–240; `stroke` m, 0.8, 0.2–0.8; `winding_lead` m/rad, 0.1, 0.025–0.2. All Real, editor policy Reject, Build only (descriptor defaults) | `:15`–`:17` |
+| Ports | `DriveIn`: Mechanical, Input, role DriveIn, (−0.62, −0.55, 0.55), on the shaft coordinate with −1 per radian and a rim of radius 0.26 m; engagement classes Smooth and Toothed, since winding is the heavy load, so it takes a Drive belt or a Drive chain (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`; the delivered rigid link stays admitted, owner decision 2). `ActivationIn`: Signal, Input, role ActivationIn, pulse, (0.62, −0.55, 0.55) | `:57`–`:65` |
+| Store | the slider's spring: 0.5 × 160 × 0.8² = 51.2 J at the defaults; 0.8 J at the minimum corner (40 N/m, 0.2 m) | derived from `:15`–`:16` |
+| Presentation | `Visual/Latch` local Z rotation to −0.65 rad on `CommittedRetentionReleased`, rate-limited to 8 rad/s; head and shaft follow their bodies; span `Visual/Coil` from the base to the head; `Mark0`–`4` local Y from `stroke`; pick radius 1.25 m | `:70`–`:80` |
+| Palette | category Motion, order 41, colour (0.4, 0.72, 0.79) | `:11`–`:14` |
 
-### Constraints and joints
-- **Plunger guide.** A slider from the head to the housing along local Y, with head-to-housing collision disabled. Travel range [rest − stroke, rest]. The travel direction is Negative (inward winding only) while latched and Positive (outward only) while releasing; this is the ratchet (`parts/WoundSpringPart.cs@a6c914e:L81-L95`, `engine/physics/PhysicsWorld.cs@a6c914e:L1007-L1016`).
-- **Shaft guide.** A hinge for the winding wheel (`parts/WoundSpringPart.cs@a6c914e:L96-L96`).
-- **Winding transmission.** Shaft angle to guide coordinate, with ratio = `winding_lead` (m/rad). It is Engaged while latched and Open while releasing, so released energy cannot drive the input (`parts/WoundSpringPart.cs@a6c914e:L97-L98`, `engine/physics/PhysicsWorld.cs@a6c914e:L1007-L1016`).
-- The mechanical input maps DriveIn to the shaft hinge with sign −1 (`parts/WoundSpringPart.cs@a6c914e:L74-L74`).
+### Art and solidity (delivered scene)
 
-### Typed sockets and ports
-- `DriveIn`: mechanical input at (−0.62, −0.55, 0.55).
-- `ActivationIn`: activation input at (0.62, −0.55, 0.55) (`parts/WoundSpringPart.cs@a6c914e:L109-L113`).
-- No electrical port. Supply reaches the spring only as shaft work from a Motor.
-- The current `WorkshopConnectionDomain` has only Activation and Electrical (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`). A Mechanical domain and a `DriveIn` socket are missing.
+| Node | Mesh and pose | Layer and class |
+| --- | --- | --- |
+| `Visual/col_Base` | navy box 1.55 × 0.2 × 1.35 m at (0, −1, 0) | **defect:** a collider proxy that is also drawn. Part B (row B8) separates it into an art mesh and a hidden proxy |
+| `Visual/col_LeftRail`, `col_RightRail` | cream boxes 0.13 × 1.8 × 0.2 m at (±0.6, −0.05, 0) | the same defect and repair |
+| `Visual/col_Sleeve` | translucent cyan open tube at (0, 0.5, 0): outer radius 0.49 m, bore radius 0.41 m, half-length 0.9 m | the same defect and repair; dimensions unchanged |
+| `Visual/Head/col_Head` | cream sphere r 0.32 m on the head body | the same defect and repair; moved by the head body's pose |
+| `Visual/Shaft/col_Wheel` | cream cylinder r 0.26 m, 0.1 m wide, on the shaft body | the same defect and repair; moved by the shaft body's pose |
+| `Visual/ActivationSocket` | sphere r 0.065 m at (0.62, −0.55, 0.55) | **defect:** drawn solid, no collider. Part B (row B7) appends a sphere proxy. Sockets keep their colliders (owner decision, 21 November 2026) |
+| `Visual/Head/ChargeIndex` | gold box 0.19 × 0.045 × 0.035 m at head-local (0.6, −0.1, 0.14) | **defect:** stands 22.5–57.5 mm off the rail face. Part B (row B9) redraws it as a quad at z 0.1004; it rides the head body's pose |
+| `Visual/Mark0`–`4` | navy boxes 0.18 × 0.018 × 0.025 m at z 0.12, heights bound to `stroke` | **defect:** stand 7.5–32.5 mm off the rail face. Part B (row B9) redraws them as quads at z 0.1002; x 0.6 and the `stroke` height bindings are unchanged |
+| `Visual/Shaft/Spoke` | gold box 0.42 × 0.035 × 0.025 m at z 0.055 on the shaft body | **defect:** 17.5 mm proud of the wheel face. Part B (row B9) redraws it as a quad at z 0.0502; it rides the shaft body's pose |
+| `Visual/Latch/Lever` | gold box 0.22 × 0.1 × 0.1 m at the pivot (0.48, 0.25, 0.5) | decorative: turned by a presentation binding |
+| `Visual/Coil/Turn0`–`63` | silver cylinders r 0.025 m | decorative: a span drawn between the base and the head pose |
 
-### Sensors and activation
-- `ActivationIn` accepts only the Trigger command. Repeated triggers coalesce into one request (`_triggerTick ??=`), which is applied at the start of the next tick (`parts/WoundSpringPart.cs@a6c914e:L126-L144`).
-- **Trigger result.** `Released` if charged; `Empty` if not charged, which changes nothing, so the request expires; `AlreadyReleased` while releasing (`engine/physics/PhysicsWorld.cs@a6c914e:L988-L1005`).
-- **Rearm.** The spring re-latches automatically when compression returns within the stop tolerance (`engine/physics/PhysicsWorld.cs@a6c914e:L1018-L1031`). The stop tolerance is the world position tolerance (`engine/physics/PhysicsWorld.cs@a6c914e:L370-L370`).
-- **Observable phase.** A closed enum `Idle | Winding | Armed | Releasing | Blocked`, derived from the spring state each tick (`parts/WoundSpringPart.cs@a6c914e:L11-L11`, `parts/WoundSpringPart.cs@a6c914e:L145-L157`).
-- The current `ActivationNetwork` (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`) delivers latched activation edges; it has no trigger-consumer node yet.
-
-### Work and energy stores
-- **Elastic store.** Stored energy is 0.5·k·q², where q is the compression (`engine/physics/PhysicsLatchedSpring.cs@a6c914e:L82-L87`). Full charge at the defaults is 0.5 × 160 × 0.8² = 51.2 J (`CuriousContraptions.tests/WoundSpringCampaignTests.cs@a6c914e:L49-L50`).
-- **Accepted work.** It grows only by positive energy change while latched. **Released work** grows by the energy decrease while releasing (`engine/physics/PhysicsLatchedSpring.cs@a6c914e:L88-L100`).
-- The law is pure potential with no damping term (`engine/physics/AxialElasticPotential.cs@a6c914e:L5-L41`).
-- Current precedent: `Joules` and the finite reservoir in `ContactWorkDeclaration` (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L5`, `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L22-L37`, bounded 0–200 J). A latched elastic store is a new declaration.
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `stiffness` | f32 | 40–240 | 160 | N/m | `parts/WoundSpringPart.cs@a6c914e:L114-L125`, `parts/catalog/wound_spring.tres@a6c914e:L12-L12` |
-| `stroke` | f32 | 0.2–0.8 | 0.8 | m | same |
-| `winding_lead` | f32 | 0.025–0.2 | 0.1 | m/rad | same |
-
-The parameter names are a closed enum `WoundSpringParameter { Stiffness, Stroke, WindingLead }` (`parts/WoundSpringPart.cs@a6c914e:L10-L10`).
-
-### Cosmetic curves and UI bindings
-- **Latch.** A gold latch rotates about Z toward −0.65 rad at a bounded 8 rad/s (linear, once) while releasing, and returns after rearm. It is presentation-clocked (`parts/WoundSpringPart.cs@a6c914e:L48-L56`). At 0.01 s the angle reads −0.08 rad (`CuriousContraptions.tests/WoundSpringTests.cs@a6c914e:L503-L538`).
-- **Coil and charge index.** The silver helix (four turns, radius 0.22, height 1.38) and the gold charge index follow the committed plunger pose through axis-affine maps (`parts/WoundSpringPart.cs@a6c914e:L170-L179`, `parts/WoundSpringPart.cs@a6c914e:L210-L233`).
-- **Marks.** Five navy compression marks start 0.1 below the rest and are spaced by stroke/4 (`parts/WoundSpringPart.cs@a6c914e:L186-L188`). DESIGN: the marks show compression, not a linear energy percentage.
-- Pick radius 1.25 (`parts/WoundSpringPart.cs@a6c914e:L182-L182`). The current `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L16`) has no latch-state or pose-map source; both are new bindings.
-
-### Art
-- Scene `parts/scenes/wound_spring.tscn` is a bare `Node3D` with the script (`parts/scenes/wound_spring.tscn@a6c914e:L1-L4`); all geometry is procedural.
-- Palette (`parts/WoundSpringPart.cs@a6c914e:L183-L202`, `parts/WoundSpringPart.cs@a6c914e:L248-L248`): navy base and marks `#293954`, cream rails, head and pulley `#fff8e9`, gold charge marker, pulley spoke and latch `#f7cb52`, cyan sleeve (0.4, 0.72, 0.79, alpha 0.18), silver coil `#ccd9df`, gold socket sphere at the ActivationIn position. Catalogue colour (0.4, 0.72, 0.79) (`parts/catalog/wound_spring.tres@a6c914e:L11-L11`).
-- Latch: pivot node at (0.48, 0.25, 0.5) carrying a gold box 0.22 × 0.1 × 0.1 (`parts/WoundSpringPart.cs@a6c914e:L200-L201`).
-- Charge marker: gold box 0.19 × 0.045 × 0.035 (`parts/WoundSpringPart.cs@a6c914e:L189`), placed by an axis map at (0.6, head coordinate − 0.1, 0.14), which is (0.6, rest − 0.1, 0.14) at rest (`parts/WoundSpringPart.cs@a6c914e:L176-L178`).
-- Coil: silver mesh based at (0, −0.8, 0) (`parts/WoundSpringPart.cs@a6c914e:L194`); helix radius 0.22, height 1.38, four turns, tube radius 0.025 (`parts/WoundSpringPart.cs@a6c914e:L210-L233`).
-
-### Catalogue and inventory entry
-- Description: "A mechanical belt winds a finite spring. Its latch holds charge after power stops; a separate trigger releases the guided plunger. An empty spring cannot launch." (`parts/catalog/wound_spring.tres@a6c914e:L9-L9`).
-- Inventory: one wound spring in `wind_then_release` (`content/puzzles.json@a6c914e:L31312-L31314`). It is placed and locked in `saved_for_later` (`content/puzzles.json@a6c914e:L32312-L32374`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Floating or exposed art, recorded and not repaired by part B: the activation socket, the drive wheel and the latch lever stand 0.35–0.39 m in front of the rails with nothing drawn joining them to the housing; about 0.4 m of the coil is exposed below the sleeve and has no collider (it is a span, so a ball passes through it). Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (status draft, follows part A); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `wound_spring`.
 
 ## 3. Engine capabilities
 
 Capability families: the [CAT-071 row](../general-engine-element-map.md) and its binding in [catalogue-elements.json](../../coverage/catalogue-elements.json). They are not repeated here.
 
-**Exists now**
-- Static housing and dynamic sphere head: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`, `engine/gpu/RigidMassProperties.cs@a6c914e:L17-L51`.
-- Head-to-payload contact through the TGS Soft solver: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774-L791`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878-L884`.
-- Activation wiring to an `ActivationIn` socket, with switch and delay sources: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`, `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`.
-- A finite `Joules` quantity: `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L5-L5`.
+**Capability probe (22 November 2026).** Tests were found by name and line; none was run. Counts: 9 present, 0 present-untested, 0 narrower, 0 missing. The store, ratchet and release are generic slider, transmission and retention capabilities; the engine holds no wound-spring code.
 
-**Missing**
-- Prismatic slider and soft spring constraint: **Story 6.4**.
-- Finite preload/elastic store: **Story 6.5**.
-- Battery supply: **Story 8.1**.
-- Shaft body, hinge, Mechanical connection domain, `DriveIn`/`Drive` sockets and motor shaft torque: **Story 11.1**.
-- Ratio transmission with Engaged/Open engagement: **Story 11.2** (clutch and reverser coupling).
-- One-way travel direction (ratchet), latch/trigger/rearm state, `Released`/`Empty`/`AlreadyReleased` results and the phase read: **Story 11.4**.
-- Hollow guide sleeve collider: **Stories 6.6/6.7** (CAT-048).
-- Cylinder shaft collider and inertia: Story 10.1 (ENGINE-CYLINDER).
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Prismatic slider with an axial spring and a negated-parameter travel bound | present | `PrismaticSliderDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:104`) | `WoundSpringContractTests.LiteralParameterCornersCompileExactTypedCoordinateContract` (`CuriousContraptions.tests/WoundSpringContractTests.cs:15`), `NegationPreservesCorrelatedParameterCornersAndCanonicalRoundTrip` (`:42`) |
+| Continuous hinge carrying a shaft body, driven through a Mechanical rim port | present | `RevoluteHingeDescriptor`, `RevoluteTravel` (`MechanicalContractValues.cs:149`, `:129`) | `WoundSpringIntegrationTests.AuthoredTeachingWindsReleasesCapturesAndResets` (`CuriousContraptions.tests/WoundSpringIntegrationTests.cs:17`) |
+| Revolute-to-prismatic transmission with a one-way velocity constraint | present | `MechanicalTransmissionDescriptor`, `TransmissionConstraintKind` (`MechanicalContractValues.cs:258`, `:255`) | `WoundSpringControlTests.ChargedStoreRetainsThroughReverseOrReducedDrive` (`CuriousContraptions.tests/WoundSpringControlTests.cs:35`); `WoundSpringContractTests.MissingTransmissionConstraintKindIsRefusedAtSerializationBoundary` (`:32`) |
+| Retention of a prismatic coordinate with an independent release | present | `IPrismaticRetentionElement`, `PrismaticRetentionDescriptor` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:85`; `CuriousContraptions.Abstractions/PrismaticRetentionValues.cs:13`) | `PrismaticRetentionTests.PaidWindingRetainsAndIndependentReleaseReturnsToRest` (`CuriousContraptions.tests/PrismaticRetentionTests.cs:16`) |
+| Signal pulse as a physical release request: empty expires, repeats coalesce, rearm at rest | present | `SignalPhysicalRequestDescriptor`, `PhysicalRequestOperation` (`CuriousContraptions.Abstractions/SignalContractValues.cs:65`; `PrismaticRetentionValues.cs:10`) | `WoundSpringControlTests.PackageTriggerReportsEmptyThenReleasedThenAlreadyReleasedAndRearms` (`:291`), `ResetWithAnUnconsumedLatchedReleaseFiresNoStaleRelease` (`:103`) |
+| Separate observation of paid source work and passive contact or gravity recharge | present | generic retention and source work reads | `PrismaticRetentionTests.PassiveContactChargeObservesTransferWithoutMotorWork` (`:104`), `PassiveGravityChargeHasItsOwnBudgetAndNoMotorWork` (`:145`); `WoundSpringControlTests.PowerOffAtPendingReleaseUsesOnlyStoredAndCoastingEnergy` (`:137`) |
+| Open tube collider as a guide sleeve | present | `ColliderShapeKind.Tube` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `WoundSpringContactTests.RealHeadContactLaunchesLoadsAndGuideRimStopsOversizeEntry` (`CuriousContraptions.tests/WoundSpringContactTests.cs:19`) |
+| Retention-released presentation driver with a rate limit; span art | present | `PresentationDriver.CommittedRetentionReleased` (`CuriousContraptions.Abstractions/ElementPresentation.cs:32`) | `WoundSpringLifecycleTests.LatchTracksEightRadiansPerSimulationSecondAcrossSkippedFramesAndReversal` (`CuriousContraptions.tests/WoundSpringLifecycleTests.cs:56`); `WoundSpringArtTests.CoilAndChargeIndexFollowActualHeadAndResetToAuthoredGeometry` (`CuriousContraptions.tests/WoundSpringArtTests.cs:12`) |
+| Pause, Step, Reset, removal and reload with a charged store | present | generic lifecycle | `WoundSpringLifecycleTests.ChargedPauseStepRejectedEditResetRemovalAndReloadKeepTheirOwnership` (`:15`), `WoundSpringControlTests.ResetMidWindingStartsFromAnEmptyCarriedWindow` (`:250`) |
 
-**Element dependencies.** CAT-042 Motor and CAT-005 Battery supply winding. CAT-063 Switch and CAT-022 Delay trigger. CAT-001 Basketball is the payload; CAT-004 Receiver is the goal. CAT-033 Hold timer is used in `saved_for_later`. CAT-051 Powered gate is an obstruction control. CAT-066 Wall is a winding/obstruction stop.
+**Engine gaps this part relies on (stated, not designed around).** Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026). This part has no bounded prismatic drive, so the whole-world power-bound replay does not apply to it. Every collider absorbs light by default under the optical conventions ([EL-176](EL-176-red-laser-emitter.md) section 10, item 6); the clear guide sleeve's collider declares Transmit (1, 1, 1), a criterion of `ENGINE-OPTICAL`, not of a Wound spring slice: a beam through the sleeve reaches a detector, and the head or a ball inside blocks it.
+
+**Element dependencies.** Motor and Battery wind it; an Impact switch and Delay box trigger it; Basketball and Receiver are the lesson payload and goal; Hold timer in `saved_for_later`; Powered gate and Wall as obstruction controls. All delivered.
 
 ## 4. Legacy harvest
 
@@ -164,22 +138,51 @@ Capability families: the [CAT-071 row](../general-engine-element-map.md) and its
 
 ## 5. Acceptance outline
 
-Acceptance criteria are those of the [CAT-071 row](../requirements.md#current-cat-071), [todo-394](../requirements.md#todo-394) and Story 11.4.
-- **Chrome UI recipe.** Open `wind_then_release`. Place the wound spring from the toolbox at (0, 3, 0) and rotate it −15° about Z. Wire battery Supply → motor PowerIn, motor Drive → spring DriveIn, switch ActivationOut → delay ActivationIn, and delay ActivationOut → spring ActivationIn with the contextual wiring UI. Run.
-- **Positive.** The motor winds the spring to 51.2 J. The striker hits the switch; after the delay the latch releases and the ball is captured. Accepted motor work is reported separately from passive recharge.
-- **Negative/control.** NoSupply and NoBelt accept no motor work. NoRelease retains 51.2 J. A trigger on an empty spring expires with no motion. A repeated trigger while releasing changes nothing.
-- **Boundaries.** Parameter minimum and maximum values, with values outside rejected atomically. A wall clearance caps winding (0.455 m, 16.56 J at the defaults). Blocked release retains charge and resumes when cleared. Oversize, off-centre and stacked payloads.
-- **Run/Reset.** Reset at any phase restores the uncharged latch, the head at rest coordinate 0.9 and the latch angle 0.
-- **Save/Load.** Position, rotation, the three parameters and the DriveIn/ActivationIn connections round-trip through `WorkshopSaveCodec` (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
-- **Integrations.** `saved_for_later` with Hold timer (Story 9.5). Powered gate obstruction (Story 8.2). Impact-switch partial charge.
+Requirement: [CAT-071](../requirements.md#current-cat-071) and [todo-394](../requirements.md#todo-394). The Chrome recipe (open `wind_then_release`, place the spring at (0, 3, 0) rotated −15° about Z, wire Battery → Motor, Motor `Drive` → `DriveIn`, Switch → Delay → `ActivationIn`, Run) is queued for the post-catalogue browser phase.
 
-## 6. Open questions
+**Native tests that exist per requirement criterion (22 November 2026; none was run for this review).** Winding capped by clearance: `WoundSpringControlTests.ActualWallLimitsWindingWhileHousingKeepsItsDeclaredClearance` (`WoundSpringControlTests.cs:226`); by torque: `PrismaticRetentionTests.ElasticLoadReactsOnATorqueLimitedWindingShaft` (`PrismaticRetentionTests.cs:419`). Reverse freewheels, stopped or reduced drive retains: `:35`. Trigger adds no energy, empty expires, repeated trigger, rearm: `:291`, `:137`. Blocked release resumes: `ActualPoweredGateBlocksReleaseAndOpeningResumesIt` (`:194`). Partial charge by an Impact switch: `:168`. Oversize, off-centre and stacked loads: `WoundSpringContactTests.cs:19` (a theory). Missing supply or release route: `WoundSpringIntegrationTests.TeachingRequiresIndependentWindingAndReleaseRoutes` (`WoundSpringIntegrationTests.cs:85`). Charged rollback: `WoundSpringLifecycleTests.cs:15`. Coil, latch and index follow committed motion: `WoundSpringLifecycleTests.cs:56`, `WoundSpringArtTests.cs:12`. Separate ledgers: `PrismaticRetentionTests.cs:104`, `:145`. Parameter corners: `WoundSpringContractTests.cs:15`. Both lessons with Reset: `WoundSpringIntegrationTests.cs:17`. Invalid construction: `WoundSpringControlTests.cs:83`. Wrong-kind connection, generic: `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`BundlePortsTests.cs:262`).
 
-1. **Recharge ledger.** Legacy `AcceptedWork` counts motor, contact and gravity recharge alike (rows 8, 28, 38). The requirement asks for separate ledgers. The ledger split is unspecified — owner decision.
-2. **Stop tolerance.** The charged/empty threshold is unspecified under f32 (the legacy used the world position tolerance). Owner decision.
-3. **Blocked definition.** Define a game-grade Blocked rule without solver reaction observations (row 13).
-4. **Drive sign.** Confirm the DriveIn sign convention (−1) and which motor rotation winds the spring.
-5. **Materials.** Housing, sleeve and shaft friction is unrecorded. Rolling resistance is 0, the current value for non-sphere bodies (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L721-L726`).
-6. **Story order.** Story 11.4 depends on the Story 11.2 transmission and the Story 6.6 tube collider. Confirm that order holds.
-7. **Damping.** The spring has no damping parameter. Confirm that a pure-potential law is intended.
-8. **Shaft collider.** Cylinder collider and cylinder inertia for the shaft wheel: Story 10.1 (ENGINE-CYLINDER), scheduled before the first shaft wheel by the owner on 9 Oct 2026.
+**Residual acceptance rows.**
+
+| Row | Given / When / Then | Planned test | Control | Boundary | Tolerance and stall guard |
+| --- | --- | --- | --- | --- | --- |
+| WS-R1 parameter refusal | Given a saved or edited spring whose `stiffness`, `stroke` or `winding_lead` is outside its range, NaN or infinite, When admitted, Then it is refused with a typed reason and nothing changes | `WoundSpringContractTests.AnOutOfRangeOrNonFiniteParameterIsRefusedAndChangesNothing`; superseded by row R2 of the conformance suite (S4) if that lands first. The existing corner test (`:15`) proves admission only; the refusal code is one generic seam (`engine/gpu/InstanceParameters.cs:37`–`:49`) | the corners of `:15` are admitted | one f32 step outside each bound | exact refusal |
+| WS-R2 socket solid, markings flush, proxies separated | rows B7, B8 and B9 of visible-solid remainder part B | owned by that contract | — | — | — |
+
+## 6. Decisions
+
+Every question the harvest raised is decided; none needs the owner.
+
+1. **Recharge ledger.** Split as the requirement asks: paid source work is read separately from passive contact and gravity recharge (`PrismaticRetentionTests.cs:104`, `:145`).
+2. **Stop tolerance.** No world position tolerance is carried. The slice record reuses a 0.005 J energy allowance and a 1 mm position allowance; rearm is the released head physically reaching its rest end stop.
+3. **Blocked.** Ordinary contact blocks travel and clearing it resumes (`PrismaticRetentionTests.OrdinaryContactBlocksTravelAndClearingItResumes`, `:237`; `WoundSpringControlTests.cs:194`); no solver reaction is observed.
+4. **Drive sign.** `DriveIn` maps to the shaft coordinate with −1 per radian (`WoundSpringElementDeclaration.cs:61`); the transmission admits only the winding direction, so the opposite motor rotation freewheels.
+5. **Materials.** All three bodies: restitution 0, friction 0.3, rolling 0, threshold 0.1 m/s.
+6. **Damping.** The package's spring is pure potential (damping 0). The engine admits a declared damping on a retained store, proven with an unfamiliar declaration (`WoundSpringControlTests.DampedUnfamiliarStoreWindsRetainsReleasesAndRearmsWithBoundedDissipation`, `:338`).
+7. **Shaft.** Cylinder moments for 0.25 kg, r 0.26 m, width 0.1 m.
+
+## 7. Integration
+
+- **Collaborators, all delivered:** Motor and Battery (winding: Motor `Drive`, Mechanical Output → `DriveIn`, Mechanical Input), Impact switch and Delay box (Signal Output → `ActivationIn`, Signal Input), Hold timer, Powered gate, Wall, Basketball, Receiver.
+- **Numbers against collaborators.** The sleeve bore (radius 0.41 m) admits the Basketball (0.34 m), Bowling ball (0.28 m) and Tennis ball (0.25 m). A Weight fits up to about 5.0 kg: its band collider, 1.2 cm proud of the body, reaches the bore there (the body radius alone, 0.04808 m + 0.15933, would reach it at about 5.2 kg; the band shape was not re-measured). An 8 kg Weight (r 0.544 m) is the oversize control. 51.2 J shared between the 0.5 kg head and a 1 kg Basketball gives at most about 8.3 m/s.
+- **Campaign.** Authored levels 59 `wind_then_release` and 60 `saved_for_later` (plan levels 41 and 41a, where the wound launcher is first taught) are `Playable` with a `Captured` goal, and both are exercised by `WoundSpringIntegrationTests.cs:17`. S8 is not needed.
+- **Coverage binding.** Catalogue key `wound_spring` (CAT-071).
+
+## 8. Delivery and residuals
+
+- **Delivered** by 11.4a (commit `494c3711`). Contradiction to clear: the slice record's front matter says `status: 'in-progress'` while the package and both levels are on published main; a status edit owned by the next slice that touches the package.
+- **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it, the one-test slice included. The stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP` and `ENGINE-OPTICAL` (section 3).
+- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states). (2) WS-R1: one test, data-only tier, or absorbed by S4.
+- **Probe re-check for part B:** separating the six drawn proxies must leave every collider index, the sleeve's three dimensions and the footprint (3 bodies, 2 moving, 1 prismatic, 1 revolute) unchanged; `Mark0`–`4` keep their `stroke` height bindings and become quads at z 0.1002.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The package is declaration data only. Fixes: the layer-separation defect in the scene (point 3), owned by visible-solid remainder part B; the sleeve's optical response (point 3, `ENGINE-OPTICAL`); and the engine gap under point 6. No engine, bundle, abstraction or `ui/` source names this element; the only hits are coverage and browser-tool tables under `tools/`.
+
+1. **Declaration data only.** Three bodies, scene colliders, one sprung slider, one continuous hinge, one transmission, one retention, one signal request node, three parameters, two ports and presentation bindings. The legacy latch controller and its `Idle/Winding/Armed/Releasing/Blocked` phase (section 2, "Sensors and activation") are history: the delivered part has no controller.
+2. **Generic laws.** Store: the slider's axial spring, energy ½·k·q². Winding: a revolute-to-prismatic transmission with ratio `winding_lead` and a one-way velocity constraint, so reverse rotation freewheels. Holding: a retention on the coordinate. Release: a signal pulse delivered as a physical release request to that retention; an empty request expires by the request rule. Launch: the spring force on the head and contact on the payload. Rearm: the retention law when the head reaches its end stop. Guidance and the oversize control: contact with an open tube collider.
+3. **Three layers.** Colliders: base and two rail boxes and the sleeve tube on the housing; head sphere; shaft wheel cylinder. **Defect:** all six are drawn by their own `col_` meshes; part B (row B8) separates art from hidden proxies. The sleeve tube declares the optical response Transmit (1, 1, 1) under `ENGINE-OPTICAL`. Visuals: those six solids, the coil's 64 turn meshes, latch lever, charge index, marks, spoke, socket. Animation: the latch from `CommittedRetentionReleased` (rate-limited, cosmetic, no physical writer); the coil as a span between base and head pose. Head and shaft art, the charge index and the spoke are moved by their bodies' poses; the marks by a declared parameter binding at compile time; the housing art by nothing.
+4. **One-way flow and typing.** Physics → committed retention and pose → presentation. The trigger enters as a typed signal; nothing in presentation reaches physics. Typed `CoordinateKind`, `TransmissionConstraintKind`, `PhysicalRequestOperation`, `PortSignalKind`; f32 values.
+5. **Flat-state counts (from the scene and declaration).** 3 bodies (2 dynamic); 6 colliders: 3 boxes and 1 tube on the housing, 1 sphere, 1 cylinder (7 after part B: plus 1 socket sphere); 1 prismatic and 1 revolute joint; 1 transmission; 1 retention; 0 drives and no store beyond the slider spring; 1 signal node; 2 ports; 3 parameters; 1 presentation binding, 2 body-pose bindings, 1 span, 5 parameter bindings (unchanged by part B; the marks become quads at z 0.1002).
+6. **Performance fitness.** Six colliders and two joints; the housing is static. The 64 coil turns are render instances only and cost nothing in physics. The released head can reach about 14 m/s unloaded (51.2 J into 0.5 kg); it is a 0.32 m sphere guided by a slider inside a tube, and tunnelling of a payload it strikes is excluded by the engine's speculative contacts. Stated truthfully: island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026).
+7. **Scenario tests.** The package tests and the generic retention tests run the production simulation; the damped unfamiliar-store test proves the capability is not specific to this package.

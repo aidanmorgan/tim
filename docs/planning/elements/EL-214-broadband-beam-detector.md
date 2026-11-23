@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-214 delivery slice](../invest/named-elements.md#element-214). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The sensitive face looks along local −X.
-
-EL-214 refines the catalogue laser receiver [CAT-038 light_receiver](CAT-038-light_receiver.md). It shares the selective receivers' body and contact ([EL-146](EL-146-red-selective-receiver.md)) but integrates all channels by their mean, with no purity test. Appearance (the eased disc) does not establish detection; the numeric reading does.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after its audit and the owner decisions of 22 November 2026. Legacy citations use `path@a6c914e:Lstart-Lend`. Lengths are metres; the sensitive face looks along local −X. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions). It shares the receiver family's body; [EL-146](EL-146-red-selective-receiver.md) is the family lead and this spec states what differs.
 
 ## 1. Identity
 
@@ -15,47 +13,25 @@ EL-214 refines the catalogue laser receiver [CAT-038 light_receiver](CAT-038-lig
 | Type | Optical |
 | Anchor | [requirements.md#element-214](../requirements.md#element-214); named entry [named-elements.md#element-214](../invest/named-elements.md#element-214); scope index [todo-215](../requirements.md#todo-215) |
 | Owner | S497 |
-| Refines CAT | [CAT-038 light_receiver](CAT-038-light_receiver.md) (`light_receiver`, "Laser receiver", OpticalChannel=Broadband). One catalogue part satisfies both identities; not a second implementation. |
-| Related | EL-146 to EL-152 selective receivers; EL-152 white (each-channel rule, contrast); EL-153 general-light receiver (cone light); CAT-036 laser |
-| Roadmap story | [EL-214 delivery slice](../invest/named-elements.md#element-214); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | Candidate **Duplicate closure** of [CAT-038 light_receiver](CAT-038-light_receiver.md) (`light_receiver`, "Laser receiver"), closed inside that part's slice. No delta from CAT-038. |
+| Acceptance authority | The CAT-038 spec's acceptance rows are the single authority (coordinator decision 16, 22 November 2026). This identity's source outcome, "back-face, insufficient incident power and missing electrical supply are separate negative controls", is CAT-038 row **R2** (back face), rows **R4 and R4b** (insufficient incident power) and the **control of R1** (missing supply); the ledger row cites the package and those tests. Rows that need a later part (the splitter for R4b, the Flashlight for the cone row) run when that part is delivered, as CAT-038 states; the closure is recorded when the mapped rows have run. This spec carries no rows of its own. |
+| Planned package | none of its own; CAT-038's `light_receiver` (`elements/LightReceiver/`). The CAT spec is the single declaration (coordinator decision 27); section 2 points to it. |
+| Roadmap story | [Story 13.2](../../../_bmad-output/planning-artifacts/epics.md#story-132-broadband--pure-channel-optical-receivers-cat-038-cat-056-cat-032-cat-012) |
+| Status | not started; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL (which follows ENGINE-SPATIAL-QUERIES) and ENGINE-SIGNAL-NODES |
 
 ## 2. Declaration
 
-- **Bodies and shapes:** one static rigid body: opaque cream target plate 0.26 × 1.4 × 1.4 m at the origin (half-extents 0.13, 0.7, 0.7); opaque navy base 0.85 × 0.18 × 1.6 m at (0, −0.88, 0). Pick radius 1.1 m. Static `RigidBodyDeclaration`, two box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
-- **Mass and material:** static, zero mass; contact material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`; `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- **Constraints and joints:** none.
-- **Typed ports:** optical `Main` at (−0.18, 0, 0), normal −X, finite disc radius 0.55, Absorb, front only; electrical `PowerIn` (Input) at (0, −0.6, 0.65) and `Supply` (Output) at (0, −0.6, −0.65) (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`).
-- **Sensors and activation:** broadband strength S = (R + G + B) ÷ 3 of the power summed over all emitters in one snapshot. Matches when S ≥ threshold; no purity requirement. While matched the contact routes `PowerIn` → `Supply`. All emitters trace before any reading commits; the electrical solve follows the documented optical tick. No hysteresis; light never creates electricity.
-- **Work and energy stores:** none.
-- **Parameters:** `threshold` — f32, 0.05–2 (finite; others reject before Run), default 0.25, game optical power (`ReceiverParameter.Threshold`). Channel fixed at `Broadband` (`OpticalColour`). Requirement mode: "threshold. OpticalChannel=Broadband".
-- **Cosmetic curves and UI bindings:** disc eases slate `#556573` → gold `#f7cb52` over 0.125 s smoothstep from committed activity (endpoint drive) while the contact responds at the fixed tick. No channel marks (broadband).
-- **Art (DESIGN.md palette):** cream plate `#fff8e9`, navy foot `#293954`, slate/gold disc r 0.55 (thickness 0.035), cream concentric ring r 0.33, gold centre sphere r 0.08, two lower gold sockets r 0.075; DESIGN.md row "Laser receiver".
-- **Catalogue and inventory entry:** id `light_receiver`, title "Laser receiver", category Optics, colour (1, 0.97, 0.91), parameters `{"threshold": 0.25}`; description "The front target detects a laser beam and closes an electrical contact while lit. Connect a separate battery supply; the beam does not create electricity." Icon `ui/WorkshopIcons.cs@a6c914e:L63-L63` (current, kept).
-
-### Variants
-
-One. The three named negative controls (back face, insufficient power, missing supply) are proof cases.
+The `light_receiver` declaration, art, bindings and compiled counts are [CAT-038, Declaration](CAT-038-light_receiver.md#declaration); this identity adds none (coordinator decision 27, 23 November 2026). Palette: CAT-038's order 602 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); no order of its own.
 
 ## 3. Engine capabilities
 
-Binding shard ([element-03.json](../../coverage/engine/element-03.json)): FiniteLedger, GeometryQuery, OpticalAbsorption, OpticalTransport, SensibleHeat, SignalPropagation, StateTransaction ([element-map row](../general-engine-element-map.md) omits StateTransaction; source-specific composition: numerical broadband sensing plus a separately supplied contact; appearance does not establish detection).
-
-**Exists now:** static body, colliders and material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn`/`Supply` sockets (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L11`).
-
-**Missing**
-- OpticalTransport Absorb aperture with snapshot readings — Story 13.2 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
-- ElectricalPower switched contact — Story 8.1 plus 13.2; S257.
-- OpticalAbsorption/SensibleHeat — S489/S543, mode-specific.
-- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
-
-**Element dependencies:** CAT-036 laser or EL-176 to EL-178 (Story 13.1), CAT-005 battery (Story 8.1), a load (CAT-035 lamp, delivered, or CAT-051 powered gate), CAT-066 wall.
+The probe is [EL-146 section 3](EL-146-red-selective-receiver.md#3-engine-capabilities) row for row, with the same citations: present R1, R2, R3, R4, R12, R13; present-untested R11; narrower R9 (owner ENGINE-SPATIAL-QUERIES) and R10 (ENGINE-OPTICAL); missing MS (ENGINE-SIGNAL-NODES) and M2, M4, M5, M6 (ENGINE-OPTICAL). Counts 6 / 1 / 2 / 5. The mean is the WeightedSum value of the one declared strength rule, not a second code path chosen per part.
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-214](../requirements.md#element-214): a finite sensing surface integrates supported optical channels and drives a separately supplied contact above its threshold; back face, insufficient incident power and missing electrical supply are separate negative controls. Campaign: first use 51–60; practice 71–80; reuse 110 and 142 ([campaign-reservations](../invest/campaign-reservations.md)). CAT row [current-cat-038](../requirements.md#current-cat-038): threshold 0.05–2 / default 0.25; half-power 0.35 positive and quarter-power 0.175 negative must survive canonical f32 admission.
 
-**Legacy** (shared optical facts S1–S7 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); receiver body facts in [EL-146](EL-146-red-selective-receiver.md#4-sources-and-legacy)):
+**Legacy** (shared optical facts S1–S8 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); receiver body facts in [EL-146](EL-146-red-selective-receiver.md#4-sources-and-legacy)):
 1. Default colour Broadband; threshold binding and 0.05–2 validation; aperture; ports and contact route; receive and match — `parts/LightReceiverPart.cs@a6c914e:L11-L46`. Carry forward behaviour; not the per-part callback.
 2. Broadband strength = channel mean; broadband accepts without purity — `engine/OpticalColour.cs@a6c914e:L35-L48`. Carry forward.
 3. Indicator and art — `parts/LightReceiverPart.cs@a6c914e:L22-L27`, `parts/LightReceiverPart.cs@a6c914e:L47-L59`. Carry forward behaviour; not Godot materials.
@@ -66,18 +42,45 @@ Binding shard ([element-03.json](../../coverage/engine/element-03.json)): Finite
 
 **Files harvested:** `parts/LightReceiverPart.cs`, `parts/catalog/light_receiver.tres`, `parts/scenes/light_receiver.tscn`, `engine/OpticalColour.cs`, `engine/MachineData.cs`, `reference/cpu/MachinePart.cs`, `CuriousContraptions.tests/OpticalTests.cs`, `CuriousContraptions.tests/ElectricalContactBindingTests.cs`, `CuriousContraptions.tests/ReceiverAnimationTests.cs`, `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs`.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** in the actual Workshop place a battery, a switch with a falling ball, an amber laser, a beam splitter and the detector on one split branch, plus a lamp; wire battery → laser and receiver `PowerIn`, switch → laser `ActivationIn`, receiver `Supply` → lamp. Run.
-- **Positive:** a half-power amber branch (mean 0.35) lights the disc and lamp.
-- **Negative / controls (independent):** (a) back face — the detector rotated 180° stays dark; (b) insufficient incident power — a quarter-power branch (mean 0.175, after two splits) stays below 0.25; (c) missing supply — receiver `PowerIn` unwired: disc lights, lamp off. Also an occluder and an off-axis miss.
-- **Boundaries:** 0.35 positive and 0.175 negative after f32 admission; threshold edits 0.05 and 2; finite disc edge 0.55 m; nearest target absorbs.
-- **Run/Reset:** Reset clears reading, contact and indicator. **Save/Load:** threshold, placement and wiring round-trip.
-- **Integrations:** practice 71–80, reuse 110 and 142; gates, mirrors, combiner outputs. Story 13.2 suite `tools/e2e/cat-receivers-primary.test.ts`. Binding criteria: [element-214](../requirements.md#element-214), [current-cat-038](../requirements.md#current-cat-038).
+**Authority.** Acceptance is [CAT-038's rows](CAT-038-light_receiver.md#acceptance-outline) R1 to R12, with their fixtures, tolerances and stall guards. This identity's outcomes map to **R2**, **R4 and R4b**, and the **control of R1**; the ledger row cites those tests. No row is stated here. The declared release ratio is exercised by CAT-038's R4 (from dark) and R12 (held while matched).
+
+**Behaviour and numbers** (the laws behind those rows; one legacy unit is 10 W).
+
+- **Rule.** Strength is (R_r + R_g + R_b) ÷ 3; `matched` turns on at `threshold` and off below 0.9 × `threshold`. A full amber beam: (10 + 7.8 + 3.2) ÷ 3 = 7.0 W. Half amber, after one 50/50 splitter: 3.5 W ≥ 2.5 W, on. Quarter amber, after two splitters: 1.75 W, off. These are the requirement row's 0.35 and 0.175 in watts; each sits 30 % or more from the threshold, so f32 admission cannot move either. A red laser: 3.33 W, on.
+- **Any light, one law** (owner decision 9). A Flashlight 3 m in front gives 0.950 m² × 46.7 W/m² = 44.4 W, a mean of 14.8 W: on; the mean falls to 2.5 W at d = √(0.950 × 420.4 ÷ 3 ÷ 2.5) = 7.3 m. With several detectors in one cone the shares are scaled so that together they never receive more than the 90 W emitted.
+- **Nearest solid.** A beam ends on the first absorbing collider it meets; a second detector behind the first reads nothing.
+- **Contact and tick order.** The strength commits with the tick the light arrives; `matched` takes it at the start of the next tick and the contact closes in that tick.
+
+Chrome recipe (pending, post-catalogue): CAT-038's.
 
 ## 6. Open questions
 
-1. Does "integrates supported optical channels" mean the channel mean (legacy) or the channel sum? The mean is presumed binding (CAT-038 row values match it).
-2. Should the detector also respond to torch cones? Legacy: laser only; cone sensing is EL-153 (CAT-029 question 3).
-3. No hysteresis (as EL-146 question 2); owner S486.
-4. Confirm CAT-038 alone satisfies EL-214.
+None open.
+
+1. **"Integrates supported optical channels" — decided** (D15): the channel mean, which the CAT-038 row's values match.
+2. **Torch cones — decided by the owner** (decision 9, 22 November 2026): one receiver law for all light; no "collimated only" attribute; `sequence-task-398` is reworded (text in the batch summary). Finite-width sampling with partial shadow remains [EL-153](EL-153-general-light-receiver.md)'s.
+3. **Hysteresis — decided** (K-4): release ratio 0.9.
+4. **One catalogue part satisfies EL-214 — decided**: Duplicate closure with CAT-038's rows as the single authority (coordinator decision 16).
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Collaborators.** Lasers, splitter, mirror, combiner, gates (as their outlet observer), Beam shutter, Flashlight (undelivered); Battery, Powered gate, Motor, Wall (delivered). Port domains as EL-146. Behind an unpowered Beam shutter the detector is dark in any mounting (owner decision 6).
+- **Campaign.** First use 51–60; practice 71–80; reuse 110 and 142.
+- **Coverage binding (planned, not yet live).** Catalogue key `light_receiver` (CAT-038). A closed duplicate has no binding section of its own: it is covered by the package of the part that satisfies it and by the closure record, which the coverage follow-on story S7 must admit (owner decision 15 widens the reader).
+- **Lesson fixtures.** Story [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) is defined and lands after the engine programme (owner decision 22).
+
+## 8. Delivery
+
+- **Slice shape.** Closed inside CAT-038's slice (the broadband member of the Colour receivers Family slice).
+- **Prerequisites, in order.** The engine programme (owner decision 3a), including ENGINE-SPATIAL-QUERIES; ENGINE-SIGNAL-NODES; ENGINE-OPTICAL as corrected in the batch summary; the amber laser (CAT-036); the splitter (CAT-008) before row R4b can run.
+- **Files (CAT slice).** `elements/LightReceiver/`, one guarded `CuriousContraptions.slnx` line, `CuriousContraptions.tests/LightReceiverTests.cs`, a `VisibleSolidColliderTests` row, the ledger row for EL-214.
+- **Review tier.** Data-only if the probe finds every row present after the engine stories.
+- **Disqualifiers.** A receiver with only one strength rule; no threshold node with a release ratio; a different unit scale.
+
+## 9. Engine conformance
+
+Verdict: **Conforms**, on the seven points as [EL-146 section 9](EL-146-red-selective-receiver.md#9-engine-conformance): the receiver family's declaration with the mean strength rule and no purity; no engine code names it; it couples through a signal node only; colliders (two boxes, two spheres), flush art and the disc binding are separate layers; counts are fixed; one sample point bounds its cost; its tests are CAT-038's scenarios.

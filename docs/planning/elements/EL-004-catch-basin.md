@@ -1,81 +1,118 @@
 # EL-004 · Catch basin — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-004 delivery slice](../invest/named-elements.md#element-004). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-004 delivery slice](../invest/named-elements.md#element-004). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md) and are cited by number. Box sizes are full extents in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-004 · Catch basin · Water |
-| Requirement anchor | [element-004](../requirements.md#element-004); source record [todo-334](../requirements.md#todo-334); integration task [sequence-task-384](../requirements.md#sequence-task-384) |
-| Named entry | [element-004](../invest/named-elements.md#element-004); per-element proof owner S425 |
-| CAT spec refined | None. The ball Receiver ([CAT-004](../requirements.md#current-cat-004)) is a different element; the basin borrows its open-box geometry pattern only. |
-| Related identities | [EL-001](EL-001-finite-reservoir.md), [EL-003](EL-003-tap.md), [EL-005 Liquid funnel](EL-005-liquid-funnel.md), [EL-006 Drain](EL-006-drain.md), [EL-007 Open gutter](EL-007-open-gutter.md), [EL-016 Float](EL-016-float.md) (floats in it), EL-031 Volume meter |
-| Roadmap story | [EL-004 delivery slice](../invest/named-elements.md#element-004); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-004 · Catch basin · Water |
+| Anchors | [element-004](../requirements.md#element-004), co-anchored `sequence-task-557`; source record [todo-334](../requirements.md#todo-334); integration [sequence-task-384](../requirements.md#sequence-task-384); ledger [element-004](../invest/named-elements.md#element-004), owner S425 |
+| Disposition | To deliver as a single element. Not a duplicate of the ball Receiver ([CAT-004](../requirements.md#current-cat-004)): the Receiver captures balls and has no liquid store. Not a duplicate of EL-001: it has no mouth, a different capacity and area, and starts empty |
+| Planned package | id `catch_basin`, directory `elements/CatchBasin/`, title "Catch basin" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` and `ENGINE-THERMAL` |
+| Related | [EL-001](EL-001-finite-reservoir.md), [EL-003](EL-003-tap.md), [EL-005](EL-005-liquid-funnel.md), [EL-006](EL-006-drain.md), [EL-007](EL-007-open-gutter.md), [EL-016](EL-016-float.md) (floats in it), EL-031 |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: the Receiver's open five-box vessel (`elements/Receiver/basket.tscn`).
 
-**Element declaration:**
-- **Bodies and shapes.** One static body, five box colliders forming an open tray as the Receiver does (`engine/gpu/ReceiverGeometry.cs@a6c914e:L8-L19`): outer 1.49 × 0.55 × 1.24 m (W × H × D), walls 0.12 m, base 0.15 m; interior 1.25 × 0.40 × 1.0 m to the rim (**proposed**: about the Receiver's 1.5 m footprint, shallow enough to read the waterline and to hold a floating EL-016).
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** `OpenMouth`: the rim-plane aperture 1.25 × 1.0 m. No outlet mouth (the drain is EL-006). Domain `Water` (**proposed**).
-- **Sensors and activation.** Committed contained volume is readable by the puzzle goal (a fill band target), through the goal evaluator's committed-read rule (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`). Capture is a swept test of free-stream packets against the rim aperture, never a render-rate overlap ([component research](../../component-research.md#water), line 15).
-- **Work and energy stores.** Finite liquid store, capacity 0.5 m³ (8 steps, 8 kg) (**proposed**: half a tank, so one full EL-001 overflows it — the overflow control is reachable in one construction). Initial volume 0.
-- **Parameters.**
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, and the liquid store declaration of `ENGINE-LIQUID` (W4, W6).
+- **Body.** One static body, mass 0. Origin at the centre of the outer box.
+- **Colliders (five boxes).** Outer 1.49 × 0.55 × 1.24; interior 1.25 × 0.40 × 1.0. Floor 1.49 × 0.15 × 1.24 at (0, −0.2, 0); two walls 0.12 × 0.40 × 1.24 at (±0.685, 0.075, 0); two walls 1.25 × 0.40 × 0.12 at (0, 0.075, ±0.56).
+- **Material.** Family vessel material (EL-001).
+- **Store.** Local id 1. Capacity 0.5 m³ (8 marks, 8 kg), plan area 1.25 m², floor datum (0, −0.125, 0). Open aperture: rectangle 1.25 × 1.0 at y = +0.275, normal +Y. Overflow point (0, 0.275, 0.62). Starts empty. Its store is also a thermal node (owner decision 20; [TH-04 section 11](TH-04-electrical-heating-plate.md#thermal-conventions), T2), starting at the ambient 288 K (T1) unless a level authors another; inflow mixes by mass, outflow leaves at the store's temperature, and no row here reads temperature.
+- **Mouths.** None; the Drain is [EL-006](EL-006-drain.md).
+- **Parameters.** `initial_volume`: Real f32, m³ (W13), default 0, minimum 0, maximum 0.5, Reject, build only. It starts empty by default; rows in other specs author a depth through it. Capacity is fixed (D13).
+- **Presentation.** `Visual/Water` scale and offset from the committed fill fraction (W12, missing).
+- **Palette.** `ElementCategory.Structure`; palette order 518 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour teal (74/255, 171/255, 148/255).
 
-  | Name | Type | Range | Default | Unit | Source |
-  | --- | --- | --- | --- | --- | --- |
-  | Capacity | f32, fixed by geometry | 0.5 | 0.5 | m³ | parameter named by component research line 30; value **proposed** |
-  | TargetBand (puzzle-authored only) | f32 pair | 0–0.5, step 2⁻⁴ | none | m³ | **proposed**: needed by "Two Gardens" (fill bands, component research line 53) |
+### Art and solidity
 
-- **Cosmetic curves and UI bindings.** Fill height ← committed volume ([component research](../../component-research.md#water), line 30). When a TargetBand is authored, two gold marks show it; the rim turns pale green `#bdf4bd` while the volume is inside the band, mirroring the Basket rim cue (`DESIGN.md@a6c914e:L278-L278`) (**proposed**).
-- **Art.** Basket teal `#4aab94` body (`DESIGN.md@a6c914e:L170-L170`) with cream rim `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`); water cyan `#66b8c9` at alpha 0.16 (`DESIGN.md@a6c914e:L181-L181`) (**proposed**: a collector reads as a relative of the Basket).
-- **Catalogue and inventory entry.** Id `catch_basin`, title "Catch basin", category "Water", kind `CatchBasin` (all **proposed**).
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Shell` | Open tray, five slabs, teal `#4aab94` with a cream `#fff8e9` rim face | solid; five box colliders | body pose (static) |
+| `Visual/Water` | Box 1.25 × 0.40 × 1.0, cyan `#66b8c9`, alpha 0.16 | decorative: enclosed, moved by a binding | presentation binding |
+| `Visual/Marks` | Gold lines on the inner back wall every 0.05 m (one mark = 0.0625 m³) | decorative: printed flat | nothing |
 
-**Variants.** The requirements row lists no variants.
+Icon: a low wide tray with a waterline. It differs from the Receiver (a taller basket with a goal rim) and from the Water tank (tall, with a port ring) by its low wide outline.
+
+### Behaviour and numbers
+
+- **Capture (L8, L9).** Only a stream whose path crosses the 1.25 × 1.0 rim rectangle from above enters. A stream that meets a wall's outer face or the bench first goes to `Spilled`. Nothing is captured at a distance.
+- **Fill from a tank through an open tap.** The basin is full when the tank has given 0.5 m³, that is when the tank depth has fallen from 1.0 to 0.5 m: (2·A/K)·(√1.0 − √0.5) = (2 / 0.04820) × 0.2929 = **12.2 s**. The remaining 0.5 m³ arrives over the next 29.3 s and leaves over the rim (L9): the basin stays at 0.5 m³ and the overflow goes to `Spilled` unless something below catches it.
+- **Where the stream lands.** From a tap `End` 0.5 m above the rim the stream lands at most 0.82 m out ([EL-003](EL-003-tap.md)), and nearer as the tank drains. A basin with its near inner wall under the tap and its 1.25 m length along the stream catches all of it.
+- **Depth.** 0.5 m³ ÷ 1.25 m² = 0.40 m, the interior height. One mark is 0.05 m of depth.
+- **Why these values.** Half a tank, so one full Water tank overflows it and the overflow lesson needs no second source; shallow, so the waterline is readable and a Float ([EL-016](EL-016-float.md), draught 0.16 m) has room.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-004`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body and baked colliders | present | tray |
+| W22 authored state through Run, Reset, save, load | present | pose |
+| W4 fluid port contract | present, untested | store declaration |
+| W6 store with level | missing | `ENGINE-LIQUID` |
+| W8 stream capture at an open aperture | missing | `ENGINE-LIQUID` (gap in its text) |
+| W9 overflow and ledger | missing | `ENGINE-LIQUID` |
+| W12 fill-fraction driver | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static open-box geometry (Receiver pattern, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L82`); committed-read goal evaluation (`engine/gpu/WorkshopGoalEvaluator.cs@a6c914e:L5-L8`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Free-stream packet capture sweep and liquid ledger ([S416](../invest/decisions.md#s416) advection → S418); a volume feedback source for the cosmetic (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L6-L16`); a volume-band goal kind. Required in the linked delivery slice.
-- **Element dependencies.** A source: EL-001 + EL-003, EL-005, EL-007 or EL-013.
+Counts: 3 present (with W23 for the parameter), 1 untested, 0 narrower, 5 missing (with W13 for its unit); one owner. A fill-band goal reads the committed volume (L13) through the goal slice `engine-goal-progress-observation`; it is level data, not a parameter of this part.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, five colliders, one store with an aperture and an overflow point, one binding.
+2. **Generic laws.** "A missed stream remains outside" is L8: the path meets something else first. "Overflow remains conserved" is L9 and L10.
+3. **Three layers.** *Colliders:* five boxes. *Visuals:* the table above. *Animation:* the water box follows the committed fill.
+4. **One-way flow and typing.** As EL-001.
+5. **Flat-state counts.** Bodies 1 (static); colliders 5 boxes; joints 0; drives 0; sensors 0; liquid nodes 1 store; thermal nodes 1; mouths 0; open apertures 1; bindings 2; parameters 0.
+6. **Performance fitness.** Five boxes, as the Receiver. The aperture is a bounded rectangle tested only against stream paths; the interior is one bounded region for immersion.
+7. **Tests are scenarios.** Rows B1 to B7.
 
 ## Sources and legacy
 
-- Requirements row: "A missed stream remains outside; overflow remains conserved." No variants.
-- Component research row "Catch basin / Liquid funnel / Drain (EL-004–006)": finite store with capacity, explicit overflow ([component research](../../component-research.md#water), line 30). Floor handling "shallow catch tray, bounded puddles or visible drains" (line 20).
-- Family boundary [fluids](../invest/profiles.md#fluids); refinement [S704](../invest/refinements.md#s704) overflow.
-- **Legacy search.** Same scope and terms as EL-001: no liquid collector exists at a6c914e. The analogue finite-store rules (capacity bound, no overfill) are cited in [EL-001](EL-001-finite-reservoir.md) facts 1–2; here too, excess must spill rather than be discarded.
+- Requirement: "Open vessel collects intersecting liquid flow up to capacity"; outcome "A missed stream remains outside; overflow remains conserved." No variants.
+- Component research [water](../../component-research.md#water) line 30 (finite store with capacity, explicit overflow) and line 15 (capture is a swept test, never a render-rate overlap); family boundary [fluids](../invest/profiles.md#fluids); refinement [S704](../invest/refinements.md#s704).
+- **Legacy search.** As EL-001: no liquid collector at a6c914e. The finite-store rules are EL-001 rows 1 and 2; here too excess must spill, not be discarded. **Files harvested:** none.
 
 ## Acceptance outline
 
-Point of truth: [element-004](../requirements.md#element-004).
+Authority: [element-004](../requirements.md#element-004). Tolerances L17. Planned class `CatchBasinTests`. Sources are a Water tank and Tap.
 
-- **Chrome recipe.** Place a Water tank with a Tap, then place a Catch basin with the move gizmo so the spout lies over its rim; a second lane places the basin 1 m to the side.
-- **Positive.** Run: the basin's fill rises by exactly what the tank loses (minus water still in transit).
-- **Negative / control.** Offset basin: the stream lands on the floor tray beside it; the basin stays at 0 and the tray holds the spilled volume.
-- **Boundaries.** Fill a basin from a full 1 m³ tank: it holds 0.5 m³, and the remaining 0.5 m³ spills over the rim onto the tray, conserved. A stream grazing the rim edge is captured only where packets cross the rim aperture.
-- **Run/Reset.** Basin returns to 0, tray to 0, ledger exact. **Save/Load.** Pose and authored TargetBand survive reload.
-- **Integrations.** [sequence-task-384](../requirements.md#sequence-task-384) (visible remaining capacity and overflow); First Pour bucket mark analogue.
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| B1 | Given a full tank with an open tap whose stream lands inside the rim, when Run advances 8 s, then the basin's gain equals the tank's loss within 0.004 m³ | `CatchBasinTests.TheBasinGainsWhatTheTankLoses` | B2 | — |
+| B2 | Given the same construction with the basin moved 1.0 m sideways, when Run advances 8 s, then the basin holds 0 and `Spilled` equals the tank's loss | `CatchBasinTests.AMissedStreamStaysOutside` | B1 | a basin whose outer wall face, not its rim, is under the stream holds 0 |
+| B3 | Given B1 run until the tank is empty (stall guard 125 s), then the basin holds 0.5 m³, `Spilled` holds 0.5 m³, and the ledger identity holds at every sampled tick (the level declares a Run length of 125 s, `ENGINE-RUN-LENGTH`, owner decisions 13 and 17) | `CatchBasinTests.OverflowIsConserved` | a tank authored at 0.5 m³ fills the basin and spills nothing | the basin reaches 0.5 m³ at 12.2 s within 10% |
+| B4 | Given a second basin under the first basin's overflow point, then the lower basin receives the overflow | `CatchBasinTests.OverflowFallsFromTheDeclaredRimPoint` | lower basin moved aside: `Spilled` instead | — |
+| B5 | Given a solid Wall between the tap and the basin, then the basin holds 0 (a stream does not pass a solid) | `CatchBasinTests.AStreamDoesNotPassASolid` | B1 | — |
+| B6 | Given a run that filled the basin, then Reset restores `initial_volume` and zeroes `Spilled`; save and load keep the pose and `initial_volume`; a value outside 0 to 0.5 or non-finite is refused whole | `CatchBasinTests.ResetRestoresTheAuthoredVolume` | — | 0 and 0.5 admitted |
+| B7 | **sequence-task-384:** given tank → tap → basin with a Drain ([EL-006](EL-006-drain.md)) under the basin's overflow point, when the tank empties (stall guard 125 s, as B3; the level declares a Run length of 125 s, `ENGINE-RUN-LENGTH`, owner decisions 13 and 17), then basin 0.5 m³ + `Drained` 0.5 m³ = the tank's 1.0 m³ and the water art shows the basin full | `CatchBasinTests.ATankEmptiesThroughATapIntoABasin` (a cross-part row owned by the EL-006 slice: the Drain is taught at 61a, after the basin at 61) | tap closed: nothing moves | — |
+
+Generic cover: W22, W23. Chrome recipe (pending): place a Water tank and Tap, then a Catch basin under the spout; a second lane places the basin 1 m to the side.
 
 ## Open questions
 
-1. Is capacity fixed or resizable?
-2. Is the fill-band goal a new goal kind, or expressed through an EL-031 volume meter driving the existing activation goal?
-3. Does spilled floor water persist as bounded puddles or flow to the nearest drain? (component research line 20 allows either)
-4. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). Free-stream packet volume and budget are unspecified — owner S418.
+All resolved; none needs the owner.
+
+1. Capacity fixed or resizable: fixed (D13).
+2. Fill-band goal: a goal that reads the committed volume, owned by `engine-goal-progress-observation`; no `TargetBand` parameter and no rim colour cue on the part, because a goal is level data and a part must not know it.
+3. Spilled liquid: terminal in the `Spilled` account (L9). Puddles and floor run-off are not modelled; a Drain or a second vessel placed under the overflow point is how a player keeps it.
+
+## Integration
+
+- **Works with.** EL-001, EL-003, EL-005, EL-006, EL-007, EL-013, EL-014 to EL-018; none delivered.
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-334`; `sequence-task-557` not co-anchored with a todo; no `s425` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID`; `ENGINE-THERMAL`; EL-001; EL-003; S7. Row B7's drain term follows EL-006.
+- **Files.** Adds `elements/CatchBasin/CatchBasin.csproj`, `CatchBasinElementDeclaration.cs`, `catch_basin.tscn`, `icon.svg`, `CuriousContraptions.tests/CatchBasinTests.cs`; edits `CuriousContraptions.slnx` and this spec. Other lists as EL-001.
+- **Review tier.** Data-only.
+- **Disqualifiers.** Capture decided by anything but the stream path crossing the declared aperture; overflow that is discarded; a store that cannot start empty.

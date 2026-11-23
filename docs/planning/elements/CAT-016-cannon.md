@@ -1,128 +1,84 @@
 # CAT-016 · cannon declaration readiness spec
 
-**Current delivery (24 October 2026):** [CAT-016 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** [CAT-016 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-This is the Story 7.0 CAT-016-D declaration readiness spec for the Toy cannon, written against baseline commit `a6c914e` before Epic 7 deletes the legacy that holds its knowledge. Legacy citations use `path@a6c914e:Lstart-Lend` and resolve with `git show a6c914e:<path> | sed -n 'start,endp'`; current-engine files are cited at the same commit so the line ranges stay stable. The [requirement row](../requirements.md#current-cat-016) remains the acceptance authority; this spec records the concrete declaration knowledge the legacy holds.
+Current contract for a delivered part, repaired on 22 November 2026 after the independent audit (`docs/planning/elements/readiness/audits/elements-batch-c.md`). Checked against `elements/Cannon/` on checkout `spec-drafts` (`8d1d68aa`); published main is `25df3cd5`, and its two later commits touch neither this package nor its tests. Sections 1–3 and 5–10 are current. Section 4 is the legacy harvest at `a6c914e`, kept verbatim as evidence; where it differs from the delivered declaration, the declaration governs. The [requirement row](../requirements.md#current-cat-016) remains the acceptance authority.
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
 | CAT ID | CAT-016 |
-| Kind | `cannon`, catalogue title "Toy cannon" (`parts/catalog/cannon.tres@a6c914e:L6-L7`) |
+| Kind | `cannon`, catalogue title "Toy cannon" |
 | Requirement anchor | [CAT-016](../requirements.md#current-cat-016); retained behaviour [todo-392](../requirements.md#todo-392); related rows [sequence-task-082](../requirements.md#sequence-task-082) (compound chamber eligibility), [sequence-task-084](../requirements.md#sequence-task-084) (compound swept queries), [sequence-task-100](../requirements.md#sequence-task-100) (physical reload), [sequence-task-102](../requirements.md#sequence-task-102) (coupled finite-work actuation), [sequence-task-154](../requirements.md#sequence-task-154) (owned gameplay impulses), [sequence-task-164](../requirements.md#sequence-task-164) (loading boundaries), [sequence-task-205](../requirements.md#sequence-task-205) (physical cannon energy) |
-| Mapped identities | None found. [EL-095 Toy revolver](../invest/named-elements.md#element-095) and [EL-091 Cannonball](../invest/named-elements.md#element-091) are separate launcher and payload identities, not this part — not mapped; Batch A confirms. |
+| Mapped identities | None found. [EL-095 Toy revolver](../invest/named-elements.md#element-095) and [EL-091 Cannonball](../invest/named-elements.md#element-091) are separate launcher and payload identities, not this part. |
 | Roadmap story | [11.4b Cannon](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-016 mode and mapped named-identity obligation. |
-| Harvest-baseline status | Not started: `cannon` has no `WorkshopPartKind` (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3`) |
+| Status | **Delivered.** Package id `cannon`, directory `elements/Cannon`. Slice record [11.4b](../../../_bmad-output/implementation-artifacts/spec-11-4b-cannon.md) (`done`, commit `90fe6fca`). Browser case pending. Every residual slice (section 9) is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-SPATIAL-QUERIES` (chamber occupancy and muzzle-clearance sweeps) and `ENGINE-OPTICAL` (the jacket's Transmit response). |
+| Disposition | Delivered catalogue part; no mapped named identity. EL-091 Cannonball is its planned payload (Ball presets family); EL-095 Toy revolver is a separate launcher. |
 
 ## 2. Declaration
 
-### Bodies and shapes
+The current declaration is `elements/Cannon/CannonElementDeclaration.cs`; the scene is `elements/Cannon/cannon.tscn`.
 
-One static body in the part frame; the barrel axis is local +X. All values are legacy authored metres (harvest H1–H5).
-- **Jacket:** an open annular tube, half-length 0.55, inner (bore) radius 0.48, outer radius 0.58, transparent.
-- **Collars:** two opaque annular rings at x = ±0.5, half-length 0.05, inner radius 0.48, outer radius 0.65.
-- **Breech:** a solid box centred at (−0.65, 0, 0), size 1.16 × 1.16 in Y × Z and 0.2 in X (half extents 0.1, 0.58, 0.58). Its inner face at x = −0.55 closes the chamber.
-- **Foot:** a box centred at (0, −0.75, 0), size 1.7 × 0.2 × 1.4 (half extents 0.85, 0.1, 0.7).
-- **Chamber region:** the cylinder of half-length 0.55 and radius 0.48 along local X. It is a query region, not a collider.
+| Item | Delivered value | Source |
+| --- | --- | --- |
+| Interfaces | `IEnergyStoreElement`, `IChamberRegionElement`, `IFiniteWorkActuatorElement`, `ISupplyElement`, `ISignalElement`, `ISceneGeometryElement` | `:11`–`:12` |
+| Body | one static body (footprint 1 body, 0 moving, no constraint); material restitution 0, friction 0.3, rolling 0, threshold 0.1 m/s | `:19`, `:26` |
+| Colliders | jacket and two collar tubes, breech and foot boxes, from hidden proxies `col_Jacket`, `col_RearCollar`, `col_MuzzleCollar`, `col_Breech`, `col_Foot` | `cannon.tscn:132`–`:155` |
+| Energy store | capacity `capacity`, initial energy 0, charge power `charge_power` | `:27`–`:29` |
+| Chamber region | along the barrel (local +X): radius 0.48 m, half-length 0.55 m, admitted transverse widths 0.6–0.84 m, containment allowance 0.001 m, maximum relative arrival speed 1 m/s | `:30`–`:32` |
+| Finite-work actuator | one release from store 1 on chamber 1, speed cap 12 m/s, muzzle sweep padding 0.02 m | `:33`–`:34` |
+| Parameters | `capacity` J, default 45, 1–100; `charge_power` W, default 30, 1–100. Real, editor policy Reject, Build only (descriptor defaults) | `:17`–`:18` |
+| Ports | `PowerIn`: Electrical, Input, role PowerIn, (−0.45, −0.55, 0.55). `ActivationIn`: Signal, Input, role ActivationIn, pulse, (0.15, −0.55, 0.55). Normals +Z; no output | `:35`–`:41` |
+| Supply and signal | `PowerIn` → supply consumer `charge` → the energy store; `ActivationIn` → a physical release request on actuator 1. Electrical node `charge`: Consumer, 12 V, 10 Ω, capacitance 0, maximum 100 W, in the field order (NodeId, Role, RatedVoltage, Resistance, Capacitance, MaxPower) (`CuriousContraptions.Abstractions/ElectricalContractValues.cs:15`–`:21`). The node is validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by the `ENGINE-SUPPLY-DEMAND` story or removed forward-only. Charging itself is governed by `charge_power` and debits the source | `:42`–`:51` |
+| Event | `FiniteWorkReleased` for actuator 1 | `:52` |
+| Presentation | `ChargeBar` X scale by `CommittedStoredFraction` (0.001–1); `ReadyFlag` Z rotation 0° when ready, −70° otherwise; `Indicator` albedo by `CommittedFiniteWorkState` (slate, cyan, gold); `Sleeve` local X recoil from −0.22 to −0.38 on the release event, smooth rise and fall over 0.53 s, tanh-sum overlap; pick radius 1.1 m | `:53`–`:75` |
+| Palette | category Motion, order 42, colour (0.4, 0.72, 0.79), display name "Toy cannon" | `:14`–`:16` |
 
-The breech and foot use `ColliderDeclaration` boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`). The jacket and collars need the annular collider that Stories 6.6/6.7 add for CAT-048; the parked precedent is `AnnularProfile` and `PipeDimensions` (`engine/gpu/AnnularProfile.cs@a6c914e:L6-L25`, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`). The legacy bore radius is 0.48, while the pipe bore is 0.65, so the cannon declares its own radius.
+At the defaults a full charge takes 1.5 s (45 J ÷ 30 W). The connection kind for `ActivationIn` is Activation; its domain is `SimulationDomain.Signal`.
 
-### Mass and material
+### Art and solidity (delivered scene)
 
-- **Mass:** none. The cannon is a static body (`RigidMotionKind.Static`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`) and has no recoiling barrel (H30).
-- **Material:** restitution 0, bounce threshold 0.1 m/s, friction 0.3 (H6), declared as a `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- **Payload:** the payload keeps its own declared material. The Basketball is 0.34 m / 1 kg (`engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L51`).
+| Node | Mesh and pose | Layer and class |
+| --- | --- | --- |
+| `Visual/Jacket` with `col_Jacket` | translucent cyan ring along the barrel: outer radius 0.58 m, bore radius 0.48 m, half-length 0.55 m | visual with a separate hidden tube proxy; hollow |
+| `Visual/RearCollar`, `Visual/MuzzleCollar` with `col_RearCollar`, `col_MuzzleCollar` | cream rings at x −0.5 and +0.5: outer radius 0.65 m, bore radius 0.48 m, half-length 0.05 m | visuals with hidden tube proxies; hollow |
+| `Visual/Breech` with `col_Breech` | cream box 0.2 × 1.16 × 1.16 m at (−0.65, 0, 0); its inner face closes the chamber | visual with a hidden box proxy; solid |
+| `Visual/Foot` with `col_Foot` | navy box 1.7 × 0.2 × 1.4 m at (0, −0.75, 0) | visual with a hidden box proxy; solid |
+| `Visual/Sleeve` | slate ring, outer radius 0.565 m, 0.14 m long, at x −0.22 | decorative: moved by the recoil presentation binding, inside the jacket wall |
+| `Visual/ChargeTrack` | navy box 0.8 × 0.11 × 0.07 m at (0, −0.55, 0.62) | **defect:** drawn solid, no collider. Part C (row C2) appends a box |
+| `Visual/ChargeBar` | gold box 0.8 × 0.07 × 0.075 m at (0, −0.55, 0.66) | decorative: scaled by a presentation binding |
+| `Visual/ReadyFlag` | gold box 0.28 × 0.14 × 0.04 m | decorative: turned by a presentation binding |
+| `Visual/Indicator` | sphere r 0.07 m at (−0.66, 0.65, 0.4) | **defect:** drawn solid, no collider. Part C (row C1) appends a sphere. Colour moved by a presentation binding |
+| `Visual/PowerIn`, `Visual/ActivationIn` | spheres r 0.07 m at the two port positions | **defect:** drawn solid, no collider. Part C (row C2) appends spheres. Sockets keep their colliders (owner decision, 21 November 2026) |
 
-### Constraints and joints
-
-None. The cannon is static and holds no joint. Legacy tests attach a slider joint to the payload only to prove the coupled release response (H24); joints arrive in Epic 10.
-
-### Typed sockets and ports
-
-| Socket | Domain | Direction | Local position (m) |
-| --- | --- | --- | --- |
-| `PowerIn` | Electrical | Input | (−0.45, −0.55, 0.55) |
-| `ActivationIn` | Activation | Input | (0.15, −0.55, 0.55) |
-
-Source: H7. Both sockets already exist in `WorkshopSocket` and `WorkshopConnectionDomain` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`). The cannon has no output port.
-
-### Sensors and activation
-
-- **Trigger:** one activation input (`Trigger`), coalesced to the next fixed-tick boundary (H10, H11).
-- **Chamber sensor:** every tick, it inspects which dynamic bodies overlap the chamber region (H12–H16).
-
-`ResidenceSensorDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L123-L141`) watches only an open box against one named target, so it cannot express "exactly one of any dynamic body, fully contained in a cylinder". Story 11.4 must add a chamber-containment sensor, which may generalise the Story 6.8 aperture sensor. Activation edges use `ActivationNetwork` (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`, `engine/gpu/ActivationNetwork.cs@a6c914e:L70`); a trigger consumer node kind does not exist yet.
-
-### Work and energy stores
-
-One finite store, owned by the cannon:
-- **Capacity:** the `capacity` parameter.
-- **Initial energy:** 0 (H17).
-- **Charging:** while `PowerIn` is supplied, the store accepts `charge_power × dt`, clipped at capacity (H18).
-- **Release:** the stored energy is the work budget for one axial impulse on the payload (H22).
-
-`ContactWorkDeclaration` (`engine/gpu/ContactWorkDeclaration.cs@a6c914e:L19-L36`) and `BumperWork` (`engine/gpu/WorkshopBumper.cs@a6c914e:L6-L29`) are the current finite-store precedents. However, the bumper is contact-triggered and preloaded, not supply-charged and trigger-released, so Story 11.4 must add a supplied charge store.
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `capacity` | f32 energy | 1–100 | 45 | J (legacy "game energy", equal to ½mv² in tests) | H8, H9 |
-| `charge_power` | f32 power | 1–100 | 30 | W (J/s) | H8, H9 |
-
-At the defaults, a full charge takes 1.5 s (45 J ÷ 30 W).
-
-### Cosmetic curves and UI bindings
-
-- **Charge bar:** X-scale follows the store fill fraction (0–1), with a minimum scale of 0.001, and is always visible (H27).
-- **Ready flag:** rotates about Z to 0° in `Ready` and to −70° in every other phase (H28).
-- **Indicator sphere:** slate `#556573` in Empty, Loading, Firing and Jammed; cyan `#66b8c9` in Charging; gold `#f7cb52` in Ready (H28).
-- **Recoil sleeve:** a translation of up to −0.16 along X driven by the shot occurrence. It uses a smooth rise and fall, 0.08 s compression and 0.45 s return, and a tanh-sum overlap (H30, H31).
-
-The current carrier is `CosmeticCurveDeclaration` (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L17`). Its `AnimationFeedbackSource` has no shot-occurrence or energy-store source yet; Story 11.4 adds them.
-
-### Art
-
-- **Scene:** `parts/scenes/cannon.tscn` binds only the script (H32). The geometry is code-built (H33).
-- **Palette:** follows [DESIGN.md "Reloadable toy cannon"](../../../DESIGN.md#reloadable-toy-cannon): navy foot `#293954`; cream breech and collars `#fff8e9`; transparent cyan jacket RGBA (0.4, 0.72, 0.79, 0.22); slate sleeve `#556573`; gold charge bar `#e8b764` over a navy track; gold flag `#f7cb52`; port markers `#e8b764`.
-- **Catalogue colour:** `#66b8c9`.
-- **Pictogram:** the original navy cannon pictogram is kept.
-
-### Catalogue and inventory entry
-
-- **Id and title:** `cannon`, "Toy cannon".
-- **Category:** "Motion".
-- **Colour:** (0.4, 0.72, 0.79).
-- **Defaults:** `capacity` 45, `charge_power` 30.
-- **Description:** "Load a ball through the open muzzle. A separate electrical supply charges the finite store; an activation fires only a fully charged, seated single ball through a clear muzzle. Empty or obstructed attempts retain charge. It never creates ammunition." (H34)
-
-No level in `content/puzzles.json` places the cannon or stocks it in an inventory (`git grep '"cannon"' a6c914e -- content/puzzles.json` returns nothing). Inventory admission uses the package declaration, bundle-issued typed element id and authored allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+Floating art, recorded and not repaired by part C: both sockets hang 3 cm above the foot and 12.8 cm off the jacket with nothing drawn joining them to the body. Part C is [visible-solid remainder part C](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md), status **blocked on parts B and B2 being published**; it also teaches the matcher to read a ring mesh from its vertices and triangles (row C10), which is what confirms that the drawn jacket, collars and sleeve match their tubes. The classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `cannon`. Palette follows [DESIGN.md "Reloadable toy cannon"](../../../DESIGN.md#reloadable-toy-cannon). No level in `content/puzzles.json` places or stocks the part.
 
 ## 3. Engine capabilities
 
 The capability families are listed in the [general-engine element map](../general-engine-element-map.md) CAT-016 row and in [catalogue-elements.json](../../coverage/catalogue-elements.json); they are not duplicated here.
 
-**Exists now**
-- **Dynamic sphere payloads and static box colliders:** `RigidBodyDeclaration` and `ColliderDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`), with the Basketball material (`engine/gpu/WorkshopConstruction.cs@a6c914e:L41-L53`).
-- **Box2D v3 TGS Soft contact solve at 480 Hz substeps:** `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236` (`makeSoft`), `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623` (`prepareContact`), `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774` (`solveNormalRow`).
-- **Typed Activation and Electrical connection domains, with `PowerIn` and `ActivationIn` sockets:** `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- **Activation network with typed nodes and edges:** `engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`, `engine/gpu/ActivationNetwork.cs@a6c914e:L70`.
-- **Finite paid-work store pattern:** `engine/gpu/ContactWorkDeclaration.cs@a6c914e:L19-L36`.
-- **Cosmetic impulse curves forwarded to the animation worker:** `engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L17`.
-- **Residence or capture latch over a committed sensor candidate:** `engine/gpu/CaptureLatch.cs@a6c914e:L5-L8`.
+**Capability probe (22 November 2026).** Tests were found by name and line; none was run. Counts: 8 present, 0 present-untested, 0 narrower, 0 missing. The store, chamber and release are generic declared capabilities; the engine holds no cannon code.
 
-**Missing**
-- **Annular jacket and collar colliders with an open bore:** Stories 6.6/6.7 (CAT-048 pipe).
-- **Electrical supply source and powered-consumer evaluation:** Story 8.1 (CAT-005 Battery).
-- **Supply-charged finite store, chamber containment sensor, coalesced trigger consumer, muzzle swept-clearance query, axial release impulse and typed phase/shot reads:** Story 11.4.
-- **Coupled release response against a jointed payload** (H24): needs joints from Epic 10 (Stories 10.3/10.2) before that control can run.
-- **Compound (multi-child) payload bodies,** which the requirement's full compound containment needs (H15): no current story named; see Open questions.
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Supply-charged finite energy store | present | `IEnergyStoreElement`, `EnergyStoreDescriptor`, `SupplyEnergyStoreTarget` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:35`; `CuriousContraptions.Abstractions/EnergyStoreValues.cs:73`; `SupplyContractValues.cs:51`) | `CannonIntegrationTests.DefaultChargeTakesOneAndAHalfSecondsAndPowerLossRetainsPartialEnergy` (`CuriousContraptions.tests/CannonIntegrationTests.cs:53`); generic `EnergyStoreContractTests` |
+| Chamber region: exactly one fully contained, slow occupant within declared widths | present | `IChamberRegionElement`, `ChamberRegionDescriptor` (`MechanicalContracts.cs:60`; `CuriousContraptions.Abstractions/ChamberRegionValues.cs:13`) | `CannonIntegrationTests.TwoPhysicalOccupantsPresentUnavailableAndResetToEmpty` (`:103`); generic `ChamberOccupancyTests`, `ChamberContractTests` |
+| Finite-work release with a speed cap and swept muzzle clearance | present | `IFiniteWorkActuatorElement`, `FiniteWorkActuatorDescriptor` (`MechanicalContracts.cs:65`; `CuriousContraptions.Abstractions/FiniteWorkActuatorValues.cs:26`) | `CannonIntegrationTests.AuthoredMountAimsAlongItsBarrelAndTenMillimetreMuzzleWallRefuses` (`:336`); generic `FiniteWorkResponseTests`, `FiniteWorkGeometryIntegrationTests` |
+| Signal pulse as a physical release request that expires when refused | present | `SignalPhysicalRequestDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:65`) | `CannonIntegrationTests.AnExpiredAttemptDoesNotWaitForChargeOrArrival` (`:135`), `OpeningTheMuzzleGateDoesNotReplayAnExpiredRequest` (`:230`) |
+| Open tube colliders | present | `ColliderShapeKind.Tube` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `CannonIntegrationTests.PhysicalLoadChargesAndFiresOnlyWithItsSeparateSupply` (`:550`) loads a ball through the muzzle |
+| Store-fraction and finite-work-state presentation drivers | present | `PresentationDriver.CommittedStoredFraction`, `CommittedFiniteWorkState` (`CuriousContraptions.Abstractions/ElementPresentation.cs:33`, `:34`) | `CannonArtTests.NativeAnnuliAndPrivateCuesUseTheManagedFactoryAndRestoreAuthoredArt` (`CuriousContraptions.tests/CannonArtTests.cs:11`) |
+| Event-driven impulse presentation (recoil) | present | `PresentationDriver.Event` with `SimulationEventKind.FiniteWorkReleased` (`elements/Cannon/CannonElementDeclaration.cs:66`–`:69`) | `CannonIntegrationTests.HiddenReleaseRetainsOneVisibleRecoilFrameAndResetCancelsIt` (`:157`) |
+| Pause, Step, Run/Reset and save/load | present | generic lifecycle | `CannonIntegrationTests.TwentyRunResetsAndFiveSaveLoadsRestoreOnlyAuthoredConstruction` (`:482`), `PauseRetainsTheClockRequestUntilStepAndResumeDoesNotReplayIt` (`:183`) |
 
-**Element dependencies**
-- **Required for the first proof:** CAT-005 Battery (supply), CAT-001 Basketball (payload) and an activation source such as CAT-063 Switch.
-- **Needed for the feeder integration:** CAT-017 Clock, CAT-022 Delay, CAT-037 Latch and CAT-051 Powered gate (H38).
-- **Needed for the obstruction control:** CAT-066 Wall (H21).
+**Engine gaps this part relies on (stated, not designed around).**
+
+- **Chamber and clearance queries scan the scene.** Inside the substep loop (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1002`) the chamber pass refreshes every collider (`WorkshopPhysicsEngine.Chambers.cs:15`), loops every dynamic body (`:86`) and every collider for each region (`:102`), and sweeps the payload against every collider for muzzle clearance (`:156`–`:167`). The broadphase is not used. That is work proportional to the scene every substep. Engine gap owned by `ENGINE-SPATIAL-QUERIES` (owner decision 3a, 22 November 2026): regions and sweeps take their candidates from its region and shape queries, bounded by their declared volume.
+- **Optical response of the jacket.** Every collider absorbs light by default under the optical conventions ([EL-176](EL-176-red-laser-emitter.md) section 10, item 6). The clear jacket's collider `col_Jacket` declares Transmit (1, 1, 1), a criterion of `ENGINE-OPTICAL`, not of a Cannon slice: a beam through the jacket reaches a detector, and a ball in the chamber blocks it.
+- **No island sleeping.** Island sleeping is not implemented; a resting body is still stepped (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026). The Cannon's body is static, so the gap concerns a payload resting in the chamber, not the part.
+- **Generality residue, recorded only.** A finite-work release needs a full store (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.FiniteWork.cs:106`), one occupant, a cylinder region and an axial release, so a multi-shot launcher (EL-095 Toy revolver, EL-225 Latched slingshot cradle) cannot be declared from it. Proposed line for the owning story: "a finite-work actuator declares its minimum releasable store energy (default: capacity)".
+
+**Element dependencies.** Battery; a Signal output for the trigger; Basketball as the payload; System clock, Delay box, State latch and Powered gate for the feeder; Wall for the obstruction control. All delivered.
 
 ## 4. Legacy harvest
 
@@ -210,57 +166,27 @@ The capability families are listed in the [general-engine element map](../genera
 
 ## 5. Acceptance outline
 
-The requirement is the [CAT-016 row](../requirements.md#current-cat-016) and Story 11.4.
+Requirement: the [CAT-016 row](../requirements.md#current-cat-016). The Chrome recipe (place a Toy cannon pointing up, a Basketball above the muzzle, a Battery wired to `PowerIn` and a Switch with a striker wired to `ActivationIn`; verify the construction; Run) is queued for the post-catalogue browser phase, with `docs/cannon-recipes.json` as its input.
 
-**Chrome UI construction recipe.** Use actual Chrome UI only.
-1. From the toolbox, place a Toy cannon and rotate it with the gizmo to point up (rotation (0, 0, 90)).
-2. Place a Basketball above the muzzle so it falls into the bore (recipe `cannon-powered-v1`: cannon (0, 3, 0), ball (0, 5, 0)).
-3. Place a Battery and wire its `Supply` to the cannon's `PowerIn`.
-4. Place a Switch with a striker ball and wire its `ActivationOut` to the cannon's `ActivationIn`.
-5. Verify the placed configuration and the typed connections, then Run.
+**Native tests that exist per requirement criterion (22 November 2026; none was run for this review).** In `CuriousContraptions.tests/CannonIntegrationTests.cs`. Store starts empty, full charge in 1.5 s, power loss keeps partial energy: `:53`. Separate supply: `:550`. Ambiguous occupancy: `:103`. Rejected trigger expires (empty, partial, early): `:135`. Blocked muzzle, and blocked-to-clear needs a fresh trigger: `:336`, `:230`. Rotated bore: `SuppliedAuthoredMountLaunchesOnItsClockRequest` (`:284`). Same-ball reload: `GravityReturnsTheSameBallForAnotherPaidShot` (`:516`). Distinct-ball timed feeder: `ClockDelayLatchAndGateFeedADistinctSecondBall` (`:407`). Recoil as cosmetic feedback, none on rejection: `:157`. Rollback and lifecycle: `:482`, `:183`, `:13`. Wrong-kind connection, generic: `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`BundlePortsTests.cs:262`). Compound containment, both widths, moving occupant and the coupled response are in the generic suites `ChamberOccupancyTests`, `ChamberContractTests`, `FiniteWorkResponseTests` and `OwnedFiniteWorkTransactionTests`; this review listed those files and did not read their rows.
 
-**Positive.** After the full charge (1.5 s at defaults), the trigger launches the same ball along the bore. The muzzle speed equals the frozen value (see Open questions), the transverse velocity is preserved, the part count is unchanged, the ball does not teleport, and the recoil plays once.
+**Residual acceptance rows.**
 
-**Negative and control.**
-- Missing supply wire: no launch.
-- Empty chamber: no launch, and the charge is kept.
-- Blocked muzzle (wall): no launch, the charge and payload identity are kept, and only a fresh trigger after clearing fires.
-- Wrong-size or protruding payload: `Unseated`.
-- Two balls: `Ambiguous`.
+| Row | Given / When / Then | Planned test | Control | Boundary | Tolerance and stall guard |
+| --- | --- | --- | --- | --- | --- |
+| CN-R1 parameter refusal | Given a saved or edited cannon whose `capacity` or `charge_power` is outside 1–100, NaN or infinite, When admitted, Then it is refused with a typed reason and nothing changes | `CannonIntegrationTests.AnOutOfRangeOrNonFiniteParameterIsRefusedAndChangesNothing`; superseded by row R2 of the conformance suite (S4) if that lands first. The refusal code is one generic seam (`engine/gpu/InstanceParameters.cs:37`–`:49`) | the corners (1 J, 1 W) and (100 J, 100 W) are admitted and each charges in 1 s | one f32 step outside each bound | exact refusal; charge time within one simulation tick of 1 s, since charging is a timed contract |
+| CN-R2 width window through real balls | Given a Basketball and a Tennis ball at radius 0.35 m, 0.25 m and 0.45 m, each loaded in a charged cannon, When triggered, Then the Basketball and the 0.35 m Tennis ball fire, and the 0.25 m and 0.45 m balls are refused and keep the charge | `CannonIntegrationTests.OnlyBallsInsideTheDeclaredWidthWindowFire` | the Basketball | none here: the exact edges are `ChamberOccupancyTests.WidthAndRelativeArrivalAdmissionIncludeTheirDeclaredBoundaries` (`CuriousContraptions.tests/ChamberOccupancyTests.cs:21`) | fired means muzzle exit within a 3 s stall guard; refused means the ball's speed stays under 0.1 m/s (the bounce threshold) and stored energy is unchanged |
+| CN-R3 indicator, track and sockets solid; rings match their tubes | rows C1–C4 and C10 of visible-solid remainder part C | owned by that contract | — | — | — |
 
-**Boundaries.**
-- Parameter minimum and maximum, plus atomic rejection just outside 1–100.
-- Payload widths at the 0.6/0.84 edges.
-- The frozen f32 seating clearance and speed.
-- Arrival exactly at the following boundary (H11).
-- Oblique mounting (0, 30, 75) and (30, 45, 60).
+## 6. Decisions
 
-**Run/Reset.** Reset restores the exact construction, the store to 0, the shot count to 0, no payload identity and a cleared recoil.
-
-**Save/Load.** Round-trips `capacity`, `charge_power`, pose and both connections. The replayed shot is identical.
-
-- **Integrations.** Clock + Delay + Latch + Powered gate feeder (H38), return reload under gravity (H37) and a rebound from a wall (H26).
-
-## 6. Historical planning questions
-
-The following questions record the harvest baseline, not current unresolved prerequisites. The current resolution below and native Story 11.4b plan control delivery.
-
-1. **Muzzle speed — unspecified, owner decision.** Story 11.4 expects 12 m/s. The legacy default (45 J into the 1 kg Basketball) yields 9.48–9.50 m/s, with a 16 m/s release cap. Choose between: a default capacity of 72 J (½·1·12²); a 12 m/s target-speed cap; or keeping 45 J and amending the story.
-2. **Release cap and incoming-speed rejection — unspecified, owner decision.** Keep the 16 m/s target and `SpeedLimited` rejection (H22) under the f32 envelope, or replace them?
-3. **Seating values — unspecified, owner decision.** The f32 seating clearance (legacy 0.002 m) and relative-speed limit (legacy 1 m/s) must be frozen, as the requirement asks.
-4. **Bowling ball eligibility — unspecified, owner decision.** The Bowling ball (radius 0.28 m, width 0.56) falls below the 0.6 m minimum width and can never seat. Is that intended? The Tennis ball (CAT-064) width is undeclared.
-5. **Muzzle sweep overshoot — unspecified, owner decision.** Keep the 0.02 m distance past the half-length (H20)?
-6. **Compound payloads — unspecified, owner decision.** Full compound containment (H15) needs multi-child payload bodies, which the current engine lacks (single-primitive mass properties only). Which story adds them?
-7. **Energy units — unspecified, owner decision.** Confirm `capacity` in J and `charge_power` in W. The legacy observation unit was "game energy".
-8. **Shot-result set — unspecified, owner decision.** Do `SpeedLimited` and `NoResponse` stay in the closed set, given that `NoResponse` needs Epic 10 joints to test?
-9. **Recoil overflow policy — unspecified, owner decision.** H43 is not carried forward, so what happens to cosmetic overflow?
-10. **Recipe file — unspecified, owner decision.** `docs/cannon-recipes.json` survives Epic 7, but its Playtest consumer is deleted. Retain it as the Story 11.4 recipe source or retire it?
+The harvest raised ten planning questions; all are decided. The owner's decision of 18 November 2026 and the Story 11.4b resolution in section 7 settle muzzle speed, the release cap, seating values, the sweep padding, compound payloads, units, the shot-result set and recoil overflow. Two were decided by this review under the standing delegation: the Bowling ball stays ineligible by the declared width window, with no identity exception; and `docs/cannon-recipes.json` is kept as input for the post-catalogue browser phase. No item needs the owner.
 
 ## 7. Current Story 11.4b resolution (19 November 2026)
 
 Owner decision, 18 November: retain default capacity **45 J**, charging **30 W**, and set release cap to **12 m/s**. The stationary free 1 kg payload is energy-limited to sqrt(90), approximately **9.49 m/s**; the old exact-12 m/s story expectation is superseded. Retain SpeedLimited at the cap and NoResponse for a fixed/zero-response target, with no debit on either rejection. Energy and power are J and W.
 
-The [native Cannon plan](../../../_bmad-output/implementation-artifacts/spec-11-4b-cannon.md) records independently approved package admission controls of **0.001f m** containment allowance, **1f m/s** maximum relative arrival speed and **0.02f m** muzzle sweep padding. Independent planning Scoped Pass was recorded on19November; implementation acceptance remains a separate gate. The 1 mm allowance permits seated contact without treating visible protrusion as fully contained; the admitted maximum spherical width leaves 60 mm radial clearance. Relative motion at 1 m/s spans at most 16.7 mm at the slowest admitted committed simulation tick profile (60 Hz). Canonical operation remains 120 Hz simulation/480 Hz physical substeps and independent 60 Hz animation; `CuriousContraptions.Abstractions/CadenceValues.cs:49–73` admits 60/120/240 Hz simulation with 8/4/2 substeps. The bound uses that supported simulation profile, not the animation clock. The 20 mm sweep pad places the payload's rear support beyond the muzzle and its immediate exterior. These are authored gameplay thresholds, not numerical-test epsilons, and must not be tuned to observed results. Compound radial/cap containment still checks actual material, not merely transverse widths.
+The [native Cannon plan](../../../_bmad-output/implementation-artifacts/spec-11-4b-cannon.md) records independently approved package admission controls of **0.001f m** containment allowance, **1f m/s** maximum relative arrival speed and **0.02f m** muzzle sweep padding. The slice is published (`90fe6fca`). The 1 mm allowance permits seated contact without treating visible protrusion as fully contained; the admitted maximum spherical width leaves 60 mm radial clearance. Relative motion at 1 m/s spans at most 16.7 mm at the slowest admitted committed simulation tick profile (60 Hz). Canonical operation remains 120 Hz simulation/480 Hz physical substeps and independent 60 Hz animation; `CuriousContraptions.Abstractions/CadenceValues.cs:49–73` admits 60/120/240 Hz simulation with 8/4/2 substeps. The bound uses that supported simulation profile, not the animation clock. The 20 mm sweep pad places the payload's rear support beyond the muzzle and its immediate exterior. These are authored gameplay thresholds, not numerical-test epsilons, and must not be tuned to observed results. Compound radial/cap containment still checks actual material, not merely transverse widths.
 
 Both transverse widths remain inclusively **0.6–0.84 m**. Consequently the current 0.56 m Bowling ball is Unseated; no element identity exception is added. Future payloads qualify by their declared geometry. Multi-child bodies already exist in the published engine; bounded full-material containment/clearance queries and coupled finite-work release belong to this consuming slice. Harvest statements that compounds, joints, supply or annular contacts are missing are historical, not current prerequisites.
 
@@ -269,3 +195,31 @@ Use exact declared store/region/actuator/body references, including multiple ins
 Current availability must follow current chamber, clearance and charge, not a historical failed request. LastResult remains diagnostic: after the muzzle physically clears, a fully charged seated payload returns to Ready without an automatic shot, debit or recoil; a fresh trigger is still required. The review-pass-1 native amendment defines generic exact-actuator committed clearance, including typed uncertainty and Reset. This repairs the earlier persistent-Obstructed presentation rule; H28's distinction between current phase and shot result remains authoritative.
 
 Recoil explicitly authors independent generic choices: SmoothRiseFall, HyperbolicTangentSum, DeferUntilVisible, EventTimeRetainFirstFrame, .53 s duration and .08/.53 peak. Other admitted impulse curves may compose their supported overlap/visibility/timing independently; the shared engine must not select a Cannon recipe from its curve. Recoil uses the existing demand-grown occurrence/animation ownership. Cosmetic queue occupancy never refuses a physical shot; explicit ring retention/lapping rules remain. Preserve `docs/cannon-recipes.json` as historical recipe input for the deferred Chrome phase, not current executable proof. Native artwork has no script bindings. H25/H37/H48 historical numeric windows and whole replay identity are replaced by independent semantic gameplay/work/clearance assertions under current testing guidance; retained reload, feeder, rebound and exact authored Reset/save behavior remain required. Failed-tick atomicity stays a design obligation; injected-fault qualification stays at its named later gate.
+
+## 8. Integration
+
+- **Collaborators, all delivered:** Battery (Supply, Electrical Output → `PowerIn`, Electrical Input), Impact switch, System clock and Delay box (Signal Output → `ActivationIn`, Signal Input), State latch, Powered gate, Wall, Basketball, Receiver.
+- **Which balls seat (widths 0.6–0.84 m in both cross directions, from `:32`).** Basketball, 0.68–0.70 m with its bands: yes. Bowling ball, 0.56 m: no (Unseated). Tennis ball, a plain sphere whose seam is printed (owner decision 24i): seats for radius 0.30–0.42 m (width 2 × radius in 0.6–0.84 m) at any turn; at its default radius 0.25 m it does not seat. Baseball after its approved repair, 0.52–0.54 m with its band: no. Planned EL-091 Cannonball and EL-077 Soccer ball, both proposed at radius 0.32 m, 0.64–0.66 m with a band: yes, so the Ball presets family is not disqualified by the chamber. A change of either proposed radius must stay inside the window.
+- **Energy.** 45 J into a free 1 kg ball gives about 9.49 m/s, under the 12 m/s cap and above a Bumper's 8 m/s target; a heavier ball leaves slower by the square root of the mass ratio.
+- **Campaign.** No level in `content/puzzles.json` places a Cannon. S8 is not needed.
+- **Coverage binding.** Catalogue key `cannon` (CAT-016).
+
+## 9. Delivery and residuals
+
+- **Delivered** by 11.4b.
+- **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it, the tests-only rows included. The stories that own this part's gaps are `ENGINE-SPATIAL-QUERIES` and `ENGINE-OPTICAL` (section 3).
+- **Residual slices.** (1) Visible-solid remainder part C, blocked on parts B and B2; engine tier (it changes the shared matcher). (2) CN-R1 and CN-R2: tests only, data-only tier, CN-R1 absorbed by S4 if that lands first. (3) Supply drain: none outstanding. Charging debits the source through the supply-to-store binding (`CannonIntegrationTests.cs:83`).
+- **Engine work this part waits on for conformance, not for play:** `ENGINE-SPATIAL-QUERIES` for the chamber and sweep queries, and `ENGINE-OPTICAL` for the jacket's Transmit response (owner decision 3a, 22 November 2026: the engine programme precedes further element delivery).
+- **Probe re-check for part C:** the four new colliders are appended after `col_Foot` and lie outside the bore, so the chamber and sweep, which exclude only the cannon's own body and the payload, are unaffected.
+
+## 10. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The package is declaration data only. Fixes: the four missing colliders of section 2 (visible-solid remainder part C); the unread electrical node values (point 1); the scene-proportional chamber and clearance queries the part relies on (point 6, `ENGINE-SPATIAL-QUERIES`); and the jacket's optical response (point 3, `ENGINE-OPTICAL`). No engine, bundle, abstraction or `ui/` source names this element; the only hits are coverage and browser-tool tables under `tools/`.
+
+1. **Declaration data only.** One static body, five scene colliders, one energy store, one chamber region, one finite-work actuator, two parameters, two ports, one electrical consumer node, one signal request node, one event row and six presentation bindings. The phases and shot results are the engine's finite-work state and request-result enums for any actuator. Fix: the electrical node's four numbers are read by no law (section 2).
+2. **Generic laws.** Charging: the supply network delivers power to a declared energy store, bounded by `charge_power` and `capacity`. Eligibility: a chamber region query (one fully contained occupant, declared widths, declared maximum relative speed). Firing: a signal pulse delivered as a release request to a finite-work actuator, which solves one bounded axial impulse with contacts, joints and the carrier reaction and debits the store once; a refused request expires. Clearance: a swept query along the region axis that excludes only the actuator's own body and the payload. Loading and reload: ordinary contact in a tube. Nothing creates or teleports a body.
+3. **Three layers.** Colliders: `col_Jacket`, `col_RearCollar`, `col_MuzzleCollar` (tubes), `col_Breech`, `col_Foot` (boxes), all hidden proxies; part C appends a box for the charge track and spheres for the indicator and two sockets. `col_Jacket` declares the optical response Transmit (1, 1, 1) under `ENGINE-OPTICAL` (section 3). Visuals: imported jacket and collar meshes, breech, foot, sleeve, charge track and bar, flag, indicator, sockets. Animation: charge bar scale from `CommittedStoredFraction`; flag and indicator from `CommittedFiniteWorkState`; sleeve recoil from the `FiniteWorkReleased` event. The sleeve, bar and flag are decorative; the recoil pushes nothing.
+4. **One-way flow and typing.** Physics and domain state → committed reads and one event → presentation. The cosmetic queue never refuses a shot (section 7). Typed ids for store, region and actuator; `SimulationEventKind`, `PhysicalRequestOperation`; J and W as f32.
+5. **Flat-state counts.** 1 static body; 5 colliders (3 tubes, 2 boxes), 9 after part C; 0 joints and drives; 1 energy store; 1 chamber region; 1 finite-work actuator; 1 electrical node; 1 supply consumer; 1 signal node; 1 event row; 2 ports; 2 parameters; 6 presentation bindings.
+6. **Performance fitness.** Five static colliders, nine after part C. A fired ball leaves at up to 12 m/s; tunnelling through thin parts is excluded by the engine's speculative contacts, not by a cannon check. Stated truthfully: the chamber region and the muzzle sweep are bounded volumes in the declaration, but the engine evaluates them by refreshing every collider, looping every dynamic body and every collider per region and sweeping the payload against every collider, inside the substep loop (`WorkshopPhysicsEngine.Chambers.cs:15`, `:86`, `:102`, `:156`–`:167`; `WorkshopPhysicsEngine.cs:1002`). That is work proportional to the scene. Engine gap owned by `ENGINE-SPATIAL-QUERIES` (owner decision 3a, 22 November 2026). Island sleeping is not implemented; a resting body is still stepped (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP`; the Cannon's body is static, so it concerns a resting payload, not the part.
+7. **Scenario tests.** `CannonIntegrationTests` runs real constructions; region, response and transaction laws have their own generic suites.

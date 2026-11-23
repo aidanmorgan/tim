@@ -11,83 +11,75 @@ Story 7.0 CAT-018-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | CAT ID | CAT-018 |
 | Kind | `clutch`, catalogue title "Clutch", category "Power" (`parts/catalog/clutch.tres@a6c914e:L6-L8`) |
 | Requirement anchor | [CAT-018](../requirements.md#current-cat-018); retained behaviour [sequence-task-310](../requirements.md#sequence-task-310); shared rows [sequence-task-192](../requirements.md#sequence-task-192), [sequence-task-193](../requirements.md#sequence-task-193), [sequence-task-277](../requirements.md#sequence-task-277), [sequence-task-280](../requirements.md#sequence-task-280) |
-| Mapped identities | None. No EL/TH/RAD/GAP names a clutch. [EL-055 Mechanical brake](../invest/named-elements.md#element-055) and [TH-05 Friction brake](../invest/named-elements.md#thermal-05) are separate elements; sequence-task-310 keeps brake and slip/torque-limiting variants separate. Batch A confirms. |
+| Mapped identities | None. No EL/TH/RAD/GAP names a clutch. [EL-055 Mechanical brake](../invest/named-elements.md#element-055) and [TH-05 Friction brake](../invest/named-elements.md#thermal-05) are separate elements; sequence-task-310 keeps brake and slip/torque-limiting variants separate. |
 | Roadmap story | [11.2a Clutch](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-018 mode and mapped named-identity obligation. |
-| Harvest-baseline status | Not started. `WorkshopPartKind` has no clutch member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Status (22 November 2026) | **Delivered.** Package id `clutch`, directory `elements/Clutch`, palette category Power, order 38 (`elements/Clutch/ClutchElementDeclaration.cs:54`–`:59`). Slice record: [11.2a Clutch and timed mechanical transmission](../../../_bmad-output/implementation-artifacts/spec-11-2a-clutch.md) (status done; commit `e9b7f794`, 17 November 2026). Residuals (section 8): two proud shaft spokes and the exposed axle have no collider; coil drain. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-SUPPLY-DEMAND` (coil drain) and `ENGINE-ISLANDS-SLEEP` (resting shafts). Browser qualification pending. Checked on `8d1d68aa`; published main is now `25df3cd5`, and its two extra commits touch none of this package's files. |
 
 ## 2. Declaration
 
-### Bodies and shapes
-- **Static housing (root body).** Navy base box centred (0, −0.48, 0), size 1.9 × 0.16 × 1.1 m. Two cream bearing blocks centred (±0.65, −0.1, 0), each 0.35 × 0.7 × 0.65 m (`parts/ClutchPart.cs@a6c914e:L77-L79`). The legacy `AddBox` helper survives only in `reference/cpu/MachinePart.cs@a6c914e:L352-L356`: it always adds a root-body collider box with half extents = size/2, and its `draw` flag controls art only. So these boxes collide. Use `ColliderDeclaration` box shapes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`).
-- **Input shaft and output shaft.** Two dynamic wheel bodies, radius 0.28 m and width 0.13 m. Their hinge anchors are at (−0.65, 0, 0.43) and (0.65, 0, 0.43) in the part frame, about local Z (`parts/ClutchPart.cs@a6c914e:L18-L19`, `parts/ClutchPart.cs@a6c914e:L23-L24`). Each has a 24-sided convex prism hull of that radius and width (`engine/SceneRotaryShaft.cs@a6c914e:L29-L42`). The current `ColliderShapeKind` has only Sphere, Box and Plane (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L7-L7`), so a cylinder or hull shape is required.
-- **Plates (cosmetic).** Two gold discs, radius 0.3 m and length 0.18 m. Their rest x is ±0.09 m, opening by 0.16 m × (1 − closure) (`parts/ClutchPart.cs@a6c914e:L65-L66`, `parts/ClutchPart.cs@a6c914e:L95-L100`). The legacy declares no plate collider.
+### Delivered declaration (22 November 2026)
 
-### Mass and material
-- Each shaft: mass 0.25 kg (`parts/ClutchPart.cs@a6c914e:L18-L19`). Inertia: axial m·r²/2, transverse m·(3r² + w²)/12 (`engine/SceneRotaryShaft.cs@a6c914e:L13-L24`). The current `RigidMassProperties` compiles only a sphere or a box (`engine/gpu/RigidMassProperties.cs@a6c914e:L17-L50`), so a cylinder inertia law must be added.
-- Shaft contact material: the part's initial contact material (`engine/SceneRotaryShaft.cs@a6c914e:L22-L22`). No values are recorded. Use `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- Shafts are excluded from static world queries (`engine/SceneRotaryShaft.cs@a6c914e:L22-L22`).
+Read from `elements/Clutch/ClutchElementDeclaration.cs` and `elements/Clutch/clutch.tscn`.
 
-### Constraints and joints
-- Two hinges, each linking a shaft to the housing, about local Z, travel in both directions. Hinge-to-housing collision is disabled (`engine/SceneRotaryShaft.cs@a6c914e:L25-L28`).
-- One coupling row between the two hinge coordinates: ratio +1, typed engagement `Open | Engaged` (`parts/ClutchPart.cs@a6c914e:L20-L26`, `engine/physics/PhysicsTransmissionJoint.cs@a6c914e:L7-L7`). An Open coupling contributes no velocity or acceleration rows; the hinges and identities remain (`engine/physics/PhysicsTransmissionJoint.cs@a6c914e:L50-L63`).
-- A new declaration type is required, such as a hinge declaration and a ratio-coupling declaration with an enum engagement. None exists in `engine/gpu/*`.
+- **Interfaces.** `IHingeElement`, `IMechanicalTransmissionElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:20`, `:90`), `ISupplyElement` (`CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs:11`), `ISceneGeometryElement` (`:15`). Footprint: 3 bodies, 2 moving, 2 revolute (`:67`).
+- **Static housing colliders (scene).** Base box 1.9 × 0.16 × 1.1 m at (0, −0.48, 0); two bearing blocks 0.35 × 0.7 × 0.65 m at (±0.65, −0.1, 0); coil cylinder r 0.38 m, 0.065 m long, axis X, at the origin; `PowerIn` stud sphere r 0.1 m at (0, −0.35, 0.5); lamp sphere r 0.075 m at (0, 0.4, 0.18).
+- **Two shafts (dynamic).** Cylinders r 0.28 m, 0.13 m wide, axis Z, at (±0.65, 0, 0.43); each 0.25 kg with moments (0.00525, 0.0098, 0.00525) kg·m² (`:17`–`:19`, `:118`–`:144`).
+- **Material, all three bodies.** Restitution 0, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:87`–`:92`).
+- **Hinges.** Two continuous revolutes about +Z, no spring, no drive, bearing friction 0.02 N·m each (`:112`–`:144`).
+- **Transmission.** One bilateral coupling, ratio +1, from coordinate 0 to coordinate 1, closing over `close_seconds` (`:146`–`:150`); it couples only in phase `Engaged`.
+- **Parameter.** `close_seconds`: `Real`, seconds, minimum 0.05, maximum 2, default 0.2, build-only (`:64`).
+- **Ports (`:69`–`:81`).**
 
-### Typed sockets and ports
-| Socket | Domain | Direction | Local position (m) | Source |
-| --- | --- | --- | --- | --- |
-| DriveIn | Mechanical | Input | (−0.65, 0, 0.55) | `parts/ClutchPart.cs@a6c914e:L40-L40` |
-| Drive | Mechanical | Output | (0.65, 0, 0.55) | `parts/ClutchPart.cs@a6c914e:L41-L41` |
-| PowerIn | Electrical | Input | (0, −0.35, 0.5) | `parts/ClutchPart.cs@a6c914e:L42-L42` |
+  | `PortId` | Role | Domain | Direction | Position (m), normal | Binding |
+  | --- | --- | --- | --- | --- | --- |
+  | `DriveIn` | `PortRole.DriveIn` | Mechanical | Input | (−0.65, 0, 0.55), +Z | coordinate 0, +1; rim r 0.28 m |
+  | `Drive` | `PortRole.Drive` | Mechanical | Output | (0.65, 0, 0.55), +Z | coordinate 1, +1; rim r 0.28 m |
+  | `PowerIn` | `PortRole.PowerIn` | Electrical | Input | (0, −0.35, 0.5), +Z | supply consumer whose target is the transmission (`:152`–`:154`) |
 
-Mechanical bindings: DriveIn maps to the input hinge and Drive to the output hinge, each with coordinate-per-radian −1 (`parts/ClutchPart.cs@a6c914e:L44-L44`). The current `WorkshopSocket` has PowerIn but no Drive or DriveIn, and `WorkshopConnectionDomain` has no Mechanical member (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`).
+  Signs: +1 per radian on Motor, Conveyor, Clutch and Windmill; −1 on both Reverse gear ports and on the Wound spring's and Fan's `DriveIn`.
 
-### Sensors and activation
-- No activation input. The coil is driven only by electrical supply on PowerIn (`parts/ClutchPart.cs@a6c914e:L52-L52`).
-- The legacy set `Active` when Engaged and raised a `Powered` event while supplied (`parts/ClutchPart.cs@a6c914e:L56-L56`, `parts/ClutchPart.cs@a6c914e:L68-L68`).
-
-### Work and energy stores
-None. The clutch stores no energy. Its phase/closure state is discrete runtime state, not a store (`parts/ClutchPart.cs@a6c914e:L27-L31`).
-
-### Parameters
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| close_seconds | duration (enum-typed key `ClutchParameter.CloseSeconds`) | 0.05–2 inclusive; non-finite rejected | 0.2 | s | `parts/catalog/clutch.tres@a6c914e:L12-L12`, `parts/ClutchPart.cs@a6c914e:L45-L49`, [CAT-018](../requirements.md#current-cat-018) |
-
-### Cosmetic curves and UI bindings
-- Plate offset follows the committed closure fraction (`parts/ClutchPart.cs@a6c914e:L65-L66`). The plates' spin follows the input and output hinge angles (`parts/ClutchPart.cs@a6c914e:L72-L72`). Spokes follow each shaft's own signed speed ([DESIGN.md clutch](../../../DESIGN.md#electrically-controlled-clutch)).
-- Indicator lamp: gold `#f7cb52` when engaged, cyan `#66b8c9` when supplied but not engaged, slate `#556573` otherwise (`parts/ClutchPart.cs@a6c914e:L67-L67`).
-- Readings are signed with clockwise positive: speed is −(hinge speed) and angle is −(hinge coordinate) (`parts/ClutchPart.cs@a6c914e:L32-L35`).
-- Pick radius 1.1 (`parts/ClutchPart.cs@a6c914e:L76-L76`).
+  Engagement classes (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`): `DriveIn` and `Drive` admit Smooth and Toothed, so either takes a Drive belt or a Drive chain. The delivered rigid link stays admitted at every port and is unchanged (owner decision 2).
+- **Electrical node.** `("coil", Consumer, 12 V, 7.2 Ω, 0 F, 20 W)` (`:156`–`:159`): validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by `ENGINE-SUPPLY-DEMAND` or removed forward-only. Supply is on/off.
+- **Stores, events.** None. Phase and closure are the transmission's committed state, not a store.
+- **Presentation (`:24`–`:51`).** Pick radius 1.1 m. Plates slide on `LocalX` with `CommittedTransmissionClosure` (±0.25 → ±0.09 m); each plate's `Spin` turns with `CommittedRevoluteAngle` of its hinge; the lamp takes one colour per phase from `CommittedTransmissionPhase` (slate Open and Opening, cyan Closing, gold Engaged); both shaft nodes follow their bodies.
 
 ### Art
-- Scene `parts/scenes/clutch.tscn` is a bare script node (`parts/scenes/clutch.tscn@a6c914e:L1-L4`). All geometry is built in code (`parts/ClutchPart.cs@a6c914e:L74-L100`).
-- Meshes: navy `#293954` base and axle (cylinder radius 0.055, length 1.3); cream `#fff8e9` blocks and pulleys; gold `#e8b764` plate discs, pulley spokes and the PowerIn stud; cyan `#66b8c9` coil ring (radius 0.38, thickness 0.065); navy plate bars (`parts/ClutchPart.cs@a6c914e:L77-L99`).
-- Catalogue colour (0.4, 0.72, 0.79) (`parts/catalog/clutch.tres@a6c914e:L11-L11`). The DESIGN.md colour table has no clutch row. Form follows [DESIGN.md clutch](../../../DESIGN.md#electrically-controlled-clutch).
-- Toolbox pictogram: `ui/WorkshopIcons.cs@a6c914e:L32`.
+- Catalogue colour (0.4, 0.72, 0.79); navy base and axle, cream blocks and shafts, gold plates, spokes and stud, cyan coil. Form follows [DESIGN.md clutch](../../../DESIGN.md#electrically-controlled-clutch). Icon `elements/Clutch/icon.svg`.
+- **Art and solidity as shipped (`elements/Clutch/clutch.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:94`–`:99`).**
+
+  | Node | Mesh | Class | Note |
+  | --- | --- | --- | --- |
+  | `Visual_Base`, `Visual_BlockLeft`, `Visual_BlockRight`, `Visual_Coil`, `Visual_Stud`, `Lamp` | boxes, cylinder, spheres | solid | collider of the drawn shape on the housing |
+  | `InputShaft/Visual_InputShaft`, `OutputShaft/Visual_OutputShaft` | cylinders r 0.28 m, 0.13 m | solid | collider on each shaft body |
+  | `PlateLeft/*`, `PlateRight/*` | disc r 0.3 m, 0.18 m long; bar 0.19 × 0.43 × 0.04 m | decorative | moved by the `LocalX` closure binding and turned by the spin binding, which a static collider cannot follow |
+  | `InputShaft/Visual_InputSpoke`, `OutputShaft/Visual_OutputSpoke` | boxes 0.44 × 0.065 × 0.04 m at shaft-local z 0.08 | **defect: 35 mm proud of the shaft face (z 0.065), no collider** | each rides its shaft's hinge body with no binding. Repair: reprint flat, keeping the node names (`ClutchArtTests` reads them, `ClutchTests.cs:1504`–`:1505`). Owner: repair part D (coordinator decision 33) |
+  | `Visual_Axle` | cylinder r 0.055 m, 1.3 m long, axis X, at the origin | **defect: drawn solid, no collider** | only its ends are inside the bearing blocks (\|x\| ≥ 0.475 m) and its middle 0.065 m inside the coil; with the plates open it is directly visible over \|x\| 0.0325–0.16 m and 0.34–0.475 m. Repair: a static cylinder collider of the drawn size. Owner: repair part D (coordinator decision 33) |
+
+  Repair (decided under the standing delegation, by the precedent of part B): reprint both spokes flat on their shaft faces at most 0.5 mm proud, and give the axle a static cylinder collider of its drawn size on the housing. Both are scene data, owned by visible-solid repair part D (Clutch, Reverse gear, Motor index bar and the Counter's sockets, foot and face panel; coordinator decision 33), which runs after the engine programme; see section 8.
 
 ### Catalogue and inventory entry
-- `Id = "clutch"`, title "Clutch", category "Power", default parameters `{close_seconds: 0.2}` (`parts/catalog/clutch.tres@a6c914e:L6-L12`).
-- No `content/puzzles.json` level places the clutch or lists it in inventory at a6c914e. A package declaration and bundle-issued typed id and a `PartInventoryDictionary` entry must be added (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- Id `clutch`, title "Clutch", category Power, order 38 (`elements/Clutch/ClutchElementDeclaration.cs:54`–`:59`). No level in `content/puzzles.json` places or stocks it.
 
 ## 3. Engine capabilities
 
 The capability families are in the [general-engine map row](../general-engine-element-map.md) and the [catalogue coverage](../../coverage/catalogue-elements.json). They are not duplicated here.
 
-**Exists now**
-- Dynamic and static rigid bodies, with box/sphere/plane colliders and materials (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`).
-- Box2D v3 TGS Soft contact solve at 480 Hz substeps, with 8 biased and 4 relax iterations (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L208-L208`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L225-L226`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774-L793`, `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878-L884`).
-- Typed Electrical domain and PowerIn socket (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`).
-- Cosmetic curve declarations for the animation worker (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L20`).
-- Save codec (`engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`).
+**Capability probe (22 November 2026, this checkout).** No engine code names the Clutch. Tests are in `CuriousContraptions.tests/`; they were found by name and line, and none was run.
 
-**Missing**
-- Cylinder/hull collider and cylinder inertia. Story 10.1 owns solid-cylinder collision/inertia; any distinct hull capability remains a bounded decision for this consumer (see Open questions). Story 6.6 builds a hollow pipe collider, not a solid wheel.
-- Hinge joint: Story 10.3.
-- Shaft torque, motor drive and Mechanical socket domain: Story 11.1.
-- Ratio coupling with enum engagement, and coil closure phases: Story 11.2.
-- Electrical supply source and network: Story 8.1.
+| # | Capability the behaviour uses | Status | Symbol | Exercising test |
+| --- | --- | --- | --- | --- |
+| 1 | Two passive continuous hinges with bearing friction and cylinder bodies | present | `RevoluteHingeDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:149`) | `ClutchTests.MidRunCoilCut_UncouplesImmediatelyPreservesOutputMomentumAndOpensLinearly` (`ClutchTests.cs:567`), where each uncoupled shaft keeps its momentum under its own bearing friction |
+| 2 | Timed coupling of two coordinates with phases Open, Closing, Engaged, Opening | present | `MechanicalTransmissionDescriptor.CloseSeconds`, `TransmissionEngagementPhase` (`MechanicalContractValues.cs:258`, `:247`), `MechanicalTransmissionSolver` (`CuriousContraptions.Simulation/MechanicalTransmissionSolver.cs:29`) | `ClutchTests.PositiveSpinUp_StaysDecoupledWhileClosingThenEngagesWithinWindowAndDrivesConveyor` (`:244`), `EqualInertiaDeclaredClosure_SplitsSpinHalfAndNeverCreatesKineticEnergy` (`:317`); `ClutchTests.GenericDurationUsesClockTimeBeyondProductBounds` (`ClutchGeneralityTests.cs:89`) |
+| 3 | On/off supply from `PowerIn` to the transmission | present | `SupplyTransmissionTarget` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:53`) | `ClutchTests.UnpoweredControls_KeepOutputIdle_AndInvalidPortWiresAreRefused` (`:502`), `MidRunCoilCut_UncouplesImmediatelyPreservesOutputMomentumAndOpensLinearly` (`:567`) |
+| 4 | Mechanical input and output ports on separate coordinates; one link per role | present | `WorkshopConnections.ValidateMechanical` (`engine/gpu/WorkshopConnections.cs:170`) | `ClutchTests.RotatedMounts_PreserveDomainsAndSign_ClosedLoopStaysAtRest_AndDuplicateDriveInRejected` (`:807`); `ClutchTests.OccupiedMechanicalInputIsRefusedWhenLoadingSavedConstruction` (`ClutchGeneralityTests.cs:632`) |
+| 5 | Presentation from committed closure, phase and hinge angle | present | `PresentationDriver.CommittedTransmissionClosure`, `CommittedTransmissionPhase`, `CommittedRevoluteAngle` (`CuriousContraptions.Abstractions/ElementPresentation.cs:28`–`:30`) | `ClutchArtTests.ClutchScene_AnimatesPlatesLampAndShaftSpokesAcrossLifecycleAndResetsCleanly` (`ClutchTests.cs:1448`); `ClutchTests.FourPhasesAreIndependentlyMappedAndCosmeticsDoNotControlCoupling` (`ClutchGeneralityTests.cs:54`) |
+| 6 | Parameter bounds; Reset; save and load | present | `ParameterDescriptor` (`ClutchElementDeclaration.cs:64`) | `ClutchTests.CloseSeconds_RefusesInvalidValuesAcrossParametersInputAndSaveDecode` (`:791`), `CloseSeconds_AdmitsExactEndpoints` (`:775`), `RunResetAndSaveLoad_RestoreAuthoredStateAndReproduceCoupling` (`:886`) |
+| 7 | Scene colliders match the drawn solids | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:186`, `clutch` row `:94`), which lists the spokes and axle as decorative (the defects under Art) |
+| 8 | The coil's supply debiting its source (drain) | **missing** | supply is binary (section 6, decision 7) | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`; owner decision 3a, 22 November 2026) |
 
-**Element dependencies.** CAT-042 Motor (11.1) is the upstream drive. CAT-005 Battery (8.1) supplies the coil. CAT-019 Conveyor (11.1) is the first downstream load in the legacy fixtures. CAT-057 Reverse transmission (11.2) appears in the signed-drive control.
+Counts: 7 present, 0 untested, 0 narrower, 1 missing.
+
+**Element dependencies.** Motor (upstream drive), Battery (coil supply), Conveyor (downstream load), Reverse gear (signed-drive control); all delivered.
 
 ## 4. Legacy harvest
 
@@ -148,9 +140,9 @@ The capability families are in the [general-engine map row](../general-engine-el
 
 ## 5. Acceptance outline
 
-Follow [CAT-018](../requirements.md#current-cat-018), [sequence-task-310](../requirements.md#sequence-task-310) and Story 11.2. The Chrome observables are in the [rotary contract](../../rotary-transmission-parts.md#chrome-observable-acceptance).
+Follow [CAT-018](../requirements.md#current-cat-018), [sequence-task-310](../requirements.md#sequence-task-310) and Story 11.2. The Chrome observables are in the [rotary contract](../../rotary-transmission-parts.md#chrome-observable-acceptance-post-catalogue).
 
-- **Construction (actual UI).** Place Battery, Motor, Clutch and Conveyor from the toolbox. Wire Battery Supply → Motor PowerIn and Battery Supply → Clutch PowerIn. Belt Motor Drive → Clutch DriveIn and Clutch Drive → Conveyor DriveIn. Place a ball on the belt. Verify placed poses and typed connections in the construction read.
+- **Construction (actual UI).** Place Battery, Motor, Clutch and Conveyor from the toolbox. Wire Battery Supply → Motor PowerIn and Battery Supply → Clutch PowerIn. Join Motor Drive → Clutch DriveIn and Clutch Drive → Conveyor DriveIn with Mechanical links. Place a ball on the belt. Verify placed poses and typed connections in the construction read.
 - **Positive.** The plates close over close_seconds, then the output turns with the input and the belt carries the ball.
 - **Negative/control.** Remove the coil supply and the output stays at rest while the input turns. Remove the motor supply and nothing turns. A disconnected-output impulse control is required.
 - **Boundaries.** close_seconds of 0.05, 0.2 and 2 are admitted; 0, 3 and NaN are rejected. Rotated mounting. Reversed upstream via CAT-057. Re-engagement under load.
@@ -158,13 +150,62 @@ Follow [CAT-018](../requirements.md#current-cat-018), [sequence-task-310](../req
 - **Save/Load.** Rotated construction including close_seconds.
 - **Integrations.** Hold timer or switch supply release, conveyor load, reverse transmission.
 
+**Native tests that exist (22 November 2026).** Each criterion of [CAT-018](../requirements.md#current-cat-018) against its test in `CuriousContraptions.tests/ClutchTests.cs` unless another file is named:
+
+| Criterion | Test (line) |
+| --- | --- |
+| Separate coil and upstream shaft; four phases | `ClutchAdmission_StartsOpenUncoupledWithZeroClosureAndUnpowered` (211); `PositiveSpinUp_StaysDecoupledWhileClosingThenEngagesWithinWindowAndDrivesConveyor` (244) |
+| `close_seconds` 0.05 to 2, default 0.2; engages only fully closed | `CloseSeconds_ClosesWithinWindowAcrossCadences` (743); `CloseSeconds_AdmitsExactEndpoints` (775); `CloseSeconds_RefusesInvalidValuesAcrossParametersInputAndSaveDecode` (791) |
+| +1 coupling cannot create energy | `EqualInertiaDeclaredClosure_SplitsSpinHalfAndNeverCreatesKineticEnergy` (317); `HardwareClutchClosureUnderDisabledMotor_LocksSharedSpinWithoutEnergyCreation` (440) |
+| Supply loss disconnects work at once while the plates finish opening; each shaft keeps its momentum | `MidRunCoilCut_UncouplesImmediatelyPreservesOutputMomentumAndOpensLinearly` (567); `ReverseTransmissionTests.OpeningTheDownstreamClutchIsolatesItsCoastingOutput` (`ReverseTransmissionLifecycleTests.cs:121`) |
+| Missing either supply; wrong-kind wires | `UnpoweredControls_KeepOutputIdle_AndInvalidPortWiresAreRefused` (502) |
+| Re-engagement under load | `ReengagementAfterPartialOpening_ClosesFromCurrentClosureAndLocksUnderLoad` (659) |
+| Rotated controls; an open route does not hide invalid topology | `RotatedMounts_PreserveDomainsAndSign_ClosedLoopStaysAtRest_AndDuplicateDriveInRejected` (807); `ClutchTests.OccupiedMechanicalInputIsRefusedWhenLoadingSavedConstruction` (`ClutchGeneralityTests.cs:632`) |
+| Reset, save and load | `RunResetAndSaveLoad_RestoreAuthoredStateAndReproduceCoupling` (886) |
+| Supply released by a Hold timer | `ClutchTests.HoldTimerSupplyReleasesCouplingWhileMotorKeepsRunning` (`ClutchGeneralityTests.cs:649`) |
+| Plates, lamp and spokes follow committed state | `ClutchArtTests.ClutchScene_AnimatesPlatesLampAndShaftSpokesAcrossLifecycleAndResetsCleanly` (1448, same file) |
+
+No requirement criterion is without a test. Slip and brake variants stay separate identities (EL-055; sequence-task-310). **Residual acceptance for the art repair (section 8).** Drop row `ClutchAxle` in `VisibleSolidColliderTests`: a Tennis ball of radius 0.07 m dropped at x 0.40, z 0 has its lowest centre within 5 mm of 0.055 m + its radius above the axle line; control: the same drop at z 0.2 reaches the base. A ball cannot rest on a horizontal cylinder of radius 0.055 m, so the row reads the lowest centre, not a rest. Printed spokes: a fact in `ClutchArtTests` that each spoke lies between 0 and 0.5 mm in front of its shaft face. Stall guard 5 s.
+
 ## 6. Resolved decisions (Story 11.2a)
 
 1. `close_seconds`: Real placement parameter (`BuildOnly`, unit `Second`, range `[0.05, 2.0]` s, default `0.2` s) on the `clutch` package. The shared `MechanicalTransmissionDeclaration` capability validates the general mathematical domain (canonical +0 for untimed, otherwise a finite positive duration within the physical clock's representable span).
-2. Plate & central-axle geometry: Base box, bearing blocks, coil cylinder (`r = 0.38 m`), stud sphere (`r = 0.1 m`), lamp sphere (`r = 0.075 m`), and the two rotating cylinder shafts (`r = 0.28 m`, `w = 0.13 m`) are solid colliders. The enclosed central axle rod (`r = 0.055 m`) and sliding plate assemblies (`Visual/PlateLeft`, `Visual/PlateRight`) are cosmetic.
+2. Geometry: base box, bearing blocks, coil cylinder (`r = 0.38 m`), stud sphere (`r = 0.1 m`), lamp sphere (`r = 0.075 m`) and the two rotating cylinder shafts (`r = 0.28 m`, `w = 0.13 m`) are solid colliders. The sliding plate assemblies (`Visual/PlateLeft`, `Visual/PlateRight`) are decorative, moved by bindings. The central axle rod (`r = 0.055 m`) and both shaft spokes are visible-solid defects with the repair in section 2 (decided 22 November 2026 under the standing delegation; reason: the owner's visible = solid rule and the part B precedent).
 3. Solid cylinder collider and cylinder inertia for shaft wheels: Reuses Story 10.1 cylinder collider and inertia with `Rx(90°)` principal frame (`r = 0.28 m`, `w = 0.13 m`, `m = 0.25 kg`).
 4. Shaft contact material values: Reuses catalogue rigid-part material (`restitution = 0`, `friction = 0.3`, `rollingResistance = 0`, `bounceThreshold = 0.1`), matching `motor` and `conveyor`.
 5. Mechanical loops: Admitted in `WorkshopConnections` and `PhysicsDeclarationValidation` whenever each hinge input/output role is unique (`DriveIn -> Hinges[0]`, internal `Hinges[0] -> Hinges[1]`, `Drive -> Hinges[1]`); a closed loop such as `Clutch -> Conveyor -> Clutch` settles stably at rest with zero energy creation.
 6. Plate closure easing: Linear in time from an integer physical-time transition origin and starting closure, re-anchored on supply direction changes; clamp at endpoints without a snap epsilon, mapped linearly onto `LocalX` of `Visual/PlateLeft` (`-0.25 -> -0.09`) and `Visual/PlateRight` (`0.25 -> 0.09`) via `CommittedTransmissionClosure`. Four independently mapped phases retain the three package lamp colors (Opening and Open both slate); each plate's spin child reads its explicit hinge's admission-relative committed travel via `CommittedRevoluteAngle`. The plate parent supplies an authored 90-degree Y axis frame, so the existing local-Z spin channel turns the disc about the package X axle while parent LocalX controls closure independently.
-7. Supply semantics: Binary electrical supply on `PowerIn` via `SupplyTransmissionTarget` -> `SupplyConsumer.MechanicalTransmission` -> dedicated `TransmissionClosed` supply channel; electrical drain deferred consistently with `motor` and `powered_gate`.
+7. Supply semantics: Binary electrical supply on `PowerIn` via `SupplyTransmissionTarget` -> `SupplyConsumer.MechanicalTransmission` -> dedicated `TransmissionClosed` supply channel; electrical drain is the engine story `ENGINE-SUPPLY-DEMAND`, as for `motor` and `powered_gate`.
 8. Coil trigger source: Electrical supply on `PowerIn` (per [CAT-018](../requirements.md#current-cat-018)). Supply loss immediately sets `Opening` and uncouples the shafts while each keeps its own signed angular momentum under bearing `FrictionTorque = 0.02 N·m`.
+No question is open and none needs the owner.
+
+## 7. Integration
+
+- **Collaborators (all delivered).** Supply into `PowerIn` (Electrical) from the Battery, Impact switch, Hold timer or a gate. `DriveIn` (Mechanical input) from a Motor, Windmill, Conveyor or Reverse gear `Drive`; `Drive` (Mechanical output) into a Conveyor, Reverse gear or Wound spring `DriveIn`. Domains and roles agree at both ends. Signs: +1 per radian on Motor, Conveyor, Clutch and Windmill; −1 on both Reverse gear ports and on the Wound spring's and Fan's `DriveIn`.
+- **Campaign.** No level in `content/puzzles.json` places or stocks the Clutch. It is taught by a level still to be authored (the 150-level target); nothing blocks that authoring.
+- **Coverage binding.** Catalogue key `clutch` (CAT-018) in `docs/coverage/catalogue-elements.json`. No named identity maps to it.
+- **Lesson fixtures.** Not needed for the part.
+
+## 8. Delivery and residuals
+
+Delivered as recorded in section 1. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes further element work.
+
+| Residual | Owner | Tier | Prerequisite |
+| --- | --- | --- | --- |
+| Spokes reprinted flat; axle given a collider | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:94` and tests) | the engine programme (owner decision 3a); a contract for part D |
+| Coil drain | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`) | Engine | the engine programme (owner decision 3a), of which it is a story |
+| Browser qualification | Post-catalogue E2E phase | n/a | n/a |
+
+No named identity is closed by this part. **What the art slice's capability probe must re-check:** that a collider appended to the housing moves no existing collider index; that the axle collider does not touch either shaft body (shafts sit at z 0.43, the axle at z 0, and hinge bodies do not collide with their base); and that the spin binding still reads `Visual/PlateLeft/Spin` and `Visual/PlateRight/Spin` after the scene edit.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The fix is in the art layer (point 3), owned by repair part D (coordinator decision 33), whose contract is still to be drafted. No engine code names this element (searched `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions).
+
+1. **Declaration data only.** Three bodies, scene colliders, two hinges, one transmission, one parameter, three ports, one electrical node, a one-consumer supply graph, seven presentation bindings. No clutch controller. The electrical node's numbers are validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by `ENGINE-SUPPLY-DEMAND` or removed forward-only.
+2. **Generic laws.** Coupling: a bilateral ratio-1 transmission between two revolute coordinates whose engagement is a supply target: supplied, it closes over `close_seconds`; unsupplied, it opens. Slip while closing and the closure fraction are the transmission's own committed state. The shafts turn by hinge dynamics and whatever links drive them. No row depends on which part is linked.
+3. **Three layers.** Colliders: housing boxes and spheres and the cylinder on the static body, as section 2 lists; one cylinder on each shaft body. Visuals: housing, plates, axle, spokes, lamp, stud. Animation: plate separation from `CommittedTransmissionClosure`, plate spin from `CommittedRevoluteAngle`, lamp albedo from `CommittedTransmissionPhase`; all read committed state. **Defect:** the axle is drawn solid with no collider and both shaft spokes stand 35 mm proud on bodies with no binding. Repair as section 2: a static cylinder for the axle and flat printing for the spokes, owned by repair part D (coordinator decision 33).
+4. **One-way flow and typing.** Physics → committed transmission state → presentation. Typed `TransmissionConstraintKind`, `SupplyTerminal`, `CoordinateKind`; seconds and ratios as f32 (D10: a duration in game seconds).
+5. **Flat-state counts** (from `clutch.tscn` and the declaration). 3 bodies (2 dynamic); 8 colliders: 6 on the housing (3 boxes, 1 cylinder, 2 spheres) and 1 cylinder on each shaft; 2 revolute joints; 1 transmission; 0 drives; 1 electrical node; 1 supply consumer; 3 ports; 1 parameter; 7 presentation bindings and 2 body-pose bindings.
+6. **Performance fitness.** Eight primitives, two joints and one coupling row. Seven bindings is the most in this batch; each drives a visible cue and none costs physics time. The housing is static. Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026).
+7. **Scenario tests.** `ClutchTests` (files `ClutchTests.cs` and `ClutchGeneralityTests.cs`) and `ClutchArtTests` run the production simulation; the tests in `ClutchGeneralityTests.cs` exercise the timed transmission with declarations that are not the Clutch.

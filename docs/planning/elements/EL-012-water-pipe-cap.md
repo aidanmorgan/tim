@@ -1,82 +1,120 @@
 # EL-012 · Water pipe cap — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-012 delivery slice](../invest/named-elements.md#element-012). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-012 delivery slice](../invest/named-elements.md#element-012). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md); the pipe-kit values are in [EL-008](EL-008-straight-water-pipe.md). Sizes are in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-012 · Water pipe cap · Water |
-| Requirement anchor | [element-012](../requirements.md#element-012); source record [todo-335](../requirements.md#todo-335); integration task [sequence-task-385](../requirements.md#sequence-task-385) |
-| Named entry | [element-012](../invest/named-elements.md#element-012); per-element proof owner S433 |
-| CAT spec refined | None. |
-| Related identities | Every standard mouth: [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md), [EL-003](EL-003-tap.md), [EL-005](EL-005-liquid-funnel.md), [EL-008](EL-008-straight-water-pipe.md) to [EL-011](EL-011-water-t-junction.md); it is the blocked-outlet control for most of them |
-| Roadmap story | [EL-012 delivery slice](../invest/named-elements.md#element-012); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-012 · Water pipe cap · Water |
+| Anchors | [element-012](../requirements.md#element-012), co-anchored `sequence-task-565`; source record [todo-335](../requirements.md#todo-335); integration [sequence-task-385](../requirements.md#sequence-task-385); ledger [element-012](../invest/named-elements.md#element-012), owner S433 |
+| Disposition | To deliver as a single element in the "Water pipe kit" run. It is the blocked-outlet control for most water parts, so it should be delivered early in the run |
+| Planned package | id `water_cap`, directory `elements/WaterCap/`, title "Pipe cap" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` |
+| Related | Every pipe-bore mouth: [EL-001](EL-001-finite-reservoir.md), [EL-002](EL-002-header-tank.md), [EL-003](EL-003-tap.md), [EL-005](EL-005-liquid-funnel.md), [EL-008](EL-008-straight-water-pipe.md) to [EL-011](EL-011-water-t-junction.md) |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: a one-collider static part; the solid Cylinder is the Weight's collider kind (`WeightTests.TheCompiledMassSizeCentreAndInertiaFollowTheMassParameter`, `CuriousContraptions.tests/WeightTests.cs:139`).
 
-**Shared pipe-kit values** (EL-008 to EL-013, stated in full in [EL-008](EL-008-straight-water-pipe.md)): mouth join within 0.15 m and 10° of opposite (**proposed**); lossless sealed conduits (**proposed**); transit volume = bore area × centreline length; an unjoined mouth discharges as a free stream and never feeds an unjoined neighbour.
-
-**Element declaration:**
-- **Bodies and shapes.** One static body: a domed cap, radius 0.17 m, depth 0.10 m; collider one box 0.34 × 0.34 × 0.10 m (**proposed**: just wider than the 0.16 m collar so it visibly covers the mouth).
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** One `WaterMouth` standard mouth facing out of the cap's open side. Domain `Water` (**proposed**).
-- **Sensors and activation.** None.
-- **Work and energy stores.** None; zero internal volume. A joined cap closes the mouth: zero discharge at any head (**proposed** zero leakage: a cap is the "nothing passes" control; a leaking cap would undermine every blocked-outlet test).
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, the liquid fitting declaration of `ENGINE-LIQUID` (W4, W7).
+- **Body.** One static body, mass 0. Axis local X; origin at the centre.
+- **Collider (one).** Solid Cylinder, radius 0.15, length 0.10, axis X. It is wider than the 0.14 m pipe, so it visibly covers the mouth, and no wider than the kit rule allows (nothing reaches more than 0.15 m below the axis).
+- **Liquid node.** One fitting, zero volume, with a single mouth and no other opening.
+- **Mouth.** `Start` at (−0.05, 0, 0), normal −X, pipe bore, Intake. Joined, it occupies its neighbour's mouth, so that mouth is no longer a free end; the cap's fitting has one opening, and flows at a fitting sum to zero, so nothing passes. Unjoined, an Intake mouth passes nothing (L8). There is no leak value: a cap is the "nothing passes" control.
 - **Parameters.** None.
-- **Cosmetic curves and UI bindings.** None (static); gold seated ring when joined (**proposed**, as EL-008).
-- **Art.** Navy dome `#293954` (`DESIGN.md@a6c914e:L147-L147`) with a cream band `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`) (**proposed**: dark cap reads as "closed" on cream pipes by shape and contrast).
-- **Catalogue and inventory entry.** Id `water_cap`, title "Pipe cap", category "Water", kind `WaterCap` (all **proposed**).
+- **Presentation.** None driven. **Palette.** `ElementCategory.Structure`; palette order 526 (kit sequence in EL-008; coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour navy.
 
-**Variants.** The requirements row lists no variants.
+### Art and solidity
+
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Cap` | Cylinder radius 0.15, length 0.10, navy `#293954` | solid; the Cylinder collider | body pose (static) |
+| `Visual/Band` | Cream `#fff8e9` band round the rim, flush | decorative: printed flat | nothing |
+| `Loc_Port_mouth_start` | Locator, bore 0.10 | none | nothing |
+
+Icon: a dark round cap with a pale band. It differs from every other kit piece by being a closed dark disc; "closed" reads from shape and contrast.
+
+### Behaviour and numbers
+
+- **Capped flow stops.** Tank → pipe → cap: the tank keeps its volume at any head. With the Header tank at `stand_height` 4.0 and full, the pressure at a cap 5.0 m below the surface is 101 325 + 156.96 × 5.0 = 102 110 Pa and still nothing passes.
+- **Deleting the cap restores a real opening.** The pipe's end is unjoined again and is a free end: the EL-008 flow (tank empties in 33.9 s through a level pipe).
+- **Not seated, not closed.** A cap 0.3 m from the mouth is not joined (L6); the stream leaves the free end and meets the cap's solid face or passes it, and is spilled or caught below.
+- **Authoring only.** Joins are fixed for a Run (L6); a cap cannot be pulled during a Run.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-012`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W21 solid Cylinder collider | present | body |
+| W22 authored state | present | pose |
+| W4 fluid port contract | present, untested | fitting and mouth |
+| W3 tube mouth, snap and occupied-mouth rule | narrower | the occupancy that makes a cap work while building is delivered and tested (`TubeMouthSnapTests.AnOccupiedMouthIsNotACandidate`); a part with a single mouth socket is `ENGINE-CAPABILITY-INSTANCES`'; the compiled join is `ENGINE-LIQUID`'s |
+| W7 fitting flow balance | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); part deletion and Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Closed network node ([S416](../invest/decisions.md#s416) → S418/S419); mouth joins and their removal on delete (EL-001 open question 3). Required in the linked delivery slice.
-- **Element dependencies.** Any mouth-bearing water element.
+Counts: 3 present, 1 untested, 1 narrower, 1 missing; one owner.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, one collider, one fitting with one mouth.
+2. **Generic laws.** Closure is the zero-sum rule at a fitting with one opening. There is no "cap" state and no closed flag.
+3. **Three layers.** *Collider:* one Cylinder. *Visuals:* the table above. *Animation:* none.
+4. **One-way flow and typing.** Mouth id and role are enums.
+5. **Flat-state counts.** Bodies 1 (static); colliders 1 Cylinder; joints 0; drives 0; sensors 0; liquid nodes 1 fitting; mouths 1; bindings 0; parameters 0.
+6. **Performance fitness.** One primitive. Merged into its neighbour at compile, a cap adds no unknown.
+7. **Tests are scenarios.** Rows C1 to C6.
 
 ## Sources and legacy
 
-- Requirements row: "Capped flow stops; deleting the cap restores a real opening." No variants.
-- Component research pipe-kit row (line 28); refinement [S705](../invest/refinements.md#s705) cap "Seal an end"; integration [sequence-task-385](../requirements.md#sequence-task-385) "a capped route cannot leak through an invisible connection".
+- Requirement: "Closes a compatible fluid mouth"; outcome "Capped flow stops; deleting the cap restores a real opening." No variants.
+- Component research [water](../../component-research.md#water) line 28; refinement [S705](../invest/refinements.md#s705) "Seal an end"; [sequence-task-385](../requirements.md#sequence-task-385) "a capped route cannot leak through an invisible connection".
 - **Legacy search.** No liquid cap. Join facts:
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | An occupied mouth is not a join candidate; removing the occupant makes the mouth available again. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L103-L121` | Carry forward: a cap occupies a mouth exclusively; deleting it frees the mouth. |
-| 2 | Joins are refused while running and restored by Reset. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L54-L85` | Carry forward: caps are placed and removed only while building. |
-| 3 | Mouth record (id, position at collar face, outward normal, bore radius). | `engine/TubeMouth.cs@a6c914e:L6-L14` | Carry forward the shape; not the Godot types. |
+| 1 | An occupied mouth is not a join candidate; removing the occupant frees it. | `CuriousContraptions.tests/TubePlacementSnapTests.cs@a6c914e:L103-L121` | Carried forward; delivered. |
+| 2 | Joins are refused while running and restored by Reset. | `TubePlacementSnapTests.cs@a6c914e:L54-L85` | Carried forward: caps are placed and removed while building. |
+| 3 | Mouth record (id, position, outward normal, bore radius). | `engine/TubeMouth.cs@a6c914e:L6-L14` | Carried forward (L5). |
+
+**Files harvested:** none beyond EL-008's.
 
 ## Acceptance outline
 
-Point of truth: [element-012](../requirements.md#element-012).
+Authority: [element-012](../requirements.md#element-012). Tolerances L17. Planned class `WaterCapTests`. Supply: a full Water tank with a level pipe; a basin under the pipe's far end.
 
-- **Chrome recipe.** Water tank + Tap + straight pipe ending over a Catch basin; drag a Pipe cap onto the pipe's open mouth until it seats.
-- **Positive (closure).** Run: the pipe fills to the tank level and stops; the basin stays empty; the ledger shows no loss.
-- **Control (opening restored).** Reset, select the cap, delete it, Run: water discharges from the now-open mouth into the basin.
-- **Negative.** A cap placed 0.3 m from the mouth (not seated) does not close it: water discharges past it.
-- **Boundaries.** A cap on a high-head riser (EL-002 at 4 m) still passes nothing. A cap on a mouth already joined to a pipe is refused.
-- **Run/Reset.** Exact restoration. **Save/Load.** The seated cap and join survive reload.
-- **Integrations.** [sequence-task-385](../requirements.md#sequence-task-385) (source record [todo-335](../requirements.md#todo-335)): caps join by compatible water ports and a capped route cannot leak through an invisible connection. Generic interaction row [IX-08 Fluid advection](../requirements.md#interaction-08). Campaign first use 61–70, reuse 71–90, 114, 126–130, 136–150 ([campaign table](../requirements.md#campaign-element-coverage)).
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| C1 | Given a cap joined to the pipe's far mouth, when Run advances 20 s, then the tank keeps 1.0 m³, the basin holds 0 and `Spilled` is 0 | `WaterCapTests.ACappedRouteHoldsItsVolume` | C2 | — |
+| C2 | Given the same construction with the cap deleted, then the basin gains what the tank loses (0.503 m³ after 10 s within 0.05 m³) | `WaterCapTests.DeletingTheCapRestoresARealOpening` | C1 | — |
+| C3 | Given the cap 0.3 m beyond the mouth, not joined, then the tank drains as in C2 | `WaterCapTests.AnUnseatedCapClosesNothing` | C1 | a cap just inside the snap distance seats and closes |
+| C4 | Given a full Header tank at `stand_height` 4.0 with a riser down to a capped mouth, when Run advances 20 s, then nothing passes | `WaterCapTests.ACapHoldsAHighHead` | cap deleted: discharge | — |
+| C5 | Given a mouth already joined to a pipe, then a cap offered to it does not snap | `WaterCapTests.AnOccupiedMouthRefusesACap` | a free mouth accepts it | — |
+| C6 | Given a ball dropped on the cap, it rests on it; Reset and save and load keep the cap seated | `WaterCapTests.TheCapIsSolidAndStaysSeatedThroughResetAndReload` | — | — |
+
+Generic cover: W22. It also serves as the control in EL-001 R1 and EL-011 J2. This slice owns two cross-part rows of earlier-taught parts and runs them with its own: EL-005 F2 (the funnel, 61b) and EL-010 E2 (the 90° elbow, 62). Chrome recipe (pending): tank, tap, pipe over a basin; drag a Pipe cap onto the open mouth until it seats; Reset, delete it, Run again.
 
 ## Open questions
 
-1. Should a cap also fit the ball-pipe bore (CAT-048) as a separate size, or is it water-only?
-2. Should the cap be removable during Run (a "pull the plug" interaction), or authoring-only as legacy joins were?
-3. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420).
+All resolved; none needs the owner.
+
+1. A cap for the ball-pipe bore: no; water only (D19).
+2. Removable during Run: no; joins are fixed for a Run (L6). A plug that can be pulled would be a valve, which the Tap family is.
+3. Leakage: zero; there is no leak parameter.
+
+## Integration
+
+- **Works with.** Every pipe-bore mouth; none delivered.
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-335`; `sequence-task-565` not co-anchored with a todo; no `s433` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), including `ENGINE-CAPABILITY-INSTANCES` for a single mouth socket, then: `ENGINE-LIQUID`; EL-001; EL-008; EL-004; S7. C4 needs EL-002 and the 90° elbow.
+- **Files.** Adds `elements/WaterCap/WaterCap.csproj`, `WaterCapElementDeclaration.cs`, `water_cap.tscn`, `icon.svg`, `CuriousContraptions.tests/WaterCapTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A part with a single mouth refused by the bundle; a joined mouth still treated as a free end.

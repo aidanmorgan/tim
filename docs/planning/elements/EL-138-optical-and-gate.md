@@ -2,9 +2,9 @@
 
 **Current delivery (24 October 2026):** [EL-138 delivery slice](../invest/named-elements.md#element-138). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). Local +X is the outlet direction.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after its audit and the owner decisions of 22 November 2026. Legacy citations use `path@a6c914e:Lstart-Lend`; citations without `@` are `path:line` in the checkout. Lengths are metres. Local +X is the outlet direction. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions) and are not restated here.
 
-The five optical gates (EL-138 to EL-142) share one body, one aperture layout and one control law; they differ only in the Boolean operation, catalogue entry, truth relief and icon. Each is specified in full in its own file.
+The five optical gates (EL-138 to EL-142) share one body, one aperture layout and one control law. They differ only in the declared boolean operation, catalogue entry, truth print and icon. Their declarations are CAT-043 to CAT-047's (coordinator decision 27); this spec leads the family's probe, sources and conformance sections.
 
 ## 1. Identity
 
@@ -14,69 +14,51 @@ The five optical gates (EL-138 to EL-142) share one body, one aperture layout an
 | Name | Optical AND gate |
 | Type | Optical |
 | Anchor | [requirements.md#element-138](../requirements.md#element-138); named entry [named-elements.md#element-138](../invest/named-elements.md#element-138); source record [todo-367](../requirements.md#todo-367) |
-| Owner | S510 (proof owner in the binding shard) |
-| Refines CAT | [CAT-043 optical_and](CAT-043-optical_and.md) (`optical_and`, "Both light gate"). One catalogue part satisfies both identities; this is not a second implementation. |
-| Related | EL-139 to EL-142 (sibling operations); EL-133 electrical AND (separate electrical identity); CAT-036 laser and EL-176 to EL-178 (control and carrier sources) |
-| Roadmap story | [EL-138 delivery slice](../invest/named-elements.md#element-138); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Owner | S510 |
+| Disposition | Candidate **Duplicate closure** of [CAT-043 optical_and](CAT-043-optical_and.md) (`optical_and`, "Both light gate"), closed inside that part's slice ([delivery-batches §2b](../invest/delivery-batches.md#2-duplicate-closures)). No delta: this identity adds no behaviour, parameter, port, mode or material to CAT-043. |
+| Acceptance authority | The CAT-043 spec's acceptance rows are the single authority (coordinator decision 16, 22 November 2026). This identity's source outcome, "prove every input combination plus absent carrier; logically true cannot create power", is CAT-043 rows **G1 and G2**; the ledger row cites the package and those two tests. This spec carries no rows of its own. |
+| Planned package | none of its own; the package is CAT-043's `optical_and` (`elements/OpticalAnd/`). The CAT spec is the single declaration (coordinator decision 27, 23 November 2026). |
+| Roadmap story | [Story 13.8](../../../_bmad-output/planning-artifacts/epics.md#story-138-optical-logic-gates-and-nand-nor-or-xor-cat-043-through-cat-047) |
+| Status | not started; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL (which follows ENGINE-SPATIAL-QUERIES and takes every candidate from its segment query) and ENGINE-SIGNAL-NODES |
 
 ## 2. Declaration
 
-- **Bodies and shapes:** one static rigid body. Opaque cube 1.4 × 1.4 × 1.4 m at the origin; opaque base 1.8 × 0.18 × 1.8 m at (0, −0.85, 0). Pick radius 1.3 m. Current types: `RigidBodyDeclaration` with `RigidMotionKind.Static` and two `ColliderShapeKind.Box` colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`).
-- **Mass and material:** none for mass (static, zero mass). Contact material: legacy static default restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`), declared through `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`) with rolling resistance 0.
-- **Constraints and joints:** none.
-- **Typed ports (optical apertures, closed enum `OpticalPortId`):**
-  - `First` (control A): centre (−0.76, 0, 0), normal −X, finite disc radius 0.43, interaction Absorb, transmission (1, 1, 1).
-  - `Second` (control B): centre (0, 0.76, 0), normal +Y, radius 0.43, Absorb, transmission (1, 1, 1).
-  - `Carrier`: centre (0, 0, 0.76), normal +Z, radius 0.43; interaction Route when the gate is open, Absorb when closed; transmission (0.9, 0.9, 0.9).
-  - Outlet: (0.76, 0, 0), direction +X. All faces accept front incidence only; the opaque cube blocks everything outside the discs.
-  - No electrical or activation ports: the carrier is a separately supplied optical beam; A/B carry conditions, never output energy.
-- **Sensors and activation:** two hysteretic optical control sensors. Each control reads broadband strength (mean of R, G, B received power) on its own aperture; it turns on at ≥ 0.25 and stays on while > 0.225 game optical power. Controls are sampled after the optical trace; the open/closed decision advances once before the next optical solve, so a control change affects the carrier on the next tick. Reset: A = B = false and open = AND(false, false) = closed.
-- **Work and energy stores:** none. Output power equals 0.9 × the carrier power actually routed; the gate never creates light.
-- **Parameters:** none authorable. Fixed declaration constants: operation `And` (closed enum `LogicGateKind`), on threshold 0.25, off threshold 0.225 (game optical power, f32), carrier retention 0.9. The requirement row records "Logic=And" as the only mode.
-- **Cosmetic curves and UI bindings:** control lamps (slate `#556573` → gold `#f7cb52`) follow each control's committed Boolean at exponential rate 12 /s; the output lamp follows the committed output RGB through the shared beam-ink rule (slate when dark) at rate 12 /s. Typed observations: Booleans {First, Second, IsOpen} (closed enum) and output R, G, B in game optical power. The outlet lights only when a carrier actually exits, not when truth permits it ([DESIGN.md](../../../DESIGN.md#optical-logic-gates)).
-- **Art (DESIGN.md palette):** cyan cube `#66b8c9`; navy foot `#293954`; cream control rims `#fff8e9` (ring r 0.48, tube 0.055) with one raised cream mark on A and two on B; ochre carrier rim `#e8b764`; slate lenses `#556573` (r 0.43, thickness 0.018); output lamp r 0.34 with ochre rim r 0.40. A cream truth relief shows rows 00, 01, 10, 11 with a raised gold dot on row 11 only.
-- **Catalogue and inventory entry:** id `optical_and`, title "Both light gate", category Optics, colour (0.40, 0.72, 0.79). Description: "The numbered cream inputs control a separate gold-rimmed carrier. Passes 90% of the carrier when both controls are lit. Changes apply next simulation tick; control beams never supply output light." Toolbox icon `ui/WorkshopIcons.cs@a6c914e:L75-L75` (current file, kept).
-
-### Variants
-
-One. The row names no variants; the other four operations are separate identities (EL-139 to EL-142), not variants. The with-carrier and without-carrier cases are proof dimensions of this one element, not modes.
-
-| A | B | Open | Output with carrier P | Output without carrier |
-| --- | --- | --- | --- | --- |
-| off | off | no | 0 | 0 |
-| off | on | no | 0 | 0 |
-| on | off | no | 0 | 0 |
-| on | on | yes | 0.9 P | 0 |
+The `optical_and` declaration, art and bindings are [CAT-043's declaration](CAT-043-optical_and.md#declaration); this identity adds none (coordinator decision 27, 23 November 2026).
 
 ## 3. Engine capabilities
 
-Binding shard ([element-02.json](../../coverage/engine/element-02.json)): FiniteLedger, GeometryQuery, OpticalTransport, SignalPropagation, StateTransaction. The [element-map row](../general-engine-element-map.md) lists the same families without StateTransaction.
+Binding shard ([element-02.json](../../coverage/engine/element-02.json)): FiniteLedger, GeometryQuery, OpticalTransport, SignalPropagation, StateTransaction; navigation only (D14). Probe on `8d1d68aa`: 3 present, 0 untested, 2 narrower, 7 missing. The CAT-043 probe is the slice's; this table records the same findings under the repaired conventions.
 
-**Exists now**
-- Static box body and colliders: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`.
-- Contact material declaration: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`.
+| # | Capability | Status | Symbol | Test opened |
+| --- | --- | --- | --- | --- |
+| R1 | Static scene body with colliders from `col_` nodes | present | `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`) | `StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders` (`CuriousContraptions.tests/StateLatchTests.cs:503`) |
+| R2 | Every visible solid has a collider | present | the package's row in the test's `Specs` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:186`) |
+| R12 | Run, Reset, save and load of every admitted declaration | present | loop over `TestBundle.Packages` | `CatalogueIntegrationTests.EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad` (`CuriousContraptions.tests/CatalogueIntegrationTests.cs:273`) |
+| R9 | A segment cast against solid colliders | narrower: `AirflowLineClear` answers clear or blocked for airflow rows only, by a scan of every collider (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:141`, `:149`); the broadphase has only a pair-overlap query (`CuriousContraptions.Simulation/WorkshopDynamicBvh.cs:145`) | `AirflowLineClear` | `AirflowGeneralityTests.MovingSolidOcclusionIsResampledBeforeTransfer` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:13`). Owner of the ordered-crossing cast: **ENGINE-SPATIAL-QUERIES** |
+| R11 | Presentation binding on a committed driver | narrower: a committed signal level can colour a lamp today (`PresentationDriver.CommittedActivation`, `CuriousContraptions.Abstractions/ElementPresentation.cs:22`); no driver reads committed outlet power | `PresentationDriver` | `BothGateTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset` (`CuriousContraptions.tests/BothGateTests.cs:259`). Owner: **ENGINE-OPTICAL** |
+| MS | A signal node "threshold over a committed scalar, with a release ratio" | **missing**: `SignalNodeKind` has no such node (`CuriousContraptions.Abstractions/SignalContractValues.cs:13`) | — | owner **ENGINE-SIGNAL-NODES** |
+| MB | A boolean node over signal levels | **missing**: the two-input law `LogicGateOperation` (`CuriousContraptions.Abstractions/ElectricalContractValues.cs:25`) exists only on supply terminals (`SupplyLogicDescriptor`, `CuriousContraptions.Abstractions/SupplyContractValues.cs:41`) | — | owner **ENGINE-SIGNAL-NODES** (row proposed in the batch summary) |
+| M2 | The optical solve: once per tick after the last substep, on ordered crossings from the spatial query | **missing** | — | owner **ENGINE-OPTICAL** |
+| M3 | Declared surface responses, here a Relay whose enable names a signal level | **missing** | — | owner **ENGINE-OPTICAL** |
+| M4 | Declared receivers committing a reading and a strength | **missing** | — | owner **ENGINE-OPTICAL** |
+| M5 | Outlet-power driver, beam read model, build-mode aim preview | **missing** | — | owner **ENGINE-OPTICAL** |
+| M6 | `ElementCategory.Optics` (`CuriousContraptions.Abstractions/ElementCategory.cs:5`–`:12`) and the optical domain flag | **missing** | — | owner **ENGINE-OPTICAL** |
 
-**Missing**
-- OpticalTransport: narrow-ray emission, finite-disc apertures, Absorb and Route interactions with a directed outlet, shared range and interaction budget. Emission is built by Story 13.1 and routing by Story 13.5; Story 13.8 adds the switched carrier. Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485 finite-colour allocation, S486 optical-commit snapshot boundary, S488 interval transport law.
-- SignalPropagation and StateTransaction: hysteretic control sampling and next-tick decision commit (S486).
-- FiniteLedger: carrier retention and no-creation accounting (S485).
-- No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`); no optical port enum in `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- S257 (typed power versus signal connections) confirms that optical control is not an electrical or activation wire.
+No logic is evaluated inside the optical solve: a second evaluator beside the signal network would be a second rule for the same behaviour. ENGINE-OPTICAL, ENGINE-SPATIAL-QUERIES and ENGINE-SIGNAL-NODES are stories of [the engine-first section of `epics.md`](../../../_bmad-output/planning-artifacts/epics.md#engine-first-capability-stories-21-november-2026).
 
-**Element dependencies:** a supplied, enabled carrier source and up to two control sources (CAT-036 laser or EL-176 to EL-178; Story 13.1, plus CAT-005 battery from Story 8.1); an observer for the outlet (CAT-038 light_receiver or EL-214; Story 13.2); CAT-066 wall as occluder (delivered).
+**Dependencies.** Up to three lasers (CAT-036 or [EL-176](EL-176-red-laser-emitter.md) to EL-178, undelivered), Battery (delivered), an outlet observer (CAT-038 / [EL-214](EL-214-broadband-beam-detector.md), undelivered), Wall (delivered).
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-138](../requirements.md#element-138): carrier output follows both inputs present; prove every input combination plus absent carrier. Source record [todo-367](../requirements.md#todo-367): absorbing A/B inputs, independent carrier routed at 90% power, next-tick decisions, original icons, separate catalogue entries. CAT row [current-cat-043](../requirements.md#current-cat-043): 0.25 on / 0.225 off, transition, retraction, chaining, occlusion, rotation and preserved range/interaction budget. Refinement **optical-and** ([refinements](../invest/refinements.md)): independent A/B/carrier and occlusion controls. Campaign: optical logic first use 51–60, reuse 71–90, 111–125, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); teaching set-up "two-light-windows" teaches optical AND ([refinements](../invest/refinements.md)).
 
-**Legacy.** The complete gate harvest (17 facts, including Boolean observations, lamp-source binding and parameter-ownership tests) is in [CAT-043-optical_and](CAT-043-optical_and.md#legacy-harvest) and applies unchanged to this identity; shared optical transport facts S1–S7 are in [CAT-036-laser](CAT-036-laser.md#legacy-harvest). The facts an EL-138 story needs are restated here:
+**Legacy.** The complete gate harvest (17 facts, including Boolean observations, lamp-source binding and parameter-ownership tests) is in [CAT-043-optical_and](CAT-043-optical_and.md#legacy-harvest) and applies unchanged to this identity; shared optical transport facts S1–S8 are in [CAT-036-laser](CAT-036-laser.md#legacy-harvest). The facts an EL-138 story needs are restated here:
 1. Geometry, apertures, outlet, retention 0.9 and Route-when-open — `parts/OpticalLogicPart.cs@a6c914e:L13-L14`, `parts/OpticalLogicPart.cs@a6c914e:L51-L58`. Carry forward.
 2. Controls use broadband strength on First/Second — `parts/OpticalLogicPart.cs@a6c914e:L59-L61`; strength rule `engine/OpticalColour.cs@a6c914e:L35-L42`. Carry forward.
 3. Output power = power leaving the outlet; Active only when output > 0 — `parts/OpticalLogicPart.cs@a6c914e:L62-L66`; outlet accounting at the captured outlet pose — `engine/OpticalNetwork.cs@a6c914e:L171-L182`. Carry forward behaviour; not the CPU static solve.
 4. Truth evaluation and closed operation enum; undefined operation rejected — `engine/LogicGate.cs@a6c914e:L6-L19`. Carry forward.
 5. Hysteresis 0.25 on / 0.225 off; validation finite 0 ≤ off < on; sample validates both inputs before committing either; advance once; reset to evaluate(false, false) — `engine/LogicGate.cs@a6c914e:L44-L80`. Carry forward.
-6. Advance runs before the networks each tick — `parts/OpticalLogicPart.cs@a6c914e:L50-L50`; legacy tick order hooks → cone light → optics → acoustics → electrical — `reference/cpu/MachineWorld.cs@a6c914e:L855-L861`. Do not carry forward the per-part hook or the CPU order; carry forward next-tick behaviour (see Open question 5).
+6. Advance runs before the networks each tick — `parts/OpticalLogicPart.cs@a6c914e:L50-L50`; legacy tick order hooks → cone light → optics → acoustics → electrical — `reference/cpu/MachineWorld.cs@a6c914e:L855-L861`. Do not carry forward the per-part hook or the CPU order; carry forward next-tick behaviour (section 6).
 7. Control lamps and output lamp follow at rate 12; art and truth relief — `parts/OpticalLogicPart.cs@a6c914e:L38-L43`, `parts/OpticalLogicPart.cs@a6c914e:L67-L111`. Carry forward behaviour; not Godot materials.
 8. Catalogue entry and scene (Operation = 0) — `parts/catalog/optical_and.tres@a6c914e:L6-L11`, `parts/scenes/optical_and.tscn@a6c914e:L1-L5`. Carry forward the entry.
 9. Acceptance: for every truth row × carrier present/absent, controls are read on the first solve without changing the decision; after one advance the gate opens iff the row is true; output is (0.9, 0.9, 0.9) for a unit carrier only when open with carrier; all outgoing segments carry 0.9 power (controls never exit); removing the carrier clears the output on the next solve; reconfiguration restores A, B and the initial decision — `CuriousContraptions.tests/OpticalLogicTests.cs@a6c914e:L16-L69`. Carry forward.
@@ -90,19 +72,54 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Files harvested:** `parts/OpticalLogicPart.cs`, `parts/catalog/optical_and.tres`, `parts/scenes/optical_and.tscn`, `engine/LogicGate.cs`, `engine/SceneBooleanObservation.cs`, `engine/OpticalColour.cs`, `engine/OpticalNetwork.cs`, `reference/cpu/MachinePart.cs`, `reference/cpu/MachineWorld.cs`, `CuriousContraptions.tests/OpticalLogicTests.cs`, `CuriousContraptions.tests/LogicGateTests.cs`, `CuriousContraptions.tests/OpticalControlCheckpointTests.cs`, `CuriousContraptions.tests/OpticalObservationTests.cs`, `CuriousContraptions.tests/BooleanObservationTests.cs`, `CuriousContraptions.tests/ParameterValidationOwnershipTests.cs`, `CuriousContraptions.tests/BooleanColourBindingTests.cs`. No level in `content/puzzles.json` or lesson in `tools/Campaign` uses an optical gate.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** in the actual Workshop drawer place a battery, three lasers (A, B, carrier), the AND gate and a broadband receiver on the outlet axis; wire battery `Supply` → each laser `PowerIn` and a trigger to each laser `ActivationIn` with the connection UI; aim each laser at its aperture with the rotation gizmo. Run.
-- **Positive:** with A, B and carrier lit, the outlet lamp lights on the tick after both controls go high, and the receiver reads 0.9 × carrier power.
-- **Negative / controls:** each of 00, 01, 10 with carrier (dark outlet); 11 without carrier (dark: truth cannot create power); A beam aimed into B's face only; control beam on the outlet or carrier face; occluder on each input; rear incidence.
-- **Boundaries:** control power 0.25 (on), 0.249 (off), hold above 0.225, release at 0.225; carrier exits at 90%; shared range and 16-interaction budget; next-tick latency, including retraction of one input.
-- **Run/Reset:** Reset clears A, B, decision (closed), output and lamps exactly. **Save/Load:** placement, orientation and wiring round-trip; no runtime state persists.
-- **Integrations:** chaining one gate's outlet into another gate's control or carrier; filters before controls; Story 13.8 suite `tools/e2e/cat-optical-logic.test.ts`. Binding criteria: [element-138](../requirements.md#element-138) and [current-cat-043](../requirements.md#current-cat-043).
+**Authority.** Acceptance is [CAT-043's rows](CAT-043-optical_and.md#acceptance-outline) G1 to G13, with their fixtures, tolerances and stall guards. This identity's outcomes map to **G1** (every input combination with the carrier) and **G2** (every combination without it: logically true cannot create power); the ledger row cites those tests. No row is stated here, so none can diverge.
+
+**Behaviour and numbers** (the laws behind those rows; one legacy unit is 10 W, so the legacy 0.25 on / 0.225 off is 2.5 W / 2.25 W).
+
+- **Control.** A control's strength is the mean of the three channels at its aperture. An amber laser gives (10 + 7.8 + 3.2) ÷ 3 = 7.0 W (on); a red laser 10 ÷ 3 = 3.33 W (on); the amber's blue channel alone, after a blue filter, 3.2 ÷ 3 = 1.07 W (off), the kept lesson that a weak filtered channel cannot switch a control (K-7).
+- **Carrier.** A Relay with τ 0.9: an amber carrier leaves as (9.0, 7.02, 2.88) W, with its range reduced by 0.990 m and one interaction used. Closed, the inlet absorbs. With no carrier the outlet is dark in every truth row.
+- **Supply check.** Three amber lasers demand 3 × 25 W = 75 W, under the Battery's default 120 W (1 J per tick).
+- **Tick order.** Control strengths commit with tick n; the threshold and boolean nodes take them at the start of tick n + 1; the solve at the end of tick n + 1 reads the `open` level. A control change switches the carrier one tick later; a chain of k gates responds in k ticks. After Reset both thresholds are off, so And is closed.
+
+Chrome recipe (pending, post-catalogue): CAT-043's.
 
 ## 6. Open questions
 
-1. Story 13.8 says gates "emit output laser beams"; the requirement row and legacy require a separately supplied carrier. Requirement presumed binding; owner to amend the story text.
-2. One catalogue part (CAT-043) is presumed to satisfy EL-138; owner to confirm no separate named part is intended.
-3. Control strength is the broadband mean, so a single filtered channel reads one third of its power (an amber laser through a blue filter gives 0.107 and cannot switch a control). Confirm this is intended, under S485.
-4. Thresholds are fixed constants in legacy and the CAT row; confirm no authorable threshold is required.
-5. Tick order: legacy advanced the gate before the networks and traced optics before the electrical solve; the current pipeline ([docs/gpu-f32-physics.md](../../gpu-f32-physics.md#solver-model-and-scalable-mechanics)) runs the electrical phase before optics. On which tick does a control change switch the carrier, and which snapshot sees a carrier laser's supply loss? Unspecified — owner decision (S486).
+None open.
+
+1. **Story 13.8 says gates "emit output laser beams" — decided** (D15, K-8): the requirement row governs; the carrier is separately supplied.
+2. **One catalogue part satisfies EL-138 — decided**: Duplicate closure with CAT-043's rows as the single authority (coordinator decision 16).
+3. **Broadband-mean control strength — decided** (D15, K-7): kept.
+4. **Thresholds not authorable — decided** (D19, K-7).
+5. **Tick order and coupling — decided** (coordinator decision 16): the solve runs after the last substep; receivers couple only through signal nodes; one tick from control to carrier.
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Collaborators.** Lasers and detectors (undelivered), filters before controls ([EL-143](EL-143-red-optical-filter.md)), mirrors, Wall, Battery. No ports, so no port domains to agree.
+- **Campaign.** Optical logic first use 51–60; reuse 71–90, 111–125, 136–150.
+- **Coverage binding (planned, not yet live).** Catalogue key `optical_and` (CAT-043). A closed duplicate has no binding section of its own: it is covered by the package of the part that satisfies it and by the closure record, which the coverage follow-on story S7 must admit (owner decision 15 widens the reader).
+- **Lesson fixtures.** Story [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) is defined and lands after the engine programme (owner decision 22); a level that places the gate locked needs whatever it delivers.
+
+## 8. Delivery
+
+- **Slice shape.** Closed inside CAT-043's slice. The five gates differ only in declared values, so they qualify as one Family slice; `delivery-batches.md` §1c lists them as a run (proposed change K-17 in the batch summary).
+- **Prerequisites, in order.** The engine programme (owner decision 3a), including ENGINE-SPATIAL-QUERIES; ENGINE-SIGNAL-NODES (threshold and boolean nodes); ENGINE-OPTICAL as corrected in the batch summary; a laser (CAT-036) and a detector (CAT-038); then the gate slice.
+- **Files (CAT slice).** `elements/OpticalAnd/` (project, declaration, scene, icon), one guarded `CuriousContraptions.slnx` line, `CuriousContraptions.tests/OpticalGateTests.cs`, a `VisibleSolidColliderTests` row, the ledger row for EL-138.
+- **Review tier.** Data-only if the probe finds every row present after the engine stories; otherwise engine.
+- **Disqualifiers.** A Relay whose enable cannot name a signal level; no threshold or boolean signal node; a different unit scale.
+
+## 9. Engine conformance
+
+Verdict: **Conforms.**
+
+1. **Declaration data only.** Two receivers, two threshold nodes, one boolean node, one relay, nine bindings. No state machine in code and no logic inside the optical solve.
+2. **Generic laws.** The receiver law, the signal network's threshold and boolean rules, the Relay law; "opens next tick" follows from the tick order.
+3. **Three layers.** Colliders: two boxes. Visuals: flush prints and lamps; none is a collider. Animation: lamp colours from committed levels and outlet power.
+4. **One-way flow and typing.** Readings → next tick's signal network → relay enable → segments; the operation is a closed enum.
+5. **Flat state.** Counts in [CAT-043's declaration](CAT-043-optical_and.md#declaration).
+6. **Performance fitness.** Two primitives, static; at most one extra segment per carrier.
+7. **Tests are scenarios.** CAT-043's rows place real emitters and read committed state.

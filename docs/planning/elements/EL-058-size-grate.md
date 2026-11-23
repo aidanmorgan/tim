@@ -4,6 +4,8 @@
 
 Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Values marked **proposed** are design values the owner may revise.
 
+Deepened to build-ready detail on 21 November 2026 against checkout `8d1d68aa`; every `path:line` outside section 4 was read in that checkout. Values are starting values under [D1](../invest/delivery-batches.md#3-family-level-decisions).
+
 ## 1. Identity
 
 | Field | Value |
@@ -11,79 +13,90 @@ Story 7.0 named-identity spec. Baseline commit `a6c914e`. Legacy citations use `
 | ID | EL-058 |
 | Name | Size grate |
 | Type | Mechanical |
-| Requirement anchor | [element-058](../requirements.md#element-058); scope index [todo-320](../requirements.md#todo-320) |
+| Requirement anchor | [element-058](../requirements.md#element-058) (sequence-task-611); scope index [todo-320](../requirements.md#todo-320); integration [sequence-task-371](../requirements.md#sequence-task-371) |
 | Named entry | [named-elements.md#element-058](../invest/named-elements.md#element-058); proof owner S367 |
-| CAT spec refined or extended | none. Related: [CAT-001 ball](CAT-001-ball.md) and [CAT-014 bowling](CAT-014-bowling.md) (the two sizes it separates), [CAT-004 basket](CAT-004-basket.md) (catch below), [CAT-066 wall](CAT-066-wall.md) (static panel family) |
-| Related identities | [EL-071 straight metal ball pipe](EL-071-straight-metal-ball-pipe.md) (same 0.62 m gauge), [EL-059 weight tray](EL-059-weight-tray.md), [EL-060 electromagnet](EL-060-electromagnet.md) (sorting by material, todo-320 integration) |
+| CAT spec refined or extended | none. Related: [CAT-001 ball](CAT-001-ball.md), [CAT-014 bowling](CAT-014-bowling.md) and the Tennis ball (the sizes it separates), [CAT-004 basket](CAT-004-basket.md) (catch below), [CAT-066 wall](CAT-066-wall.md) (static panel family) |
+| Related identities | [EL-059 weight tray](EL-059-weight-tray.md) (sorts by mass), [EL-060 electromagnet](EL-060-electromagnet.md) (sorts by material), [EL-071 straight metal ball pipe](EL-071-straight-metal-ball-pipe.md) (its 0.62 m gauge was withdrawn by D12; no shared value remains) |
 | Roadmap story | [EL-058 delivery slice](../invest/named-elements.md#element-058); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Status | Not started; blocked on the engine programme (owner decision 3a), relying most on ENGINE-SPATIAL-QUERIES (contact candidates against its five static boxes), ENGINE-ISLANDS-SLEEP (carried balls at rest) and ENGINE-SENSOR-VOLUMES (the Receiver capture of row G7); then S7. No package exists (`elements/` has no `SizeGrate`). Planning spec at build-ready detail |
+| Disposition | To deliver as a single element. Not a duplicate: no delivered part has a size-selecting opening |
+| Planned package | id `size_grate`, directory `elements/SizeGrate/`, class `SizeGrateElementDeclaration` |
+| Coverage binding | Planned, not yet live (section 7); blocked on S7. No CAT number |
+| delivery-batches class | 1b run "Static geometry" ("static boxes and multi-body scene geometry as in Wall, Funnel and Receiver"). **Confirmed** as declarable from data today; **corrected** on tier: the aperture contact it relies on has no exercising test, so the slice is engine tier (section 3) |
 
 ## 2. Declaration
 
-### Bodies and shapes
+Shape followed: `elements/Wall/WallElementDeclaration.cs` (static box body with parameter-bound extents) with the multi-box scene body of `elements/Receiver/ReceiverElementDeclaration.cs` and the per-collider offsets of `elements/Pipe/PipeElementDeclaration.cs:53`–`:54`.
 
-- One static body: a rectangular frame with a 3 × 3 grid of square openings of side `opening`, separated by bars of square section 0.08 m; plate thickness 0.08 m. Footprint = 3·opening + 4·0.08 m (2.18 m at default). **Proposed**: three openings per side give a target wide enough for a rolling ball; the 0.08 m bar is ⅔ of the 0.12 m Wall minimum thickness (`engine/gpu/WorkshopWall.cs@a6c914e:L9-L9`), so the grid reads lighter than a wall while staying well above the 1 cm tunnelling bound.
-- Compiled as 4 + 4 static box colliders (frame edges and inner bars). One grate needs 8 rows in the scene-sized collider table; the historical capacity 64 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L166-L172`) is retired.
+**Interfaces.** `IMechanicalElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:7`), `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`), `IParameterizedGeometryElement` (`SceneGeometry.cs:29`). `KinematicMode.Static`, `PayloadPolicy.None`, zero mass frame, `SupportedDomains` Mechanical, footprint 1 body, 0 moving.
 
-### Mass and material
+**Body and colliders.** One static body, five box colliders: a comb of four parallel tines joined by one head rail, giving three slots of clear width `opening`. Local frame: tines run along Z, slots are spaced along X, the top faces lie in the plane y = +0.06. With o = `opening`:
 
-Static. Bars: restitution 0.3, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0. **Proposed**: a dull metal grid so oversized balls settle on it rather than bounce off the bench.
+| Collider | Box half extents (m) | Centre (m) |
+| --- | --- | --- |
+| 0–3 tines | (0.06, 0.06, 1.20) | x = −1.5·o − 0.18, −0.5·o − 0.06, +0.5·o + 0.06, +1.5·o + 0.18; y 0; z 0 |
+| 4 head rail | (1.5·o + 0.24, 0.06, 0.06) | (0, 0, −1.26) |
 
-### Constraints and joints
+At the default the part is 2.34 m wide and 2.52 m long. The tips at z = +1.2 are open. Bindings are `ColliderParameterBinding` rows (`SceneGeometry.cs:27`): `OffsetX` on colliders 0–3 with (multiplier, offset) = (−1.5, −0.18), (−0.5, −0.06), (0.5, 0.06), (1.5, 0.18), and `HalfExtentX` on collider 4 with (1.5, 0.24). No `TubeMouthBindings`.
 
-None: a static obstacle.
+**Material** (`MaterialProperties` order restitution, friction, rolling resistance, bounce threshold): (0.3, 0.3, 0, 0.1). A dull bar: an oversize ball settles on the tines instead of bouncing off the part.
 
-### Typed ports
+**Parameters.**
 
-None. Passage is purely geometric; identity labels never select passage (row outcome).
+| Key | Kind | Unit | Default | Min | Max | Editor policy | Run edit |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `opening` | Real | Metre | 0.62 | 0.3 | 1.2 | Reject | BuildOnly |
 
-### Sensors and activation
+**Ports, stores, events.** None. Passage is geometry only.
 
-None required. The binding lists SignalPropagation (shared with todo-320 sorters); no signal port is required by the row (Open question 2).
+**Presentation.** `PickRadius` 1.8, no resize axes. Parameter bindings (`PresentationParameterBinding`, `CuriousContraptions.Abstractions/ElementPresentation.cs:119`): `LocalX` on `Visual/Tine_0`…`Visual/Tine_3` with the four collider (multiplier, offset) pairs; `ScaleX` on `Visual/HeadRail` (unit-length mesh) with (3, 0.48). No state bindings.
 
-### Work and energy stores
+**Palette.** Category `ElementCategory.Structure`, palette order 511 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)), display name "Size grate", colour `#c28f52` (the wall family, `DESIGN.md:237`).
 
-None.
+### Art and solidity
 
-### Parameters
+| Node | Mesh and dimensions (m) | Class |
+| --- | --- | --- |
+| `Visual/Tine_0`…`Tine_3` | box 0.12 × 0.12 × 2.4 | solid, colliders 0–3 |
+| `Visual/HeadRail` | box (3·o + 0.48) × 0.12 × 0.12 | solid, collider 4 |
+| `Visual/GaugeMark` | a ring inside a slot outline, printed flush on the head rail top | decorative: printed flat |
 
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `opening` | f32 | 0.3–1.2 | 0.62 | m (square side) | **Proposed**: passes a Bowling ball (diameter 0.56 m) with 0.03 m clearance per side and blocks a Basketball (0.68 m), using current ball radii (`engine/gpu/WorkshopConstruction.cs@a6c914e:L45-L53`) |
+Colours (`DESIGN.md:80`): tines Cream `#fff8e9` (part-body cream, owner decision 4), head rail Navy `#1c2836`, gauge mark Gold `#f7cb52`. The earlier corner studs are dropped: a proud stud needs a collider. Icon: a four-tine comb seen from above with a small ball dropping through a slot and a large ball resting across two tines. At a glance it differs from the Wall by being open bars, not a slab, and from the Ramp by having no surface.
 
-Closed parameter enum `GrateParameter { Opening }`.
+### Behaviour and numbers
 
-### Cosmetic curves and UI bindings
+- **Law.** Rigid contact only. A sphere of diameter d passes a slot when d < o and is carried on two tines when d > o, sitting √(r² − (o/2)²) above the tine tops. Nothing reads a part id, so identity cannot select passage.
+- **Why parallel slots, not the 3 × 3 square grid first proposed.** In a square cell an oversize ball seats on four edges and sags up to its own radius (0.20 m for the Basketball at 0.62 m), so the grate clogs after one ball and cannot be cleared by tilting. On parallel tines the same ball rolls along the bars and leaves over the open tips when the part is pitched, while fitting cargo drops through: the grate sorts a stream. It also needs five colliders instead of eight and binds only the X components that delivered parts already bind.
+- **Bar section 0.12 m.** The Wall's minimum thickness (`elements/Wall/WallElementDeclaration.cs:30`), the thinnest static box a delivered part admits.
+- **Default 0.62 m against delivered balls.** Tennis ball 0.50 m across (radius default 0.25, `elements/TennisBall/TennisBallElementDeclaration.cs:18`), Bowling ball 0.56 m (`elements/BowlingBall/bowling.tscn:13`), Basketball 0.68 m (`elements/Ball/ball.tscn:21`). Pass and carry cases are judged against a ball's widest collider: the Basketball's band is 0.70 m across (`elements/Ball/ball.tscn:18`); the Tennis ball's seam is printed (owner decision 24i), so its widest collider is its sphere. The default passes the Tennis and Bowling balls with 0.06 m and 0.03 m clearance per side and carries the Basketball with at least 0.03 m interference per side.
+- **Range 0.3–1.2 m.** 0.3 m stops every delivered ball; 1.2 m passes all three and stays under the 1.3 m pipe bore (`elements/Pipe/PipeElementDeclaration.cs:9`–`:12`), so a grate never needs to out-gauge a pipe.
+- **Feeding speed.** A fitting ball crossing the slots sideways faster than about 1.5 m/s can skip a slot before it has dropped; that is ordinary motion, not a defect. Lessons feed along the slots or from above.
 
-None (static). The opening width is shown by the geometry; no inspector.
+## 3. Engine capabilities (capability probe)
 
-### Art
+| Capability | Status | Symbol | Exercising test or owner |
+| --- | --- | --- | --- |
+| Static multi-box body from scene geometry | *present* | `ISceneGeometryElement` `SceneGeometry.cs:10`; Receiver `elements/Receiver/ReceiverElementDeclaration.cs:59` | `CuriousContraptions.tests/CatalogueIntegrationTests.cs:200` (payloads reach or miss the five-wall Receiver) |
+| Sphere against a static box, no pass-through at speed | *present* | Wall `WallElementDeclaration.cs:49` | `CuriousContraptions.tests/WorkshopWallTests.cs:88` (4 and 64 m/s) |
+| Collider extent and offset bound to a real parameter | *present* | `ColliderParameterBinding` `SceneGeometry.cs:27`; Pipe `PipeElementDeclaration.cs:53` | `CuriousContraptions.tests/WorkshopPipeLengthTests.cs:54`; `CuriousContraptions.tests/WorkshopWallTests.cs:15` |
+| Art position and scale bound to a parameter | *present* | `PresentationParameterBinding` `ElementPresentation.cs:119`; Pipe `PipeElementDeclaration.cs:23` | `CuriousContraptions.tests/WorkshopPipeLengthTests.cs:139` |
+| Parameter admission and refusal at every seam | *present* | `ParameterDescriptor` `CuriousContraptions.Abstractions/ParameterDescriptor.cs:52` | `CuriousContraptions.tests/WorkshopWallTests.cs:55` |
+| Run/Reset and save/load of any placed package | *present* | generic | `CuriousContraptions.tests/CatalogueIntegrationTests.cs:273` |
+| A sphere passing between, or carried on the edges of, two parallel static boxes | *present, untested* | generic sphere–box contact | none found (searched test names for edge, gap, slot, aperture, rail). No engine change is expected; the element's own tests are the first to exercise it. Owner if it fails: an engine repair slice, not this package |
 
-Pale grey metal bars `#ccd9df` on a navy frame `#293954`, cream corner studs `#fff8e9`. A small engraved gauge mark (circle inside a square) shows the opening as a shape cue. Catalogue colour **proposed**: navy `#293954`.
+Counts: 6 present, 1 present-untested, 0 narrower, 0 missing. No element-specific engine code is needed.
 
-### Catalogue and inventory entry
+**Element dependencies.** Basketball, Bowling ball, Tennis ball and Receiver, all delivered.
 
-Id `size_grate`, title "Sorting grate", category "Motion"; package-owned metadata discovered into the Free palette from the bundle (`engine/gpu/WorkshopInventory.cs@a6c914e:L49-L60`). **Proposed**.
+### Engine conformance
 
-### Variants
-
-The requirements row names no variants or modes. One element with an `opening` parameter.
-
-## 3. Engine capabilities
-
-Binding: ContactImpulse, EnvironmentState, GeometryQuery, RigidBodyDynamics, SignalPropagation (map and coverage JSON agree). Map decision: S257 typed power versus signal.
-
-**Exists now**
-
-- Static box colliders and sphere–box contact manifolds with speculative margin: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L345-L407`.
-- Rolling resistance and friction rows that let a ball roll across bars: `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L766`.
-
-**Missing**
-
-- A static multi-box (compound) part compiled from one placed instance. The Receiver already compiles five static boxes from one part (`engine/gpu/ReceiverGeometry.cs@a6c914e:L10-L18`), so the pattern exists; only the grate's parameterised layout is new. required prerequisite owned by the linked delivery slice.
-- Resize control for `opening` (or fixed size; Open question 1).
-
-**Dependencies.** Two ball sizes: CAT-001 Basketball and CAT-014 Bowling ball (both delivered).
+- **Declaration data only.** One static body of five boxes and one geometry parameter. No sensor, port, callback or engine branch.
+- **Generic laws.** Passing and carrying are rigid contact against the declared geometry; nothing reads a part id, so identity cannot select passage.
+- **Layers.** Colliders: 5 static boxes (4 tines, 1 head rail). Visuals: tine and rail boxes and a printed gauge mark, none used as a collider. Animation: none; nothing moves any art node during a Run; art and colliders follow `opening` through Build-time parameter bindings, not a run-time driver. Visible = solid: each tine and the head rail has its own collider; the gauge mark is printed flat.
+- **One-way flow and typing.** Nothing reads art. `opening` is a typed f32 parameter in metres.
+- **Flat state.** 1 static body, 5 box colliders, 0 joints, 0 drives, 0 sensors, 0 domain nodes, 0 stores, 5 collider parameter bindings and 5 presentation parameter bindings.
+- **Performance.** Five boxes, the Receiver's count, in place of the eight a grid would need. Static; no per-tick work beyond contact, whose candidates come from ENGINE-SPATIAL-QUERIES. No island sleeping exists today; a ball resting on the tines costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
+- **Tests are scenarios.** Rows G1 to G11 run the production simulation with delivered balls.
 
 ## 4. Sources and legacy
 
@@ -104,15 +117,62 @@ No legacy grate exists. Shared aperture facts:
 
 Requirement row: [element-058](../requirements.md#element-058).
 
-- **Chrome UI recipe.** Place a Ramp feeding onto a Sorting grate laid flat on two Walls above a Basket; place a Bowling ball and a Basketball at the ramp top. Verify placement and `opening` from the committed read.
-- **Positive.** Run: the Bowling ball drops through an opening into the Basket (capture event).
-- **Negative/control.** The Basketball rolls across or rests on the bars and never reaches the Basket. A Bowling ball released beside the grate does not count. Swapping the balls' catalogue identity is impossible; passage depends only on radius.
-- **Boundaries.** `opening` 0.55 m (Bowling ball blocked), 0.58 m (passes with 0.01 m side clearance), 0.68 m (Basketball still blocked at exactly its diameter, passes at 0.70 m); fast impact (8 m/s) onto bars does not tunnel; out-of-range `opening` rejected.
-- **Run/Reset and Save/Load.** Ball poses restore; `opening` round-trips.
-- **Integrations.** Cross-element task [sequence-task-371](../requirements.md#sequence-task-371) under [todo-320](../requirements.md#todo-320): "Sorting depends on observable size, mass or material", with every named sorter keeping its own obligation.
+- **Chrome UI recipe (pending, post-catalogue).** Place a Size grate pitched 10° with its tips low, a Receiver under the slots and a second Receiver beyond the tips; place a Bowling ball and a Basketball above the head end. Verify placement and `opening` from the committed read. Run: the Bowling ball is captured below, the Basketball beyond the tips.
+
+Planned tests are in `SizeGrateTests` unless named otherwise. "Plane" is the tine-top plane. Stall guards are game seconds converted at the selected cadence.
+
+| Row | Given / when / then | Planned test | Control | Boundary | Tolerance and stall guard |
+| --- | --- | --- | --- | --- | --- |
+| G1 | A level grate at the default; a Bowling ball released at rest 0.3 m above the middle slot. Then its centre goes at least 0.5 m below the plane | `AFittingBallDropsThroughASlot` | released over a tine centre line it rests on the flat 0.12 m tine top for 5 s and never passes through the bar | — | 0.5 m is two radii, clear of any resting pose; guard 5 s (free fall takes 0.4 s) |
+| G2 | The same release with a Basketball. Then it rests on two tines and never goes below the plane | `AnOversizeBallIsCarriedOnTheTines` | G1 | — | centre stays at least 0.10 m above the plane (derived 0.14 m; 0.04 m covers edge-contact slop without admitting a ball that has dropped in); observed for 5 s |
+| G3 | Requirement outcome "identity labels do not select passage": two Tennis balls differing only in `radius`, 0.28 and 0.33 m (spheres 0.56 m and 0.66 m across against the 0.62 m opening) | `TheSamePartPassesOrIsCarriedByItsRadiusAlone` | a Bowling ball (other id, 0.28 m) passes like the small Tennis ball | 0.03 m clear per side for the small ball; 0.02 m interference per side for the large ball | as G1 and G2 |
+| G4 | `opening` boundaries: 0.52 carries and 0.62 passes the Bowling ball (0.56 m); 0.64 carries and 0.74 passes the Basketball (0.70 m across its band) | `TheOpeningDecidesPassageAtEachBall` | each pair is its own control | at least 0.02 m per side against the widest collider, one hundred times the contact allowance (`PhysicalTolerance.ContactSeparationMetres`) | as G1 and G2 |
+| G5 | A grate pitched 10°, a Basketball and a Bowling ball released at the head end. Then the Basketball leaves beyond the tips and the Bowling ball ends below the plane before the tips | `APitchedGrateSortsAStream` | level grate: the Basketball stays on it | — | "beyond" is z > tip + 0.34 m; guard 15 s (derived roll time about 3 s) |
+| G6 | A Basketball arriving on the tines at 8 m/s does not pass | `AFastOversizeBallDoesNotPassTheBars` | no grate: it crosses the plane | — | centre never more than 0.1 m below the plane within 3 s |
+| G7 | Receiver below: the ball that passes is the captured one | `ThePassedBallIsCapturedBelowAndTheCarriedOneIsNot` | swap the two release points | — | exact: one `Captured` record whose `Other` is the Bowling ball; guard 10 s |
+| G8 | Run, Reset, save and load with `opening` 0.9 and a carried ball | `ResetAndSaveLoadRestoreTheOpeningAndTheBalls`; placed alone it is covered by `CatalogueIntegrationTests.cs:273` | — | — | authored state compared as the generic test does |
+| G9 | `opening` below 0.3, above 1.2 or non-finite is refused at every seam and changes nothing; 0.3 and 1.2 are admitted | S4 row R2 once delivered, else `AnOutOfRangeOpeningIsRefusedAtEverySeam` (pattern `WeightTests.cs:96`) | bounds admitted | one f32 step outside | exact refusal |
+| G10 | A connection naming the grate is refused: it has no ports | S4 row R5 does not apply to a portless package; `AForeignPortIsRefused` (pattern `WorkshopWallTests.cs:141`) | — | — | exact refusal |
+| G11 | Tines, head rail and their art follow `opening` at 0.3, 0.62 and 1.2 | `SizeGrateArtTests.BarsAndCollidersFollowTheOpening` | — | both limits | positions within 1 mm, far below any ball clearance |
 
 ## 6. Open questions
 
-1. Is `opening` player-adjustable (resize handle) or fixed per catalogue entry? Owner decision.
-2. Should the grate emit a typed signal (for example, an object-passed occurrence), given the binding lists SignalPropagation? Owner decision.
-3. Round holes versus square openings (square passes a ball whose diameter ≤ side; round is stricter on diagonal cargo such as Dominoes). Proposed: square. Owner decision.
+**Resolved**
+
+1. Is `opening` adjustable? Yes, a declared parameter editable in the Workbench unless a level locks it: D11.
+2. Should the grate emit a signal? No: D19 (no requirement row or lesson uses one). The map's SignalPropagation family is navigation only: D14. A passage occurrence is the delivered Ball detector's job.
+3. Round holes or square openings? Decided now: parallel slots between tines, because a closed cell clogs on the first oversize ball and tines let it roll off (section 2).
+4. Fixed bar thickness or uniform scaling with `opening`? Decided now: fixed 0.12 m, the tested Wall minimum, so a small opening does not thin the bars.
+
+**Needs the owner**
+
+None.
+
+## 7. Integration
+
+- **Collaborators.** Basketball, Bowling ball, Tennis ball, Receiver, Ramp, Funnel and Pipe (all delivered). EL-059 and EL-060 share the [sequence-task-371](../requirements.md#sequence-task-371) sorting task; this spec covers its size clause (G3, G5, G7) and needs neither of them.
+- **Campaign.** First use levels 91–100, reuse 111–120 and 136–150 (`docs/planning/invest/campaign-reservations.md:75`). Owner decision 24e moves the first use to level **28a** in chapter 3 ([per-level allocation](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)).
+- **S8.** A lesson that places the grate needs the lesson-fixture story S8 first.
+
+### Coverage binding (planned, not yet live)
+
+Published main binds a named-identity package through a final section of the identity's spec headed "Package source binding", read by `tools/Coverage/NamedPackageSources.cs` (on `origin/main`, `25df3cd5`; pattern: EL-239 Baseball). The section is not written here: the reader parses every EL spec that carries that heading and refuses one whose preconditions fail. **Blocked on the coverage follow-on story S7.**
+
+| Field | Planned value |
+| --- | --- |
+| Package | `size_grate` |
+| Named identity | EL-058, `../invest/named-elements.md#element-058` |
+| Acceptance | `todo-320` and `sequence-task-611` |
+| Decision | S367; `scope-corrections.md` has no `s367` block |
+| Mode records | `Configuration=Adjustable` (it declares a parameter; confirmed at slice planning) |
+
+What it lacks today: an `s367` anchor block in `docs/planning/invest/scope-corrections.md`, and its todo-320 anchor is a scope index, not immediately followed by its sequence-task-611 anchor in `requirements.md`. S7 widens the reader (owner decision 15), including for companion packages and TH, RAD and GAP identities.
+
+## 8. Delivery
+
+- **Slice shape.** One element, declaration data, art and tests only.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), which includes ENGINE-SPATIAL-QUERIES, ENGINE-SENSOR-VOLUMES and ENGINE-ISLANDS-SLEEP; then S7 (the coverage follow-on, which widens the reader, owner decision 15). S3 only shortens the edit list. No other element.
+- **Files added.** `elements/SizeGrate/SizeGrate.csproj`, `SizeGrateElementDeclaration.cs`, `size_grate.tscn`, `icon.svg`; `CuriousContraptions.tests/SizeGrateTests.cs`, `SizeGrateArtTests.cs`.
+- **Files edited.** No test-project edit (published main compiles every top-level `*.cs` by one rule); until S3, `CuriousContraptions.slnx`, the trim list at `CuriousContraptions.tests/CSharpStaticGateTests.cs:703` and the parameter and placement switches at `CuriousContraptions.tests/PackageRuntimeParityTests.cs:483` and `:641` (generic list at `:653`); at delivery the binding section of section 7; this spec and `TODO.md`.
+- **Review tier.** Engine tier (all six layers), because of the one *present, untested* row. If the planning scout finds an exercising test for edge-carried spheres, it is data-only.
+- **Disqualifiers the probe must re-check.** G2 or G5 fails with plausible causes in contact (a sphere jitters, creeps or tunnels on box edges): stop and raise an engine repair slice; do not add a grate-specific collider or rule. A `ColliderParameterBinding` offset on a non-zero collider index failing to compile in a five-collider static body.

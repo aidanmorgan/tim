@@ -2,84 +2,174 @@
 
 **Current delivery (24 October 2026):** [EL-098 delivery slice](../invest/named-elements.md#element-098). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 named-identity spec ([story spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values with no legacy or requirement source are **proposed**, each with a one-line justification; the owner may revise them. Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
+**Build-ready revision, 22 November 2026 (checkout `8d1d68aa`), repaired the same day against the independent audit and the owner decisions of 22 November 2026.** A `path:line` citation without a commit is in this checkout; `path@a6c914e:L…` resolves in git history. Values marked **starting value** are adopted under decision D1 of [delivery batches](../invest/delivery-batches.md#3-family-level-decisions). Game values are canonical f32 ([numeric contract](../../gpu-f32-physics.md#precision-status)).
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
 | ID / name / type | EL-098 · Pool ball · Specialist |
-| Requirement anchor | [element-098](../requirements.md#element-098); scope index [todo-227](../requirements.md#todo-227) |
-| Named entry | [element-098](../invest/named-elements.md#element-098); source owner **S668** |
-| CAT spec refined or extended | Extends the ball family ([CAT-001 Basketball](CAT-001-ball.md)) |
-| Related identities | EL-097 Pool cue, EL-099 Pool pocket, EL-089 Gravity-effect pad (for the conditional variant B) |
-| Roadmap story | [EL-098 delivery slice](../invest/named-elements.md#element-098); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Anchors | [requirements.md#element-098](../requirements.md#element-098) (task `sequence-task-651`); [named entry](../invest/named-elements.md#element-098); scope index [todo-227](../requirements.md#todo-227) |
+| Proof owner | S668 |
+| Disposition | To deliver as a single element in the delivered zero-parameter ball shape. [Delivery batches 1b](../invest/delivery-batches.md#1b-runs-each-its-own-slice-planning-reference-only) lists it in the "Programmable parts" run with EL-076; EL-076 waits for two further engine stories, so this identity is delivered on its own. It differs from every delivered ball in radius, mass, bounce, friction and rolling resistance, so it is not a duplicate. |
+| Planned package | id `pool_ball`, directory `elements/PoolBall/`, class `PoolBallElementDeclaration` |
+| Refines / extends | The ball shape of [CAT-001 Basketball](CAT-001-ball.md) |
+| Status | not started; blocked on the engine programme (owner decision 3a), then S7 |
 
 ## 2. Declaration
 
-"Planar-table constraints" are realised physically: the ball rolls on a flat table surface (the bench or a Wall slab) under gravity, and cushions are Walls. No joint pins the ball to a plane (**proposed**: a real table contact gives rolling and jumping behaviour without a special constraint; see Open questions).
+Follow the Bowling ball (`elements/BowlingBall/BowlingBallElementDeclaration.cs:12`). The package implements `IMechanicalElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:7`), `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`), `IAmbientLoadElement` (`MechanicalContracts.cs:124`) and `IAirflowReceiverElement` (`MechanicalContracts.cs:45`). `KinematicMode.Dynamic`, `SupportedDomains = Mechanical`, `PayloadPolicy.CaptureTarget`, footprint one body, one moving. Expression-bodied constant members only.
 
-- **Bodies and shapes.** One dynamic sphere: a `WorkshopBall` with a new `BallMaterial.For` arm (`engine/gpu/WorkshopConstruction.cs@a6c914e:L38-L77`), compiled as every ball (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`).
-- **Mass and material.**
+"Planar-table constraints" in the requirement are met physically: the ball rolls under world gravity on a flat bed (the bench, or a Wall laid flat) between Wall cushions. No joint or guide holds it to a plane; it can be knocked off the table, which is a puzzle outcome, not a defect.
 
-  | Field | Value | Status |
-  | --- | --- | --- |
-  | Radius | 0.2 m | **proposed**: the smallest catalogue ball, as real pool balls are smaller than tennis balls; above the 1/16 m floor |
-  | Mass | 0.5 kg | **proposed**: denser than the Tennis ball (0.35 kg at 0.25 m), as a solid resin ball is |
-  | Bounce | 0.9 | **proposed**: resin balls are very elastic; the highest catalogue bounce, still inside 0–1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`) |
-  | Friction | 0.2 | **proposed**: polished resin slides more than the shared 0.3 |
-  | Rolling resistance | 0.01 | **proposed**: rolls far on a table, a third of the Basketball's 0.035 |
-  | Drag | 0.04 1/s | Shared ball declaration (`engine/gpu/WorkshopConstruction.cs@a6c914e:L43-L51`) |
-  | Buoyancy | 0 | Same |
-  | Bounce threshold | 0.1 m/s | Same |
+### Body, collider and material
 
-- **Constraints.** None (variant A).
-- **Typed ports.** None.
-- **Sensors and activation.** None owned. It is the payload for EL-099 pocket capture and Receiver capture.
-- **Work and energy stores.** None.
-- **Parameters.** `number`: an integer 1–15 printed on the ball, cosmetic only (**proposed**: distinguishes balls for ordered goals such as EL-122 without changing physics). The material is fixed by kind.
-- **Cosmetic curves and UI bindings.** None beyond the static number decal; the decal rotates with the committed orientation, so rolling is visible.
-- **Art (DESIGN.md).** A cream `#fff8e9` ball with a coloured band from the approved part palette (ball orange `#f57d38`, tennis green `#b8db59`, bowling blue `#45639c` and so on, by number) and a navy `#293954` number (`DESIGN.md@a6c914e:L165-L187`). Satin (`DESIGN.md@a6c914e:L193-L193`).
-- **Catalogue and inventory entry.** Id `pool_ball`, title "Pool ball", category Motion, colour `#fff8e9` (**proposed**).
+| Field | Value | Reason |
+| --- | --- | --- |
+| Sphere collider `col_0_0` (hidden) | radius 0.20 m | **starting value**: the smallest ball; 0.40 m across drops through the 0.46 m pocket of [EL-099](EL-099-pool-pocket.md) with 0.03 m each side |
+| Mass | 0.4 kg | **starting value**: denser than the Tennis ball; under the Pressure plate's 0.5 kg default so one ball does not press it and two do. (The earlier 0.5 kg sat exactly on that threshold.) |
+| Principal moments | 0.0064 kg·m² on each axis | solid sphere, 0.4 × 0.4 × 0.20² |
+| Restitution | 0.9 | **starting value**: resin balls are very elastic; the highest ball value |
+| Friction | 0.2 | **starting value**: polished; below the shared 0.3 |
+| Rolling resistance | 0.01 | **starting value**: under a third of the Basketball's 0.035, so it rolls far |
+| Bounce threshold | 0.1 m/s | the shared ball value |
+| Gravity | (0, −9.81, 0) m/s² | world gravity |
+| Ambient load | linear drag 0.04 1/s, no buoyancy | as `BowlingBallElementDeclaration.cs:61`–`:62` |
+| Airflow receiver | four normalised samples of weight 0.25 | as `BowlingBallElementDeclaration.cs:32`–`:35` |
 
-**Variants.** Each is specified separately.
-- **Variant A — table pool ball (adopted).** As above: world gravity, a table contact and Wall cushions.
-- **Variant B — no-gravity pool ball (historical, conditional, not adopted).** Requirement row: if adopted, it "requires a separate explicitly fictional field rule". Declaration if adopted: the same body and material as A; the zero gravity comes only from an EL-089 Gravity-effect field with `gravity_scale` 0 that encloses the play area, labelled as fiction. The ball itself carries no gravity override. Acceptance if adopted: inside the field the ball travels in straight lines between cushions with no fall; outside it, the same ball falls normally. Status: not adopted; it needs an owner adoption decision before any work.
+One collider. No joints, drives, stores, sensors, ports, events or parameters.
+
+### Metadata and bindings
+
+Category `Motion`; display name "Pool ball"; description "A small, hard, lively ball. Passes on nearly all its speed and rolls a long way."; colour (255, 248, 233)/255; pick radius 0.3; palette order 103 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)). `Parameters: []`. No presentation bindings.
+
+### Art and solidity
+
+Owner decision, 22 November 2026 (decision 11): the Pool ball has a flat mark, flush, with no band collider; this is an exception to the banded-ball rule for this ball only. No delivered package uses a texture, so the mark is made from geometry: the ball is drawn as two hemisphere meshes of the collider's radius, one cream and one navy, meeting on a great circle. Nothing is proud of the sphere and nothing is printed.
+
+| Node | Mesh | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Visual_HalfCream` | hemisphere, radius 0.20, cream `#fff8e9`, satin | solid: together the two halves are the sphere of `col_0_0` | body pose |
+| `Visual/Visual_HalfNavy` | hemisphere, radius 0.20, navy `#293954`, satin | solid: as above | body pose |
+
+The two-tone ball turns with the body, so rolling and spin are visible. Icon: a disc split cream and navy. At a glance it differs from the Soccer ball and Baseball by having no raised band and by being the smallest ball, and from the Bowling ball by its split body.
+
+Why flat (the audit's check, kept here): a band proud by h meets the bed at θ = acos(R ÷ (R + h)) ahead of the contact point. For R 0.20 m and h 0.01 m at 2.7 m/s, θ = 17.8°, the band strikes at 0.86 m/s and the ball hops about 9 cm and loses roughly 39 % of its spin, up to twice per 1.26 m. Rows A3 to A6 could not be met with a band.
+
+### Behaviour and numbers
+
+Laws: gravity, contact with restitution (the product of the two colliders' values, `CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:117`), Coulomb friction (geometric mean, `:119`), rolling resistance (a bounded resisting torque of coefficient × arm, `:218`–`:231`), ambient drag.
+
+- **Ball on ball.** Restitution 0.9 × 0.9 = 0.81. In a head-on hit between equal masses the struck ball leaves with (1 + 0.81) ÷ 2 = 0.905 of the striker's speed and the striker keeps 0.095. Two Basketballs: 0.55² = 0.30, so the struck ball gets 0.65 and the striker keeps 0.35. These are the speeds at separation.
+- **Slide, then roll.** A struck ball leaves sliding, without spin. Bed friction √(0.2 × 0.3) = 0.245 slows it at 0.245 × 9.81 = 2.4 m/s² while spinning it up, until it rolls at 5/7 of its separation speed. Struck at 2 m/s it separates at 1.81 m/s and rolls at 1.29 m/s after 0.21 s. The striker, which arrived rolling, keeps its topspin and speeds up again after the hit (to about (5/7) × 0.095 v + (2/7) v = 0.35 v). So a speed read even 0.1 s after contact is not the collision result; rows A3 and A4 read at separation.
+- **Cushion.** A Wall declares restitution 1 (`elements/Wall/WallElementDeclaration.cs:51`), so the normal speed at separation from a cushion is 0.9 of the speed before.
+- **Drop.** Fall fraction 0.9² = 0.81 before drag; drag at 0.04 1/s over a 0.75 s fall removes about 3 % of speed each way, giving about 0.76.
+- **Friction.** Ball on ball √(0.2 × 0.2) = 0.2; ball on a Wall bed 0.245. Ball-to-ball friction is therefore already the lower of the two through the one general rule; per-pair materials do not exist and are not needed.
+- **Rolling.** The engine bounds a resisting torque of rolling resistance × normal force × radius, which for a solid sphere decelerates it at coefficient × g ÷ 1.4. With drag, a ball rolling at 2.7 m/s slows at about 0.01 × 9.81 ÷ 1.4 + 0.04 × 2.7 = 0.07 + 0.11 = 0.18 m/s², so after 6 m it still moves at about √(2.7² − 2 × 0.18 × 6) = 2.3 m/s. A Basketball slows at 0.035 × 9.81 ÷ 1.4 + 0.11 = 0.35 m/s² and is at about √(2.7² − 2 × 0.35 × 6) = 1.75 m/s after 6 m.
+- **With the cue.** [EL-097](EL-097-pool-cue.md) at its default 3 m/s sends this ball away at about 2.7 m/s at separation and about 1.9 m/s once rolling.
+- **Fit.** 0.40 m: drops into the Pool pocket, passes the pipe bore (1.3 m across), does not seat in the Toy cannon (window 0.6–0.84 m, `elements/Cannon/CannonElementDeclaration.cs:32`), and is below the 0.62 m the Hopper feeds singly. A default Bumper (32 J preload toward 8 m/s) brings it to 8 m/s with 12.8 J.
+
+### Variant B (no-gravity table)
+
+Owner decision, 21 November 2026: the no-gravity pool-table variant is decided at slice planning. This spec does not adopt or drop it. If the slice adopts it, the requirement fixes its form: "a separate explicitly fictional field rule", that is, a declared bounded gravity region of [EL-089 Gravity-effect pad](EL-089-gravity-effect-pad.md) (the uniform-field law owned by `ENGINE-FIELD-FORCE`) enclosing the table, labelled as fiction; the ball's declaration does not change and carries no gravity override. Variant A above is complete without it.
 
 ## 3. Engine capabilities
 
-Families: the [element-map row](../general-engine-element-map.md) and the binding in `docs/coverage/engine/element-01.json` (ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction).
+Map row families: ContactImpulse, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint (unused), RigidBodyDynamics, SlidingFriction. Tests marked † were opened for this revision.
 
-- **Exists now.** Every family variant A needs: dynamic sphere, product restitution, geometric-mean friction and rolling resistance at every contact (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L722-L754`; [capability inventory](../../gpu-f32-physics.md#capability-inventory)). Walls as cushions (`engine/gpu/WorkshopWall.cs@a6c914e:L6-L10`).
-- **Missing.** The kind, material arm, icon and catalogue entry (S668). Variant B: the EL-089 volume gravity override (S635 environment, next LAW-ENVIRONMENT-I).
-- **Dependencies.** EL-097 Pool cue or CAT-015 Bumper as a striker; CAT-066 Wall cushions; EL-099 Pool pocket. Variant B depends on EL-089.
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Dynamic sphere with declared mass, moments, material and gravity | present | `BowlingBallElementDeclaration.cs:40`–`:59`; `WorkshopBowlingTests.BothBallsCompileAsDynamicSpheresWithTheirDeclaredMaterialsAndSolidInertia` † (`CuriousContraptions.tests/WorkshopBowlingTests.cs:40`) |
+| Bounce by declared restitution; settle on the bench | present | `WorkshopConstraintSolver.cs:117`; `TennisBallTests.TennisReboundsAboveMatchedHeavierBallsAndSettlesOnTheBench` † (`CuriousContraptions.tests/TennisBallTests.cs:84`) |
+| Momentum transfer between two balls by mass | present | `TennisBallTests.ConfiguredMassChangesMomentumTransferredToAnEqualRadiusPayload` (`TennisBallTests.cs:118`; body not opened) |
+| Zero-parameter instance; forged parameter refused | present | `PayloadInstanceTests.ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused` † (`CuriousContraptions.tests/PayloadInstanceTests.cs:384`) |
+| Run, Reset, save, load; capture by a residence sensor | present | `PayloadInstanceTests.BothKindsFallAgainAfterExactResetAndReload` † (`:249`); `AReceiverCapturesEitherKindAndAShiftedMissNever` † (`:236`) |
+| A 0.20 m sphere at 0.9 restitution in repeated ball-to-ball and cushion hits | present, untested | the solver has no radius or restitution special case, but no delivered test strikes two high-restitution balls together |
+| Coverage admits a named-identity package | narrower | owner: coverage follow-on story S7 (section 7) |
+
+Nothing is missing. Per-pair friction is not needed (Friction above). Variant B, if adopted, adds `ENGINE-FIELD-FORCE` as a prerequisite of that variant only. A rack of balls at rest costs solver time until `ENGINE-ISLANDS-SLEEP` lands; the 8-point restitution cut that story deletes (`WorkshopConstraintSolver.cs:685`–`:689`) could affect a many-ball break, which the slice's probe checks.
 
 ## 4. Sources and legacy
 
-- **Requirement row.** [element-098](../requirements.md#element-098): authored ball material and planar-table constraints define rolling behaviour; the no-gravity historical variant, if adopted, requires a separate explicitly fictional field rule.
-- **Shared contracts.** The row's closing clause applies the shared visual, generic-interaction, campaign and per-element proof contracts of the [individual element register](../requirements.md#individual-element-register).
-- **Legacy search.** `git grep -i` at a6c914e for "pool", "billiard" and "cue" found nothing. Ball and rolling facts apply.
+- Requirement: "Authored ball material and planar-table constraints define rolling behaviour"; outcome "No-gravity historical variant, if adopted, requires a separate explicitly fictional field rule" ([element-098](../requirements.md#element-098)).
+- A search at `a6c914e` for "pool", "billiard" and "cue" found nothing.
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| L1 | Isolated drop: first impact at √(2h/g) ± 0.02 s; rebound ratio bounce² ± 0.015 | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L67` | Carry forward as the bounce acceptance |
-| L2 | Legacy test worlds could set gravity 0 for isolation | `CuriousContraptions.tests/PipeTests.cs@a6c914e:L65-L70` | Do not carry forward as a ball setting; variant B uses only the EL-089 fiction field |
-| L3 | Legacy ball parameters were an enum set (Radius, Mass, Bounce, Buoyancy, Drag) | `reference/cpu/BallPart.cs@a6c914e:L4-L13` | Carry forward, replaced by `BallMaterial` |
+| L1 | Isolated drop: rebound ratio is bounce² | `CuriousContraptions.tests/PhysicsCalibrationTests.cs@a6c914e:L14-L67` | carry forward as row A2 with a game-grade band |
+| L2 | Legacy test worlds could set gravity 0 | `CuriousContraptions.tests/PipeTests.cs@a6c914e:L65-L70` | do not carry forward as a ball setting; variant B uses only a declared field |
+| L3 | Legacy ball parameters were Radius, Mass, Bounce, Buoyancy, Drag | `reference/cpu/BallPart.cs@a6c914e:L4-L13` | carry forward as fixed declared values |
 
 **Files harvested:** `CuriousContraptions.tests/PhysicsCalibrationTests.cs`, `CuriousContraptions.tests/PipeTests.cs` (gravity set-up only), `reference/cpu/BallPart.cs`.
 
 ## 5. Acceptance outline
 
-- **Chrome recipe.** Build a table: a flat Wall slab as the bed with four Wall cushions. Place two Pool balls and a Bumper or EL-097 cue. Run.
-- **Positive.** The struck ball rolls across the bed, strikes the second ball nearly elastically (the first nearly stops, the second carries on), and rebounds from a cushion.
-- **Negative or control.** A Basketball in the same shot loses far more speed per cushion (bounce 0.55); a Bowling ball barely rebounds. An unstruck ball stays at rest.
-- **Boundaries.** Rolling deceleration follows (5/7)(C_rr g + c v) within the envelope rule ([envelope](../../gpu-f32-physics.md#game-grade-envelope)); rest within 1 mm of the bed; rebound ratio 0.9² ± 0.015.
-- **Run/Reset.** Reset restores the poses exactly. **Save/Load.** Kind, material and number round-trip.
-- **Integrations.** Requirement-row integration tasks: the [todo-227](../requirements.md#todo-227) scope index routes shared interactions to the [generic process register](../requirements.md#generic-interaction-register): [IX-01 contact impulse](../requirements.md#interaction-01) and [IX-02 sliding friction](../requirements.md#interaction-02). Its cross-element [separate integration verification](../requirements.md#sequence-task-798) requires a primary observation or an explicit unresolved entry for each edition-specific claim (including the no-gravity variant), and [sequence-task-552](../requirements.md#sequence-task-552) refines the historical candidate register. Candidate evaluation: [todo-322](../requirements.md#todo-322) (distinct decision and teaching example) and [todo-228](../requirements.md#todo-228) (behavioural reference fixture before required use). Campaign first use: the [element coverage ledger](../requirements.md#campaign-element-coverage) names no pool-table row; the nearest is the ball-presets row beginning "Basketball, bowling, tennis, baseball, soccer" (1–10, preset lessons in 91–100), and the ledger task must add a separate pool ball row before campaign use. Element integrations: EL-097 Pool cue or Bumper (CAT-015) striker, Wall cushions (CAT-066), EL-099 Pool pocket; variant B needs EL-089.
+Requirement row: [element-098](../requirements.md#element-098). Planned test class `PoolBallTests`. The table in these rows is a Wall laid flat as the bed with Walls as cushions. "At separation" means the first committed tick after the pair stops touching, found within 2 ticks of the last contact tick.
+
+| # | Given / When / Then | Planned test | Control | Boundary and tolerance |
+| --- | --- | --- | --- | --- |
+| A1 | Given the palette entry, when compiled, then one dynamic sphere with the section 2 values and no parameters | `ThePoolBallCompilesItsDeclaredSphereAndMaterial` | — | authored constants compared exactly |
+| A2 | Given a Pool ball and a Basketball released with centres 3 m above the bench, then the Pool ball's fall fraction is 0.68–0.84 and exceeds the Basketball's by at least 0.3; both rest | `ItReboundsFarHigherThanABasketballAndRests` | the Basketball | predicted 0.76 against 0.28; 0.3 is over 0.8 m of peak height; rest within 3600 ticks as a stall guard (a lively ball bounces many times) |
+| A3 | Given one Pool ball rolling at 2–3 m/s head-on into a resting one on the bed, then at separation the struck ball has 0.80–0.95 of the incoming speed and the striker at most 0.20 | `AHeadOnHitPassesOnNearlyAllItsSpeed` | two Basketballs in the same construction: the striker has at least 0.25 at separation | predicted 0.905 and 0.095 (Basketballs 0.35); read at separation because the slide changes both speeds within a tenth of a second |
+| A4 | Given a Pool ball rolling square into a Wall cushion, then at separation its normal speed is 0.80–0.92 of the incoming speed | `ACushionReturnsItNearlyAsFast` | a Bowling ball has under 0.3 | predicted 0.9 and 0.14 |
+| A5 | Given a Pool ball and a Basketball released from the same height on the same Ramp onto a level bed, each passing a first line at 2.5–3 m/s, then between that line and a second one 6 m on the Pool ball loses at least 0.2 m/s less than the Basketball and is still faster than 1.5 m/s | `ItRollsFurtherThanABasketball` | the Basketball | predicted losses 0.4 and 0.95 m/s (difference 0.55) and a final 2.3 m/s; both balls are already rolling at the first line, so no slide enters |
+| A6 | Given a Pool ball at rest on the bed beside a moving one that misses it, then it moves less than 1 cm in 600 ticks | `AnUnstruckBallStaysWhereItIs` | A3 | 1 cm is under 3 % of its width |
+| A7 | Given one ball on a default Pressure plate, then the plate stays off; two switch it | `OneBallLeavesADefaultPlateOffAndTwoSwitchIt` | two balls | minimum set to 0.4 kg: one ball switches it (inclusive) |
+| A8 | Given Run, Reset, save and load, then pose and kind are restored and the second Run repeats A3's outcome | `ResetSaveAndLoadRestoreItAndTheShotRepeats` | — | a save naming `pool_ball` with any parameter is refused atomically (typed `OutOfRange`) |
+| A9 | Given the package in the bundle, then registry, palette, save and worker admission accept it; the two hemisphere meshes are classified solid against the one sphere collider and nothing is drawn beyond 0.20 m | rows added to `PackageRuntimeParityTests`, `VisibleSolidColliderTests`, `BasketballResourceTests` | — | — |
+
+"Planar-table constraints define rolling behaviour" is A3–A6: on a bed between cushions the ball's motion follows from its declared material alone. No ports, so no connection refusal applies; parameter refusal is in A8. Generic lifecycle: `CatalogueIntegrationTests.EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad` (`CuriousContraptions.tests/CatalogueIntegrationTests.cs:273`). Retained CAT-001 acceptance (gravity, rolling, bounce, momentum, rest): A2–A6. The cue and pocket rows that use this ball are EL-097 A1–A2 and EL-099 A1–A4; they run in those slices.
+
+### Integration
+
+- Works with Wall and bench as bed and cushions, Bumper, Ramp, Receiver, Pressure plate, Ball detector (all delivered); EL-097 Pool cue and EL-099 Pool pocket (planned after it).
+- Campaign: the coverage ledger has no pool-table row; [todo-227](../requirements.md#todo-227) says its identities keep "the original priority/adoption status and campaign reservations" (`docs/planning/requirements.md:6391`) without naming levels. Owner decision 24c places it in *Bank the Bounce* at **8** (chapter 1), on the normal gravity table (coordinator decision 35: the pool lessons use the normal table; variant B is decided at slice planning): introduction 8, practice 10, reuse 49 and 141 ([campaign coverage additions](../requirements.md#campaign-coverage-additions); brief in [campaign coverage](readiness/campaign-coverage.md#4-lesson-briefs)).
+- A level that places a named-package part needs the lesson-fixture story S8 (the Coverage fixture rule on main, `tools/Coverage/CurrentCatalogue.cs:116`–`:120`).
+
+### Delivery
+
+- **Shape.** Single element, first of the three pool identities (ball, then cue, then pocket).
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; no specific engine story of its own for variant A; then S7.
+- **Form.** Port roles, node arity, target masks and mouth identities are written in the form `ENGINE-CAPABILITY-INSTANCES` leaves; the names here are today's (this part declares only `PayloadPolicy` and an airflow receiver).
+- **Files.** `elements/PoolBall/` (project, declaration and `.uid`, `pool_ball.tscn` with the two hemisphere meshes and one hidden sphere collider, `icon.svg` and its import file; no texture file); `CuriousContraptions.tests/PoolBallTests.cs`; one `CuriousContraptions.slnx` line; the hand lists a ball package still edits (those named under "Direct consumers" in the ball-presets Family contract that S3 has not removed); the ledger row; the binding section once S7 admits it.
+- **Review tier.** Engine tier: it has a *present, untested* row.
+- **Disqualifiers the probe re-checks.** Two 0.9-restitution balls that gain energy or jitter in a head-on hit; a 0.20 m ball that fails a delivered small-collider admission bound; a bed made from a flat Wall that a rolling ball catches on; a visible-solid check that cannot classify two meshes against one collider.
 
 ## 6. Open questions
 
-1. Planar constraint: physical table contact (proposed) or a planar joint that forbids leaving the table. Unspecified — owner decision (S668).
-2. Variant B adoption. Unspecified — owner decision.
-3. Ball-to-ball friction lower than ball-to-cloth (needs per-pair materials, not available today).
+All resolved.
+
+1. **Planar constraint:** table contact, no planar joint. Reason: contact gives rolling, cushion and jump behaviour from general laws; `IPlanarGuideElement` (`MechanicalContracts.cs:30`) is a bounded lateral guide used by the Receiver, not a plane constraint, and nothing in the requirement needs one. Decided under the standing delegation.
+2. **Variant B:** decided at slice planning (owner, 21 November 2026; coordinator decision 35 keeps it there and gives the pool lessons the normal table); its form is fixed above. It is not an owner item.
+3. **Ball-to-ball friction lower than ball-to-cloth:** already true through the geometric-mean rule; no per-pair material.
+4. **No `number` parameter** (D13, D19): no requirement or lesson uses it. Levels tell balls apart by instance.
+5. **Flat mark, no band collider:** owner decision, 22 November 2026 (decision 11), for this ball only. The mechanism is two hemisphere meshes, chosen here because no package has a textured material.
+6. **Values:** starting values (D1).
+
+Needs the owner: none.
+
+## Engine conformance (22 November 2026)
+
+1. **Declaration data only.** One body, one collider, a material, a mass frame, an ambient load and an airflow receiver. No constraint to a plane, no callback, no engine test on this package.
+2. **Generic laws.** Gravity, contact with restitution, friction, rolling resistance, drag. "Pool" behaviour is those laws with these values on a flat bed.
+3. **Three layers.** Colliders: one hidden sphere. Visuals: two hemisphere meshes that together are that sphere; nothing proud, nothing printed. Animation: none; the meshes follow the body pose.
+4. **Flow and typing.** No ports, parameters or events; f32 constants.
+5. **Flat state.** Bodies 1 (dynamic); colliders 1 (sphere); joints 0; drives 0; sensors 0; domain nodes 0; stores 0; airflow receivers 1; ambient loads 1; presentation bindings 0.
+6. **Performance.** One primitive, fewer than the Basketball's two. A rack of fifteen is fifteen spheres in one island; nothing sleeps today, and the rack will sleep when `ENGINE-ISLANDS-SLEEP` lands. Its speeds (under 8 m/s) are far below the 40 m/s of the delivered no-tunnelling test (`PayloadInstanceTests.cs:209`), though that test uses larger balls; the probe re-checks 0.20 m.
+7. **Tests are scenarios.** Every row runs the production simulation with delivered parts.
+
+**Verdict: conforms** (the audit's fixes of 22 November 2026 are applied: the mark's mechanism, the owner decision, the read point of the collision rows and the rolling model).
+
+## 7. Coverage binding (planned, not yet live)
+
+Published main binds a named-identity package through a final section of the identity's spec headed "Package source binding", read by `tools/Coverage/NamedPackageSources.cs` (pattern: EL-239 Baseball). The section is not written here: the reader parses every spec that carries that heading and fails the coverage run when a field does not resolve. **Blocked on the coverage follow-on story S7.**
+
+| Field | Planned value |
+| --- | --- |
+| Package | `pool_ball` |
+| Named identity | EL-098, `../invest/named-elements.md#element-098` |
+| Acceptance | `todo-227`, `sequence-task-651` |
+| Decision | S668, `../invest/scope-corrections.md#s668` |
+| Mode records | `Configuration=Fixed` (variant A); a second record only if the slice adopts variant B |
+
+Its sequence task exists: `sequence-task-651` stands beside the `element-098` anchor (`docs/planning/requirements.md:5179`–`:5181`). What the reader lacks today: `scope-corrections.md` has no `s668` block; and the reader wants the todo and the task adjacent in one row, while `todo-227` is a scope index shared by thirteen identities (`:6389`) apart from the task.

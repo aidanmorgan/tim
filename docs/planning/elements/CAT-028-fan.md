@@ -1,99 +1,171 @@
-# CAT-028 · fan — declaration readiness spec
+# CAT-028 · fan — element spec
 
-**Current delivery (24 October 2026):** [CAT-028 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** delivered by Story 12.2 ([native spec](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md)). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md). Browser qualification is pending. Every residual slice (part A, EL-209's closure review) is **blocked on the engine programme (owner decision 3a, 22 November 2026)**; the stories that own this part's gaps are `ENGINE-SPATIAL-QUERIES` (airflow line of sight scans every collider per sample), `ENGINE-ISLANDS-SLEEP` (continuous-work trials confined to the affected island; a resting hub is still stepped) and `ENGINE-SUPPLY-DEMAND` (a Motor driving the shaft does not debit its source).
 
-Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Legacy citations are `path@a6c914e:Lstart-Lend` and stay retrievable from git history after Epic 7. Current-tree citations also use the a6c914e baseline.
+One current text, repaired 22 November 2026 after the Batch D audit, checked against `elements/Fan/` and its tests in checkout `8d1d68aa`. Citations without `@` are `path:line` in that checkout; `Decl` is `elements/Fan/FanElementDeclaration.cs` and `Scene` is `elements/Fan/fan.tscn`. Citations with `@a6c914e` are the legacy harvest and appear only in the closing appendix.
 
-## Identity
+## 1. Identity and disposition
 
 | Field | Value |
 | --- | --- |
 | CAT ID / kind | CAT-028 · `fan` |
-| Requirement anchor | [CAT-028](../requirements.md#current-cat-028); D/I/V row [CAT-028-I](../invest/current-consumers.md#cat-028-i) |
-| Mapped identities | [EL-209 Fan](../invest/named-elements.md#element-209). No TH, RAD or GAP identity. |
+| Requirement anchor | [CAT-028](../requirements.md#current-cat-028); owner key [CAT-028-I](../invest/current-consumers.md#cat-028-i) |
+| Disposition | **Delivered.** Package id and catalogue key `fan`, directory `elements/Fan/`, category Power, palette order 66 (`Decl:17`–`:19`). Published in `4378410e`; slice record status done |
+| Mapped identity | [EL-209 Fan](EL-209-fan.md) is delivered as the Electrical and Shaft modes of this package and is closed by its own closure review |
 | Capability row | [general-engine-element-map, CAT-028](../general-engine-element-map.md) |
-| Roadmap story | Epic 12, Story 12.2 "Electric Fan Aerodynamic Airflow Jet"; the first slice of the [gas and airflow family](../../finite-gas-foundation.md) Current [CAT-028 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
 
-## Current Story 12.2 contract (owner decisions, 19–20 November 2026)
+## 2. Declaration
 
-One catalogue `fan` exposes Self-contained (default), Electrical and Shaft supply selections. Self-contained retains the activation latch, authored powered state and finite 14,400 J store; Electrical draws exposed accepted work directly from its connected finite supply; Shaft converts actual shaft work ideally, with reaction load and no additional conversion loss. Electrical and Shaft have no hidden construction reservoir. Their active input is required; inactive input connections make a mode edit refuse atomically until disconnected. Supply selection is Build-only. Motor electrical drain remains deferred: a Motor integration proves paid shaft-to-airflow work, not paid battery-to-shaft conversion.
+Interfaces: `IHingeElement`, `IEnergyStoreElement`, `IAirflowSourceElement`, `ISupplyElement`, `ISignalElement`, `ISceneGeometryElement` (`Decl:10`–`:11`).
 
-The field is a strict cone: for axial distance x, 0 < x < reach and radial distance r < width × x/reach; width is terminal radius. Force-rated mass-dependent transfer uses global 64 m/s² linear and 1024 rad/s² angular bounds, scaling the complete paid transfer and paired reactions together. No extra 16 m/s² transfer cap applies; that bound belongs to directly authored acceleration fields. Retain force 0–40 N (default 9), reach (0,12] m (5), width (0,4] m (0.85), flow 12 m/s and power force×12 W. Retain sourced static contact material. The store is an energy budget, not a fixed 133-second timer.
+| Parameter | Kind | Unit | Min | Max | Default |
+| --- | --- | --- | --- | --- | --- |
+| `supply` | Choice: Self-contained, Electrical, Shaft | none | 0 | 2 | 0 |
+| `powered` | Choice: Off, On (Self-contained) | none | 0 | 1 | 1 |
+| `force` | Real | N | 0 | 40 | 9 |
+| `reach` | Real | m | smallest positive f32 | 12 | 5 |
+| `width` | Real | m | smallest positive f32 | 4 | 0.85 |
 
-Native script-free Godot artwork and explicitly owned C# components/resources remain required. Non-shaft spin binds committed flow through a generic rate evaluator; Shaft artwork follows its exact committed coordinate. This current contract supersedes conflicting cylindrical/no-external-input and incidental-timing prose below; harvest rows and citations remain historical evidence. Rotary receiver integration belongs to 12.3, chimes to 14.4 and campaign sweeps to their later gate. See the [bounded native plan](../../../_bmad-output/implementation-artifacts/spec-12-2-fan.md).
+All build-only (`Decl:20`–`:24`).
 
-## Declaration
+| Item | Declaration |
+| --- | --- |
+| Bodies | a static base and one dynamic hub; footprint 2 bodies, 1 moving, 1 revolute constraint (`Decl:25`) |
+| Colliders | base box 0.65 × 0.18 × 1 m at (0, −0.55, 0); hub sphere r 0.14 m at the origin on the hub body. Base material restitution 1, hub restitution 0; both friction 0.3, rolling resistance 0, threshold 0.1 m/s (`Decl:33`–`:34`) |
+| Hinge | continuous, about local +X, no drive, no bearing friction; hub 0.15 kg, inertia 0.001176 kg·m² (`Decl:36`–`:40`) |
+| Energy store | 14,400 J, full at Run, selected only by Self-contained (`Decl:42`–`:44`) |
+| Airflow source | origin at the local origin, direction +X; a strict cone of length `reach` and terminal radius `width`; flow 12 m/s; force rating `force`; power rating `force` × 12 W; internal occluders are exactly base collider 0 and hub collider 0 (`Decl:46`–`:52`) |
+| Work inputs | Self-contained: the store, enabled by `powered` and the activation memory. Electrical: the supply consumer. Shaft: the hinge coordinate through `DriveIn`, sense −1 (`Decl:53`–`:55`) |
+| Signal and supply | one memory node set by `ActivationIn`; one supply consumer with a continuous-work target; electrical node role Consumer, rated voltage 12, resistance 0.3, capacitance 0, maximum power 480 W (`Decl:69`–`:76`) |
 
-- **Bodies and shapes.** Static housing/base plus one dynamic spherical hub carried by a continuous revolute hinge in all supply modes; Shaft selects that exact coordinate as its work input, while Electrical/Self-contained leave it passive. Collider: root box centred at (0, −0.55, 0), size 0.65 × 0.18 × 1 m (legacy `AddBox` makes a root box with half-extents = size/2, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`; `parts/FanPart.cs@a6c914e:L36-L36`). The additional solid hub proxy is a sphere of radius 0.14 m at the local origin on its own body. Blades, ring, post and arrow are non-contact artwork.
-- **Mass and material.** Housing/base is static with no dynamic mass. Hub is 0.15 kg with isotropic inertia 2mr²/5 = 0.001176 kg·m² and its own contact proxy; hub material is restitution 0, threshold 0.1 m/s, friction 0.3, rolling resistance 0. The housing retains the legacy static default restitution 1, threshold 0.1, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`); retain this sourced material under the resolved current contract.
-- **Constraints and joints.** Continuous +X hinge with coincident local hub frames, zero initial angle/rate, no drive and zero bearing friction. Shaft art follows the exact physical coordinate and pays accepted load work; other modes leave the hub passive and apply committed-flow spin only to non-contact blade art. The spherical hub remains physically posed/contact-bearing in every mode.
-- **Typed sockets and ports.** One `ActivationIn` (activation domain, input) at the local origin; legacy derives it from `CanReceiveActivation` (`parts/FanPart.cs@a6c914e:L18-L18`; `reference/cpu/MachinePart.cs@a6c914e:L247-L254`). Current enum: `WorkshopSocket.ActivationIn` (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`). PowerIn and DriveIn are explicit supplied-mode ports; only the selected input is active. Inactive connections refuse atomically.
-- **Sensors and activation.** A Trigger latches the fan on and records an Activated occurrence (`reference/cpu/MachineWorld.cs@a6c914e:L734-L737`); nothing switches it off during a Run.
-- **Work and energy stores.** Self-contained selects one finite reservoir, 14,400 J, initial = capacity; supplied modes cannot draw it (`parts/FanPart.cs@a6c914e:L12-L16`).
-- **Airflow source.** While active: origin at local (0, 0, 0), direction local +X, finite cone of length `reach` and terminal radius `width`; flow speed 12 m/s; force rating `force`, power rating `force` × 12 W; receiver impedance conductance `force`/12 N·s/m capped at `force` N (`parts/FanPart.cs@a6c914e:L19-L23`; `engine/AirflowNetwork.cs@a6c914e:L12-L13`, `L23-L26`).
-- **Internal airflow occlusion.** Declare exact LocalColliderReference entries for the base collider and hub collider, resolved to same-instance GpuColliderIds. Only those source-internal solids and the exact sampled receiver collider are excluded from streamlines. Other same-owner solids and all external solids block normally. Reject missing, duplicate, cross-instance or wrong-kind references atomically; no owner-wide exclusion or Fan identity branch. The centered Tennis case at x=2 m must transfer paid work with the real hub present.
-- **Parameters.**
+| `PortId` | Role | Domain | Direction | Position (m) | Available in |
+| --- | --- | --- | --- | --- | --- |
+| `ActivationIn` | ActivationIn | Signal, pulse | Input | (0, 0, 0) | Self-contained |
+| `PowerIn` | PowerIn | Electrical | Input | (−0.3, −0.55, 0) | Electrical |
+| `DriveIn` | DriveIn | Mechanical, rim r 0.14 m | Input | (−0.7, 0, 0) | Shaft |
 
-  | Parameter | Type | Range | Default | Unit |
-  | --- | --- | --- | --- | --- |
-  | supply | typed choice | Self-contained, Electrical, Shaft | Self-contained | — |
-  | powered | enum Off/On (Self-contained only) | Off or On | On | — |
-  | force | f32 | 0–40 | 9 | N |
-  | reach | f32 | (0, 12] | 5 | m |
-  | width | f32 | (0, 4] | 0.85 | m (terminal cone radius) |
+(`Decl:57`–`:68`.) An inactive mode's port has no connection; a mode edit that would strand a connection is refused atomically. Engagement classes (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`): `DriveIn` admits Smooth only, a light rotor on a 0.14 m pulley, so a Drive belt is admitted and a Drive chain is refused there; the delivered rigid link stays admitted and is unchanged (owner decision 2). Presentation: `Visual/BladeAxis/Blades` rotation from `CommittedFlowSpeed` × 1.5 as an integrated rate (Self-contained, Electrical) or from `CommittedRevoluteAngle` (Shaft); `Visual/Hub` is the physical hub body (`Decl:78`–`:88`). Catalogue description: "A fan blows along its arrow. Choose Self-contained activation, Electrical input or Shaft input. Solid obstacles block the cone." (`Decl:18`).
 
-  Ranges `parts/FanPart.cs@a6c914e:L24-L31`; defaults `parts/catalog/fan.tres@a6c914e:L14-L14`. `powered` becomes an enum at the boundary (string-typed closed sets are not carried forward).
-- **Cosmetic curves and UI bindings.** Non-shaft rotor phase integrates committed available flow with package scale 18/12 rad per metre (18 rad/s at 12 m/s), linear looping on world time; Shaft uses exact physical coordinate instead. Historical rotor recipe (`parts/FanPart.cs@a6c914e:L50-L53`). The gas doc names the target binding "Blade spin rate ← committed source flow".
-- **Art.** Ring "thickness" values are torus half-widths (inner r − t, outer r + t) and line widths are cylinder radii (`engine/PartArt.cs@a6c914e:L22-L27`). Base box `#263d4b`; post 0.13 × 0.5 × 0.15 `#ccd8dc` at (0, −0.3, 0); housing torus radius 0.56, half-width 0.07 (inner 0.49, outer 0.63), axis X, catalogue colour; rotor hub sphere of radius 0.14 `#f4d089`; three blades 0.1 × 0.6 × 0.16 at 0°, 120°, 240° about X, catalogue colour lightened 15%; airflow arrow line (0.6, 0, 0)–(1.15, 0, 0) `#a9e7e0` of radius 0.025; pick radius 0.75 (`parts/FanPart.cs@a6c914e:L32-L49`). Catalogue colour `#66b8c9` (`DESIGN.md@a6c914e:L172-L172`); icon `ui/WorkshopIcons.cs@a6c914e:L51-L51`. The historical scene held a script reference; the current native .tscn is script-free, with explicit collision proxies and owned C# behavior/resources.
-- **Catalogue and inventory entry.** Id `fan`, title "Fan", category Power, description "A fan blows along its arrow. Choose Self-contained activation, Electrical input or Shaft input. Solid obstacles block the cone." (`parts/catalog/fan.tres@a6c914e:L8-L14`).
+## 3. Art and solidity
 
-## Engine capabilities
-
-Families: the [CAT-028 row](../general-engine-element-map.md) and `docs/coverage/catalogue-elements.json` (AerodynamicDrag, AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction).
-
-- **Exists now.** Static box colliders, dynamic receiver bodies with declared drag (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L32-L42`); activation input and activation wiring (`engine/gpu/ActivationNetwork.cs`, `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`); 60 Hz animation worker with activation-driven cosmetic curves (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L7`).
-- **Missing.**
-  - Airflow source, finite jet geometry with occlusion, receiver impedance, shared finite reservoir and paired reactions: Story 12.2. Decision owner S470 ([decisions](../invest/decisions.md#s470)), row "open-versus-sealed" → S697.
-  - EnvironmentState pressure scaling of receiver conductance: Story 12.1.
-  - A looped spin cosmetic driven by an active state (the current feedback sources are Activation, Timer, ContactWork, Capture): Story 12.2.
-  - ElectricalPower: Story 8.1 (CAT-005) supplies routing/storage patterns; Story 12.2 adds generic exposed continuous demand with shared charging arbitration.
-  - Rotary receivers: Story 12.3 (CAT-070).
-- **Element dependencies.** Tennis ball (CAT-064) as the light payload, Bowling ball (CAT-014) as the heavy control; Switch (CAT-063) for the cold-start lessons; Wall (CAT-066) for occlusion.
-
-## Legacy harvest
-
-| # | Fact | Citation | Disposition |
+| Node | Mesh | Class | Moved by |
 | --- | --- | --- | --- |
-| 1 | Jet exposure: a receiver sample is exposed only when 0 < along-axis distance < reach and radial distance < width, both bodies participate, and no other non-excluded collider intersects the streamline from the nozzle plane to the sample. Source and target owner bodies are excluded. | `engine/physics/AirJetGeometry.cs@a6c914e:L110-L141`; `engine/AirflowNetwork.cs@a6c914e:L64-L74` | Carry forward as the field geometry. Do not carry forward the CPU sweep code. |
-| 2 | Jet force law: force = min(cap, conductance × (12 − v)), zero when the receiver's along-axis speed v ≥ 12; source power = force × 12; dissipated = force × slip. | `engine/physics/JetTransferImpedance.cs@a6c914e:L26-L46` | Carry forward. |
-| 3 | Conductance and cap are multiplied by world pressure × sample weight; sample weights must be positive, finite and sum to 1; body-force samples require a dynamic body. | `engine/AirflowNetwork.cs@a6c914e:L44-L61`, `L77-L79` | Carry forward. |
-| 4 | One finite reservoir funds every receiver of a source jointly; allowances scale down to energy / dt and never overdraw the store. | `engine/physics/StoredFlowSource.cs@a6c914e:L28-L72` | Carry forward as the finite-store law. |
-| 5 | Every receiver reaction returns to the nozzle (momentum preserved); no ambient exchange and no unloaded thrust. | `engine/physics/NozzleCoupledJetReceiver.cs@a6c914e:L7-L10` | Carry forward. |
-| 6 | Sources are evaluated in deterministic order; a source never acts on its own part. | `engine/AirflowNetwork.cs@a6c914e:L33-L36`, `L64-L64` | Carry forward the determinism; not the string-ordinal ordering. |
-| 7 | Acceptance: the default fan delivers 9 N to a ball on its axis 3 m away and 0 N at 2 m off-axis; one tick later the 1 kg Basketball moves at 0.074–0.076 m/s (gravity 0). | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L191-L219` | Carry forward. |
-| 8 | Acceptance: a clear pipe shell blocks air (trace 1.1–1.4 m) but not light (5 m); curved bends and the funnel also block air while staying optically clear. | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L212-L237`; `engine/physics/BodyQueryGeometry.cs@a6c914e:L74-L79` | Carry forward: air is blocked by every solid collider, light and sound only by opaque ones. |
-| 9 | Acceptance: the same jet accelerates a heavier ball less; with a saturated shared 9 N source each receiver's force is proportional to its remaining slip (12 − v); body drag = drag × pressure. | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L238-L279` | Carry forward. |
-| 10 | Acceptance: two facing fans cancel on a receiver between them; zero pressure gives zero air force. | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L303-L319` | Carry forward. |
-| 11 | Acceptance: invalid parameters reject (powered 0.5, force −1, reach 0, width NaN). | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L356-L372` | Carry forward. |
-| 12 | Acceptance: one or two balls share the 14,400 J reservoir; an unpowered fan creates no transfer; total kinetic energy never exceeds released energy; replay after Reset is identical and the save restores exactly. | `CuriousContraptions.tests/LinearAirflowSupplyTests.cs@a6c914e:L24-L75` | Carry forward. The supplied/error-bound ledger is a proof-grade certificate: do not carry forward. |
-| 13 | Acceptance: one fan (width 3) funds one rotor, two rotors, or a rotor and a ball; unpowered funds none. | `CuriousContraptions.tests/RotorAirflowSupplyTests.cs@a6c914e:L25-L112` | Carry forward (Story 12.3 integration). |
-| 14 | The rotor artwork does not move during physics ticks; it spins at 18 rad/s on presentation; paused presentation holds; a fan started by activation begins spinning only from the committed tick after activation. | `CuriousContraptions.tests/SceneAnimationRunTests.cs@a6c914e:L32-L91` | Carry forward as the cosmetic binding contract. |
-| 15 | Solved poses, not rendered transforms, set the jet; disabling the fan body removes the force at once. | `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs@a6c914e:L260-L283` | Carry forward. |
-| 16 | Lessons: fan in inventory for air_mail, third_dimension, wind_signal and 11 combined levels; fixed and unpowered (`powered` 0) in cold_start, powered_post, start_and_topple, cold_front, relay_workshop, double_cold_start, cold_signals, cold_bridges. Canonical solution at (−4, 3.8, 0) facing +X, 1 m left of and 1.2 m below the tennis ball. | `content/puzzles.json@a6c914e:L495-L706`, `L2093-L2444`; [CAT-028-I](../invest/current-consumers.md#cat-028-i) | Carry forward. |
-| 17 | Cold-start pattern: the fixed fan starts off; a Bowling ball at (−5.8, 2.4, 0) falls on a Switch at (−5.8, 1.6, 0) wired to the fan; goals are capture and fan activated. | `tools/Campaign/Program.cs@a6c914e:L64-L75`, `L372-L374` | Carry forward. |
-| 18 | Difficulty assistance: fan position step 0.35 m, rotation step 15°, blend 0.15 s, because a fan must settle before a nearby falling ball reaches the jet (about 0.27 s). | `tools/Campaign/Program.cs@a6c914e:L544-L549` | Carry forward to Epic 15 difficulty data. |
-| 19 | Transaction-rollback test (a failed observation restores the airflow reading). | `CuriousContraptions.tests/RemainingReadingCheckpointTests.cs@a6c914e:L32-L57` | Do not carry forward: the current engine never faults a tick (clamp-or-continue). Keep only "Reset is exact". |
-| 20 | Impedance worked examples (conductance, cap, source, receiver → force, source power, receiver power, loss): 2, 100, 10, 4 → 12, 120, 48, 72; cap 5 → 5, 50, 20, 30; receiver −4 → 28, 280, −112, 392; source 0, receiver −4 → 8, 0, −32, 32; receiver 10 or 14 → 0; conductance 0 or cap 0 → 0. Source power − receiver power = loss ≥ 0. | `CuriousContraptions.tests/JetTransferImpedanceTests.cs@a6c914e:L8-L23` | Carry forward as law acceptance. |
-| 21 | Each receiver branch adds its own reaction on the source; supply is never copied between branches. Invalid materials, speeds and unrepresentable slip or power reject. | `CuriousContraptions.tests/JetTransferImpedanceTests.cs@a6c914e:L25-L79` | Carry forward. |
-| 22 | Field boundaries are strict: with reach 5 and width 1, samples at the nozzle plane or behind it, at or beyond along-axis 5, or at or beyond radius 1 receive no force. A sample 0.5 off-axis receives 6 N along the rotated axis and a 3 N·m moment (r × F), in any frame. Moving, disabled, replaced and excluded blockers use their current declarations. | `CuriousContraptions.tests/JetReceiverFieldTests.cs@a6c914e:L34-L92` | Carry forward. |
-| 23 | Exposure and occlusion queries neither need nor create supply; an unpowered load has zero demand and changes no body. | `CuriousContraptions.tests/AirJetGeometryTests.cs@a6c914e:L8-L33` | Carry forward. |
-| 24 | A blocker crossing the jet removes the force for the crossing interval only; only exposed work is committed; a moving receiver or rotating nozzle changes occlusion. | `CuriousContraptions.tests/AirJetOcclusionTests.cs@a6c914e:L14-L90` | Carry forward the behaviour at substep resolution. The exact sub-step crossing-time sweeps are a CPU continuous-sweep mechanism: do not carry forward. |
-| 25 | An offset linear or rotary receiver returns force and total moment to the nozzle body; mixed receivers share one supply and balance a moving nozzle; an empty store moves nothing. | `CuriousContraptions.tests/NozzleCoupledJetReceiverTests.cs@a6c914e:L13-L110` | Carry forward. |
-| 26 | A stored-flow source never supplies more than its store; an empty store supplies nothing; sources sharing one reservoir split it; recharge never reuses spent work; a collision mid-step debits only accepted work. | `CuriousContraptions.tests/StoredFlowWorldTests.cs@a6c914e:L11-L204` | Carry forward the behaviour. Residual counters, ledger totals and failure rollback are certificates or faulting-tick mechanics: do not carry forward. |
-| 27 | Inlet, outlet and rim crossings on moving sources and receivers are found within a step; a moving windmill uses field events rather than direct body loads. | `CuriousContraptions.tests/AirJetBoundaryTests.cs@a6c914e:L1-L213` | Carry forward only "force starts and stops when a sample crosses the jet boundary". The continuous event sweep is a CPU solver path: do not carry forward. |
-| 28 | Certified force-rate bounds over saturation and zero-slip corners. | `CuriousContraptions.tests/JetTransferForcePathTests.cs@a6c914e:L1-L134`; `engine/physics/JetTransferForcePath.cs@a6c914e:L1-L75` | Do not carry forward: proof-grade certificates. |
-| 29 | Cylindrical-surface and streamline paths on captured motion for the sweep. | `engine/physics/AirJetBoundaryPath.cs@a6c914e:L1-L80`; `engine/physics/AirJetStreamlinePath.cs@a6c914e:L1-L45` | Do not carry forward: CPU continuous-sweep solver paths; the geometry they sweep is fact 1. |
+| `Visual/Base` | box 0.65 × 0.18 × 1 m (`Scene:21`–`:23`, `:80`) | solid: `col_base` (`Scene:65`) | nothing |
+| `Visual/Hub/Surface` | sphere r 0.14 m | solid: `col_hub` on the hub body (`Scene:94`) | the hub body's pose |
+| `Visual/Post` | box 0.13 × 0.5 × 0.15 m at (0, −0.3, 0) (`Scene:84`–`:86`) | **defect: no collider** | nothing |
+| `Visual/Ring` | torus, inner 0.49 m, outer 0.63 m, axis X (`Scene:29`–`:32`, `:88`) | **defect: no collider; a ball passes through the shroud** | nothing |
+| three blades | boxes 0.16 × 0.6 × 0.1 m under `Visual/BladeAxis/Blades` | decorative: turned by a binding (owner, 21 November 2026) | the flow or shaft binding |
+| `Visual/Arrow`, `Visual/Tip` | rod r 0.025 m and cone, in the air from x 0.6 to 1.21 m (`Scene:123`–`:131`) | **defect: a free-standing drawn solid with no collider** | nothing |
+
+The package has no row in the visible-solid table. Repair: [part A](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder.md) (drafted, not run): a box collider for the post, a torus collider for the ring, and the arrow redrawn as a flat print on the base's top face; the source's internal occluders become base, post, ring and hub, so its own stream is unchanged. One intended consequence: a ball then reaches the hub only through the ring's opening. Light follows the same rule as bodies ([EL-176 section 10](EL-176-red-laser-emitter.md#optical-conventions), item 6): art with no collider does not occlude, and optics adds no exception. EL-176 lists the blades with the post and ring as visible-solid defects, while the blades here are decorative by the owner's decision of 21 November 2026; that difference is recorded in the batch summary for the coordinator. Icon: a cyan ring with three blades and a gold hub on a pale stand. At a glance it differs from the Windmill by three flat blades on a short post and no side pulley; the Windmill has four pitched vanes on a tower.
+
+## 4. Engine capabilities
+
+| Capability | Mark | Symbol and test |
+| --- | --- | --- |
+| Conical source with exact internal occluders | present | `IAirflowSourceElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:40`); `ConicalAirflowTests.ConeHasOpenAxialAndRadialBoundaries` (`CuriousContraptions.tests/ConicalAirflowTests.cs:9`), `AirflowGeneralityTests.OnlyExactInternalCollidersAreExemptFromOcclusion` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:216`) |
+| Finite store pays every receiver | present | `IEnergyStoreElement` (`MechanicalContracts.cs:35`); `AirflowRuntimeTests.DifferentFlowSpeedsShareOneFiniteStoreInJoules` (`CuriousContraptions.tests/AirflowRuntimeTests.cs:82`) |
+| Electrical continuous work | present | `SupplyContinuousWorkTarget` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:50`); `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`CuriousContraptions.tests/FanIntegrationTests.cs:507`) |
+| Shaft input pays by actual travel | present | `CoordinateAirflowInput` (`CuriousContraptions.Abstractions/AirflowValues.cs:38`); `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`:541`) |
+| A Choice selects ports and inputs | present | `ChoicePredicate` (`AirflowValues.cs:23`); `FanAdmissionTests.InactiveConnectionAndRetainedWireModeEditPreserveInstallation` (`CuriousContraptions.tests/FanAdmissionTests.cs:191`) |
+| Activation-latched enable | present | `SignalMemoryDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:64`); `FanGuidanceTests.ColdStartRequiresTheConnectedSwitchOccurrenceBeforeAnyTransfer` (`CuriousContraptions.tests/FanGuidanceTests.cs:64`) |
+| Flow-speed presentation | present | `PresentationDriver.CommittedFlowSpeed` (`CuriousContraptions.Abstractions/ElementPresentation.cs:36`); `FanIntegrationTests.NativeBladesUseCommittedPhaseAndPrivateArtworkRestoresOnReset` (`:613`) |
+| Hinge-carried contact body | present | `IHingeElement` (`MechanicalContracts.cs:20`); `FanIntegrationTests.PassiveHubReceivesExternalContactWithoutEmittingUnpaidFlow` (`:417`) |
+
+Counts: 8 present, 0 untested, 0 narrower, 0 missing.
+
+## 5. Behaviour and numbers
+
+- **Field.** A strict cone: at axial distance x with 0 < x < `reach`, a sample is inside when its radial distance is below `width` × x / `reach`. Any collider on the streamline blocks the air except the declared internal ones; transparent pipe, bend and funnel shells block air although light passes.
+- **Transfer.** The push on a receiver falls as the receiver approaches the 12 m/s flow speed and is zero at or above it. It is bounded by the engine's global 64 m/s² linear and 1024 rad/s² angular limits; there is no further cap. Every receiver's reaction returns to the fan.
+- **Budget.** Self-contained spends its 14,400 J store on exposed work only: at 9 N × 12 m/s = 108 W that is about 133 s of full demand, a budget and not a timer (no acceptance row waits for it to run out, so no Run length beyond the 30 s default is needed). Electrical draws accepted work from its connected finite supply and has no hidden store. Shaft converts actual shaft work with its reaction load and no further loss. A Motor's drive work does not yet debit the Motor's source: that is `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`); the Motor integration proves paid shaft-to-airflow work only.
+- **Light and heavy.** 9 N pushes a Tennis ball at 25.7 m/s², a Basketball (1 kg) at 9 m/s² and a Bowling ball (4 kg) at 2.25 m/s².
+- **Shared scale.** Flow 12 m/s is also the planned speed of sound ([EL-044](EL-044-tone-selective-sound-meter.md)).
+- **Battery limit.** Electrical demand is `force` × 12 W, so above 10 N it exceeds a default Battery's 120 W limit (`elements/Battery/BatteryElementDeclaration.cs:44`). How the allocation scales the push in that case was not opened for this spec; treat it as unverified.
+- **Blades** turn from committed flow (or the shaft) and never produce force.
+
+## 6. Acceptance
+
+All executed in the published package.
+
+| Criterion (CAT-028) | Test |
+| --- | --- |
+| Light ball guided to the Receiver; no supply, empty, away, out of reach, wall and heavy controls | `FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`:124`) |
+| Strict cone boundary | `ConicalAirflowTests.ConeHasOpenAxialAndRadialBoundaries` |
+| Partial block removes its own share | `AirflowGeneralityTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand` (`:138`) |
+| Transparent solids block air | `FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream` (`:45`), `TransparentPipeBlocksAcrossItsShellButAllowsItsOpenBore` (`:97`) |
+| Opposing jets | `AirflowGeneralityTests.OpposingJetsUseOneCoupledVelocity` (`:162`) |
+| Off and vacuum transfer nothing; own hub does not block | `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`:481`) |
+| Mixed rotor and body branches share one budget | `RotaryAirflowRuntimeTests.SharedFiniteStorePaysRotaryAndLinearBranchesRegardlessOfDeclarationOrder` (`CuriousContraptions.tests/RotaryAirflowRuntimeTests.cs:116`) |
+| Cold start through a Switch | `FanGuidanceTests.ColdStartRequiresTheConnectedSwitchOccurrenceBeforeAnyTransfer` |
+| Run, pause, Reset and save/load in each mode | `FanIntegrationTests.ExposedPayloadLifecyclePreservesPaidStateAndRestoresAuthoredInputs` (`:25`), `FanAdmissionTests.SaveLoadPreservesSelectionAndRecreatesAuthoredBalances` (`:216`) |
+| Parameter limits and mode refusals | `FanAdmissionTests.PackageScalarEndpointsAndClosedModeAreAdmittedAtomically` (`:267`) |
+| Wrong-kind connection | generic `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`) |
+
+Chrome recipe: post-catalogue.
+
+## 7. Integration
+
+Works with Tennis ball, Balloon, Basketball, Bowling ball, Wall, Pipe, both bends, Funnel, Impact switch, Battery, Motor, Windmill (delivered); Wind chimes (Story 14.4, planned: its sail is an airflow receiver). Campaign: first use in levels 11–20 ([campaign reservations](../invest/campaign-reservations.md)); 22 levels in `content/puzzles.json` place it, eight of them as a fixed cold fan. Coverage binding: catalogue key `fan`. A level with a fixed fan uses the lesson-fixture story (S8).
+
+## 8. Delivery
+
+Delivered. Residual work: part A's colliders and printed arrow (engine review tier); EL-209's closure review; the Motor's drive demand (`ENGINE-SUPPLY-DEMAND`); the Battery-limit note in section 5; browser proof, post-catalogue; the CAT-028 checkbox is still open in `requirements.md` (see the [batch summary](readiness/batch-d.md)).
+
+**Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; in particular `ENGINE-SPATIAL-QUERIES`, `ENGINE-ISLANDS-SLEEP` and `ENGINE-SUPPLY-DEMAND`; then part A; the EL-209 closure review runs after the programme and re-checks the airflow rows the spatial-query story touches.
+
+## 9. Open questions
+
+None. Selectable supply, the cone, the global transfer bounds, the static material and the finite energy budget were decided by the owner on 19–20 November 2026 and are delivered.
+
+## Engine conformance
+
+Against the owner's conformance addendum of 22 November 2026 (element-free engine gate in [AGENTS.md](../../../AGENTS.md); design contracts D1–D7 in `_bmad/custom/element-free-engine-design.md`). **Verdict: conforms with one fix pending (point 3: post, ring and arrow; part A).**
+
+1. **Declaration data only.** One declaration class of descriptors, one scene, one icon. No runtime project names the part: a search of `engine/`, `ui/` and every `CuriousContraptions.*` runtime project for `fan` and `Fan` as a word returns nothing. The three supply modes are a declared `Choice` with availability predicates on ports and inputs, not a branch in the engine.
+2. **Generic laws.** Push on bodies: the conical airflow law. Blocking: that law's occlusion by any collider except the declared internal ones. Budget: the finite energy-store ledger, the supply network's continuous-work target, or work paid by a revolute coordinate. Start by a Switch: a signal memory node set through a pulse port. Hub contact: the ordinary contact law on a hinge-carried body.
+3. **Layers.** Colliders: hidden `col_base` and `col_hub` (after part A also a post box and a ring torus). Visuals: the nodes of section 3; none is a collider. Animation: one blade binding per mode, reading committed flow speed or the committed hinge angle and writing nothing back.
+4. **One-way flow and typing.** Blade spin follows committed flow; it never produces force (`FanIntegrationTests.DeclaredFlowBindingSamplesQueuedInteriorsAndStopsWithItsActualSource`, `:353`). Modes are a closed choice; ports are typed by domain, direction and role.
+5. **Flat state.** 2 bodies (1 static, 1 dynamic); 2 colliders, a box and a sphere (4 after part A: 2 boxes, 1 sphere, 1 torus); 1 revolute joint; 0 drives; 1 energy store; 1 airflow source with 3 declared inputs; 1 signal node; 1 supply node and 1 electrical node; 3 ports; 1 event kind; 3 presentation bindings and 1 body-pose mapping. All fixed at compile time.
+6. **Performance.** Few primitive colliders. The field is a bounded cone (reach at most 12 m, terminal radius at most 4 m). Today each receiver sample's line of sight scans every collider (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:149`) and continuous work is solved by whole-world trial substeps; the candidates move to `ENGINE-SPATIAL-QUERIES`' segment query and the trials are confined to the affected island by `ENGINE-ISLANDS-SLEEP`. The hub is a dynamic body in every mode although it is driven only in Shaft mode: one body and one joint per fan. Island sleeping is not implemented (`docs/gpu-f32-physics.md:273` describes it); a resting hub is still stepped. This part works around none of these gaps.
+7. **Tests are scenarios.** All rows run the production simulation; `AirflowGeneralityTests` and `FanAdmissionTests.UnfamiliarReorderedSourcesShareTheirExactStoreThroughCompilerWireAndRuntime` (`:109`) run the same laws on declarations that are not this package.
+
+## Appendix: Historical evidence
+
+Evidence of the legacy part at `a6c914e`, kept so the harvest stays traceable. Nothing here is a requirement, a tolerance or a design instruction; sections 1–9 are the spec. The legacy fan had a cylindrical jet, no external input, CPU sweep paths and proof-grade ledgers; none of that is the design. Legacy tick counts and force values in the cited files are history only.
+
+| # | Fact | Citation |
+| --- | --- | --- |
+| 1 | Jet exposure: a sample inside the field with no blocking collider on its streamline | `engine/physics/AirJetGeometry.cs@a6c914e:L110-L141`; `engine/AirflowNetwork.cs@a6c914e:L64-L74` |
+| 2 | Force falls with receiver speed and is zero at or above the flow speed | `engine/physics/JetTransferImpedance.cs@a6c914e:L26-L46` |
+| 3 | Conductance scaled by world pressure and sample weight; weights sum to 1 | `engine/AirflowNetwork.cs@a6c914e:L44-L61`, `L77-L79` |
+| 4 | One finite reservoir funded every receiver jointly and was never overdrawn | `engine/physics/StoredFlowSource.cs@a6c914e:L28-L72` |
+| 5 | Every receiver reaction returned to the nozzle | `engine/physics/NozzleCoupledJetReceiver.cs@a6c914e:L7-L10` |
+| 6 | Sources were evaluated in a fixed order; a source never acted on its own part | `engine/AirflowNetwork.cs@a6c914e:L33-L36`, `L64-L64` |
+| 7 | On-axis and off-axis force on a ball | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L191-L219` |
+| 8 | A clear pipe shell, bends and the funnel blocked air while staying optically clear | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L212-L237`; `engine/physics/BodyQueryGeometry.cs@a6c914e:L74-L79` |
+| 9 | The same jet accelerated a heavier ball less; a saturated source shared by slip | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L238-L279` |
+| 10 | Two facing fans cancelled; zero pressure gave zero force | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L303-L319` |
+| 11 | Invalid parameters were refused | `CuriousContraptions.tests/WindChimeTests.cs@a6c914e:L356-L372` |
+| 12 | One or two balls shared the reservoir; an unpowered fan transferred nothing; Reset and save restored | `CuriousContraptions.tests/LinearAirflowSupplyTests.cs@a6c914e:L24-L75` |
+| 13 | One fan funded one rotor, two rotors, or a rotor and a ball | `CuriousContraptions.tests/RotorAirflowSupplyTests.cs@a6c914e:L25-L112` |
+| 14 | Rotor art spun on presentation only, from the committed tick after activation | `CuriousContraptions.tests/SceneAnimationRunTests.cs@a6c914e:L32-L91` |
+| 15 | Solved poses, not rendered transforms, set the jet | `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs@a6c914e:L260-L283` |
+| 16 | Lessons: fan in inventory or fixed and unpowered in the cold-start levels | `content/puzzles.json@a6c914e:L495-L706`, `L2093-L2444`; [CAT-028-I](../invest/current-consumers.md#cat-028-i) |
+| 17 | Cold-start pattern: a Bowling ball falls on a Switch wired to the fan | `tools/Campaign/Program.cs@a6c914e:L64-L75`, `L372-L374` |
+| 18 | Difficulty assistance values for placing a fan | `tools/Campaign/Program.cs@a6c914e:L544-L549` |
+| 19 | A transaction-rollback test: a faulting-tick mechanism, not carried | `CuriousContraptions.tests/RemainingReadingCheckpointTests.cs@a6c914e:L32-L57` |
+| 20 | Worked impedance examples | `CuriousContraptions.tests/JetTransferImpedanceTests.cs@a6c914e:L8-L23` |
+| 21 | Each receiver branch added its own reaction; invalid materials and speeds were refused | `CuriousContraptions.tests/JetTransferImpedanceTests.cs@a6c914e:L25-L79` |
+| 22 | Field boundaries were strict; an off-axis sample received force and a moment | `CuriousContraptions.tests/JetReceiverFieldTests.cs@a6c914e:L34-L92` |
+| 23 | Exposure queries neither needed nor created supply | `CuriousContraptions.tests/AirJetGeometryTests.cs@a6c914e:L8-L33` |
+| 24 | A blocker crossing the jet removed the force for the crossing only | `CuriousContraptions.tests/AirJetOcclusionTests.cs@a6c914e:L14-L90` |
+| 25 | An offset receiver returned force and moment to the nozzle body; an empty store moved nothing | `CuriousContraptions.tests/NozzleCoupledJetReceiverTests.cs@a6c914e:L13-L110` |
+| 26 | A stored-flow source never supplied more than its store | `CuriousContraptions.tests/StoredFlowWorldTests.cs@a6c914e:L11-L204` |
+| 27 | Boundary crossings within a step: a CPU sweep, not carried | `CuriousContraptions.tests/AirJetBoundaryTests.cs@a6c914e:L1-L213` |
+| 28 | Certified force-rate bounds: proof-grade certificates, not carried | `CuriousContraptions.tests/JetTransferForcePathTests.cs@a6c914e:L1-L134`; `engine/physics/JetTransferForcePath.cs@a6c914e:L1-L75` |
+| 29 | Cylindrical-surface and streamline sweep paths: CPU solver paths, not carried | `engine/physics/AirJetBoundaryPath.cs@a6c914e:L1-L80`; `engine/physics/AirJetStreamlinePath.cs@a6c914e:L1-L45` |
+| 30 | Legacy part, art and catalogue entry | `parts/FanPart.cs@a6c914e:L12-L53`; `parts/catalog/fan.tres@a6c914e:L8-L14`; `engine/PartArt.cs@a6c914e:L22-L27` |
 
 **Files harvested:**
 - `parts/FanPart.cs`
@@ -106,9 +178,9 @@ Families: the [CAT-028 row](../general-engine-element-map.md) and `docs/coverage
 - `engine/physics/StoredFlowSource.cs`
 - `engine/physics/NozzleCoupledJetReceiver.cs`
 - `engine/physics/BodyQueryGeometry.cs`
-- `engine/physics/AirJetBoundaryPath.cs` (do not carry forward: CPU sweep path)
-- `engine/physics/AirJetStreamlinePath.cs` (do not carry forward: CPU sweep path)
-- `engine/physics/JetTransferForcePath.cs` (do not carry forward: rate certificates)
+- `engine/physics/AirJetBoundaryPath.cs` (CPU sweep path)
+- `engine/physics/AirJetStreamlinePath.cs` (CPU sweep path)
+- `engine/physics/JetTransferForcePath.cs` (rate certificates)
 - `reference/cpu/MachinePart.cs`
 - `reference/cpu/MachineWorld.cs`
 - `CuriousContraptions.tests/WindChimeTests.cs`
@@ -116,31 +188,14 @@ Families: the [CAT-028 row](../general-engine-element-map.md) and `docs/coverage
 - `CuriousContraptions.tests/RotorAirflowSupplyTests.cs`
 - `CuriousContraptions.tests/SceneAnimationRunTests.cs`
 - `CuriousContraptions.tests/NetworkSpatialOwnershipTests.cs`
-- `CuriousContraptions.tests/RemainingReadingCheckpointTests.cs` (do not carry forward: rollback)
+- `CuriousContraptions.tests/RemainingReadingCheckpointTests.cs`
 - `CuriousContraptions.tests/JetTransferImpedanceTests.cs`
 - `CuriousContraptions.tests/JetReceiverFieldTests.cs`
 - `CuriousContraptions.tests/AirJetGeometryTests.cs`
-- `CuriousContraptions.tests/AirJetOcclusionTests.cs` (behaviour carried; sweep timing not)
+- `CuriousContraptions.tests/AirJetOcclusionTests.cs`
 - `CuriousContraptions.tests/NozzleCoupledJetReceiverTests.cs`
-- `CuriousContraptions.tests/StoredFlowWorldTests.cs` (behaviour carried; ledgers and rollback not)
-- `CuriousContraptions.tests/AirJetBoundaryTests.cs` (do not carry forward the sweep; boundary behaviour only)
-- `CuriousContraptions.tests/JetTransferForcePathTests.cs` (do not carry forward: certificates)
+- `CuriousContraptions.tests/StoredFlowWorldTests.cs`
+- `CuriousContraptions.tests/AirJetBoundaryTests.cs`
+- `CuriousContraptions.tests/JetTransferForcePathTests.cs`
 - `content/puzzles.json` (kept)
 - `tools/Campaign/Program.cs`
-
-## Acceptance outline
-
-Point of truth: [CAT-028](../requirements.md#current-cat-028), [simulation and element acceptance](../requirements.md#accept-simulation) and the [first airflow slice](../../finite-gas-foundation.md).
-
-- **Chrome construction.** Rebuild `air_mail` through the real palette: place the Fan with the move gizmo left of and below the locked Tennis ball, facing +X; rotate with the rotation ring for depth lanes.
-- **Positive.** Run: the tennis ball is pushed along the fan axis into the Receiver (Solved); the rotor spins while active.
-- **Negative or control.** Fan unpowered (and never triggered), fan facing away, a Wall between fan and ball, reach exceeded, and a Bowling ball in place of the tennis ball each leave the ball undelivered. Two facing fans cancel.
-- **Occlusion controls.** Full block: a Wall across the jet gives zero force. Partial block: one of four equal body receiver samples blocked leaves 3/4 uncapped demand; the Windmill rotor form remains 12.3 integration (CAT-070 fact 6). Clear shell: a transparent pipe, bend or funnel shell between fan and ball blocks the air although light passes (fact 8).
-- **Boundaries.** At axial distance x, radial distance at or beyond `width` × x/`reach`, and x at/beyond either endpoint, give zero force; the reservoir is finite; parameter limits reject.
-- **Run/Reset.** Reset restores construction, reservoir and rotor art exactly.
-- **Save/Load.** Parameters and placement survive save, reload and Load.
-- **Integrations.** Switch-started cold fan (cold_start); windmill and wind chimes receivers (Stories 12.3, 14.4).
-
-## Resolved planning decisions
-
-All five historical questions are resolved by the current Story 12.2 contract above: selectable supply, cone, force-rated global envelope, retained material and finite energy budget. Historical arithmetic/citations are retained as evidence; no readiness or implementation approval is implied.

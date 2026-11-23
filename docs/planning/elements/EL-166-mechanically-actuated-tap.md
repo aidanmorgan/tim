@@ -1,95 +1,149 @@
-# EL-166 · Mechanically actuated tap named-identity spec
+# EL-166 · Mechanically actuated tap — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-166 delivery slice](../invest/named-elements.md#element-166). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery (24 October 2026):** [EL-166 delivery slice](../invest/named-elements.md#element-166). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-This is the Story 7.0 full spec for named identity EL-166. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa` and repaired the same day against the independent audit `docs/planning/elements/readiness/audits/elements-batch-g.md` and the owner decisions of 22 November 2026. Liquid conventions L1 to L18 and probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md), which has adopted Batch G's LG1 to LG8 into L3 to L15; LG numbers are kept as short names (LG1 = L5 and L6; LG2 = L3 and L7; LG3, LG4, LG5 = L4, L11, L12; LG6 = L15; LG7 = L12; LG8 = L13). The further additions adopted by coordinator decision 21 (nesting and envelope shielding, buoyancy reaction on a carrying body, contents at the liquid centroid, overlapping shapes counted once, porous and sealed interiors, a mouth below the floor datum, the relief mouth, the crest rule with granted work head, no crest lift limit) are now written into EL-001's rows (its "Batch G's additions" paragraph maps A1 to A9 to L3, L4, L5, L7, L8, L9 and L12; the long wording stays in [readiness/batch-g.md](readiness/batch-g.md) section 2) and are cited here as **L-additions A1 to A9**. Probe rows G1 to G8 are in section 3 of that file. The tap body, mouths and seat are in [EL-003](EL-003-tap.md). All are cited by number and not restated. Box sizes are full extents in metres.
 
-## 1. Identity
+## Identity
 
 | Field | Value |
 | --- | --- |
-| ID | EL-166 |
-| Name | Mechanically actuated tap |
-| Type | Water |
-| Anchor | [requirements.md#element-166](../requirements.md#element-166); [named-elements.md#element-166](../invest/named-elements.md#element-166); scope source [campaign-element-coverage](../requirements.md#campaign-element-coverage) |
-| Proof owner | S459 |
-| CAT spec refined | none. It refines [EL-003 Tap](EL-003-tap.md) as the linkage-driven variant. Related: [CAT-034 Impact lever](CAT-034-impact_lever.md) (hinge), [CAT-058 Rope anchor](CAT-058-rope_anchor.md) and [CAT-053 Pulley](CAT-053-pulley.md) (rope linkage), [CAT-039 Linear pusher](CAT-039-linear_pusher.md) |
-| Related identities | [EL-165 Manual tap](EL-165-manual-tap.md), [EL-167 Solenoid tap](EL-167-solenoid-tap.md); EL-017 Mechanical float valve (a float-driven valve, separate) |
-| Roadmap story | [EL-166 delivery slice](../invest/named-elements.md#element-166); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Identity | EL-166 · Mechanically actuated tap · Water |
+| Anchors | [element-166](../requirements.md#element-166), co-anchored `sequence-task-719`; source record [campaign coverage](../requirements.md#campaign-element-coverage); ledger [element-166](../invest/named-elements.md#element-166), owner S459 |
+| Disposition | Member of the Family slice "Actuated taps" with [EL-167](EL-167-solenoid-tap.md), after [EL-003](EL-003-tap.md). A variant of the Tap, not a duplicate: it adds a hinged lever body and a rope tie, and its seat follows the lever's committed angle (L14 b) |
+| Planned package | id `lever_tap`, directory `elements/LeverTap/`, title "Lever tap" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-GAS-NETWORK` and `ENGINE-LIQUID` (Delivery) |
+| Related | [EL-003](EL-003-tap.md), [EL-165](EL-165-manual-tap.md), [EL-167](EL-167-solenoid-tap.md), [EL-017](EL-017-mechanical-float-valve.md) (a seat on a float arm), rope parts and Weight (delivered) |
 
-## 2. Declaration
+## Declaration
 
-The three tap variants (EL-165–EL-167) share EL-003's tap body, port names and opening step (**proposed** cross-batch alignment): body 0.3 × 0.25 × 0.25 m, ports `WaterInlet` and `WaterOutlet` (the water family's names, as in Batch F), opening step 0.125. Each variant keeps its own catalogue id.
+Closest delivered shape: the Impact lever, a static base carrying a hinged arm with rope ties, limits and pivot friction.
 
-- **Bodies and shapes.** A static inline valve body (part root): Box 0.3 × 0.25 × 0.25 m. A dynamic lever: Box 0.4 × 0.05 × 0.05 m pivoted at the top of the valve body, pointing along local +X when closed, with a 0.1 m contact pad at its tip. **Proposed**: a 0.4 m arm gives a clear lever and torque from a modest rope pull.
-- **Mass and material.** Lever 0.2 kg (**proposed**: light next to the 1 kg Basketball so a rope weight or a ball strike moves it). Pad restitution 0.1, friction 0.5 (**proposed**). Valve body: the shared static water-vessel material, restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0 (**proposed** reuse of the Receiver material, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`, as Batch F's water fixtures use).
-- **Liquid.** Passage 0.001 m³ in the ledger; family density ρw = 16 kg/m³ (**proposed**, shared with Batch F; see [EL-023](EL-023-archimedes-screw.md)).
-- **Constraints.** One revolute hinge lever ↔ valve body about local Z, travel 0° (closed) to 90° (fully open), with a holding friction torque of 0.5 N·m (**proposed**: the lever stays where it is put, so only real linkage work changes the aperture; a 1 kg weight on a rope at the tip gives 3.9 N·m and opens it). Story 10.3 hinge with limits.
-- **Typed ports.**
+- **Interfaces.** `ISceneGeometryElement`, `IHingeElement`, the liquid fitting and seat declaration of `ENGINE-LIQUID` (W4, W7, W14).
+- **Body 0 (static), two colliders.** The Tap's Tube (bore radius 0.10, outer radius 0.14, length 0.30, axis X) and bonnet box 0.12 × 0.10 × 0.12 at (0, 0.19, 0). Family vessel material (EL-001: restitution 0.12, friction 0.3, rolling resistance 0).
+- **Body 1 (dynamic lever), one box.** 0.30 × 0.04 × 0.04, centred at (0.15, 0.26, 0) when closed: it lies along +X from a pivot at (0, 0.26, 0) on the bonnet top. 0.1 kg; inertia about its centre m·L²/12 = 0.00075 kg·m² about Y and Z, 0.00003 about X. Material restitution 0.1, friction 0.4, rolling resistance 0, bounce threshold 0.1 m/s. Gravity (0, −9.81, 0).
+- **Hinge.** Revolute about Z at the pivot. Angle 0° is closed (lever level); positive raises the tip. **Limits 0° to 60°.** Friction torque 0.20 N·m. No spring, no drive.
+- **Liquid node.** The Tap's fitting with one seat between `Start` and `End`: seat area s × A₀ with **s = clamp(angle / 60°, 0, 1)** from the committed hinge coordinate (L14 b).
+- **Mouths (two sockets).** As the Tap: `Start` at (−0.15, 0, 0), `End` at (+0.15, 0, 0), pipe bore, Bidirectional, capture 0.20 m and 20° (L5).
+- **No store, so no thermal node.** Owner decision 20 attaches a thermal node to every liquid store; the fitting holds none. No row reads temperature.
 
-  | Port | Domain | Direction | Local position (m) | Notes |
-  | --- | --- | --- | --- | --- |
-  | `WaterInlet` | Water | Input | (−0.15, 0, 0) | Standard water mouth (0.10 m bore) |
-  | `WaterOutlet` | Water | Output | (0.15, 0, 0) | Standard water mouth or spout |
-  | `LeverRope` | Rope | Input | lever tip, (0.4, 0.15, 0) closed | Rope attachment owning tension, not length ([S257 rope-port](../invest/decisions.md#s257)) |
+| `PortId` | Role | Domain | Direction | Position |
+| --- | --- | --- | --- | --- |
+| `Tie` | `PortRole.Tie` (`RopeAttachmentRole.Load`) | `SimulationDomain.Rope` | Bidirectional | lever tip, (0.30, 0.26, 0) on body 1 |
 
-  The lever pad also accepts contact pushes (pusher, ball, impact lever). **Proposed**. No signal or power port.
-- **Sensors and activation.** None. Committed lever angle is the aperture state.
-- **Work and energy stores.** None. Aperture `opening` = lever angle / 90°, computed from the committed hinge angle each tick (continuous during Run). Moving the lever costs work against the holding torque and lever weight; a slack rope or a stalled pusher delivers no work, so the aperture does not change. Flow follows EL-003's law as in [EL-165](EL-165-manual-tap.md): Q = Cd·s·A·√(2·g·Δh), Cd 0.6, A = 0.0314 m², about 0.083 m³/s fully open at 1 m head.
-- **Parameters.**
+The lever's faces are also ordinary contact surfaces: a cam, a pusher or a falling ball moves it.
 
-  | Name | Type | Range | Default | Unit | Source / justification |
-  | --- | --- | --- | --- | --- | --- |
-  | `initial_angle` | f32 | 0–90, step 11.25 | 0 | degrees | **proposed**: authored start aperture on the shared 0.125 opening step (11.25° per step), closed by default |
+- **Parameters.** None. The lever starts closed; a tap that should start open is pulled open by its rope at Run start.
+- **Presentation.** `Visual/Lever` follows body 1's pose.
+- **Palette.** `ElementCategory.Control`; order 410 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour gold (247/255, 203/255, 82/255).
 
-- **Cosmetic curves and UI bindings.** Lever art follows the committed hinge angle directly ("Handle angle ← committed opening", [component research](../../component-research.md#water)); a cyan stream follows committed flow. No easing.
-- **Art.** Cream valve body `#fff8e9`, gold lever `#f7cb52` with a navy pad `#293954`, cyan flow window `#66b8c9`, navy angle marks at 0°, 45° and 90° ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
-- **Catalogue and inventory entry.** Id `lever_tap`, title "Mechanically actuated tap", category Water (**proposed**; variant-specific id). Counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+### Art and solidity
 
-**Variants.** EL-166 is the mechanical variant of the tap family; its requirements row lists no further variants.
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Body` | Tube 0.30 long, outer radius 0.14, cream `#fff8e9` | solid; the Tube collider | body 0 pose (static) |
+| `Visual/Bonnet` | Box 0.12 × 0.10 × 0.12, cream | solid; its box collider | body 0 pose |
+| `Visual/Lever` | Bar 0.30 × 0.04 × 0.04, gold `#f7cb52`, with a navy `#293954` eye printed at its tip | solid; the lever box collider | body 1 pose |
+| `Visual/Bands` | Navy bands at both tube ends, flush | decorative: printed flat | nothing |
+| Locators | two mouths, `Tie` | none | body pose |
 
-## 3. Engine capabilities
+Icon: the Tap with a long bar standing out from the bonnet and an eye at its tip. It differs from the Tap (a printed lever glyph) by the real bar, and from the Solenoid tap (a pin and two sockets) by the bar and eye.
 
-Families ([element-map row](../general-engine-element-map.md), [coverage binding](../../coverage/engine/element-02.json) `element-166`): EnvironmentState, FiniteLedger, FiniteWorkActuation, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, SignalPropagation, StateTransaction (coverage only), TopologyTransaction.
+### Behaviour and numbers
 
-**Exists now**
-- Dynamic and static Box bodies, contact impulses: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`.
+- **The lever stays where it is put.** Its own weight gives at most 0.1 × 9.81 × 0.15 = 0.147 N·m, under the 0.20 N·m pivot friction: it holds any angle with nothing acting on it.
+- **Work moves it.** A rope from the tip up over a Pulley to a Weight of mass m pulls with m·g on a 0.30 m arm: net torque (2.943·m − 0.147) × cos θ. It starts to turn when that exceeds 0.20 N·m at θ = 0: m > (0.20 + 0.147) / 2.943 = **0.118 kg**. A slowly loaded lever would stall where cos θ = 0.20 / (2.943·m − 0.147); that angle is beyond 60° for every m above (0.20/0.5 + 0.147) / 2.943 = 0.186 kg. The lightest delivered Weight is 0.25 kg (`elements/Weight/WeightElementDeclaration.cs:33`), so **every delivered Weight drives the lever onto its 60° stop**, fully open, released or lowered slowly; a 0.118 kg pull cannot be built from delivered Weights.
 
-**Missing**
-- Revolute hinge with limits and a holding friction torque: Story 10.3 (friction torque term required in the linked delivery slice if 10.2 lacks it).
-- Rope attachment and tension: Story 10.2 ([S257 rope-port](../invest/decisions.md#s257) → S688).
-- Aperture read from a committed joint coordinate (FiniteWorkActuation): required in the linked delivery slice.
-- Valve node and head (S418/S419): owner [S416](../invest/decisions.md#s416); required in the linked delivery slice.
+| Weight | Start torque (2.943·m − 0.147) | Slow-load stall angle | Ends at | Opening s | Route K = K₀/√(2 + 1/s²) |
+| --- | --- | --- | --- | --- | --- |
+| 1.0 kg | 2.80 N·m | 85.9° (beyond the stop) | 60° stop | 1 | 0.04820 (a fully open Tap) |
+| 0.25 kg (the minimum) | 0.589 N·m | 70.2° (beyond the stop) | 60° stop | 1 | 0.04820 |
+| none (slack rope) | 0 | — | 0° | 0 | 0 |
 
-**Element dependencies.** A supply and route as EL-165; an actuator: CAT-058 Rope anchor with CAT-067 Weight over CAT-053 Pulley, CAT-039 Linear pusher, CAT-034 Impact lever or a ball strike.
+- **A slack linkage changes nothing.** A rope with its Weight resting on a ledge applies no tension: the angle and the opening stay as they were.
+- **A stalled linkage changes nothing.** With a Wall block over the lever tip the Weight hangs taut and the angle cannot rise: the seat stays shut. Against the 60° stop, more pull opens it no further.
+- **A partial opening holds.** If the Weight's fall is stopped by a ledge 0.15 m below its start, the rope goes slack when the tip has risen 0.15 m (0.30·sin θ = 0.15, θ = 30°); the lever coasts on against friction and gravity and then holds wherever it stops, between 30° and 60°.
+- **Closing.** A push on the tip shuts the lever when its torque beats the rope's pull and the friction. At the 60° stop the tip's horizontal arm is 0.30 × cos 60° = 0.15 m. Against friction alone, a Tennis ball (0.35 kg) on the tip gives 0.35 × 9.81 × 0.15 = **0.515 N·m**, plus the lever's own 0.1 × 9.81 × 0.075 = 0.074 N·m, against 0.20 N·m: it would ride the lever shut. But a rope that is still attached is taut again as soon as the lever turns back: a 1.0 kg Weight holds 1.0 × 9.81 × 0.15 = 1.47 N·m upward at the stop, and a Weight resting on a ledge must be lifted, so a Tennis ball cannot shut a roped lever. A Bowling ball (4 kg, radius 0.28 m, `elements/BowlingBall/BowlingBallElementDeclaration.cs:54`–`:56`) on the tip gives 4 × 9.81 × 0.15 = **5.89 N·m** against 1.47 + 0.20 − 0.074 = 1.60 N·m, so it shuts it; once the push is gone the taut Weight opens it again. Paying out the rope alone does not shut it: the friction holds it open.
+- **Flow.** The Tap's law with s from the angle ([EL-003](EL-003-tap.md)): on a full Water tank at s = 1, 0.0482 m³/s.
+- **Liquid exerts no force on the lever (L12 c).** Opening against a full tank costs the same as against an empty one.
+- **Tick order.** The seat reads the angle committed by the previous substep (L16).
+- **Rope.** Ropes are solid (owner decision, 22 November 2026); the delivered rope's missing collider is a defect owned by `ENGINE-CONNECTION-MATERIALS`, not by this part.
 
-## 4. Sources and legacy
+## Engine capabilities
 
-- **Requirement row** ([element-166](../requirements.md#element-166)): "Physical linkage work changes the flow aperture." Outcome: "A slack or stalled linkage cannot change aperture." No variants.
-- **Research** ([component research](../../component-research.md#water)): "mechanical lever or solenoid input variants"; "actuated variants need their lever or supply, never free water". A cam can "open a tap once per revolution" (mechanical table, cam and follower row).
-- **Decisions**: [S257](../invest/decisions.md#s257) rope-port ("a slack rope lifts nothing") and mechanical-port.
-- **Campaign**: first use 61–70 with individually exercised construction objectives; reuse 71–90, 114, 126–130, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
-- **Legacy.** None found. Searched the Epic 7 deletion scope at `a6c914e` for "tap", "valve", "water": no element source. Hinge and rope legacy are harvested in [CAT-034](CAT-034-impact_lever.md) and [CAT-058](CAT-058-rope_anchor.md).
+Map families (navigation only, D14): EnvironmentState, FiniteLedger, FiniteWorkActuation, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, SignalPropagation, StateTransaction, TopologyTransaction.
 
-**Files harvested:** none.
+| Row | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W2 Tube; W21 lever body | present | bodies |
+| W19 revolute hinge with angular limits | present | lever |
+| G3 hinge friction holds a load below it and yields above it | present | lever |
+| G4 rope tie on a hinged arm; W20 rope over a pulley | present | `Tie` |
+| W22 authored state, wire refusal | present | pose, `Tie` |
+| W4 fluid port contract | present, untested | fitting |
+| W3 sockets and joins | narrower: socket count, package-local ids, capture distance 0.20 m and angle 20°, and outlets that are not joinable are `ENGINE-CAPABILITY-INSTANCES`; compiling joins to edges is `ENGINE-LIQUID`; the port record is `ENGINE-GAS-NETWORK` | 2 sockets (`Start`, `End`), 0 immersed ports, 0 outlets |
+| W7 fitting, seat, flow; W8 free end | missing | `ENGINE-LIQUID` |
+| W14 seat opening from a committed revolute coordinate | missing | `ENGINE-LIQUID` |
 
-## 5. Acceptance outline
+Counts: 5 present, 1 untested, 1 narrower, 2 missing. No store, so no thermal-node row.
 
-Follow the [EL-166 row](../requirements.md#element-166).
-- **Chrome UI recipe.** In free play place a Finite reservoir, the mechanically actuated tap on its outlet, a gutter and a Catch basin. Place a Rope anchor and Pulley above the lever tip and a Weight; connect the rope from `LeverRope` over the pulley to the weight with the contextual rope UI. Hold the weight on a trapdoor or a pusher-released stop; Run and release it.
-- **Positive.** The falling weight pulls the lever toward 90°; flow starts and rises with the angle; the basin gains what the reservoir loses.
-- **Negative/control.** A slack rope (weight resting on the floor) or an unpowered pusher: the lever does not move and the tap stays closed. With the lever opened but no reservoir connected, nothing flows.
-- **Boundaries.** Lever stopped halfway by a block (half aperture holds); lever driven past 90° (limit holds); a ball strike that opens it partly; the holding torque keeps the aperture after the load leaves.
-- **Run/Reset.** Lever angle, volumes and rope state restore exactly.
-- **Save/Load.** `initial_angle`, pose, water and rope links round-trip.
-- **Integrations.** CAT-058/CAT-053/CAT-067 rope linkage, CAT-039 pusher, cam drive.
+### Engine conformance (22 November 2026)
 
-## 6. Open questions
+1. **Declaration data only.** Two bodies, three colliders, one hinge, one fitting with one seat, two sockets, one port, one body binding.
+2. **Generic laws.** The lever moves by rope tension and contact against declared pivot friction and limits. The seat is a clamped linear map of a committed coordinate (L14 b). "Slack or stalled cannot change the aperture" is that the coordinate did not change.
+3. **Three layers.** *Colliders:* Tube, bonnet, lever. *Visuals:* the lever art follows its body. *Animation:* none.
+4. **One-way flow and typing.** Mechanics → coordinate → seat, next substep; nothing flows back. Port id and role are the delivered enums.
+5. **Flat-state counts.** Bodies 2 (1 static, 1 dynamic); colliders 3 (1 Tube, 2 boxes); joints 1 revolute; drives 0; sensors 0; signal nodes 0; liquid nodes 1 fitting; seats 1; thermal nodes 0 (no store); sockets 2; immersed ports 0; outlets 0; ports 1; bindings 1 body; parameters 0.
+6. **Performance fitness.** Three colliders against the Tap's two; the third is the lever, which must push and be pushed. The lever is 0.04 m thick, four times the 1 cm wall of the tunnelling envelope. A free `End` adds one stream's fixed sample paths (L18).
+7. **Tests are scenarios.** Rows L1 to L8.
 
-1. Hold-in-place (proposed) versus a spring return to closed: owner decision.
-2. Whether the lever also accepts a mechanical shaft input (S257 mechanical-port), for example from a cam: owner decision.
-3. Holding friction torque value (0.5 N·m proposed) and whether hinges get a friction term: Story 10.3 decision.
-4. Whether EL-003 Tap ships as its own catalogue entry alongside the variant entries, and the shared body/ports/step alignment with EL-003 (Batch F): owner decision.
-5. Liquid density ρw = 16 kg/m³ (proposed) is one water-family constant shared with Batch F's EL-001–EL-022 specs: owner decision under S418/S420.
-6. Shared static water-vessel material (restitution 0.12, friction 0.3, proposed): owner decision.
+## Sources and legacy
+
+- Requirement: "Physical linkage work changes the flow aperture"; outcome "A slack or stalled linkage cannot change aperture." No variants.
+- Campaign coverage row: "manual/mechanical/solenoid tap variants … with individually exercised construction objectives". Component research [water](../../component-research.md#water): "actuated variants need their lever or supply, never free water"; a cam can "open a tap once per revolution".
+- **Legacy.** None at `a6c914e`. **Files harvested:** none.
+
+## Acceptance outline
+
+Authority: [element-166](../requirements.md#element-166). Tolerances L17; angles within 3°. Planned class `LeverTapTests`. The supply is a full Water tank joined to `Start`; `End` is free. The rope runs from `Tie` up over a Pulley to a Weight hanging clear of everything for at least 0.30 m of fall (the tip rises 0.30 × sin 60° = 0.26 m to the stop).
+
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| L1 | Given a 1.0 kg Weight on the rope, when Run advances 1 s, then the lever is on its 60° stop within 3° and the committed flow is 0.047 m³/s within 10% | `LeverTapTests.AFallingWeightOpensTheTap` | L2 | the lightest delivered Weight, 0.25 kg: also on the 60° stop within 3° |
+| L2 | Given the same rope with its Weight resting on a ledge, when Run advances 10 s, then the angle stays under 1° and the tank keeps 1.0 m³ within 0.004 m³ | `LeverTapTests.ASlackLinkageChangesNothing` | L1 | — |
+| L3 | Given L1 with a Wall block resting over the lever tip, when Run advances 10 s, then the angle stays under 3° and every committed flow is under 0.0005 m³/s (L17) | `LeverTapTests.AStalledLinkageChangesNothing` | L1 | — |
+| L4 | Given a 1.0 kg Weight whose fall is stopped by a Wall ledge 0.15 m below its start, when Run advances 10 s after the Weight lands, then from 1 s after landing the angle stays within 1° of its value then (between 30° and 60°) and the committed seat opening (L13) stays within 1/60 of its value then | `LeverTapTests.TheLeverHoldsItsPosition` | L1 (taut rope: on the stop) | — |
+| L5 | Given L1's rig and a Bowling ball released from rest at Run start with its centre 1.5 m above the tip's position at the stop, when it lands on the tip (about 0.50 s, after the lever reaches the stop at about 0.3 s), then the committed seat opening falls under 0.05 (angle under 3°) within 1 s of contact and every committed flow is under 0.0005 m³/s while it stays there | `LeverTapTests.APushShutsIt` | L1 (no ball: it stays on the stop) | a Tennis ball released the same way does not shut it (the taut Weight wins: 0.515 + 0.074 N·m against 1.47 + 0.20 N·m) |
+| L6 | Given `Start` unjoined and the lever pulled onto its stop as L1, then nothing leaves `End` | `LeverTapTests.AnOpenTapWithNoSupplyEmitsNothing` | L1 | — |
+| L7 | Given a run that opened it, then Reset restores a closed lever and a full tank; save and load keep the pose, the joins and the rope | `LeverTapTests.ResetAndSaveLoadRestore` | — | — |
+| L8 | Given an electrical wire offered to `Tie`, then it is refused | covered by W22 | — | — |
+
+Hand calculations. L1: the lever reaches the stop in about 0.3 s (2.6 N·m net on about 0.093 kg·m² of lever and Weight referred to the tip); by 1 s the tank has fallen to (1 − 1/41.5)² = 0.952 m, so the flow is 0.0482 × √0.952 = 0.047 m³/s. L4: the lever's own kinetic energy when the rope goes slack at 30° is about 0.06 J against at least 0.20 + 0.147 × cos 60° = 0.27 N·m of retarding torque, so it coasts at most about 0.2 rad (12°) and stops between 30° and 60°; 1° of angle is 1/60 of opening. L5: the tip at the stop is at (0.15, 0.52, 0); the ball's centre starts at (0.15, 2.02, 0) and meets the tip after falling 1.5 − 0.28 = 1.22 m, t = √(2 × 1.22 / 9.81) = 0.50 s; it meets the tip first because the bar runs down and inward from it; net closing torque 5.89 + 0.074 − 1.47 − 0.20 = 4.29 N·m at 60°, and both the ball's and the Weight's torques scale with cos θ as the lever falls.
+
+Generic cover: W22. No parameter. Chrome recipe (pending): snap the lever tap to a tank, tie a rope from its eye over a pulley to a Weight, release the Weight.
+
+## Open questions
+
+All resolved; none needs the owner.
+
+1. Return spring: none. A tap that closes itself would hide the "slack linkage" outcome; pivot friction holds the last position. Owner decision 6 concerns spring-returned blades and does not apply to an unpowered lever, which holds in every orientation because 0.147 N·m is under the 0.20 N·m friction.
+2. Shaft input (`DriveIn`): none (D19). Rope and contact are the linkages the row and the research name.
+3. Hydraulic load on the lever: none (L12 c).
+4. Travel: 0° to 60°, so that any delivered Weight opens it fully and a push on the tip at the stop still has a 0.15 m arm.
+
+## Integration
+
+- **Works with.** Rope anchor, Pulley, Weight, balls, Wall (delivered); EL-001, EL-003, EL-004 (not delivered).
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. First taught at **64**, with the Solenoid tap, after the float and level-switch lesson (63) (coordinator decision 36; [per-level allocation](readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)). Needs the lesson-fixture story (S8).
+
+## Delivery
+
+- **Slice shape.** Family slice "Actuated taps" (EL-166, EL-167), after EL-003.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (stream samples, immersion and point queries, L18), `ENGINE-ISLANDS-SLEEP` (a change of contents or level wakes what it loads; not delivered, and nothing here assumes sleeping exists) and `ENGINE-CAPABILITY-INSTANCES` (declared sockets, outlets and immersed-port locators); then `ENGINE-GAS-NETWORK` (the one fluid port record); then `ENGINE-LIQUID`; then `ENGINE-THERMAL` (every liquid store is a thermal node, owner decisions 18 and 20); then EL-001, EL-003; then S7.
+- **Files.** Adds `elements/LeverTap/LeverTap.csproj`, `LeverTapElementDeclaration.cs`, `lever_tap.tscn`, `icon.svg`, `CuriousContraptions.tests/LeverTapTests.cs`; edits `CuriousContraptions.slnx` and this spec. Other lists as EL-001.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A seat that cannot read a revolute coordinate; pivot friction that does not hold a static load in every orientation.
+
+## Coverage binding (planned, not yet live)
+
+Blocked on the coverage follow-on story S7. The named-identity binding section (the EL-239 form) cannot be written yet: the ledger entry links only the campaign coverage row; `sequence-task-719` is co-anchored with `element-166`, not with a todo; no `s459` anchor.

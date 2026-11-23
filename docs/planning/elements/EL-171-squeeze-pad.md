@@ -1,90 +1,155 @@
-# EL-171 · Squeeze pad named-identity spec
+# EL-171 · Squeeze pad — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-171 delivery slice](../invest/named-elements.md#element-171). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery (24 October 2026):** [EL-171 delivery slice](../invest/named-elements.md#element-171). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-This is the Story 7.0 full spec for named identity EL-171. The baseline is commit `a6c914e`; every citation uses `path@a6c914e:Lstart-Lend`. Values without a source are marked **proposed**, each with a one-line justification; the owner may revise them.
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa` and repaired the same day against the independent audit `docs/planning/elements/readiness/audits/elements-batch-g.md` and the owner decisions of 22 November 2026. Liquid conventions L1 to L18 and probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md), which has adopted Batch G's LG1 to LG8 into L3 to L15; LG numbers are kept as short names (LG1 = L5 and L6; LG2 = L3 and L7; LG3, LG4, LG5 = L4, L11, L12; LG6 = L15; LG7 = L12; LG8 = L13). The further additions adopted by coordinator decision 21 (nesting and envelope shielding, buoyancy reaction on a carrying body, contents at the liquid centroid, overlapping shapes counted once, porous and sealed interiors, a mouth below the floor datum, the relief mouth, the crest rule with granted work head, no crest lift limit) are now written into EL-001's rows (its "Batch G's additions" paragraph maps A1 to A9 to L3, L4, L5, L7, L8, L9 and L12; the long wording stays in [readiness/batch-g.md](readiness/batch-g.md) section 2) and are cited here as **L-additions A1 to A9**. Probe rows G1 to G8 are in section 3 of that file. All are cited by number and not restated. Box sizes are full extents in metres.
 
-## 1. Identity
+## Identity
 
 | Field | Value |
 | --- | --- |
-| ID | EL-171 |
-| Name | Squeeze pad |
-| Type | Water |
-| Anchor | [requirements.md#element-171](../requirements.md#element-171); [named-elements.md#element-171](../invest/named-elements.md#element-171); scope index [todo-340](../requirements.md#todo-340) |
-| Proof owner | S464 |
-| CAT spec refined | none. Related: [CAT-052 Pressure plate](CAT-052-pressure_plate.md) (load-on-plate precedent), [CAT-062 Spring](CAT-062-spring.md) (slider and spring, Story 6.4) |
-| Related identities | [EL-034 Sponge](EL-034-sponge.md) and [EL-035 Wick](EL-035-wick.md) (porous siblings, separate); [EL-036 Sprinkler](EL-036-sprinkler.md) and EL-013 Water nozzle (wetting sources); EL-004 Catch basin (receiver) |
-| Roadmap story | [EL-171 delivery slice](../invest/named-elements.md#element-171); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | not started (no `WorkshopPartKind` member, `engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`) |
+| Identity | EL-171 · Squeeze pad · Water |
+| Anchors | [element-171](../requirements.md#element-171), co-anchored `sequence-task-724`; source record [campaign coverage](../requirements.md#campaign-element-coverage) and scope index [todo-340](../requirements.md#todo-340); integration [sequence-task-531](../requirements.md#sequence-task-531); ledger [element-171](../invest/named-elements.md#element-171), owner S464 |
+| Disposition | To deliver as a single element, second of the porous run. Not a duplicate of the Sponge ([EL-034](EL-034-sponge.md)): it is fixed, it has a pressed plate, and compression releases its liquid |
+| Planned package | id `squeeze_pad`, directory `elements/SqueezePad/`, title "Squeeze pad" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-JOINT-KINDS` (spring rest coordinate), `ENGINE-GAS-NETWORK`, `ENGINE-LIQUID` and `ENGINE-THERMAL` (Delivery) |
+| Related | [EL-034](EL-034-sponge.md), [EL-035](EL-035-wick.md), [EL-168](EL-168-siphon-priming-bulb.md) (the same capacity rule), [EL-036](EL-036-sprinkler.md) and [EL-003](EL-003-tap.md) (wetting sources), [EL-004](EL-004-catch-basin.md) |
 
-## 2. Declaration
+## Declaration
 
-- **Bodies and shapes.** A static tray frame (part root): floor Box 0.7 × 0.06 × 0.7 m with four rim boxes 0.2 m high and a drip outlet in the floor. A porous pad (static store, art and a Box sensor volume 0.6 × 0.15 × 0.6 m) sits in the tray. A dynamic press plate: Box 0.6 × 0.04 × 0.6 m resting on the pad. **Proposed**: a 0.6 m plate is wide enough for a falling Basketball or Bowling ball to land on.
-- **Mass and material.** Press plate 0.3 kg (**proposed**: light, barely pre-squeezes the pad). Plate restitution 0.05, friction 0.5 (**proposed**). Tray: the shared static water-vessel material, restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0 (**proposed** reuse of the Receiver material, `engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`, as Batch F's vessels use).
-- **Resting position.** Compression x is measured downward from the plate's resting position: the plate lying on the uncompressed pad under its own weight only (the 2.9 N plate weight settles 0.007 m into the 400 N/m pad spring, and that settled pose is x = 0). Capacity, travel and expelled volume below are all referred to this rest pose.
-- **Liquid.** Pad porous capacity at rest C(0) = 0.04 m³ (porosity 0.74 of the 0.054 m³ pad, **proposed**), i.e. 0.64 kg of liquid at the **proposed** family density ρw = 16 kg/m³ (shared with Batch F; see [EL-023](EL-023-archimedes-screw.md)). Retained capacity under compression x: C(x) = 0.04 × (1 − 0.9·x / 0.12) m³ (**proposed**: a full squeeze leaves 10% in the pad). Any retained volume above C(x) is expelled through the drip outlet.
-- **Constraints.** One prismatic joint plate ↔ tray along local Y, travel x = 0–0.12 m below the resting position, with a 400 N/m spring precompressed by 0.0073575 m at x = 0, giving upward force 2.943 + 400x N to balance the 0.3 kg plate's gravity before a presser arrives. Proposed damping 100 N·s/m dissipates slider motion (overdamped for the plate plus a 4 kg Bowling ball); this prevents oscillatory pumping under a slowly applied load (**proposed**: a Bowling ball, 39 N, compresses x = 0.098 m and expels about 0.029 m³ from a full pad; a Basketball, 9.8 N, compresses 0.025 m and wrings a little). Story 6.4 slider and spring.
-- **Typed ports.**
+Closest delivered shape: the Pressure plate, a static tray with a plate on a spring-returned prismatic slider.
 
-  | Port | Domain | Direction | Local position (m) | Notes |
-  | --- | --- | --- | --- | --- |
-  | `WaterOutlet` | Water | Output | (0, −0.06, 0) | Drip outlet; joins a standard water mouth or emits a free stream |
+- **Interfaces.** `ISceneGeometryElement`, `ISliderElement`, the liquid store declaration of `ENGINE-LIQUID` (W4, W6), porous (L4, L11, A6) with a coordinate-bound capacity (L4).
+- **Body 0 (static tray), five boxes.** Base 0.62 × 0.06 × 0.62 at (0, −0.16, 0) (underside y = −0.19); two walls 0.04 × 0.26 × 0.62 at (±0.29, 0, 0); two walls 0.54 × 0.26 × 0.04 at (0, 0, ±0.29). Inside the walls 0.54 × 0.54; floor at y = −0.13; wall top at y = +0.13. Family vessel material (EL-001: restitution 0.12, friction 0.3, rolling resistance 0).
+- **Body 1 (dynamic press), three colliders.** Plate: box 0.50 × 0.04 × 0.50 at (0, 0.14, 0) at rest, lying on the pad inside the walls. Post: Cylinder radius 0.08, length 0.30, axis Y, at (0, 0.31, 0). Cap: Cylinder radius 0.15, length 0.04, at (0, 0.48, 0), top at y = +0.50. 0.2 kg in all; inertia by the plate's box rule, 0.0042 kg·m² about X and Z and 0.0083 about Y. Material restitution 0.1, friction 0.5, rolling resistance 0, bounce threshold 0.1 m/s. Gravity (0, −9.81, 0). Press and tray do not collide with each other.
+- **Slider.** `PrismaticSliderDescriptor` along −Y (pressing is positive), travel 0 to 0.20 m, starting offset 0. Return spring 100 N/m, **damping 40 N·s/m**, spring rest coordinate −0.03 m, outside the travel: 3 N holds the press up against its own 1.96 N. No drive. At full travel the plate's underside is 0.05 m above the tray floor. A prismatic slider declares its spring rest coordinate, which may lie outside its travel; `SliderTravel` admits it; the starting offset stays a separate value (owner `ENGINE-JOINT-KINDS`, owner decision 6 and coordinator decision 21). Today this is refused, not merely absent: `CuriousContraptions.Bundle/MechanicalValueDomain.cs:81` returns false when `lower > 0f || upper < 0f`; `Compression` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:111`) is the starting offset (`MechanicalValueDomain.cs:80`, `engine/gpu/WorkshopPhysicsCompiler.cs:159`), not a rest position.
+- **Store (porous, bound capacity).** Local id 1 on body 0. Rest capacity C₀ = 0.03125 m³ (half a mark; the 0.50 × 0.25 × 0.50 pad is half pore). Plan area 0.54 × 0.54 = 0.2916 m²; floor datum (0, −0.13, 0). **Open aperture 0.54 × 0.54 at y = +0.50**, normal +Y; **interior 0.54 × 0.63 × 0.54** (the aperture extruded to the floor datum, L4), which contains the plate, the post and the cap. Porous: it keeps its contents at every orientation (L11 does not apply). Its interior is the declared box above, not a carrying collider (A6's porous form), because the pad itself is enclosed art with no collider. Capacity bound to the slider coordinate x: C(x) = 0.03125 × (1 − 4·x), so 0.00625 m³ at full travel. Liquid above C(x) is pending overflow and leaves in the next substep (L9) through the declared relief (A8), here the spout overflow point. The level by L4 is V/0.2916, at most 0.107 m above the floor, and the plate's underside is 0.25 − x above it, more than 0.107 × (1 − 4x) at every travel: the press is never below the surface and is not immersed (L12 a).
+- **Store 1 is also a thermal node** (owner decision 20; [TH-04](TH-04-electrical-heating-plate.md) section 11, T2): heat capacity ρ·V × 1046 J/(kg·K), starting temperature declared ambient 288 K unless a level authors another; inflow mixes by mass and outflow leaves at the store's temperature. No row of this part reads temperature.
+- **Spout (an overflow point, not a mouth).** At (0.31, −0.10, 0) on the tray's +X face, **0.09 m above the tray's underside**: the liquid leaves it as an L8 stream with no discharge speed of its own (L9): its start velocity is the velocity of body 0 at the spout, which is static, so the stream starts at rest. No socket, immersed port or outlet.
 
-  **Proposed**; named with the water family's `WaterOutlet` (Batch F). Wetting enters through the open top (intercepted packets, a sponge or nozzle above). No signal or power port.
-- **Sensors and activation.** None. Retained volume and plate position are observable.
-- **Work and energy stores.** The spring holds ½·400·(x + 0.0073575)² J, including its proposed 0.0108 J admission preload. Its increase from x = 0 is 2.943x + 200x² J; the plate loses 2.943x J of gravitational potential, so net quasistatic presser work is 200x² J (2.88 J at full stroke). Dynamic pressing also dissipates the declared damper work; release can return only the remaining stored energy. Expelled liquid is never created: it is only ever the retained excess. On release the pad's capacity recovers but it reabsorbs only liquid that reaches it.
-- **Parameters.**
+| Parameter | Type | Unit | Default | Min | Max | Editor policy |
+| --- | --- | --- | --- | --- | --- | --- |
+| `initial_volume` | Real f32 | m³ (unit member missing, W13) | 0 | 0 | 0.03125 | Reject; build only |
 
-  | Name | Type | Range | Default | Unit | Source / justification |
-  | --- | --- | --- | --- | --- | --- |
-  | `initial_wet` | f32 | 0–1 | 0 | fraction of capacity at rest | **proposed**: authored levels may supply a wet pad as a finite water source (up to 0.64 kg) |
+- **Presentation.** `Visual/Press` follows body 1's pose. `Visual/Pad` `ScaleY` from the committed slider travel (`PresentationDriver.CommittedPrismaticPhase`) and albedo from the committed fill fraction of store 1 (W12, missing).
+- **Palette.** `ElementCategory.Structure`; order 543 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour gold (247/255, 203/255, 82/255).
 
-- **Cosmetic curves and UI bindings.** Plate follows the committed slider position; pad damp fraction tints and patterns the pad ("Damp fraction ← volume", [component research](../../component-research.md#water)); a cyan drip at the outlet while expelling. No easing.
-- **Art.** Cream tray `#fff8e9`, gold-cream pad `#f5b354` shading to cyan `#66b8c9` when wet, navy press plate `#293954` with a gold grip `#f7cb52` ([DESIGN colour system](../../../DESIGN.md#colour-system)). **Proposed**.
-- **Catalogue and inventory entry.** Id `squeeze_pad`, title "Squeeze pad", category Water (**proposed**). Counted allowance (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+### Art and solidity
 
-**Variants.** The requirements row lists no variants; EL-171 is one declaration.
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Tray` | Base and four walls, cream `#fff8e9` | solid; the five box colliders | body 0 pose (static) |
+| `Visual/Press` | Plate 0.50 × 0.04 × 0.50 with navy `#293954` holes printed flat, post and cap, coral `#f06e54` | solid; the plate box and two Cylinders | body 1 pose |
+| `Visual/Pad` | Block 0.50 × 0.25 × 0.50 between floor and plate, gold `#f7cb52`, ochre when wet | decorative: enclosed by the tray walls and the plate, scaled by a binding | presentation binding |
+| `Visual/Spout` | Navy lip printed on the +X face, flush | decorative: printed flat | nothing |
 
-## 3. Engine capabilities
+Icon: a square tray holding a dotted gold block under a plate with a knob. It differs from the Sponge (a loose block) by the tray and knob, and from the Priming bulb (round, upright) by its square outline.
 
-Families ([element-map row](../general-engine-element-map.md), [coverage binding](../../coverage/engine/element-02.json) `element-171`): CapillaryTransport, EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction (coverage only), TopologyTransaction.
+### Behaviour and numbers
 
-**Exists now**
-- Static and dynamic Box bodies, contact normal impulses: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`.
+The pad is a porous store whose capacity follows the press. Loads are **set on the cap at rest**. Travel follows force by the spring: (x + 0.03) × 100 N/m = the load's weight + 1.96 N. The damping ratio with a load of mass m is 40 / (2·√(100 × (0.2 + m))); every load below is at or above 0.98, so the press does not overshoot its static travel and the one-way release follows the table.
 
-**Missing**
-- Prismatic slider with spring: Story 6.4.
-- Porous store with compression-dependent capacity (CapillaryTransport + PressureWork): [S416](../invest/decisions.md#s416) capillary → S421 and pressure-work → S419; map row: "Mechanical compression and pressure/porous store coupling expel conserved liquid; capacity alone is insufficient". Required in the linked delivery slice.
-- Outlet free stream (S418): required in the linked delivery slice.
+| Load on the cap | Force | Damping ratio | Travel x | C(x) | Released from a saturated pad |
+| --- | --- | --- | --- | --- | --- |
+| nothing | 1.96 N | 4.47 | 0 (held by the 3 N preload) | 0.03125 | 0 |
+| Tennis ball authored at 0.1 kg | 2.94 N | 40 / (2·√30) = 3.65 | 0 (under the 3 N preload) | 0.03125 | 0 |
+| Tennis ball, 0.35 kg | 5.39 N | 2.70 | 0.024 m | 0.0283 | 0.0030 m³ |
+| Weight, 1.5 kg | 16.68 N | 1.53 | 0.137 m | 0.0141 | **0.0171 m³** |
+| Weight, 2.0 kg | 21.58 N | 1.35 | 0.186 m | 0.0080 | 0.0232 m³ |
+| Bowling ball, 4 kg | 41.2 N | 0.98 | 0.20 m (stop) | 0.00625 | 0.0250 m³ |
 
-**Element dependencies.** A wetting source (EL-036 Sprinkler, EL-013 nozzle, EL-034 Sponge); a presser (CAT-014 Bowling ball, CAT-039 Linear pusher, CAT-067 Weight); a receiver (EL-004).
+Rows by hand: 1.5 kg: x = 0.1668 − 0.03 = 0.1368 m; C = 0.03125 × (1 − 0.547) = 0.01415 m³; released 0.03125 − 0.01415 = 0.0171 m³. 2.0 kg: x = 0.1858 m; C = 0.03125 × 0.2568 = 0.00803 m³; released 0.0232 m³. 0.1 kg: 0.981 + 1.96 = 2.94 N, under the 3 N preload by 0.06 N, so the plate stays on its stop.
 
-## 4. Sources and legacy
+- **A dry pad produces nothing.** With V = 0 no press takes V above C(x).
+- **A part-wet pad** releases only what exceeds C(x): holding 0.025 m³ under the 1.5 kg Weight it gives 0.025 − 0.0141 = 0.0109 m³; under a 0.35 kg Tennis ball (C = 0.0283), nothing.
+- **Squeezing consumes work.** The 1.5 kg Weight and the 0.2 kg press descend 0.137 m and give up 1.7 × 9.81 × 0.137 = 2.28 J; the spring holds ½ × 100 × (0.167² − 0.03²) = 1.35 J and the damper takes the rest, 0.93 J. The liquid returns none of it (L12 c). A load that cannot beat the 3 N preload does no work and releases nothing.
+- **Wetting.** Each sample path that ends inside the store's declared interior is credited to it; a sample that meets any other collider first is spilled (L8). The interior contains the plate, post and cap, so a stream that lands on them is credited; a load on the cap that overhangs the tray shadows it. From a tap at `opening` 0.125 (0.0103 m³/s) a dry pad saturates in 0.03125 / 0.0103 = 3.0 s; more is pending overflow and leaves at the spout. Pressed, it takes only up to C(x).
+- **It keeps its water** until pressed, in any mounting: upright the preload holds the press with 3 − 1.96 = 1.04 N to spare (the worst case), on its side with 3 N, inverted with 4.96 N.
+- **It can be used again.** Released and re-wetted, it gives again; this is the difference from the Priming bulb, which cannot refill.
+- **Where the water goes.** From the spout, 0.09 m above the tray's underside, the stream starts with the static tray's velocity, zero (L9), and falls straight down beside the tray. A basin can go under it only if the pad stands above the basin's 0.55 m rim; the reference rig below places it so.
+- **Tick order.** The store reads the travel committed by the previous substep (L16).
 
-- **Requirement row** ([element-171](../requirements.md#element-171)): "Mechanical compression expels retained liquid from a porous store." Outcome: "A dry pad cannot produce water and squeezing consumes work." No variants.
-- **Map row**: "Source-specific composition: Mechanical compression and pressure/porous store coupling expel conserved liquid; capacity alone is insufficient."
-- **Research** ([component research](../../component-research.md#water)): "Absorbing store + bounded capillary transfer + compression input"; "compression releases it".
-- **Integration task** [sequence-task-531](../requirements.md#sequence-task-531): finite absorption/storage observable before it acts.
-- **Campaign**: first use 81–90, reuse 91–100, 131–140, 146–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
-- **Legacy.** None found. Searched the Epic 7 deletion scope at `a6c914e` for "squeeze", "pad", "porous", "water": no element source. Pressure-plate legacy is harvested in [CAT-052](CAT-052-pressure_plate.md).
+**Reference rig (rows Z1 to Z8).** The pad is static and is placed with its tray underside 0.65 m above the bench on a Wall 0.12 × 0.65 × 0.62 (turned so its 0.12 m is along X; faces at x = ±0.06) under its centre. A Catch basin ([EL-004](EL-004-catch-basin.md): interior 1.25 × 0.40 × 1.0, floor datum (0, −0.125, 0)) stands on the bench with its long axis along X, its near outer wall face at x = 0.09 (0.03 m clear of the Wall) and its near inner face at x = 0.21, so the spout (x = 0.31, 0.74 m above the bench) is 0.10 m inside the basin's interior in plan and 0.19 m above its rim; the tray's underside clears the basin's rim by 0.10 m.
 
-**Files harvested:** none.
+## Engine capabilities
 
-## 5. Acceptance outline
+Map families (navigation only, D14): CapillaryTransport, EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
 
-Follow the [EL-171 row](../requirements.md#element-171).
-- **Chrome UI recipe.** In free play place the squeeze pad with `initial_wet` 1 set by the real parameter control, a Catch basin under its outlet, and a Ramp that rolls a Bowling ball onto the plate. Run.
-- **Positive.** The ball lands, the plate settles about 0.1 m below its resting position, liquid drips into the basin by exactly the volume the pad loses. Quasistatic loading expels about 0.029 m³; a rolling impact can compress farther before settling, so compare yield to the maximum observed compression: 0.3 × x_max m³, bounded above by 0.036 m³ at the travel stop, and the ball's kinetic and potential energy pays the compression.
-- **Negative/control.** A dry pad (`initial_wet` 0) squeezed by the same ball compresses identically and produces no liquid. A pad with no presser stays at its resting position and keeps its liquid.
-- **Boundaries.** Basketball (0.025 m below rest, small yield); repeated presses yield nothing more once retained volume is below C(x); release lets the plate return to its resting position without drawing liquid back from the basin.
-- **Run/Reset.** Plate position, retained volume and basin volume restore exactly.
-- **Save/Load.** `initial_wet`, pose and the outlet link round-trip; out-of-range values reject.
-- **Integrations.** EL-036 Sprinkler wetting the pad, EL-025 tipping bucket fed by the drip.
+| Row | Mark | Use here |
+| --- | --- | --- |
+| W1 static tray; W21 press body with a box and Cylinders | present | bodies |
+| W18 prismatic slider with limits, spring stiffness and damping | present | press |
+| W22, W23 authored state, refusals | present | `initial_volume` |
+| W4 fluid port contract | present, untested | store |
+| `CommittedPrismaticPhase` driver (`CuriousContraptions.Abstractions/ElementPresentation.cs:31`) | present, untested | pad height (confirmed as an enum member only; no test of this driver was opened) |
+| G8 spring rest coordinate outside the travel | narrower: refused today (`MechanicalValueDomain.cs:81`) | `ENGINE-JOINT-KINDS` |
+| W6 store; W8 sample-path credit inside a declared interior; W9 pending overflow at an overflow point | missing | `ENGINE-LIQUID` |
+| Capacity bound to a committed coordinate (L4), its excess pending overflow through the declared relief (L9, A8) | missing | `ENGINE-LIQUID` |
+| Porous store: retention at every orientation (L11) with a declared interior (L4, A6) | missing | `ENGINE-LIQUID` |
+| W12 fill-fraction driver; W13 m³ unit | missing | W12: `ENGINE-LIQUID`; W13's m³ unit: `ENGINE-GAS-NETWORK`, which lands first (EL-001 W13; owner decision 18, 22 November 2026) |
+| Liquid store as thermal node | missing | `ENGINE-THERMAL` |
 
-## 6. Open questions
+Counts (by row): 3 present, 2 untested, 1 narrower, 5 missing. One owner per capability: liquid (`ENGINE-LIQUID`), m³ unit (`ENGINE-GAS-NETWORK`), spring rest coordinate (`ENGINE-JOINT-KINDS`), thermal node (`ENGINE-THERMAL`). No socket, so no W3 row.
 
-1. Whether the pad reabsorbs liquid standing in its tray after release: S421 decision (proposed: only liquid that reaches the pad surface).
-2. Whether the press can be driven through a mechanical shaft (crank) as well as contact load: owner decision.
-3. Liquid density ρw = 16 kg/m³ (proposed) is one water-family constant shared with Batch F's EL-001–EL-022 specs: owner decision under S418/S420.
-4. Shared static water-vessel material for the tray (restitution 0.12, friction 0.3, proposed): owner decision.
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** Two bodies, eight colliders, one slider, one porous store with a bound capacity, an aperture, an interior and an overflow point, one parameter, three bindings.
+2. **Generic laws.** The press moves by contact against a declared spring and damper. Release is "a store never holds more than its capacity" with the capacity bound to a coordinate (L4), the excess pending overflow (L9). "A dry pad cannot produce water" is V = 0. Wetting is the stream credit of L8 inside a declared interior.
+3. **Three layers.** *Colliders:* five tray boxes; a plate box and two Cylinders on the press. *Visuals:* the press art follows its body. *Animation:* the pad block is enclosed art scaled by the committed travel; it is not a collider and nothing can reach it.
+4. **One-way flow and typing.** Mechanics → coordinate → store capacity → liquid; nothing flows back.
+5. **Flat-state counts.** Bodies 2 (1 static, 1 dynamic); colliders 8 (6 boxes, 2 Cylinders); joints 1 prismatic; drives 0; sensors 0; signal nodes 0; liquid nodes 1 store; thermal nodes 1, one per store; sockets 0; immersed ports 0; outlets 0; open apertures 1; overflow points 1; bindings 1 body + 2 drivers; parameters 1.
+6. **Performance fitness.** Eight colliders against the Pressure plate's ten. The walls enclose the pad art, so no visible solid is without a collider; the post and cap let a load wider than the tray press the plate. One bounded interior per store and one stream's fixed sample paths while the spout runs, candidates from `ENGINE-SPATIAL-QUERIES` (L18).
+7. **Tests are scenarios.** Rows Z1 to Z8.
+
+## Sources and legacy
+
+- Requirement: "Mechanical compression expels retained liquid from a porous store"; outcome "A dry pad cannot produce water and squeezing consumes work." No variants.
+- Integration [sequence-task-531](../requirements.md#sequence-task-531). Component research [water](../../component-research.md#water): "compression releases it".
+- **Legacy.** None at `a6c914e` (searched for "squeeze", "pad", "sponge", "water"). **Files harvested:** none.
+
+## Acceptance outline
+
+Authority: [element-171](../requirements.md#element-171). Tolerances L17. Planned class `SqueezePadTests`. Every row uses the reference rig; every load is set on the cap at rest at Run start; "saturated" is `initial_volume` 0.03125.
+
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| Z1 | Given a saturated pad and a 1.5 kg Weight set on the cap, when Run advances 10 s, then the basin has gained 0.0171 m³ within 0.004 m³ and the pad holds 0.0141 m³ within 0.004 m³ | `SqueezePadTests.APressReleasesWhatNoLongerFits` | Z2, Z3 | Bowling ball: 0.0250 m³ |
+| Z2 | Given a dry pad under the same Weight, when Run advances 10 s, then every committed flow is under 0.0005 m³/s (L17) and the basin stays empty | `SqueezePadTests.ADryPadProducesNoWater` | Z1 | — |
+| Z3 | Given a saturated pad with nothing on the cap, when Run advances 20 s, then its volume is unchanged within 0.004 m³ and the travel stays under 0.002 m | `SqueezePadTests.AnUnpressedPadKeepsItsWater` | Z1 | mounted on its side and inverted: the same |
+| Z4 | Given Z1, then the Weight has descended 0.137 m within 0.015 m and the potential energy of Weight and press has fallen by at least the spring's 1.35 J | `SqueezePadTests.SqueezingConsumesWork` | Z3 | a Tennis ball authored at 0.1 kg (2.94 N with the press against the 3 N preload) does not move the plate (travel under 0.002 m) and releases nothing (pad unchanged within 0.004 m³) |
+| Z5 | Given a pad authored at 0.025 m³, when Run advances 10 s under a 0.35 kg Tennis ball, then nothing leaves (C = 0.0283 m³); under the 1.5 kg Weight it gives 0.0109 m³ within 0.004 m³ | `SqueezePadTests.OnlyTheExcessLeaves` | Z1 (saturated: 0.0171 m³) | — |
+| Z6 | Given a dry pad under a tap at `opening` 0.125 on a full Water tank standing on a Wall 1.24 × 1.69 × 1.24 (so the tap's free `End` is 1.84 m above the bench, 0.5 m above the aperture at 1.34 m) and its stream landing inside it, when Run advances 10 s, then the pad holds 0.03125 m³ within 0.004 m³ and the remainder has left at the spout into the basin | `SqueezePadTests.AStreamWetsThePad` | stream beside the tray: the pad stays dry | the stream landing on the cap: credited the same |
+| Z7 | Given `initial_volume` below 0, above 0.03125 or non-finite, then it is refused with a typed reason | `SqueezePadTests.AVolumeOutsideItsLimitsIsRefused` | limits admitted | next f32 beyond each limit |
+| Z8 | Given a run, then Reset restores the press and the authored volume; save and load keep `initial_volume` and the pose; the ledger identity holds at every sampled tick of Z1 | `SqueezePadTests.ResetSaveLoadAndLedger` | — | — |
+
+Hand calculations. Z1, Z4 and Z5: the table and Behaviour. With 1.7 kg on the spring ω_n = √(100/1.7) = 7.67 s⁻¹ and the slower root is 7.67 × (1.53 − √(1.53² − 1)) = 7.67 × 0.372 = 2.9 s⁻¹, a 0.35 s time constant: settled well inside 10 s. Z6: the tap's stream leaves at 0.0103 / 0.01885 = 0.55 m/s and lands 0.55 × √(2 × 0.5 / 9.81) = 0.18 m out; by 10 s the tank has given about 0.10 m³, so about 0.07 m³ has left at the spout.
+
+Generic cover: W22, W23. No wire port. Chrome recipe (pending): wet the pad from a tap, put a basin under its spout, set a Weight on the knob.
+
+## Open questions
+
+All resolved; none needs the owner.
+
+1. Shared declaration with the Sponge: no. The Sponge is a loose body; this is a fixture with a press. They share the porous-store rule (L4, L11).
+2. Force from the liquid on the plate: none (L12 c). The declared spring is what makes squeezing cost work.
+3. Capacity parameter: none (D13); `initial_volume` is authored so a lesson can start wet.
+4. Pad art exposed above the walls: avoided by walls as high as the pad, so the art is enclosed.
+5. Interior: the aperture is raised to the cap's top so the store's own press lies inside its interior; a stream landing on the press is credited, not spilled.
+6. Damping: 40 N·s/m, so a load set at rest presses to its static travel and no further. A load dropped from a height can press further; rows set loads at rest.
+
+## Integration
+
+- **Works with.** Weight, balls, Wall, Linear pusher (delivered) as presses and stand; EL-003, EL-004, EL-014, EL-036 (not delivered).
+- **Campaign.** Chapter 9 "Stored Potential", levels 81–90; reuse 91–100, 131–140, 146–150. Needs the lesson-fixture story (S8).
+
+## Delivery
+
+- **Slice shape.** Single element, after EL-034 and EL-168 (which prove the porous store and the bound capacity).
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (stream samples, immersion and point queries, L18), `ENGINE-ISLANDS-SLEEP` (a change of contents or level wakes what it loads; not delivered, and nothing here assumes sleeping exists) and `ENGINE-CAPABILITY-INSTANCES` (declared sockets, outlets and immersed-port locators); then `ENGINE-GAS-NETWORK` (the one fluid port record); then `ENGINE-LIQUID`; then `ENGINE-THERMAL` (every liquid store is a thermal node, owner decisions 18 and 20), plus `ENGINE-JOINT-KINDS` (the spring rest coordinate); then EL-001, EL-003, EL-004, EL-034, EL-168; then S7.
+- **Files.** Adds `elements/SqueezePad/SqueezePad.csproj`, `SqueezePadElementDeclaration.cs`, `squeeze_pad.tscn`, `icon.svg`, `CuriousContraptions.tests/SqueezePadTests.cs`; edits `CuriousContraptions.slnx` and this spec. Other lists as EL-001.
+- **Review tier.** Data-only if the probe finds the bound capacity and the porous store delivered.
+- **Disqualifiers.** A store capacity that cannot follow a prismatic coordinate; an interior that cannot contain the store's own press; a scale binding that cannot read slider travel; a slider spring rest coordinate outside the travel still refused.
+
+## Coverage binding (planned, not yet live)
+
+Blocked on the coverage follow-on story S7. The named-identity binding section (the EL-239 form) cannot be written yet: the ledger entry links only the campaign coverage row; `sequence-task-724` is co-anchored with `element-171`, not with a todo; no `s464` anchor.

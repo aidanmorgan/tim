@@ -1,77 +1,122 @@
 # EL-019 · Water check valve — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-019 delivery slice](../invest/named-elements.md#element-019). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-019 delivery slice](../invest/named-elements.md#element-019). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md); the pipe-kit values are in [EL-008](EL-008-straight-water-pipe.md). Sizes are in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-019 · Water check valve · Water |
-| Requirement anchor | [element-019](../requirements.md#element-019); source record [todo-338](../requirements.md#todo-338); integration task [sequence-task-389](../requirements.md#sequence-task-389) |
-| Named entry | [element-019](../invest/named-elements.md#element-019); per-element proof owner S440 |
-| CAT spec refined | None. |
-| Related identities | Pipe kit [EL-008](EL-008-straight-water-pipe.md)–[EL-012](EL-012-water-pipe-cap.md), [EL-002](EL-002-header-tank.md), [EL-022 Water pump](EL-022-water-pump.md) (prevents back-flow through a stopped pump line), EL-024 Primed siphon |
-| Roadmap story | [EL-019 delivery slice](../invest/named-elements.md#element-019); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-019 · Water check valve · Water |
+| Anchors | [element-019](../requirements.md#element-019), co-anchored `sequence-task-572`; source record [todo-338](../requirements.md#todo-338); integration [sequence-task-389](../requirements.md#sequence-task-389); ledger [element-019](../invest/named-elements.md#element-019), owner S440 |
+| Disposition | To deliver as a single element |
+| Planned package | id `check_valve`, directory `elements/CheckValve/`, title "Check valve" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` |
+| Related | Pipe kit [EL-008](EL-008-straight-water-pipe.md) to [EL-012](EL-012-water-pipe-cap.md), [EL-002](EL-002-header-tank.md), [EL-022](EL-022-water-pump.md), EL-024 |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: the Clear pipe (a tube with two mouths).
 
-**Element declaration:**
-- **Bodies and shapes.** One static body: an inline housing 0.40 m long with a bulged centre, radius 0.18 m; collider one box 0.40 × 0.36 × 0.36 m (**proposed**: the bulge is wider than a pipe so the valve is findable in a pipe run).
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None (the flap is not a simulated body).
-- **Typed ports.** `WaterInlet` (upstream) and `WaterOutlet` (downstream) standard mouths. Unlike a pipe they are not interchangeable: the declared permitted direction is inlet → outlet. Domain `Water` (**proposed**).
-- **Sensors and activation.** None.
-- **Work and energy stores.** None. Closed state enum `CheckValveState { Seated, Open }`. Open when the head difference across the valve, inlet minus outlet, exceeds the cracking head; seated otherwise. Open: the orifice law at full bore in the permitted direction. Seated: zero flow in either direction (**proposed** zero reverse leakage: the requirement says reverse head "cannot flow through a closed seat").
-- **Parameters.** None authored. Fixed cracking head 0.02 m (**proposed**: small enough that any real head opens it, large enough that f32 noise at equal levels cannot chatter the seat).
-- **Cosmetic curves and UI bindings.** Flap angle ← committed state, eased open/closed ([component research](../../component-research.md#water), line 34). A raised flow arrow on the housing shows the permitted direction.
-- **Art.** Cream housing `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`), gold arrow `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`), navy collars `#293954` (`DESIGN.md@a6c914e:L147-L147`) (**proposed**: direction by a raised arrow shape, not colour alone).
-- **Catalogue and inventory entry.** Id `check_valve`, title "Check valve", category "Water", kind `CheckValve` (all **proposed**).
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, the liquid fitting and seat declaration of `ENGINE-LIQUID` (W4, W7, W14).
+- **Body.** One static body, mass 0. Axis local X; origin at the centre.
+- **Colliders (two).** Tube: bore 0.10, outer radius 0.14, length 0.40. Bulge: solid Cylinder, radius 0.15, length 0.16, axis X, at the centre (the kit rule: nothing reaches more than 0.15 m below the axis).
+- **Liquid node.** One fitting with one **one-way seat** (L14): full bore area A₀, direction `Start` → `End`, cracking head h_c = 0.02 m. Q = K₀·√(Δh − 0.02) while the head at `Start` exceeds the head at `End` by more than 0.02 m; otherwise 0 in both directions. There is no stored open or closed state: the flow falls smoothly to zero at the cracking head, so nothing can chatter.
+- **Mouths (pipe bore).** `Start` at (−0.20, 0, 0), normal −X, Intake; `End` at (+0.20, 0, 0), normal +X, Discharge. They are not interchangeable.
+- **Parameters.** None. The cracking head is fixed: small enough that any real head opens the seat, large enough to be a visible final difference (0.02 m is two level tolerances).
+- **Presentation.** `Visual/Flap` `LocalRotationZ` from the committed seat flow: seated at 0, open 60° at 0.02 m³/s and above, clamped (W12, missing).
+- **Palette.** `ElementCategory.Control`; palette order 412 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour cream.
 
-**Variants.** The requirements row lists no variants.
+### Art and solidity
+
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Tube` | Tube 0.40 long, cream `#fff8e9`, navy flush end bands | solid, hollow; the Tube collider | body pose (static) |
+| `Visual/Bulge` | Cylinder radius 0.15, length 0.16, cream | solid; the Cylinder collider | body pose |
+| `Visual/Arrow` | Gold `#f7cb52` arrow along the bulge, pointing `Start` → `End`, flush | decorative: printed flat | nothing |
+| `Visual/Flap` | Gold flap glyph in a printed window on the bulge, flush | decorative: printed flat, moved by a binding | presentation binding |
+| `Loc_Port_mouth_start`, `Loc_Port_mouth_end` | Locators, bore 0.10 | none | nothing |
+
+Icon: a pipe with a round bulge and an arrow. It differs from the Tap (square bonnet, lever) by the round bulge and arrow; direction reads from the arrow's shape.
+
+### Behaviour and numbers
+
+- **Forward.** Two Water tanks on the bench, A full (1.0 m³) and B empty, joined pipe–valve–pipe with the arrow from A to B. Three apertures in series (A's mouth join, the seat, B's mouth join): K = K₀/√3 = 0.04820. Liquid flows until the levels differ by the cracking head: A at 0.51 m, B at 0.49 m. With u = Δ − 0.02, du/dt = −2·K·√u / A, so it takes √0.98 / 0.04820 = **20.5 s**.
+- **Reverse.** With the valve turned round, or with B full and A empty, the head is against the seat: nothing flows, at any head. "Reverse head cannot flow through a closed seat."
+- **Equal levels.** Nothing flows; a difference under 0.02 m in the forward direction also passes nothing.
+- **With a pump.** Downstream of a pump ([EL-022](EL-022-water-pump.md)) it passes the pumped flow. A stopped pump is an open edge (L15), so without this valve the lifted liquid runs back down; with it, the liquid stays. This is the "prevent backflow" decision of sequence-task-389, and EL-022 row M7 proves it with a control that fails without the valve.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-019`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W2 Tube; W21 Cylinder collider | present | body |
+| W22 authored state | present | pose |
+| W4 fluid port contract | present, untested | fitting and mouth roles |
+| W3 tube mouth and snap | narrower | join not compiled |
+| W7 fitting and flow | missing | `ENGINE-LIQUID` |
+| W14 one-way seat with a cracking head | missing | `ENGINE-LIQUID` (gap in its text) |
+| W12 driver for a committed seat flow | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** A directional network node (component research line 34 "direction") and pressure-difference evaluation ([S416](../invest/decisions.md#s416) pressure-work → S419; advection → S418); a committed-state feedback for the flap cosmetic. Required in the linked delivery slice.
-- **Element dependencies.** Two head sources or a supply and a receiver joined by pipes (EL-001/EL-002, EL-008).
+Counts: 3 present, 1 untested, 1 narrower, 3 missing; one owner.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, two colliders, one fitting with a one-way seat, two mouths, one binding. The earlier `CheckValveState { Seated, Open }` is gone: there is no state to hold.
+2. **Generic laws.** The one-way seat is a declared property of an aperture (L14), available to any part. "Pressure difference opens the permitted direction" is the head difference in L7.
+3. **Three layers.** *Colliders:* Tube and Cylinder. *Visuals:* the table above; arrow and flap are flush. *Animation:* the flap reads the committed flow.
+4. **One-way flow and typing.** Mouth roles are enums; the direction is which mouth is `Start`.
+5. **Flat-state counts.** Bodies 1 (static); colliders 2 (1 Tube, 1 Cylinder); joints 0; drives 0; sensors 0; liquid nodes 1 fitting; seats 1; mouths 2; bindings 1; parameters 0.
+6. **Performance fitness.** Two colliders, fewer than the Clear pipe's three; the bulge is a visible solid. One aperture row.
+7. **Tests are scenarios.** Rows CV1 to CV6.
 
 ## Sources and legacy
 
-- Requirements row: "Reverse head cannot flow through a closed seat." No variants.
-- Refinement [S707](../invest/refinements.md#s707) check-valve "Block reverse flow"; integration [sequence-task-389](../requirements.md#sequence-task-389) "prevent backflow"; family boundary [fluids](../invest/profiles.md#fluids) "reversed head does not flow uphill".
-- **Legacy search.** No liquid check valve. Gas-domain analogue:
+- Requirement: "Pressure difference opens the permitted direction and closes reverse flow"; outcome "Reverse head cannot flow through a closed seat." No variants.
+- Refinement [S707](../invest/refinements.md#s707) check-valve; [sequence-task-389](../requirements.md#sequence-task-389) "prevent backflow"; family boundary [fluids](../invest/profiles.md#fluids).
+- **Legacy search.** No liquid check valve. Gas analogue:
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | The gas nozzle supports forward flow only; a back pressure above source pressure is rejected with an exception, and equal pressures give NoFlow. | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L39-L57` | Carry forward "equal head gives no flow". Do not carry forward the exception: under the game-grade envelope reverse head simply seats the valve. |
+| 1 | The gas nozzle supports forward flow only; equal pressures give no flow; a reverse pressure throws. | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L39-L57` | Carry forward "equal head gives no flow". Not the exception: reverse head gives zero flow. |
+
+**Files harvested:** none of its own.
 
 ## Acceptance outline
 
-Point of truth: [element-019](../requirements.md#element-019).
+Authority: [element-019](../requirements.md#element-019). Tolerances L17. Planned class `CheckValveTests`. Rig: two Water tanks joined pipe–valve–pipe.
 
-- **Chrome recipe.** Two Water tanks joined by a pipe run with a Check valve in the middle (snapped inline, arrow pointing from tank A to tank B); tank A full, tank B empty.
-- **Positive.** Run: water flows A → B until the levels differ by less than the cracking head; the flap shows open, then seats.
-- **Negative / control.** Reverse the valve (arrow B → A) with the same tanks: the flap stays seated and nothing flows. Swap fills (A empty, B full) with the original orientation: nothing flows back.
-- **Boundaries.** Equal levels: seated, no chatter. Head difference just above 0.02 m opens; just below stays seated. A pump (EL-022) on the A side driving through the valve: flow passes forward; stopping the pump seats the valve and the delivered water stays in B.
-- **Run/Reset.** Volumes and state restore exactly. **Save/Load.** Orientation and joins survive reload.
-- **Integrations.** [sequence-task-389](../requirements.md#sequence-task-389).
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| CV1 | Given A full, B empty and the arrow from A to B, when Run advances until flow stops (stall guard 62 s), then A holds 0.51 m³ and B 0.49 m³ within 0.01 m³ and the total is unchanged (the level declares a Run length of 65 s, `ENGINE-RUN-LENGTH`, owner decisions 13 and 17) | `CheckValveTests.ForwardHeadFlowsUntilTheCrackingHeadRemains` | CV2 | flow has stopped by 20.5 s within 10% |
+| CV2 | Given the valve turned round in the same rig, when Run advances 20 s, then A keeps 1.0 m³ and B 0 | `CheckValveTests.ReverseHeadDoesNotFlow` | CV1 | — |
+| CV3 | Given A empty and B full with the arrow from A to B, then nothing flows | `CheckValveTests.NothingFlowsBackThroughTheSeat` | CV1 | — |
+| CV4 | Given A at 0.515 m³ and B at 0.485 m³ (difference 0.03 m), then liquid moves; given 0.505 and 0.495 (0.01 m), nothing moves | `CheckValveTests.TheSeatOpensOnlyAboveItsCrackingHead` | — | equal volumes: nothing moves |
+| CV5 | Given `End` unjoined and A full, then the valve's `End` discharges as a free end; given `Start` unjoined and liquid offered at `End`, nothing passes | `CheckValveTests.MouthRolesFollowTheArrow` | — | — |
+| CV6 | Given a run, then Reset restores both tanks; save and load keep the valve's orientation and both joins; a ball dropped on the bulge rests on it | `CheckValveTests.ResetAndSaveLoadKeepTheOrientation` | — | — |
+
+Generic cover: W22. Later-partner row: holding pumped liquid when the pump stops is [EL-022](EL-022-water-pump.md) row M7. Chrome recipe (pending): two tanks joined by pipes with a Check valve snapped between, arrow from the full tank to the empty one.
 
 ## Open questions
 
-1. Cracking head 0.02 m fixed, or authorable?
-2. Zero reverse leakage (proposed) versus a small declared leak?
-3. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). The orifice law and Cd = 0.6 are the S416 advection decision (→ S418).
+All resolved; none needs the owner.
+
+1. Cracking head fixed or authorable: fixed at 0.02 m (D13, D19).
+2. Reverse leakage: zero; the requirement says reverse head cannot flow.
+
+## Integration
+
+- **Works with.** Planned: EL-001, EL-002, EL-008, EL-022, EL-024. None delivered.
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-338`, shared by seven identities; `sequence-task-572` not co-anchored with a todo; no `s440` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID` including a one-way seat; EL-001; EL-008; S7.
+- **Files.** Adds `elements/CheckValve/CheckValve.csproj`, `CheckValveElementDeclaration.cs`, `check_valve.tscn`, `icon.svg`, `CuriousContraptions.tests/CheckValveTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A one-way seat implemented as a stored open or closed state; mouth roles not enforced; a seat that leaks in reverse.

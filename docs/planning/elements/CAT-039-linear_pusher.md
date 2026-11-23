@@ -1,8 +1,8 @@
 # CAT-039 · linear_pusher declaration readiness spec
 
-**Current delivery (24 October 2026):** [CAT-039 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Current delivery:** [CAT-039 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
 
-Story 7.0 CAT-039-D readiness spec. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Current-engine files are cited at the same commit. Values are authored as f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision); legacy `double`/`float` magnitudes carry forward only as authored values.
+Current contract for a delivered part, repaired on 22 November 2026 after the independent audit (`docs/planning/elements/readiness/audits/elements-batch-c.md`). Checked against `elements/LinearPusher/` on checkout `spec-drafts` (`8d1d68aa`); published main is `25df3cd5`, and its two later commits touch neither this package nor its tests. Sections 1–3 and 5–9 are current. Section 4 is the legacy harvest at `a6c914e`, kept verbatim as evidence; where it differs from the delivered declaration, the declaration governs. Values are f32 game values under [the numeric contract](../../gpu-f32-physics.md#numeric-representation-and-precision).
 
 ## 1. Identity
 
@@ -13,99 +13,70 @@ Story 7.0 CAT-039-D readiness spec. Baseline commit `a6c914e`. Legacy citations 
 | Requirement anchor | [CAT-039](../requirements.md#current-cat-039); retained behaviour [sequence-task-309](../requirements.md#sequence-task-309); consumers [CAT-039-I](../invest/current-consumers.md#cat-039-i) |
 | Mapped identities | None found in [named-elements](../invest/named-elements.md). EL-053 rotary-to-linear converter is a separate shaft-driven element, not this electric servo. |
 | Roadmap story | 11.3 Linear Pusher Telescopic Actuator ([epics](../../../_bmad-output/planning-artifacts/epics.md), Epic 11) Current [CAT-039 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member exists (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Status | **Delivered.** Package id `linear_pusher`, directory `elements/LinearPusher`. Slice record [11.3](../../../_bmad-output/implementation-artifacts/spec-11-3-linear-pusher.md) (`done`, commit `f476e279`). Browser case pending. Every residual slice (section 8) is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP` (power-bound trials and the resting head), `ENGINE-SUPPLY-DEMAND` (drive drain) and `ENGINE-CAPABILITY-INSTANCES` (the hard-coded socket glyphs). |
+| Disposition | Delivered catalogue part; no mapped named identity. EL-217 Reload shuttle, EL-220 Docking lift, EL-221 Parallel gripper and EL-237 Boxing glove plan to reuse its supplied-slider shape as separate elements (delivery-batches 1b, "Supplied sliders"). |
 
 ## 2. Declaration
 
-### Bodies and shapes
-- **Fixed frame (static body).** Base box centre (0, −0.5, 0), full size 1.6 × 0.2 × 1 m; barrel box centre (0, 0, 0), full size 1.2 × 0.65 × 0.65 m (`parts/LinearPusherPart.cs@a6c914e:L165-L166`; `AddBox` takes full size and stores half extents, `reference/cpu/MachinePart.cs@a6c914e:L352-L356`). Declare as a static `RigidBodyDeclaration` plus `ColliderDeclaration` boxes (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`).
-- **Head (dynamic body).** Solid sphere, radius 0.25 m, rest centre at frame-local (0.85, 0, 0) (`parts/LinearPusherPart.cs@a6c914e:L18-L19`, `parts/LinearPusherPart.cs@a6c914e:L24-L27`, `parts/LinearPusherPart.cs@a6c914e:L169-L172`). The sphere collider and `RigidMassProperties.Compile` cover it now (`engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51`).
-- **Telescoping rod.** Opaque collider box between the barrel face at x = 0.6 and the head centre x: centre ((0.6 + x)/2, 0, 0), half extents ((x − 0.6)/2, 0.06, 0.06) (`parts/LinearPusherPart.cs@a6c914e:L160-L161`). It is physical and blocks rays and bodies (`CuriousContraptions.tests/RuntimeQueryOwnershipTests.cs@a6c914e:L262-L281`). Its new representation is a Story 11.3 design decision (Open question 3).
+The current declaration is `elements/LinearPusher/LinearPusherElementDeclaration.cs`; the scene is `elements/LinearPusher/linear_pusher.tscn`.
 
-### Mass and material
-- Head mass 0.5 kg (`parts/LinearPusherPart.cs@a6c914e:L20`). Material: restitution 0, bounce threshold 0.1 m/s, friction 0.3 (`parts/LinearPusherPart.cs@a6c914e:L83`; field order `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`). Use `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`); rolling resistance is unspecified (Open question 6).
-
-### Constraints and joints
-- One prismatic (slider) guide from head to frame. Frame anchor (0.85, 0, 0); axis is frame +X (rotation vector (0, π/2, 0) on both frames); travel range [0, stroke]; both directions; connected-body collision disabled (`parts/LinearPusherPart.cs@a6c914e:L39-L50`). No slider declaration exists in `engine/gpu`; Story 6.4 adds it.
-- Self-locking brake: Hold mode locks the coordinate at its current value (`engine/physics/PhysicsServo.cs@a6c914e:L52`).
-
-### Typed sockets and ports
-All electrical. Local positions in metres (`parts/LinearPusherPart.cs@a6c914e:L84-L91`):
-
-| Socket | Direction | Local position |
+| Item | Delivered value | Source |
 | --- | --- | --- |
-| PowerIn | Input | (−0.45, −0.4, 0.5) |
-| ExtendIn | Input | (0.15, −0.4, 0.5) |
-| RetractIn | Input | (0.55, −0.4, 0.5) |
-| RetractedOut | Output | (−0.45, 0.4, 0.45) |
-| ExtendedOut | Output | (0.45, 0.4, 0.45) |
+| Interfaces | `ISliderElement`, `ISupplyElement`, `ISceneGeometryElement`, `IClippedExtrusionElement` | `:8` |
+| Bodies | 2 (1 moving): static frame (root) and the head `Visual/Head`; one prismatic constraint | `:18`, `:27` |
+| Frame colliders | foot and barrel boxes (drawn by their own proxies `col_Foot`, `col_Barrel`; see Art) | `linear_pusher.tscn:50`–`:53` |
+| Head | sphere collider r 0.25 m (`col_Head`); mass 0.5 kg, moments (0.0125, 0.0125, 0.0125) kg·m² (a solid sphere, 0.4·m·r²), gravity (0, −9.81, 0) | `:33`; `linear_pusher.tscn:65` |
+| Rod | a clipped extrusion on the prismatic coordinate, half-thickness 0.06 m, material of the head body, clipped by the frame: the exposed length is a collider | `:40`–`:41`; `linear_pusher.tscn:67` |
+| Materials | frame and head: restitution 0, friction 0.3, rolling resistance 0, threshold 0.1 m/s | `:27` |
+| Slider | frame anchor (0.85, 0, 0), axis local +X, travel [0, `stroke`], no spring, no damping, connected bodies do not collide | `:30`–`:32` |
+| Drive | supplied; target `stroke`, speed `speed`, acceleration `acceleration`, force `force`, power `force` × `speed`; `PrismaticTargetSelection.Directional` from supply nodes `positive` and `negative`; inactive response `SelfLock` | `:34`–`:38` |
+| Parameters | `stroke` m, default 2.4, 0.25–3; `speed` m/s, 1.5, 0.25–4; `acceleration` m/s², 12, 1–30; `force` N, 40, 1–100. All Real, editor policy Reject, Build only (descriptor defaults) | `:14`–`:17` |
+| Ports (all Electrical) | `PowerIn` Input, role PowerIn, (−0.45, −0.4, 0.5); `ExtendIn` Input, role FirstIn, (0.15, −0.4, 0.5); `RetractIn` Input, role SecondIn, (0.55, −0.4, 0.5); `RetractedOut` Output, role Supply, (−0.45, 0.4, 0.45); `ExtendedOut` Output, role Supply, (0.45, 0.4, 0.45); normals +Z | `:42`–`:49` |
+| Electrical nodes | `motor`: Consumer, 12 V, 24 Ω, capacitance 0, maximum 400 W. `distribution`: LogicGate, 12 V, 0.05 Ω, capacitance 0, maximum 400 W. Field order is (NodeId, Role, RatedVoltage, Resistance, Capacitance, MaxPower) (`CuriousContraptions.Abstractions/ElectricalContractValues.cs:15`–`:21`). Each is validated as finite and read by no law (only `Role` is read): unread dead data, to be consumed by the `ENGINE-SUPPLY-DEMAND` story or removed forward-only | `:50`–`:51` |
+| Supply graph | `PowerIn` → `power` node → the motor consumer and the two endpoint contacts (lower → `RetractedOut`, upper → `ExtendedOut`); `ExtendIn` → `positive`, `RetractIn` → `negative` | `:52`–`:65` |
+| Stores, events | none | `:26` |
+| Presentation | head follows package body 1; span `Visual/Rod` from the barrel face (0.6, 0, 0) to the head; `Visual/Indicator` albedo by `CommittedPrismaticPhase` (held, moving, blocked colours); pick radius 1.3 m | `:66`–`:76` |
+| Palette | category Power, order 40, colour (0.4, 0.72, 0.79) | `:11`–`:13` |
 
-The current `WorkshopSocket` enum has only ActivationOut, ActivationIn, Supply and PowerIn (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`). Story 11.3 adds ExtendIn, RetractIn, ExtendedOut and RetractedOut as enum members. The legacy wire names are snake_case, such as `extend_in` and `retracted_out` (`engine/MachineData.cs@a6c914e:L103-L137`).
+### Art and solidity (delivered scene)
 
-### Sensors and activation
-- Endpoint contacts: PowerIn routes to RetractedOut at the lower endpoint and to ExtendedOut at the upper endpoint, within the endpoint tolerance (`parts/LinearPusherPart.cs@a6c914e:L92-L96`; contact kind `engine/SceneElectricalContact.cs@a6c914e:L49-L55`).
-- No activation-domain port. The part consumes no `ActivationNetwork` node (`engine/gpu/ActivationNetwork.cs@a6c914e:L7-L14`).
+| Node | Mesh and pose | Layer and class |
+| --- | --- | --- |
+| `Visual/col_Foot` | navy box 1.6 × 0.2 × 1 m at (0, −0.5, 0) | **defect:** a collider proxy that is also drawn. Part B (row B8) separates it into an art mesh and a hidden proxy |
+| `Visual/col_Barrel` | cream box 1.2 × 0.65 × 0.65 m at the origin | the same defect and repair |
+| `Visual/Head/Sphere` with `col_Head` | cream sphere r 0.25 m; a separate `CollisionShape3D` | visual and collider already separate; moved by the head body's pose |
+| `Visual/Rod` with `col_Rod` | gold box, 0.12 m square, drawn as a span from the barrel face (0.6, 0, 0) to the head; the collider is the head body's clipped extrusion | visual moved by the span; solid through the clipped collider (row B6 checks they coincide) |
+| `Visual/Head/Ring` | cyan torus, inner radius 0.235 m, outer 0.255 m (centreline 0.245 m, tube 0.01 m), axis along travel | **defect:** proud by 5 mm, no collider. Part B (row B5) appends a torus on the head body |
+| `Visual/Indicator` | sphere r 0.065 m at (−0.4, 0.2, 0.34) | **defect:** drawn solid, no collider (row B4). Colour moved by a presentation binding |
+| `Visual/Socket_PowerIn`, `Socket_ExtendIn`, `Socket_RetractIn`, `Socket_RetractedOut`, `Socket_ExtendedOut` | navy spheres r 0.07 m at the five port positions | **defect:** drawn solid, no collider (rows B3, B4). Sockets keep their colliders (owner decision, 21 November 2026) |
+| `Visual/TravelMark0`–`4` | gold boxes 0.022 × 0.1 × 0.012 m at x −0.2, −0.05, 0.1, 0.25, 0.4 and z 0.333, on the barrel's front face | **defect:** raised, standing up to 14 mm off the face. Part B (row B9) redraws them as flat printing 0 to 0.5 mm in front of the face |
 
-### Work and energy stores
-- No store. Bounded drive: effort ≤ force, power ≤ force × speed, work per step ≤ power × step (`parts/LinearPusherPart.cs@a6c914e:L28-L32`; `engine/physics/PhysicsServo.cs@a6c914e:L78-L79`). Supply is binary, not a battery-energy model (`parts/LinearPusherPart.cs@a6c914e:L12`).
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| stroke | f32 | 0.25–3 | 2.4 | m | `parts/LinearPusherPart.cs@a6c914e:L99`; `parts/catalog/linear_pusher.tres@a6c914e:L12` |
-| speed | f32 | 0.25–4 | 1.5 | m/s | `parts/LinearPusherPart.cs@a6c914e:L100`; `parts/catalog/linear_pusher.tres@a6c914e:L12` |
-| acceleration | f32 | 1–30 | 12 | m/s² | `parts/LinearPusherPart.cs@a6c914e:L101`; `parts/catalog/linear_pusher.tres@a6c914e:L12` |
-| force | f32 | 1–100 | 40 | N | `parts/LinearPusherPart.cs@a6c914e:L102`; `parts/catalog/linear_pusher.tres@a6c914e:L12` |
-
-Maximum power = force × speed (W) is derived, not authored. The typed enum `PusherParameter { Stroke, Speed, Acceleration, Force }` names the parameters (`parts/LinearPusherPart.cs@a6c914e:L10`).
-
-### Cosmetic curves and UI bindings
-- Phase indicator colour: Extending or Retracting `#66b8c9`; Blocked or Conflict `#f7cb52`; otherwise `#556573` (`parts/LinearPusherPart.cs@a6c914e:L124-L128`). The phases are Holding, Extending, Retracting, Blocked, Conflict and Unpowered (`parts/LinearPusherPart.cs@a6c914e:L9`). Declare the indicator as a cosmetic binding (`engine/gpu/WorkshopCosmetic.cs@a6c914e:L7-L20`); no phase feedback source exists yet.
-- The rod mesh is an axis-affine map of the head coordinate (`parts/LinearPusherPart.cs@a6c914e:L148-L159`).
-
-### Art
-- Scene `parts/scenes/linear_pusher.tscn` holds only the script (`parts/scenes/linear_pusher.tscn@a6c914e:L1-L4`). Meshes come from `Build` (`parts/LinearPusherPart.cs@a6c914e:L162-L179`):
-  - navy base `#293954` and cream barrel `#fff8e9`;
-  - gold rod `#e8b764`, 0.12 m square;
-  - cream head sphere with a cyan ring (radius 0.2, tube 0.035, `#66b8c9`);
-  - five gold travel marks, 0.025 × 0.025 × 0.25 m, at x = −0.4 + 0.2i, y = 0.34;
-  - port spheres of radius 0.065 (outputs cyan, inputs gold) and an indicator of radius 0.07 at (0, 0.42, 0);
-  - pick radius 1.15 m.
-- Design authority: [DESIGN.md "Electric linear pusher"](../../../DESIGN.md#electric-linear-pusher).
-- Socket pictograms `extend_input`, `retract_input`, `extended_output` and `retracted_output`: `ui/WorkshopIcons.cs@a6c914e:L28-L31`. That file has no `linear_pusher` part pictogram.
-
-### Catalogue and inventory entry
-- Id `linear_pusher`, title "Linear pusher", category Power, colour (0.4, 0.72, 0.79) = `#66b8c9`, defaults as above (`parts/catalog/linear_pusher.tres@a6c914e:L6-L12`). No level in `content/puzzles.json` at `a6c914e` places or stocks it.
+Floating art, recorded and not repaired by part B: the `RetractedOut` and `ExtendedOut` sockets sit 7.6 cm clear of the barrel with nothing drawn between them and it. Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (status draft, follows part A); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `linear_pusher`. Design authority: [DESIGN.md "Electric linear pusher"](../../../DESIGN.md#electric-linear-pusher). No level in `content/puzzles.json` places or stocks the part.
 
 ## 3. Engine capabilities
 
 Capability families: see the [CAT-039 map row](../general-engine-element-map.md) and [catalogue coverage](../../coverage/catalogue-elements.json). They are not duplicated here.
 
-**Exists now**
-- Dynamic sphere head and static box frame: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`, `engine/gpu/RigidMassProperties.cs@a6c914e:L26-L51`.
-- Contact and friction in the TGS Soft solver, in the simulation worker:
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L230-L236` soft parameters;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L623` prepareContact;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L702-L719` friction;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L774` normal row;
-  - `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L878` sweep.
-- Electrical connection domain and PowerIn socket: `engine/gpu/WorkshopConnections.cs@a6c914e:L8-L13`.
-- Save codec: `engine/gpu/WorkshopSaveCodec.cs@a6c914e:L6-L10`.
+**Capability probe (22 November 2026).** Tests were found by name and line; none was run. Counts: 7 present, 0 present-untested, 0 narrower, 0 missing. Every row is a generic capability driven by this package's declaration; the engine holds no pusher code.
 
-**Missing**
-- Prismatic slider joint with travel limits and connected-body collision suppression: Story 6.4.
-- Electrical supply source and powered state: Story 8.1 (CAT-005 Battery).
-- Story 11.3 builds:
-  - a bounded joint drive with acceleration ramp, endpoint targets and self-locking hold;
-  - endpoint electrical contacts;
-  - the telescoping rod collider;
-  - the four new sockets.
+| Capability | Status | Symbol | Exercising test |
+| --- | --- | --- | --- |
+| Prismatic slider with parameter-bound travel | present | `ISliderElement`, `PrismaticSliderDescriptor` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:15`; `CuriousContraptions.Abstractions/MechanicalContractValues.cs:104`) | `LinearPusherTests.ParameterEndpointsCompileAndProduceUsefulMotion` (`CuriousContraptions.tests/LinearPusherTests.cs:228`) |
+| Supplied drive bounded in speed, acceleration, force and power, with two directional commands | present | `PrismaticDriveDescriptor`, `PrismaticTargetSelection.Directional` (`MechanicalContractValues.cs:89`, `:84`) | `LinearPusherTests.ExtensionReportsMotorWorkAndEndpointPowerOnTheNextElectricalTick` (`:52`); generic `DirectionalPrismaticTests.StartupIsNotBlockedAndCommandSlewDoesNotExceedDeclaredAcceleration` (`CuriousContraptions.tests/DirectionalPrismaticTests.cs:53`) |
+| Self-locking hold on no command, both commands or lost supply | present | `PrismaticInactiveResponse.SelfLock` (`MechanicalContractValues.cs:85`) | `LinearPusherTests.IndependentElectricalInputsHoldWithoutDeliveringWork` (`:38`), `LosingPowerLocksTheIntermediatePositionAndRetractResumesFromIt` (`:104`) |
+| Composed supply graph: logic node, consumers, endpoint contacts on a coordinate | present | `SupplyGraphDescriptor`, `SupplyContactDescriptor`, `PrismaticContactControl` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:30`, `:40`; `SignalContactControl.cs:13`) | `LinearPusherTests.BothEndpointConsumersFollowDepartureReturnAndSupplyRemoval` (`:65`), `OneSourceCanSupplyBothPowerAndCommandWithAnUnwiredCommandControl` (`:249`) |
+| Clipped extrusion collider (the rod) | present | `IClippedExtrusionElement`, `ClippedExtrusionDescriptor` (`CuriousContraptions.Abstractions/SceneGeometry.cs:19`, `:16`) | `ClippedExtrusionTests.ExposedMidspanPhysicallyBlocksAnApproachingBodyButAdjacentSpaceIsClear` (`CuriousContraptions.tests/ClippedExtrusionTests.cs:85`); `LinearPusherTests.ObstructionStopsTheHeadAndReportsBlockedWhileAnAdjacentWallDoesNot` (`:125`) |
+| Committed prismatic phase driving a state-valued presentation binding; span art | present | `PresentationDriver.CommittedPrismaticPhase` (`CuriousContraptions.Abstractions/ElementPresentation.cs:31`) | `LinearPusherArtTests.NativeHeadSpanAndIndicatorFollowCommittedMotionAndRestoreOnReset` (`CuriousContraptions.tests/LinearPusherArtTests.cs:13`) |
+| Save, load, Pause, Step and Reset | present | generic lifecycle | `LinearPusherTests.SaveLoadPauseStepAndResetPreserveCommandsParametersAndAuthoredState` (`:148`), `CargoTransferResetRestoresEveryAuthoredBodyAndSemanticReplay` (`:333`) |
 
-**Element dependencies**
-- CAT-005 Battery (Story 8.1).
-- An electrical command source for ExtendIn and RetractIn. The current CAT-063 Switch is activation-only (`engine/gpu/WorkshopConnections.cs@a6c914e:L32-L35`); see Open question 5.
-- Integration: sensor → delay → pusher, moving conveyor cargo into a tube ([sequence-task-309](../requirements.md#sequence-task-309)). This needs CAT-019 Conveyor and CAT-048 Pipe.
+**Engine gaps this part relies on (stated, not designed around).**
+
+- **Power bound by whole-world replay.** While any prismatic drive is active, each substep captures a whole-world snapshot, and when step work exceeds the declared bound the engine restores and re-solves the substep up to eleven times (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Motors.cs:35`–`:66`). That is work proportional to the scene. Engine gap owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026), whose contract confines drive-budget trials to the island they affect: the cost becomes proportional to the drive's island, not removed.
+- **Drive drain.** A supplied drive debits nothing from its source. Engine gap owned by `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`).
+- **No island sleeping.** Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026).
+- **Socket glyphs.** The four socket glyphs `Extend`, `Retract`, `Extended` and `Retracted` are hard-coded SVG in `ui/WorkshopConnections.cs:41`–`:44` and used by this package alone. Owned by `ENGINE-CAPABILITY-INSTANCES` (socket glyphs as declared lists).
+
+**Element dependencies.** Battery; an Electrical output for each command; Conveyor and Pipe for the lesson chain. All delivered.
 
 ## 4. Legacy harvest
 
@@ -168,25 +139,56 @@ Capability families: see the [CAT-039 map row](../general-engine-element-map.md)
 
 ## 5. Acceptance outline
 
-This outline points to [CAT-039](../requirements.md#current-cat-039), [sequence-task-309](../requirements.md#sequence-task-309) and Story 11.3 rather than restating them.
-- **Chrome UI recipe.**
-  1. In actual Chrome, place a Battery and the Linear pusher from the toolbox.
-  2. With the contextual wiring UI, wire Battery Supply to PowerIn, and wire two electrical command sources to ExtendIn and RetractIn.
-  3. Place a Bowling ball in front of the head.
-  4. Verify the placed pose and the typed connections from the committed construction read.
-- **Positive.** Extend pushes the ball forward at bounded speed. The head halts and holds at full stroke, and ExtendedOut powers its load on the next electrical tick.
-- **Negative/control.** Without supply the head holds at zero extension with zero work. Both commands together brake. A miss (no cargo) moves only the head.
-- **Boundaries.** Parameter range edges and rejections (facts 18, 25); stall against a wall (facts 16, 26); vertical low-force support (fact 20); rotated mounting (fact 15).
-- **Run/Reset.** Reset at mid-stroke restores the construction with zero extension and zero work (fact 17).
-- **Save/Load.** A round trip preserves parameters, ports and connections, and the replay is identical (fact 23).
-- **Integrations.** Sensor → delay → pusher → conveyor cargo → tube, after CAT-019 and CAT-048.
+Requirement: [CAT-039](../requirements.md#current-cat-039) and [sequence-task-309](../requirements.md#sequence-task-309). The Chrome recipe (place a Battery and the pusher, wire Supply to `PowerIn` and two Electrical sources to `ExtendIn` and `RetractIn`, place a Bowling ball before the head, verify from the committed construction read) is queued for the post-catalogue browser phase.
 
-## 6. Open questions
+**Native tests that exist per requirement criterion (22 November 2026; none was run for this review).** In `CuriousContraptions.tests/LinearPusherTests.cs`. Independent supply and commands, conflict and no command hold: `:38`, `:249`. Power loss locks, retract resumes (interruption and reversal): `:104`. Endpoint outputs on the next electrical tick: `:52`, `:65`. Low-force gravity support: `VerticalPackageLiftsCargoOnlyWithSufficientDeclaredForce` (`:322`). Stall and obstruction: `:125`. Miss and rotated mounting: `RotatedSphericalHeadPushesCargoAndLateralClearanceMisses` (`:307`). Parameter range edges: `:228`. Head and rod collider, indicator and span follow motion: `:125`, `LinearPusherArtTests.cs:13`. Rope and cargo: `HeadTransfersLoadThroughCargoToARopeAndDisconnectingTheRopeReleasesTravel` (`:179`). Lifecycle: `:148`, `:333`. Lesson chain, sensor → delay → pusher → conveyor cargo → pipe, with its unconnected control: `LinearPusherIntegrationTests.PhysicalSensorAndDelayPushConveyorCargoIntoPipeOnlyWithTheCommandConnection` (`CuriousContraptions.tests/LinearPusherIntegrationTests.cs:58`). Wrong-kind connection, generic: `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`BundlePortsTests.cs:262`).
 
-1. Is the self-locking hold ideal (the legacy locked range) or bounded by `force`? Unspecified — owner decision.
-2. **Epic story vs requirement conflict.** Story 11.3 configures a 1.0 m stroke while the catalogue default is 2.4 m (`parts/catalog/linear_pusher.tres@a6c914e:L12`), and it wires the pusher to a switch, but the current CAT-063 Switch is activation-only (`engine/gpu/WorkshopConnections.cs@a6c914e:L32-L35`) while ExtendIn and RetractIn are electrical. How is stroke configured in the UI (or which qualification fixture is used), and which electrical source replaces the switch? Unspecified — owner decision.
-3. How is the telescoping rod represented under one-way data flow: as a compound child of the head, a separate guided body or a frame collider? Unspecified — Story 11.3 design decision.
-4. Which f32 tolerances replace the 1e-6 m endpoint tolerance and the 1e-6 m/s Blocked speed? Unspecified — owner decision.
-5. Which current parts supply electrical ExtendIn and RetractIn commands, given that CAT-063 Switch is activation-only (see Open question 2)? Unspecified — owner decision.
-6. What rolling resistance does the head material use? The current declaration requires a value. Unspecified — owner decision.
-7. Does placement assistance apply to the pusher frame and head? Unspecified — owner decision.
+**Residual acceptance rows.**
+
+| Row | Given / When / Then | Planned test | Control | Boundary | Tolerance and stall guard |
+| --- | --- | --- | --- | --- | --- |
+| LP-R1 parameter refusal | Given a saved or edited pusher whose `stroke`, `speed`, `acceleration` or `force` is below its minimum, above its maximum, NaN or infinite, When it is admitted, Then it is refused with a typed reason and the construction is unchanged | `LinearPusherTests.AnOutOfRangeOrNonFiniteParameterIsRefusedAndChangesNothing` (theory over the four keys); superseded by row R2 of the conformance suite (S4) if that lands first. The refusal code is one generic seam (`engine/gpu/InstanceParameters.cs:37`–`:49`) | the range edges of `:228` are admitted | one f32 step outside each bound | exact refusal; no float tolerance |
+| LP-R2 travel marks print flush; sockets, indicator and ring solid; foot and barrel proxies separated | rows B3–B6, B8 and B9 of visible-solid remainder part B | owned by that contract | — | — | — |
+
+Test to correct at its next edit: `LinearPusherTests.cs:52` uses a 1e-6 J allowance, which is not a gameplay bound under the [float rules](../../testing-guidance.md#float-comparison-and-effort-rules).
+
+## 6. Decisions
+
+Every question the harvest raised is decided; none needs the owner.
+
+1. **Hold.** Ideal self-locking, not bounded by `force`: the slice record states "power loss engages the ideal self-locking brake" and the declaration uses `PrismaticInactiveResponse.SelfLock`.
+2. **Stroke and command source.** Stroke is the `stroke` parameter in the generic editor (default 2.4 m). `ExtendIn` and `RetractIn` are Electrical inputs, so a command comes from an Electrical output. A Signal-domain sensor reaches them through a supplied part: the delivered lesson chain is Impact switch → Delay box → Hold timer, whose Supply output feeds `ExtendIn` (`LinearPusherIntegrationTests.cs:58`). One source may feed both power and a command (`LinearPusherTests.cs:249`).
+3. **Rod.** A clipped extrusion owned by the head body and clipped by the frame (`IClippedExtrusionElement`).
+4. **Tolerances.** No legacy 1e-6 figures are carried; tests take their bounds from the quantity under the float rules.
+5. **Electrical command sources.** Delivered parts with an Electrical output (role Supply): Battery, Impact switch, Hold timer, Pressure plate, Counter, State latch, and this part's own endpoint outputs. The Ball detector and Delay box are Signal-domain only.
+6. **Head rolling resistance.** Zero (slice record: the guide constrains rolling).
+7. **Placement assistance.** None of its own: generic authored poses in Build; the frame is static during Run.
+8. **Travel marks (decided 22 November 2026 under the standing delegation).** The five marks are a fixed printed scale on the barrel. The requirement's "travel marks … follow actual motion/work" (`docs/planning/requirements.md:692`) is met by the head and rod moving against that scale, asserted in `LinearPusherArtTests.cs:13`. Reason: a scale that moved with the head would measure nothing.
+
+## 7. Integration
+
+- **Collaborators, all delivered:** Battery (Supply → `PowerIn`; Electrical Output to Input at both ends), Impact switch, Hold timer, Pressure plate, Counter, State latch (Electrical outputs for the commands), Delay box and Ball detector (through a supplied part), Conveyor, Pipe, Wall, balls, Weight, Rope anchor. Both endpoint outputs have role Supply and feed any `PowerIn`.
+- **Ropes are solid (owner decision, 22 November 2026).** Ropes get colliders through the engine story `ENGINE-CONNECTION-MATERIALS`; the delivered rope is drawn without one, a visible-solid defect owned by that story. The pusher's rope test (`LinearPusherTests.cs:179`: the head pushes cargo that is tied to a rope) is re-run when strands collide: a solid strand may touch the barrel or foot, a point for that story's probe.
+- **Numbers against collaborators.** The default 40 N pushes a 4 kg Bowling ball along the bench (friction 0.3 × 4 × 9.81 ≈ 11.8 N) and lifts about 3.5 kg of cargo plus its own 0.5 kg head vertically, so it cannot lift a Bowling ball at the default and can at 100 N. Stroke 2.4 m spans a pipe bore, 1.3 m across.
+- **Campaign.** No level in `content/puzzles.json` places a Linear pusher. S8 is not needed.
+- **Coverage binding.** Catalogue key `linear_pusher` (CAT-039).
+
+## 8. Delivery and residuals
+
+- **Delivered** by 11.3.
+- **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it. The stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP`, `ENGINE-SUPPLY-DEMAND` and `ENGINE-CAPABILITY-INSTANCES` (section 3).
+- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states; it changes the shared matcher). (2) LP-R1: one test, data-only tier, or absorbed by S4.
+- **Supply drain.** A supplied drive debits nothing today, for this part as for the Motor and the Powered gate. Owned by the engine story `ENGINE-SUPPLY-DEMAND`, which also decides whether the two electrical nodes' unread values become the standing demand or are deleted. The pusher needs no declaration change beyond that.
+- **Probe re-check for part B:** collider order on both bodies is unchanged (head sphere, then rod, then the appended ring), and the declared footprint stays 2 bodies, 1 moving, 1 prismatic.
+
+## 9. Engine conformance (owner instruction, 22 November 2026)
+
+**Verdict: Conforms with fixes.** The package is declaration data only. Fixes: the layer-separation defect in the scene (point 3), owned by visible-solid remainder part B; unread electrical node values (point 1); and the engine gaps the part relies on (section 3 and point 6), each owned by an engine story of the programme (owner decision 3a). No engine, bundle, abstraction or `ui/` source names this element; the only hits are coverage and browser-tool tables under `tools/`.
+
+1. **Declaration data only.** Two bodies, scene colliders, one slider with a declared drive, one clipped extrusion, four parameters, five ports, two electrical nodes, a six-node supply graph and presentation bindings. The six phases are the engine's `PrismaticDrivePhase` enum for any directional drive, not a state machine in the package. Fix: the two electrical nodes carry values no law reads (section 2); `ENGINE-SUPPLY-DEMAND` consumes or deletes them.
+2. **Generic laws.** Travel: the prismatic constraint with travel bounds. Push: the supplied drive law (speed, acceleration, force and power bounds) and contact on the cargo. Hold: the drive's declared inactive response, `SelfLock`. Conflict and lost supply: the supply network rule, a NOR logic node feeding the motor consumer. Endpoint outputs: supply contacts closed by a coordinate at its lower or upper end, read by the electrical solve of the next tick. Blocked: the drive's committed phase when contact stops travel. No row acts on a named collaborator.
+3. **Three layers.** Colliders: frame foot and barrel boxes; head sphere and the clipped rod on the head body. **Defect:** `col_Foot` and `col_Barrel` are visible meshes, so two collider proxies are also the art, against the scene contract that a proxy is a separate node that is not rendered; the head already has separate art and a `CollisionShape3D`. Part B (row B8) separates the two. Visuals: head sphere and ring, rod, indicator, sockets, travel marks. Animation: indicator albedo from `CommittedPrismaticPhase`; the rod is a span stretched between the barrel face and the head pose. The head art is moved by its body's pose; the frame art by nothing. Travel marks become flat printing.
+4. **One-way flow and typing.** Physics → committed drive phase → presentation; electrical outputs flow through the supply graph, not back from presentation. Typed `PortId`, `PortRole`, `SupplyTerminal`, `LogicGateOperation`, `CoordinateKind`, `PrismaticDrivePhase`; f32 values.
+5. **Flat-state counts (from the scene and declaration).** 2 bodies (1 dynamic); 4 colliders: 2 boxes on the frame, 1 sphere and 1 clipped-extrusion box on the head (11 after part B: plus 6 spheres on the frame and 1 torus on the head); 1 prismatic joint; 1 drive; 0 sensors and stores; 2 electrical nodes; 6 supply nodes and 3 internal edges; 5 ports; 4 parameters; 3 presentation bindings, 1 body-pose binding, 1 span.
+6. **Performance fitness.** Four colliders and one joint; the frame is a static body. Part B adds seven small colliders because the sockets, indicator and ring are drawn proud; sockets keep their colliders by the owner's 21 November decision. The head moves at up to 4 m/s with a 0.25 m radius; tunnelling is excluded by the engine's speculative contacts, not a per-element check. Stated truthfully: the drive's power bound is enforced by a whole-world snapshot and up to eleven re-solves per substep (`WorkshopPhysicsEngine.Motors.cs:35`–`:66`), work proportional to the scene; engine gap owned by `ENGINE-ISLANDS-SLEEP`, which confines the trials to the drive's island. Island sleeping is not implemented; a resting body is still stepped, at the cost of its broadphase proxies and rows every substep (no sleep or deactivation code in `CuriousContraptions.Simulation`). Owned by `ENGINE-ISLANDS-SLEEP` (owner decision 3a, 22 November 2026).
+7. **Scenario tests.** All tests in sections 3 and 5 run the production simulation; the generic drive and extrusion tests use fixtures, not this package.

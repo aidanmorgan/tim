@@ -1,79 +1,129 @@
 # EL-005 · Liquid funnel — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-005 delivery slice](../invest/named-elements.md#element-005). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-005 delivery slice](../invest/named-elements.md#element-005). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md) and are cited by number. Sizes are in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-005 · Liquid funnel · Water |
-| Requirement anchor | [element-005](../requirements.md#element-005); source record [todo-334](../requirements.md#todo-334); integration task [sequence-task-384](../requirements.md#sequence-task-384) |
-| Named entry | [element-005](../invest/named-elements.md#element-005); per-element proof owner S426 |
-| CAT spec refined | None. The ball funnel [CAT-030](../requirements.md#current-cat-030) is a separate catalogue element (Story 6.11); the campaign table lists "water funnel" separately from the ball funnel ([campaign table](../requirements.md#campaign-element-coverage)). |
-| Related identities | [EL-004](EL-004-catch-basin.md), [EL-008 pipe](EL-008-straight-water-pipe.md), [EL-012 cap](EL-012-water-pipe-cap.md), [EL-014 bucket](EL-014-water-carrying-bucket.md) (recipe "Catch the Escape") |
-| Roadmap story | [EL-005 delivery slice](../invest/named-elements.md#element-005); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-005 · Liquid funnel · Water |
+| Anchors | [element-005](../requirements.md#element-005), co-anchored `sequence-task-558`; source record [todo-334](../requirements.md#todo-334); integration [sequence-task-384](../requirements.md#sequence-task-384) and [sequence-task-385](../requirements.md#sequence-task-385); ledger [element-005](../invest/named-elements.md#element-005), owner S426 |
+| Disposition | To deliver as a single element. Not a duplicate of the delivered ball Funnel ([CAT-030](../requirements.md#current-cat-030), package `funnel`): different bore (bore radius 0.10 against 0.65 m), a liquid store and an open aperture, and the campaign lists "water funnel" separately |
+| Planned package | id `liquid_funnel`, directory `elements/LiquidFunnel/`, title "Water funnel" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` and `ENGINE-THERMAL` |
+| Related | [EL-004](EL-004-catch-basin.md), [EL-008](EL-008-straight-water-pipe.md), [EL-012](EL-012-water-pipe-cap.md), [EL-014](EL-014-water-carrying-bucket.md) (recipe "Catch the Escape") |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: the ball Funnel, a static Frustum wall with a Tube stub and mouth locators (`elements/Funnel/FunnelElementDeclaration.cs:10`).
 
-**Element declaration:**
-- **Bodies and shapes.** One static body: an inverted frustum, inlet radius 0.50 m, outlet radius 0.10 m (standard bore), height 0.60 m, shell 0.04 m, with a 0.06 m outlet collar (**proposed**: catches a stream within half a metre yet stays smaller than the 1.3 m ball-funnel inlet, `parts/FunnelPart.cs@a6c914e:L9-L10`). Contact geometry: the frustum shell needs a hollow cone collider, which does not exist (Sphere, Box, Plane only, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`); until then eight box staves approximate the shell (**proposed**).
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** `OpenMouth` inlet disc (radius 0.50 m) and `WaterOutlet` standard mouth at the tip, facing down. An unjoined outlet discharges as a free stream; a joined outlet feeds the pipe. Domain `Water` (**proposed**).
-- **Sensors and activation.** None.
-- **Work and energy stores.** Finite liquid store equal to the frustum interior, (π · 0.6 / 3)(0.25 + 0.05 + 0.01) ≈ 0.195 m³ (about 3 steps, 3.1 kg), derived from the proposed geometry. Outflow follows the orifice law with Δh = level above the outlet; inflow beyond outflow raises the level until the rim spills.
-- **Parameters.** None authored (**proposed**: a passive part; orientation by the rotate gizmo). Capacity is fixed by geometry.
-- **Cosmetic curves and UI bindings.** Fill ← committed volume ([component research](../../component-research.md#water), line 30).
-- **Art.** Cream shell `#fff8e9` (`DESIGN.md@a6c914e:L151-L151`) with gold rim band `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`) and navy outlet collar `#293954` (`DESIGN.md@a6c914e:L147-L147`); water cyan `#66b8c9` alpha 0.16 (`DESIGN.md@a6c914e:L181-L181`) (**proposed** reuse; the water funnel is cream, not the clear-pipe teal of the ball funnel family).
-- **Catalogue and inventory entry.** Id `liquid_funnel`, title "Water funnel", category "Water", kind `LiquidFunnel` (all **proposed**).
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, the liquid store declaration of `ENGINE-LIQUID` (W4, W6).
+- **Body.** One static body, mass 0. Axis local Y; origin at the middle of the cone.
+- **Colliders (two, true hollow shapes).** Frustum wall: inner radius 0.50 at y = +0.30 tapering to 0.10 at y = −0.30, radial wall 0.04. Tube stub: bore 0.10, outer radius 0.14, from y = −0.30 to −0.36.
+- **Material.** Family vessel material (EL-001).
+- **Store.** Local id 1. Capacity = cone interior (π × 0.6 / 3) × (0.25 + 0.05 + 0.01) = **0.195 m³** (3.1 kg). Height from the mouth datum to the rim 0.66 m, so the equivalent plan area (L4) is 0.195 ÷ 0.66 = 0.295 m². Floor datum (0, −0.36, 0). Open aperture: disc radius 0.50 at y = +0.30, normal +Y. Overflow point (0.54, 0.30, 0). Starts empty. Its store is also a thermal node (owner decision 20; [TH-04 section 11](TH-04-electrical-heating-plate.md#thermal-conventions), T2), starting at the ambient 288 K (T1) unless a level authors another; inflow mixes by mass, outflow leaves at the store's temperature, and no row here reads temperature.
+- **Mouth.** `End`, pipe bore, Discharge, into store 1, at (0, −0.36, 0), normal −Y. Unjoined, it is a free end; joined, it feeds the pipe.
+- **Parameters.** None. Orientation by the rotate gizmo; a tilted funnel retains less (L11).
+- **Presentation.** `Visual/Water` scale from the committed fill fraction (W12, missing).
+- **Palette.** `ElementCategory.Structure`; palette order 520 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour cream.
 
-**Variants.** The requirements row lists no variants.
+### Art and solidity
+
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Cone` | Frustum shell as the collider, cream `#fff8e9` | solid, hollow; the Frustum collider | body pose (static) |
+| `Visual/Stub` | Tube 0.06 long, outer radius 0.14, navy `#293954` | solid, hollow; the Tube collider | body pose |
+| `Visual/RimBand` | Gold `#f7cb52` band at the rim, flush with the shell | decorative: printed flat | nothing |
+| `Visual/Water` | Cone-shaped fill, cyan `#66b8c9`, alpha 0.16 | decorative: enclosed, moved by a binding | presentation binding |
+| `Loc_Port_mouth_end` | Locator, bore 0.10 | none | nothing |
+
+Icon: a cream cone with a narrow spout and a waterline. It differs from the ball Funnel (clear teal, lying on its side, far larger) by being opaque, upright and small.
+
+### Behaviour and numbers
+
+- **Level under a steady stream, mouth free (one aperture, K₀).** Depth settles where outflow equals inflow: d = (Q / K₀)².
+  - Stream from a fully open tap at 1.0 m tank depth, 0.0482 m³/s: d = (0.0482 / 0.08349)² = **0.33 m**, below the 0.66 m rim: it passes everything.
+  - Stream from a bare tank mouth at 1.0 m depth, 0.0835 m³/s: d = 1.0 m, above the rim: it overflows until the tank depth has fallen to 0.66 m. This is the "more than the outlet can pass" lesson.
+- **Blocked outlet.** With a cap on the mouth nothing leaves; at 0.048 m³/s it fills its 0.195 m³ in about **4.1 s** and then overflows from the rim point (L9).
+- **Head.** A pipe joined to the mouth is fed by the funnel's own surface, never by the tank above it: the funnel's free surface is the start of the head again.
+- **No remote capture.** Only a stream path that crosses the 0.50 m disc from above is captured (L8).
+- **Why these values.** A half-metre inlet catches a stream that wanders 0.8 m as a tank drains only if the player places it well; the pipe-bore outlet joins the kit.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-005`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W2 Frustum and Tube colliders | present | body |
+| W22 authored state | present | pose |
+| W4 fluid port contract | present, untested | store and mouth |
+| W3 tube mouth and snap | narrower | the mouth; edges not compiled |
+| W6, W7, W8, W9 store, flow, capture, overflow and tilt | missing | `ENGINE-LIQUID` |
+| W12 fill-fraction driver | missing | `ENGINE-LIQUID` |
 
-- **Exists now.** Static body and box colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); Run/Reset (`engine/gpu/WorkshopSimulation.cs@a6c914e:L238-L245`).
-- **Missing.** Hollow frustum collider (CAT-030's Story 6.11 builds the ball-funnel frustum; reuse it when delivered). Packet capture across the inlet disc, store and orifice outflow ([S416](../invest/decisions.md#s416) advection → S418). Water mouth joins (EL-001 open question 3). Required in the linked delivery slice.
-- **Element dependencies.** A stream source (EL-003, EL-007, EL-013 or a tipping EL-014); EL-012 cap for the blocked control; EL-004 below the outlet.
+Counts: 3 present, 1 untested, 1 narrower, 5 missing; one owner.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, two hollow colliders, one store with a disc aperture, an overflow point and one mouth, one binding.
+2. **Generic laws.** Guiding liquid to the outlet is a store draining through its mouth (L7). "Blocked outlet fills and spills" is an occupied mouth plus L9. "No remote capture" is L8.
+3. **Three layers.** *Colliders:* Frustum and Tube. *Visuals:* the table above. *Animation:* the fill follows the committed fraction.
+4. **One-way flow and typing.** As EL-001.
+5. **Flat-state counts.** Bodies 1 (static); colliders 2 (1 Frustum, 1 Tube); joints 0; drives 0; sensors 0; liquid nodes 1 store; thermal nodes 1; mouths 1; apertures 1; open apertures 1; bindings 1; parameters 0.
+6. **Performance fitness.** Two colliders against the delivered Funnel's larger set (its collars are separate solids; this part draws its rim band flush). The equivalent-area store costs the same as any store.
+7. **Tests are scenarios.** Rows F1 to F7.
 
 ## Sources and legacy
 
-- Requirements row: "Blocked outlet fills and spills; no remote capture." No variants.
-- Component research row EL-004–006 (finite store with capacity, line 30); recipe "Catch the Escape" (rope tilts a bucket into a movable funnel, line 62).
-- **Legacy search.** Same scope and terms as EL-001: no liquid funnel. The ball funnel gives a geometric pattern only:
+- Requirement: "A tapered collector guides liquid toward a real outlet"; outcome "Blocked outlet fills and spills; no remote capture." No variants.
+- Component research [water](../../component-research.md#water) lines 30 and 62 ("Catch the Escape").
+- **Legacy search.** No liquid funnel at a6c914e. The ball funnel gives a geometric pattern only:
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Ball funnel: half-length 0.9 m, inlet radius 1.3 m, shell 0.05 m; inlet mouth at −(0.9 + 0.09) m on the axis, outlet mouth at +(0.9 + 0.09) m with the ball-pipe bore; contact material (0.15, 0.1, 0.3). | `parts/FunnelPart.cs@a6c914e:L6-L17` | Do not carry forward the dimensions (CAT-030 owns them). Carry forward the pattern: a wide inlet mouth plus a standard-bore outlet mouth offset by its collar, so the funnel joins the pipe kit. |
-| 2 | Mouth record: id, position at the outside face of the collar, outward normal, bore radius. | `engine/TubeMouth.cs@a6c914e:L6-L14` | Carry forward as the Water mouth declaration shape. Do not carry forward the Godot `Vector3`/`float` types. |
+| 1 | Ball funnel: half-length 0.9 m, inlet radius 1.3 m, shell 0.05 m; mouths on the axis beyond each collar; contact material (0.15, 0.1, 0.3). | `parts/FunnelPart.cs@a6c914e:L6-L17` | Not the dimensions (CAT-030 owns them). Carry forward the pattern: a wide inlet and a standard-bore outlet mouth. |
+| 2 | Mouth record: id, position at the outside face, outward normal, bore radius. | `engine/TubeMouth.cs@a6c914e:L6-L14` | Carried forward; it is the delivered `TubeMouthDescriptor` (L5). |
+
+**Files harvested:** `parts/FunnelPart.cs`, `engine/TubeMouth.cs`.
 
 ## Acceptance outline
 
-Point of truth: [element-005](../requirements.md#element-005).
+Authority: [element-005](../requirements.md#element-005). Tolerances L17. Planned class `LiquidFunnelTests`. The source is a Water tank and an open Tap above the funnel.
 
-- **Chrome recipe.** Place a Water tank with a Tap; place a Water funnel under the spout with the move gizmo; snap a straight pipe to its outlet leading to a Catch basin.
-- **Positive.** The stream enters the inlet disc, the funnel level stays low, and the basin receives the flow through the pipe.
-- **Negative / control.** Cap (EL-012) on the funnel outlet: the funnel fills to its rim (≈ 0.195 m³) and then spills onto the tray; the basin stays empty. Funnel moved 0.6 m off the stream: nothing is captured (no remote capture).
-- **Boundaries.** Inflow above the outlet's orifice rate raises the level and spills at the rim; a stream hitting the gold rim band is split by the inlet-disc sweep only.
-- **Run/Reset.** Exact restoration. **Save/Load.** Pose and joins survive reload.
-- **Integrations.** [sequence-task-384](../requirements.md#sequence-task-384) (source record [todo-334](../requirements.md#todo-334)): each collector has its own catalogue contract and proof inside the tank → tap/gutter → catch-basin route; the funnel's outlet joins the pipe kit of [sequence-task-385](../requirements.md#sequence-task-385) ([todo-335](../requirements.md#todo-335)). Generic interaction row [IX-08 Fluid advection](../requirements.md#interaction-08). Campaign first use 61–70 ("water funnel"), reuse 71–90, 114, 126–130, 136–150 ([campaign table](../requirements.md#campaign-element-coverage)).
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| F1 | Given the tap stream entering the disc and a basin under the free mouth, when Run advances 8 s, then the basin's gain plus the funnel's contents equal the tank's loss, `Spilled` is 0, and the funnel's depth never passes 0.40 m | `LiquidFunnelTests.TheFunnelPassesAStreamToItsOutlet` | F3 | — |
+| F2 | Given a cap on the mouth, when Run advances 15 s, then the funnel holds 0.195 m³, the basin holds 0, and the tank's remaining loss is in `Spilled` | `LiquidFunnelTests.ABlockedOutletFillsAndSpills` (a cross-part row owned by the EL-012 slice: the cap is taught at 62a, after the funnel at 61b) | F1 | the funnel is full by 4.1 s within 10% (stall guard 13 s) |
+| F3 | Given the funnel moved 0.6 m off the stream, then the funnel and basin hold 0 and `Spilled` equals the tank's loss | `LiquidFunnelTests.NothingIsCapturedAtADistance` | F1 | a stream that meets the cone's outer wall, not the disc, is not captured |
+| F4 | Given a bare tank mouth (no tap) at 1.0 m depth above the funnel, then the funnel overflows while the tank depth is above 0.66 m and stops overflowing below it; totals are conserved | `LiquidFunnelTests.InflowAboveTheOutletRateOverflows` | F1 | — |
+| F5 | Given a water pipe joined to the mouth and rising to a free end 0.8 m above the funnel rim, then nothing leaves that free end (the funnel's surface, not the tank's, sets the head) | `LiquidFunnelTests.AFunnelRestartsTheHead` (a cross-part row owned by the "Water elbows" Family slice, EL-009 and EL-010: the pipe and elbows are taught at 62, after the funnel) | free end below the rim delivers | — |
+| F6 | Given a funnel tilted 45°, then it retains less than its upright capacity and the difference leaves at the lowest rim point | `LiquidFunnelTests.ATiltedFunnelRetainsLess` | upright | — |
+| F7 | Given a run, then Reset empties the funnel; save and load keep the pose and the mouth join | `LiquidFunnelTests.ResetEmptiesAndSaveLoadKeepsThePose` | — | — |
+
+Generic cover: W22. Later-partner rows: the collector route of sequence-task-384 is EL-004 row B7, owned by the EL-006 slice; the kit join of sequence-task-385 runs in the slice that delivers the last kit piece (EL-008). Rows F2 and F5 are cross-part rows owned by the later parts' slices, as their test cells state, so no row of this slice needs a part the campaign teaches later. Chrome recipe (pending): place a tank and tap, a Water funnel under the spout, a pipe snapped to its outlet leading to a basin.
 
 ## Open questions
 
-1. Inlet radius 0.5 m versus matching the ball funnel's 1.3 m.
-2. Should the water funnel also accept balls (shared contact shell), or is ball passage CAT-030 only?
-3. Does a funnel outlet joined to a sealed pipe deliver head above its own rim (it cannot: the free surface is the funnel level) — confirm this teaching point.
-4. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). The orifice law and Cd = 0.6 are the S416 advection decision (→ S418).
+All resolved; none needs the owner.
+
+1. Inlet radius: 0.5 m, not the ball funnel's 1.3 m (D1, D19).
+2. Balls: a ball that fits may fall in; it is a body in a hollow collider and displaces liquid (L12). It does not pass the 0.10 m bore. Ball routing stays CAT-030's.
+3. Head above its own rim: it cannot deliver it (row F5); confirmed as the teaching point.
+4. Cone depth: the store is prismatic with an equivalent area (L4), decided now: one store shape in the engine, and no acceptance row depends on the cone's exact depth-to-volume curve.
+
+## Integration
+
+- **Works with.** EL-001, EL-003, EL-004, EL-008, EL-012, EL-014; none delivered.
+- **Campaign.** Chapter 7, levels 61–70 ("water funnel"); reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-334`; `sequence-task-558` not co-anchored with a todo; no `s426` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID`; `ENGINE-THERMAL`; EL-001; EL-003; EL-004; S7. Rows F2 (EL-012 slice) and F5 (Water elbows slice) run in those later slices.
+- **Files.** Adds `elements/LiquidFunnel/LiquidFunnel.csproj`, `LiquidFunnelElementDeclaration.cs`, `liquid_funnel.tscn`, `icon.svg`, `CuriousContraptions.tests/LiquidFunnelTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A Frustum collider that the stream path does not treat as solid; a disc aperture not supported (only rectangles); tilt retention missing.

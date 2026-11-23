@@ -14,30 +14,29 @@ Story 7.0 Batch B declaration spec (CAT-026-D). Legacy citations are pinned to `
 | Requirement anchor | [current-cat-026](../requirements.md#current-cat-026); retained behaviour [todo-362](../requirements.md#todo-362) |
 | Mapped identities | [EL-134 Electrical OR gate](../invest/named-elements.md#element-134). No TH/RAD/GAP identity. |
 | Roadmap story | 9.8 "Electrical Logic Gates OR & XOR" (Epic 9), shared with CAT-027 Current [CAT-026 delivery owner](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership). |
-| Status | Story 9.8a candidate: package `elements/ElectricalOr` and shared monotone `Or` law on the Story 9.7a ordered supply resolve (Or-only cycles admitted at their least fixed point; mixed loops refused), implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md)); independent review and publication pending; browser qualification pending post-catalogue. |
+| Status | Story 9.8a candidate: package `elements/ElectricalOr` and shared monotone `Or` law on the Story 9.7a ordered supply resolve (Or-only cycles admitted at their least fixed point; mixed loops refused), implemented with native proof ([spec](../../../_bmad-output/implementation-artifacts/spec-9-8a-electrical-or.md)); **delivered**, scoped native and publication Pass `a2eddf`; browser qualification pending post-catalogue ("candidate" is the slice's wording at the time). Every residual slice, the EL-134 closure review included, is blocked on the engine programme (owner decision 3a, 22 November 2026); the engine gaps are those of [CAT-013](CAT-013-both_gate.md#3-engine-capabilities-and-conformance): `ENGINE-SIGNAL-NODES` (its self-edge rule row) and `ENGINE-CAPABILITY-INSTANCES` (audit E2 and E3). |
 
 ## 2. Declaration
 
-| Item | Declaration (value · source) |
-| --- | --- |
-| Bodies and shapes | Same as CAT-013: static box 1.7 × 1.3 × 0.65 m and foot 1.85 × 0.16 × 0.85 m at y −0.75 ([CAT-013 §2](CAT-013-both_gate.md#2-declaration)). |
-| Mass and material | Static; legacy static default material restitution 1, bounce threshold 0.1 m/s, friction 0.3 ([CAT-013 §2](CAT-013-both_gate.md#2-declaration)). |
-| Constraints and joints | none |
-| Typed sockets and ports | Same four electrical ports as CAT-013: `FirstIn`, `SecondIn`, separate `PowerIn` supply, `Supply` output. |
-| Sensors and activation | none |
-| Work and energy stores | none; output energy only from `PowerIn`. |
-| Parameters | `Operation = Or`, fixed by catalogue kind. Current closed value `LogicGateOperation.Or = 3` in the package declaration; 1 was the legacy scene integer (`parts/scenes/electrical_or.tscn@a6c914e:L1-L5`) and is not carried forward. |
-| Cosmetic curves and UI bindings | Same three lamps as CAT-013 (inputs follow committed availability; output follows truth ∧ supplied). |
-| Art | Shared body, foot, cream face, input marks and port spheres (CAT-013). Or shows its toolbox pictogram on the face and gold truth-row dots for rows 01, 10, 11 at x −0.07, 0.07, 0.21 (y −0.4, z 0.42) (G13). Toolbox icon (current, survives; shared with `optical_or`): `ui/WorkshopIcons.cs@a6c914e:L76-L76`, now the package `icon.svg`. Current art draws the same pictogram as navy mesh strokes (two input stubs, the two OR curves and concave back as four segments each, and the output stub) rather than the legacy textured quad (Story 9.8a F6). Colour `#66b8c9`. Design: [DESIGN.md · Supplied electrical logic](../../../DESIGN.md#supplied-electrical-logic). |
-| Catalogue / inventory | Id `electrical_or`, Title "Either gate", Category Control, colour (0.4, 0.72, 0.79), no parameters; Description: "Passes the separate bottom supply when either numbered input is powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`parts/catalog/electrical_or.tres@a6c914e:L1-L11`). No level places or grants it. |
+The delivered declaration is `elements/ElectricalOr/ElectricalOrElementDeclaration.cs` with the scene `elements/ElectricalOr/electrical_or.tscn` (read on `8d1d68aa`). It is the [CAT-013 section 2](CAT-013-both_gate.md#2-declaration) declaration with the values below changed. The body, material, ten colliders, four ports and nine lamp bindings are identical (file comparison), and so are the three layers: colliders from hidden proxies, art never used as a collider, bindings that change lamp colour only.
 
-## 3. Engine capabilities
+| Item | Value |
+|---|---|
+| Id and title | `electrical_or`, "Either gate" (`:12–14`) |
+| Category and palette order | Control, 29 (`:13`, `:17`) |
+| Operation | `LogicGateOperation.Or` (`:35`), monotone |
+| Description | "Passes the separate bottom supply when either numbered input is powered. No supply means no output. The numbered inputs are conditions, not the source of output power." (`:15`) |
+| Printed art (rendering graph) | `Visual/Pictogram/*`: navy strokes (two input stubs, the curved body, an output stub), no ring. `Visual/TruthDot01`, `TruthDot10`, `TruthDot11`: gold discs (`printed-disc.obj`) at x −0.07, 0.07 and 0.21, y −0.4 (`electrical_or.tscn:172–182`). All are decorative, printed flat at z 0.37025, and moved by nothing |
+| Icon and coverage key | `elements/ElectricalOr/icon.svg`; `electrical_or` |
+| Compiled counts per instance | 1 static body; 10 colliders (3 boxes, 7 spheres); 0 joints; 0 signal nodes; 1 supply node; 0 stores; 4 ports; 9 bindings |
 
-Families ([map row](../general-engine-element-map.md)): AnimationEvaluation, AnimationLifecycle, ContactImpulse, ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, RigidBodyDynamics, SignalPropagation, SlidingFriction (P0-022/023 shared evaluator/feedback registration).
+The curved-back pictogram without a ring and the right-hand three-dot row tell it from its siblings without colour.
 
-- **Exists now:** as [CAT-013 §3](CAT-013-both_gate.md#3-engine-capabilities).
-- **Missing:** none after Story 9.8a. Story 9.6 delivered the gate element, sockets and electrical-input cosmetic source; Story 9.7a the settled supply evaluation and nonmonotone-feedback refusal; Story 9.8a adds only the Or operation value, pictogram and truth dots.
-- **Dependencies:** CAT-005 Battery; CAT-013 declaration (Story 9.6) first; a supplied consumer (CAT-013 open question 1); condition switches as [CAT-024 open question 1](CAT-024-electrical_nand.md#6-open-questions).
+## 3. Engine capabilities and conformance
+
+The generic laws, the capability probe (6 present, 0 untested, 1 narrower, 0 missing), the conformance verdict (conforms with one fix, the unread `ElectricalNodes` ratings) and the performance fitness, with the reason for ten colliders, are those of [CAT-013 section 3](CAT-013-both_gate.md#3-engine-capabilities-and-conformance). The one difference is data: `Or` is monotone, so the supply network's cycle rule admits a loop of Or and And nodes and settles it from unpowered at every solve; a loop that also holds a nonmonotone node is refused. No engine code names this package.
+
+**Dependencies.** Battery; a condition switch (each condition is a Battery through an Impact switch contact); a supplied consumer (Powered gate, Motor). All are delivered.
 
 ## 4. Legacy harvest
 
@@ -83,4 +82,13 @@ Authority: [CAT-026](../requirements.md#current-cat-026), [todo-362](../requirem
 
 ## 6. Open questions
 
-1. Condition sources and output consumer: as [CAT-024 open question 1](CAT-024-electrical_nand.md#6-open-questions) and [CAT-013 open question 1](CAT-013-both_gate.md#6-open-questions). No Or-specific question.
+1. Condition sources and output consumer: as [CAT-024 open question 1](CAT-024-electrical_nand.md#6-open-questions) and [CAT-013 §6 decision 1](CAT-013-both_gate.md#6-current-delivery-decisions-22-october-2026). Both are resolved: a Battery through an Impact switch contact for each condition, and the Powered gate as consumer. No Or-specific question.
+
+## 7. Delivered state, integration and residuals (22 November 2026)
+
+Checked against `elements/ElectricalOr`, its scene and its tests on published main `8d1d68aa`. Nothing was built or run. The shared gate declaration, laws, capability probe and conformance are in CAT-013 [section 2](CAT-013-both_gate.md#2-declaration) and [section 3](CAT-013-both_gate.md#3-engine-capabilities-and-conformance); this part's values are in section 2 above.
+
+- **Disposition.** Delivered CAT part: package `elements/ElectricalOr`, id `electrical_or`, display name "Either gate", category Control, palette order 29 (`elements/ElectricalOr/ElectricalOrElementDeclaration.cs:12–17`). Story 9.8a Pass `a2eddf` (`sprint-status.yaml:301`). No slice is planned. [EL-134](EL-134-electrical-or-gate.md) is a candidate Duplicate closure of this part.
+- **Tests** (`ElectricalOrTests`). Truth and supply: `SwitchedConditionsAndSeparateSupplyDriveTheActualConsumer`, `TrueRowWithoutSupplyWireNeverCreatesPower`. Retraction, save, load and Reset: `ClosingOneSwitchOpensTheOutputAndSaveLoadAndResetAreExact`. Order: `PlacementAndWiringOrderPreserveTruthTableAndConsumerResponse`. Monotone loops: `OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick`, `ContactLoopKeepsAnEitherGateOnThroughItsOtherInput`, `PureOrLoopIsAdmittedBySaveAndConstruct`. Mixed loops refused: `LoopsMixingANonmonotoneGateAreRefusedAtomicallyBeforeAnySolve`. Lamps and printing: `ElectricalOrPresentationTests.PictogramThreeTruthDotsAndThreeLampsFollowCommittedRowsThroughReset`. Motor: `MotorTests.AMotorSuppliedThroughAnEitherGateRunsOnlyWhileTheGateIsOn`.
+- **Residuals.** The requirement admits Or cycles, but a wire from this gate's own `Supply` to its own input is refused as `InvalidConnection`; owner `ENGINE-SIGNAL-NODES` (its self-edge rule row); the EL-134 closure review is blocked on that row, after the engine programme (owner decision 3a). The Workbench connect tool refuses a same-part target (`ui/WorkshopConnections.cs:106`), so only a save or a command can carry this wire; it is not a player-reachable defect. The unread `ElectricalNodes` ratings (`:33`) are a required forward-only refactor, as for [CAT-013](CAT-013-both_gate.md#7-delivered-state-integration-and-residuals-22-november-2026). Requirement row CAT-026 stays unchecked until the browser phase.
+- **Integration.** Condition sources: a Battery through an Impact switch contact. Consumers: Powered gate and Motor. No campaign level places it. Coverage binding: catalogue key `electrical_or`.

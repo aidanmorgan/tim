@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-194 delivery slice](../invest/named-elements.md#element-194). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
-
-Current implementation (C-Bumper+Spring, 22 Oct 2026): the Springboard is a generic instance of the `spring` package. Its typed `stiffness`, `damping` and `initial_compression` parameters drive the shared slider compile, and its plate is presented by the generic slider presentation. The record-era citations below (`parts/SpringPart.cs`, `parts/catalog/spring.tres`) are historical. See [CAT-062 §2](CAT-062-spring.md#2-declaration).
+Story 7.0 named-identity spec (Batch J). Harvest citations are `path@a6c914e:Lstart-Lend`. **Build-ready revision, 21 November 2026:** sections 1–3, 5 and 6 were verified against checkout `8d1d68aa`; citations of the form `path:line` are in that checkout, and test files are under `CuriousContraptions.tests/`. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
 
@@ -16,75 +14,40 @@ Current implementation (C-Bumper+Spring, 22 Oct 2026): the Springboard is a gene
 | Anchor | [requirements.md#element-194](../requirements.md#element-194); [named entry](../invest/named-elements.md#element-194); contract [springboard-elastic-contract.md](../../springboard-elastic-contract.md) |
 | Proof owner | S300 |
 | Refines / extends | Refines [CAT-062 spring](CAT-062-spring.md) ([requirement](../requirements.md#current-cat-062)) |
-| Related | CAT-065 Trampoline (shares the elastic capability, different declaration), EL-215 Damped cushion |
-| Roadmap story | [EL-194 delivery slice](../invest/named-elements.md#element-194); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | Passive Story6.4 published at `781e0c81b838abe13fea8bc72d10e60f0ee67dca` with independent terminal scoped Pass. Preload and `spring_forward` remain Story6.5. |
+| Related | CAT-065 Trampoline (shares the elastic capability, different declaration), EL-215 Damped cushion, CAT-063 Impact switch and CAT-035 Lamp (the `spring_signal` lanes) |
+| Delivered part | Package `spring`, directory `elements/Springboard` (passive Story 6.4, published at `781e0c81`; preload Story 6.5; generic conversion `c13d07c5`) |
+| Disposition | **Refinement of CAT-062 with one part delta and new acceptance rows; not a Duplicate closure (owner decision 7, 22 November 2026).** The Springboard gets its own typed signal output that fires on launch: a declared passage sensor above the plate and an `ActivationOut` Pulse port, both general capabilities any package declares (the Ball detector's, `elements/BallDetector/BallDetectorElementDeclaration.cs:70`–`:74`). The change is made to the delivered package `spring` in this identity's slice (rows L1 to L6). This identity's requirement (`docs/planning/requirements.md:5955`) also makes all fifteen composite lane instances part of its qualification, and level 7 `spring_signal` stays a level proof; both are owned as stated in section 5. [Delivery batches 2c](../invest/delivery-batches.md#2-duplicate-closures) lists as its own rows the launch output, `spring_signal` and its two open level criteria; preload and `spring_forward`, deltas named by earlier planning, are delivered and tested. No package, palette or catalogue entry of its own |
+| Status | Part behaviour delivered except the launch output; slice not started. Blocked on the engine programme (owner decision 3a), relying most on ENGINE-SENSOR-VOLUMES (passage sensing in the physics tick and relative to the frame) and ENGINE-ISLANDS-SLEEP; then this identity's slice; the identity closes after level 7 and the fifteen lanes (ENGINE-GOALS). Browser qualification pending |
+
+**What EL-194 adds over the delivered part.** Ledger sentence: "Declared finite elastic store transfers work through physical compression and release." Exact source outcome: "Uncharged or missed contact cannot impart a free launch." Both are executed (section 5). The requirement entry adds a qualification list: passive and precharged contact, typed signal integration, no-spring, disconnected and missed controls, fifteen composite lanes, parameter editing, exact Reset and save. Of these, typed signal integration is met by the part's own launch output (owner decision 7, rows L1 to L6), and the signal lanes and the fifteen composite lanes are level proofs not yet executed.
 
 ## 2. Declaration
 
-All values below are sourced by the [springboard contract](../../springboard-elastic-contract.md) and the legacy part unless marked proposed.
+The `spring` declaration, art and bindings are [CAT-062 section 2](CAT-062-spring.md#2-declaration); this identity adds no second text (coordinator decision 27, 23 November 2026). Palette: CAT-062's order 12; no order of its own.
 
-### Bodies and shapes
-- **Plate (dynamic).** Box half extents 0.65 × 0.075 × 0.6 m (full 1.3 × 0.15 × 1.2 m) (`parts/SpringPart.cs@a6c914e:L18-L18`, `parts/SpringPart.cs@a6c914e:L90-L92`).
-- **Base (static).** Box full size 1.3 × 0.12 × 1.2 m at (0, −0.36, 0); `AddBox` stores halves (`parts/SpringPart.cs@a6c914e:L89-L89`).
-- Rest centre of the plate at local Y = 0.14 m (`parts/SpringPart.cs@a6c914e:L14-L14`).
-
-### Mass and material
-- Plate 0.25 kg, homogeneous box inertia (`parts/SpringPart.cs@a6c914e:L16-L16`, `parts/SpringPart.cs@a6c914e:L20-L24`).
-- Plate material restitution 0, bounce threshold 0.05 m/s, friction 0.1 (`parts/SpringPart.cs@a6c914e:L34-L34`; argument order `engine/physics/PersistentContactPair.cs@a6c914e:L18-L29`): the spring, not contact restitution, returns energy.
-
-### Constraints and joints
-- Frictionless slider along the plate's local Y, travel −0.25 m to 0 relative to rest, connected collision disabled (`parts/SpringPart.cs@a6c914e:L35-L48`).
-- TGS Soft spring on that slider with stiffness k and damping, potential U = ½·k·q² ([contract](../../springboard-elastic-contract.md)); legacy applied it as per-step elastic and damping loads (`parts/SpringPart.cs@a6c914e:L67-L72`).
-
-### Typed ports
-| Socket | Domain | Direction | Source |
-| --- | --- | --- | --- |
-| `ActivationOut` | Activation | Output | **proposed**: the row requires "typed signal integration"; the legacy raised a `Bounced` event on plate contact (`parts/SpringPart.cs@a6c914e:L80-L85`) |
-
-### Sensors and activation
-Proposed future signal integration: a contact trigger on the plate with approach speed ≥ 0.05 m/s (`parts/SpringPart.cs@a6c914e:L82-L82`) emits on `ActivationOut`, using the existing trigger declaration (`engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`).
-
-### Work and energy stores
-Elastic store ½·k·q². Initial compression is finite construction energy released when Run begins; no powered recharge or automatic launch ([contract](../../springboard-elastic-contract.md)).
-
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `stiffness` | f32 | 120–1200 | 400 | N/m | `parts/SpringPart.cs@a6c914e:L50-L59`, `parts/catalog/spring.tres@a6c914e:L14-L14` |
-| `damping` | f32 | 0–8 | 0.2 | N·s/m | same |
-| `initial_compression` | f32 | 0–0.20 | 0 | m | same |
-
-Parameter keys are an enum (`SpringParameter`); the removed `strength` field rejects ([contract](../../springboard-elastic-contract.md)).
-
-### Cosmetic curves and UI bindings
-- The silver coil (`#ccd9df`, radius 0.27 m, 3 turns, height 0.365 m at y −0.3) scales with committed compression; the plate art uses the physical pose (`parts/SpringPart.cs@a6c914e:L17-L17`, `parts/SpringPart.cs@a6c914e:L73-L79`, `parts/SpringPart.cs@a6c914e:L94-L94`).
-- UI: the three parameters through the contextual configuration pattern (`ui/WorkshopConfiguration.cs@a6c914e:L43-L75`). Pick radius 0.7 m (`parts/SpringPart.cs@a6c914e:L88-L88`).
-
-### Art
-Plate in the Spring colour `#f5b354`; base `#273446`; coil `#ccd9df` (`parts/SpringPart.cs@a6c914e:L89-L94`; `parts/catalog/spring.tres@a6c914e:L13-L13`; [DESIGN colour system](../../../DESIGN.md#colour-system)).
-
-### Catalogue and inventory entry
-Id `spring`, title "Springboard", category Motion, "A rigid plate compresses its finite spring and returns stored energy." (`parts/catalog/spring.tres@a6c914e:L8-L14`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
+- **Launch sensor and `ActivationOut`:** [CAT-062 section 2](CAT-062-spring.md#2-declaration), "Launch output" (coordinator decision 27). This is the one part delta this identity's slice adds to the delivered package (owner decision 7); rows L1 to L6 prove it.
 
 ### Variants
-- **Passive (uncharged).** `initial_compression` = 0. A payload loads the plate through contact and gets back stored energy less damping; a missed or absent payload gets nothing.
-- **Precharged.** `initial_compression` > 0. The plate starts compressed and releases at Run start; a payload resting on it is launched by that finite energy only, and an empty plate moves but transfers no work. The precharged lesson places the plate at −30° with 0.2 m compression and a ball 0.357 m above along the plate normal (`tools/Campaign/SpringboardLesson.cs@a6c914e:L38-L47`).
+
+Two authored states of the one part, not two parts: **passive** (`initial_compression` = 0) and **precharged** (`initial_compression` > 0).
+
+### Art and solidity
+
+[CAT-062](CAT-062-spring.md), its art table and the flush-stripe repair (`Visual/Plate/Visual_Stripe`, decided under the standing delegation there). The launch sensor has no art of its own: it is an invisible region, and the `ActivationOut` socket follows the delivered socket art.
 
 ## 3. Engine capabilities
 
-Families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, plus StateTransaction ([map row](../general-engine-element-map.md); [element-02.json](../../coverage/engine/element-02.json)).
+Map families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, RigidBodyDynamics, SlidingFriction, StateTransaction ([map row](../general-engine-element-map.md); navigation only, decision D14). The harvest's "Missing: preload" row is superseded.
 
-**Exists now**
-- Dynamic box plate and contact: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`; contact triggers for the signal: `engine/gpu/ContactTriggerDeclaration.cs@a6c914e:L7-L18`.
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Prismatic slider with parameter-bound spring, damping and stops | present | `PrismaticSliderDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:104`); `SliderInstanceTests.ThePlateHoldsItsLowerAndUpperStops` (`SliderInstanceTests.cs:61`) |
+| Declared starting compression as finite stored energy | present | `Compression: MechanicalValue.FromParameter("initial_compression")` (`elements/Springboard/SpringboardElementDeclaration.cs:72`); `WorkshopSpringboardTests.CompiledPreloadUsesActualF32PoseAndEightJoules` (`WorkshopSpringboardTests.cs:146`) |
+| Slider body and span presentation | present | `SliderInstanceTests.ThePlateVisualRestsAtTheDeclaredCompressionAndEqualsItsCompiledBody` (`:76`) |
+| A passage sensor on a static frame body publishing a Pulse to a typed `ActivationOut` port | present (host-side, after the tick) | `SignalPassageDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:54`); the Ball detector (`elements/BallDetector/BallDetectorElementDeclaration.cs:70`–`:74`); `BallDetectorTests.PassageSensorTracker_PositiveForwardPass_RotatedAndVariousSpeeds` (`CuriousContraptions.tests/BallDetectorTests.cs:152`), `PassageSensorTracker_NegativeControls_ReverseOutsideStationary` (`:257`) |
+| Passage sensing inside the physics tick, relative to the sensor's frame | missing | today it runs on the host after the tick (`engine/gpu/PassageSensorDeclaration.cs:80`–`:112`); owner ENGINE-SENSOR-VOLUMES (owner decision 3a) |
 
-- Generic prismatic slider and shared TGS Soft spring (JointConstraint, ElasticStorage), stiffness/damping authoring and passive lifecycle: published Story6.4, [terminal proof](../../../_bmad-output/implementation-artifacts/review-6-4-passive-springboard.md).
-
-**Missing**
-- Preload and preserved launch lessons: Story6.5 candidate, runtime/publication acceptance pending. Owner S300.
-
-**Dependencies.** None beyond Stories 6.4–6.5; CAT-065 trampoline reuses the elastic capability.
+Counts: 4 present, 0 untested, 0 narrower, 1 missing (owned by the programme story ENGINE-SENSOR-VOLUMES). Nothing needs element-specific engine code.
 
 ## 4. Sources and legacy
 
@@ -94,8 +57,8 @@ Families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, Geomet
 | --- | --- | --- | --- | --- |
 | 1 | Rest height 0.14, stroke 0.25, plate 0.25 kg, plate half extents (0.65, 0.075, 0.6) | `parts/SpringPart.cs@a6c914e:L14-L18` | carry forward | Contract values. |
 | 2 | Parameter validation 120–1200, 0–8, 0–0.20 with an explicit message | `parts/SpringPart.cs@a6c914e:L50-L59` | carry forward | Admission bounds. |
-| 3 | Elastic and damping loads applied in `PreparePhysics` | `parts/SpringPart.cs@a6c914e:L67-L72` | do not carry forward (per-part loop) | Becomes a declared soft spring row. |
-| 4 | `Bounced` event and hit counter on plate contact ≥ 0.05 m/s | `parts/SpringPart.cs@a6c914e:L80-L85` | carry forward (event as typed output), do not carry forward (string event) | Typed signal integration. |
+| 3 | Elastic and damping loads applied in `PreparePhysics` | `parts/SpringPart.cs@a6c914e:L67-L72` | do not carry forward (per-part loop) | Now a declared soft spring row. |
+| 4 | `Bounced` event and hit counter on plate contact ≥ 0.05 m/s | `parts/SpringPart.cs@a6c914e:L80-L85` | do not carry forward | No acceptance consumes it (CAT-062 §2); see section 6. |
 | 5 | Lesson `spring_forward`: ball at (−3, 3.6, 0), receiver at (−0.7, 0.55, 0), solution springboard at (−3, 0.8, 0) tilted −20° | `tools/Campaign/SpringboardLesson.cs@a6c914e:L25-L36`; `content/puzzles.json@a6c914e:L707-L917` | carry forward | First lesson. |
 | 6 | Composite lanes: `Add` places each module lane at (X offset, Z offset) with a yaw about Y, rotating every module part's position and orientation and prefixing its id `laneN_` | `tools/Campaign/Program.cs@a6c914e:L323-L345` | carry forward (layout rule) | How the fifteen lanes are built. |
 | 7 | The fifteen springboard lane instances, as (level id, lane, module, X, Z, yaw°): (`bounce_and_roll`, 2, spring, 0, 2, 0); (`spring_and_chain`, 1, spring, 0, −2, 0); (`two_signals`, 2, spring_signal, 0, 2, 0); (`deep_springs`, 1, spring, −2, 0, 90); (`deep_springs`, 2, spring, 2, 0, −90); (`three_deliveries`, 3, spring, 0, 3, 0); (`triple_signal`, 2, spring_signal, 0, 0, 0); (`cold_front`, 3, spring, 0, 3, 0); (`bounce_mail`, 1, spring, 0, −3, 0); (`double_cold_start`, 2, spring, 0, 0, 0); (`signals_and_chain`, 2, spring_signal, 0, 0, 0); (`cold_signals`, 2, spring_signal, 0, 0, 0); (`depth_delivery`, 3, spring, 3, 0, −90); (`depth_telegraph`, 2, spring_signal, 0, 0, 90); (`bridges_and_signal`, 2, spring_signal, 0, 0, 0) | `tools/Campaign/Program.cs@a6c914e:L448-L450`, `tools/Campaign/Program.cs@a6c914e:L463-L468`, `tools/Campaign/Program.cs@a6c914e:L483-L485`, `tools/Campaign/Program.cs@a6c914e:L489-L499`, `tools/Campaign/Program.cs@a6c914e:L503-L505`, `tools/Campaign/Program.cs@a6c914e:L509-L511`, `tools/Campaign/Program.cs@a6c914e:L515-L526`, `tools/Campaign/Program.cs@a6c914e:L530-L532` | carry forward | The requirement's "all fifteen composite lane instances". |
@@ -112,15 +75,78 @@ Families: ContactImpulse, ElasticStorage, EnvironmentState, FiniteLedger, Geomet
 
 ## 5. Acceptance outline
 
-Follow [element-194](../requirements.md#element-194) and the [contract](../../springboard-elastic-contract.md#chrome-observable-acceptance-cat-062).
-- **Chrome UI recipe.** Open `spring_forward`; place the springboard under the ball and tilt it with the gizmo; Run.
-- **Positive.** Passive: the ball compresses the plate and rebounds toward the receiver. Precharged: a resting ball is launched once.
-- **Negative/control.** No springboard, a missed ball and an unloaded plate give no launch; a wire into the springboard is refused; the second bounce apex is lower than the first.
-- **Boundaries.** Each parameter endpoint; tilted frame; every one of the fifteen composite lane instances in fact 7: `bounce_and_roll`, `spring_and_chain`, `two_signals`, `deep_springs` (two yawed lanes), `three_deliveries`, `triple_signal`, `cold_front`, `bounce_mail`, `double_cold_start`, `signals_and_chain`, `cold_signals`, `depth_delivery` (yawed), `depth_telegraph` (yawed) and `bridges_and_signal`.
-- **Run/Reset.** Plate returns to authored compression.
-- **Save/Load.** Parameters and pose round-trip; `strength` rejects. The `ActivationOut` wire round-trip remains acceptance for the later signal slice once the proposed port decision in §6 is resolved; no such port is currently supported.
-- **Integrations.** Campaign row 1 (springboard) first use 1–10, reuse 21–30, 41–50, 91–100, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained springboard behaviour [todo-461](../requirements.md#todo-461); switch-and-lamp lanes with CAT-063 and CAT-035.
+Follow [element-194](../requirements.md#element-194) and the [contract](../../springboard-elastic-contract.md#chrome-observable-acceptance-cat-062). The Chrome recipe (open `spring_forward`, place the springboard under the ball and tilt it with the gizmo, Run) stays queued for the post-catalogue phase.
+
+### Closure check for the part
+
+| Criterion | Test |
+| --- | --- |
+| Precharged: a resting ball is launched by the finite preload | `SliderInstanceTests.APreloadedBoardLaunchesARestingBallAndAnUnchargedOneDoesNot` (`SliderInstanceTests.cs:36`), charged row: rise above 0.2 m |
+| **Exact source outcome, uncharged:** no free launch | The same theory, uncharged row: rise below 0.05 m |
+| **Exact source outcome, missed contact:** a ball beside a charged board is untouched | `SliderInstanceTests.AMissedBallGetsNothingFromAChargedBoard` (`:49`) |
+| Passive contact and the lesson, with no-spring and aimed-away controls | `LaunchLessonSolveTests.EachLaunchRouteSolvesOrStaysUnsolvedAndResetRestoresTheBench` (`LaunchLessonSolveTests.cs:239`): routes SpringPassive, SpringCharged, SpringZero, SpringAway; `AuthoredLessonSolvesAndOneMissingCausePreventsTheGoal` (`:111`) |
+| Boundaries: stops; parameter endpoints; compiled preload energy | `SliderInstanceTests.cs:61`; `WorkshopSpringboardTests.cs:146` |
+| Parameter refusal | `WorkshopSpringboardTests.InvalidPreloadRejectsResourceAndSaveBeforeAcceptedStateChanges` (`WorkshopSpringboardTests.cs:236`) |
+| Wrong-kind connection refusal (the part has no port) | the generic wrong-domain refusal in `BundlePortsTests` (`CuriousContraptions.tests/BundlePortsTests.cs:262`); `UnsupportedWireTailRejectsBeforeMutation` (`:98`) is a save-boundary test and is kept as that |
+| Run/Reset; Save/Load | `PalettePreviewHasArtWithoutInventedIdentityAndOwnedPlateResets` (`:267`) and the Reset half of `LaunchLessonSolveTests.cs:239`; `CurrentSaveAndWirePreserveF32Settings` (`:199`), `PreloadResourceSaveAndPhysicalRestPreserveExactF32` (`:218`) |
+
+The closure reviewer confirms one assertion by reading: that a delivered CAT-062 test shows the second bounce lower than the first (damping removes energy; the spring returns no more than was stored). If none does, the closure adds `SliderInstanceTests.ASecondBounceOffAPassiveBoardIsLowerThanTheFirst`: a ball dropped 1 m onto a default board, apex of bounce 2 below apex of bounce 1 by more than 0.01 m; control `damping` 8 gives a larger drop; stall guard 6 s.
+
+### Launch output rows (owner decision 7; planned, `SpringboardLaunchSignalTests`)
+
+Run on the production simulation through placed packages and wires. Stall guard 3 s of game time; no arrival tick is asserted, only the occurrence, its count and its causal order.
+
+| Row | Given / When / Then | Control | Boundary | Tolerance and its gameplay reason |
+| --- | --- | --- | --- | --- |
+| L1 | A board with `initial_compression` 0.2 m under a resting Tennis ball, `ActivationOut` wired to a Signal lamp. Run: exactly one Pulse is published, after Run starts and before the ball's apex, and the lamp lights | L2 | a resting Basketball (rise about 0.65 m, its centre crosses the plane) also fires once | exact count: a launch that fires twice or never breaks every signal lesson built on it |
+| L2 | Source outcome, no free launch: an uncharged board under the same ball, and a charged board with the ball 2 m to the side, publish nothing in 3 s | L1 | a resting Bowling ball on a charged board (rise about 0.19 m) publishes nothing | exact count 0 |
+| L3 | A Tennis ball dropped from 2 m over a passive board crosses the plane toward the plate: that crossing publishes nothing | L1 | the same drop beside the aperture | forward-only: a falling ball is not a launch |
+| L4 | The board placed on its side (launch axis +X) launches a ball sideways through the plane: one Pulse, the plane turning with the board | L1 | — | the sensor is in the board's frame |
+| L5 | Reset restores the authored state with no pending pulse; save and load keep the `ActivationOut` wire | — | — | exact field values |
+| L6 | An electrical or rope link to `ActivationOut`, and a second activation link on it, are refused with a typed reason and change nothing | the lamp wire is admitted | — | typed refusal |
+
+### Level criteria that stay open on the identity
+
+| Criterion | Level | Owner | Why it is not in the closure |
+| --- | --- | --- | --- |
+| Level 7 `spring_signal`, with the disconnected control (the part's own typed signal integration is rows L1 to L6) | 7 `spring_signal`: the springboard throws the ball onto an Impact switch wired to a Lamp; removing the wire, or the springboard, leaves the Lamp dark | a later Early level proof "Signals" batch; no contract exists yet (`_bmad-output/implementation-artifacts/spec-early-level-proof-batch-1.md:66` holds only levels 03, 05, 12 and 61) | A level proof, already planned; it uses only delivered parts |
+| All fifteen composite lane instances (harvest fact 7) | 30, 35, 36, 41 (two lanes), 43, 44, 45, 47, 49, 51, 52, 53, 54, 56 in `content/puzzles.json` | Each level's own proof after `ENGINE-GOALS` (every one has two to five goals) | The engine evaluates one goal per level today |
+
+Each level proof follows [delivery batches §4](../invest/delivery-batches.md#4-early-level-proof): the level loads, the intended solution solves within a generous stall guard, one missing cause fails, Reset restores and save/load round-trips. No arrival tick is asserted.
+
+### Integration
+
+- **Collaborators.** Ball, Receiver, Impact switch, Lamp, Domino, Fan, Conveyor: all delivered.
+- **Campaign.** Row 1 (springboard): first use 1–10, reuse 21–30, 41–50, 91–100, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained behaviour [todo-461](../requirements.md#todo-461). Level 4 `spring_forward` is Playable.
+- **Coverage binding.** Catalogue key `spring` (CAT-062). EL-194 has no package of its own and so no planned binding section; the launch output is added to the delivered package. The lanes place no locked springboard, so the closure needs no lesson-fixture story (S8); the composite levels are authored when proven.
+
+### Delivery
+
+- **Slice.** `named-el-194`: the launch sensor, `ActivationOut` and their binding added to `elements/Springboard/SpringboardElementDeclaration.cs` and `springboard.tscn` (socket locator), rows L1 to L6, the flush-stripe repair if not yet done, and the part-level check of the closure table above. Review tier: data-only once ENGINE-SENSOR-VOLUMES has moved passage sensing into the tick; otherwise engine. It does not close EL-194.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), which includes ENGINE-SENSOR-VOLUMES (passage sensing in the tick, frame-relative) and ENGINE-ISLANDS-SLEEP; then this slice. The identity closes only after level 7 (a later Early level proof Signals batch, no contract yet) and the fifteen lanes (after ENGINE-GOALS, five slices, owner decision 12).
+- **Files.** `docs/planning/invest/named-elements.md` (the element-194 entry cites `spring`, the tests above, and names the two open level criteria with their owners), this spec's status, `docs/planning/invest/delivery-batches.md` (EL-194 stays in 2c, with its two open criteria and their owners named), the review record.
+- **What would disqualify the plan.** A resting ball's centre reaching the launch plane on any admitted placement (then the plane rises, it is not given a dwell); the passage descriptor's forward axis not following the frame's rotation (row L4).
 
 ## 6. Open questions
 
-1. Is `ActivationOut` on plate contact (proposed) the required "typed signal integration", or is an input meant? Unspecified — owner decision.
+None open.
+
+1. Is the required "typed signal integration" a port on the Springboard? **Decided by the owner: yes** (owner decision 7, 22 November 2026): its own typed signal output that fires on launch, a declared sensor and port on general capabilities, as a refinement with new acceptance rows. The earlier D19 answer ("no port") and its owner item are withdrawn. A passage sensor above the plate is chosen over a contact trigger on the plate: a contact trigger cannot be owned by a moving body today (ENGINE-CONTACT-OBSERVATIONS), and a ball resting on the plate would be in contact before the launch.
+
+**Needs the owner.** None.
+
+## Engine conformance (22 November 2026)
+
+Checked against the owner addendum of 22 November 2026, with the package opened (`elements/Springboard/`) and the engine projects searched for the package id and name (no hit).
+
+1. **Declaration data only.** A static base, one slider body with a declared spring, damping and starting compression, parameters and bindings. No engine code names the package.
+2. **Generic laws.** The prismatic joint's spring and damping, a finite elastic store set by the declared starting compression, and contact. "No free launch" is conservation: an uncharged board holds no energy and a missed ball has no contact.
+3. **Three layers.** Colliders: the base and the plate, each with its proxy; the launch sensor is a declared region, not a collider. Visuals: base, plate, stripe and coil (four rings); none is a collider. Animation: the coil, drawn by a span binding from the committed compression (decorative, writes nothing back). The plate art follows the slider body's pose. One visible-solid defect is recorded above: the stripe is reported 8 mm proud and needs a flush redraw.
+4. **Flow and typing.** One typed `ActivationOut` Pulse port (planned); f32 Real parameters with declared units; nothing flows back from presentation.
+5. **Flat state.** Bodies 2 (1 static, 1 dynamic); colliders 2 (boxes); joints 1 prismatic; drives 0; sensors 1 passage (planned); signal nodes 1; stores 0 beyond the joint's elastic state; presentation bindings: the plate's body binding and the coil span.
+6. **Performance.** Two primitive colliders; one bounded passage region whose candidates come from ENGINE-SPATIAL-QUERIES through ENGINE-SENSOR-VOLUMES. Nothing is cosmetic in physics. No island sleeping exists today; a resting board costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered.
+7. **Tests are scenarios.** The delivered rows run the production simulation.
+
+**Verdict: conforms, with one art fix (the proud stripe) and the launch output of owner decision 7 to add from general capabilities; blocked on the engine programme (owner decision 3a).**
+
+**Record inconsistency noted for the coordinator.** `spec-6-5-springboard-preload.md` has status `in-review` and `spec-c-bumper-spring.md` has status `review`, while the preload parameter, its tests and the generic conversion are on published main. The closure cites the tests, not those records.

@@ -1,83 +1,126 @@
 # EL-013 · Water nozzle — named-identity spec
 
-**Current delivery (24 October 2026):** [EL-013 delivery slice](../invest/named-elements.md#element-013). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
+**Repair, 22 November 2026.** Repaired against the independent audit `docs/planning/elements/readiness/audits/elements-batch-f.md`, the conventions as restated in EL-001 and the owner decisions of that date. This part is blocked on the engine programme (owner decision 3a) before `ENGINE-LIQUID`.
 
-Story 7.0 named-identity spec ([readiness spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations `path@a6c914e:Lstart-Lend` resolve with `git show a6c914e:<path>` after the Epic 7 purge. A value marked **proposed** has no legacy or requirement source; it carries a one-line justification and the owner may revise it.
+**Current delivery (24 October 2026):** [EL-013 delivery slice](../invest/named-elements.md#element-013). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes.
+
+Brought to build-ready detail on 22 November 2026 against checkout `8d1d68aa`. The liquid conventions L1 to L18 and the capability probe rows W1 to W24 are in [EL-001](EL-001-finite-reservoir.md); the pipe-kit values are in [EL-008](EL-008-straight-water-pipe.md). Sizes are in metres.
 
 ## Identity
 
 | Field | Value |
 | --- | --- |
-| EL ID / name / type | EL-013 · Water nozzle · Water |
-| Requirement anchor | [element-013](../requirements.md#element-013); source record [todo-335](../requirements.md#todo-335); integration task [sequence-task-385](../requirements.md#sequence-task-385) |
-| Named entry | [element-013](../invest/named-elements.md#element-013); per-element proof owner S434 |
-| CAT spec refined | None. |
-| Related identities | [EL-008](EL-008-straight-water-pipe.md) (shared pipe-kit values), [EL-002](EL-002-header-tank.md) (head source), [EL-022](EL-022-water-pump.md) (pumped head), [EL-004](EL-004-catch-basin.md) (target), EL-036 Sprinkler (distributed source, separate) |
-| Roadmap story | [EL-013 delivery slice](../invest/named-elements.md#element-013); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Identity | EL-013 · Water nozzle · Water |
+| Anchors | [element-013](../requirements.md#element-013), co-anchored `sequence-task-566`; source record [todo-335](../requirements.md#todo-335); integration [sequence-task-385](../requirements.md#sequence-task-385); ledger [element-013](../invest/named-elements.md#element-013), owner S434 |
+| Disposition | To deliver as a single element, last of the "Water pipe kit" run |
+| Planned package | id `water_nozzle`, directory `elements/WaterNozzle/`, title "Water nozzle" |
+| Status | Not started. Blocked on the engine programme (owner decision 3a), then `ENGINE-LIQUID` |
+| Related | [EL-008](EL-008-straight-water-pipe.md), [EL-002](EL-002-header-tank.md) (head), [EL-022](EL-022-water-pump.md) (pumped head), [EL-004](EL-004-catch-basin.md) (target), EL-036 |
 
 ## Declaration
 
-**Shared water values** (identical in every Water-1 spec, EL-001 to EL-022; each is one family constant shared with Batch G):
-- Liquid density ρw = 16 kg/m³, one constant for the whole water family, aligned between Batch F (EL-001–EL-022) and Batch G (EL-023–EL-036, EL-165–EL-172) (**proposed**: catalogue bodies have mean densities of 2–44 kg/m³ — Domino 2.2, Basketball 6.1, Bowling ball 43.5; at 16 the instances this batch chose for the S416 buoyancy construction behave as it asks — the Basketball, lighter than water, floats and the Bowling ball, denser, sinks — and water loads stay comparable to ball masses).
-- Volume step 2⁻⁴ m³ ([component research, water](../../component-research.md#water), line 26), which weighs 1 kg at ρw.
-- Gravity 9.81 m/s² (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L123`).
-- Orifice discharge Q = Cd · s · A · √(2 g Δh), Cd = 0.6 (**proposed**: the standard sharp-edged orifice coefficient; one bounded law for every aperture; the law itself is owned by S416 advection → S418).
-- Standard water mouth: bore radius 0.10 m, collar outer radius 0.16 m, collar length 0.06 m (**proposed**: visibly narrower than the 0.65 m ball-pipe bore, `engine/gpu/WorkshopPipe.cs@a6c914e:L6-L11`, so water and ball pipes are never confused).
-- Static water-vessel contact material, one family constant: restitution 0.12, bounce threshold 0.1 m/s, friction 0.3, rolling resistance 0, reusing the Receiver's values (`engine/gpu/WorkshopPhysicsCompiler.cs@a6c914e:L57-L63`) (**proposed** reuse: vessels are the same matte toy material as the Basket).
-- Buoyancy of floating bodies: immersion damping c = 1.0 1/s, one family constant (**proposed**: aligned with Batch G; full law in [EL-016](EL-016-float.md)); every floating body's buoyant acceleration must stay under the 64 m/s² force-region clamp ([capability inventory](../../gpu-f32-physics.md#capability-inventory)).
+Closest delivered shape: the ball Funnel's Frustum wall (`elements/Funnel/FunnelElementDeclaration.cs:10`).
 
-**Shared pipe-kit values** (EL-008 to EL-013, stated in full in [EL-008](EL-008-straight-water-pipe.md)): mouth join within 0.15 m and 10° of opposite (**proposed**); lossless sealed conduits (**proposed**); transit volume = bore area × centreline length; an unjoined mouth discharges as a free stream and never feeds an unjoined neighbour.
+- **Interfaces.** `ISceneGeometryElement`, `IMechanicalElement`, the liquid fitting and seat declaration of `ENGINE-LIQUID` (W4, W7).
+- **Body.** One static body, mass 0. Axis local X; origin at the centre.
+- **Collider (one).** Frustum wall 0.30 long: inner radius 0.10 at x = −0.15 tapering to 0.04 at x = +0.15, radial wall 0.04 (outer 0.14 to 0.08).
+- **Liquid node.** One fitting, zero volume, with one fixed seat at the exit: area A_n = π × 0.04² = 0.005027 m², so K_n = 0.6 × 0.005027 × 4.42945 = **0.01336**.
+- **Mouth.** `Start` at (−0.15, 0, 0), normal −X, pipe bore, Intake.
+- **Outlet (not a mouth).** A declared free end at (+0.15, 0, 0), normal +X, behind the seat. Nothing joins it; it only launches a stream (L8).
+- **Parameters.** None. Aim is the part's pose.
+- **Presentation.** None driven; the stream is drawn by the shared liquid presentation (W8). **Palette.** `ElementCategory.Structure`; palette order 527 (kit sequence in EL-008; coordinator decision 36, [palette allocation](readiness/palette-allocation.md)); colour gold.
 
-**Element declaration:**
-- **Bodies and shapes.** One static body: a converging cone 0.30 m long from the 0.10 m bore (inside the standard collar) to an exit radius 0.04 m (**proposed**: a (0.10 / 0.04)² = 6.25 : 1 area ratio gives a thin, readable jet). Collider: one box 0.32 × 0.32 × 0.30 m (**proposed** stand-in; no cone collider, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L120`).
-- **Mass and material.** Static, zero mass; shared vessel material.
-- **Constraints.** None.
-- **Typed ports.** `WaterInlet` standard mouth (joins a pipe) and `JetOutlet`, a non-joinable free-stream emitter on the axis at the exit plane. Domain `Water` (**proposed**).
-- **Sensors and activation.** None.
-- **Work and energy stores.** None; the nozzle converts the supplied head into jet speed only. Jet exit speed v = Cv · √(2 g Δh), Cv = 0.95 (**proposed**: typical smooth-nozzle velocity coefficient; keeps v strictly below the frictionless value so no reach is invented), where Δh is the supply surface above the exit. Flow Q = A_exit · v. Jet packets launch along the axis at v and then fly under gravity; v ≤ 64 m/s is guaranteed by any bench-scale head (the [envelope](../../gpu-f32-physics.md#game-grade-envelope) clamp never engages).
-- **Rated reach (derived, not authored).** At a rated head of 2.0 m (**proposed**: what a full EL-002 at StandHeight 1.0 — surface 2.15 m above the bench — gives above an exit at 0.14 m, the axis height of a pipe lying on the bench): v ≈ 5.95 m/s, Q ≈ 0.030 m³/s (0.48 kg/s), momentum rate ρw · Q · v ≈ 2.85 N, and a 45° throw returns to exit height at v²/g ≈ 3.6 m. Reach scales with Δh, so half the head gives about half the reach.
-- **Parameters.** None (**proposed**: direction set by the rotate gizmo; the rated reach is a label derived from the rated head).
-- **Cosmetic curves and UI bindings.** Jet ribbon follows committed packets; cosmetic spray never decides capture ([component research](../../component-research.md#water), line 20). Selected-only reach preview arc at the current head (**proposed**, following the "selected-only footprint preview" pattern of line 44).
-- **Art.** Gold cone `#f7cb52` (`DESIGN.md@a6c914e:L154-L154`) with a navy tip ring `#293954` (`DESIGN.md@a6c914e:L147-L147`) (**proposed**: the active end is gold like other operational cues, `DESIGN.md@a6c914e:L189-L189`).
-- **Catalogue and inventory entry.** Id `water_nozzle`, title "Water nozzle", category "Water", kind `WaterNozzle` (all **proposed**).
+### Art and solidity
 
-**Variants.** The requirements row lists no variants.
+| Node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Cone` | Frustum as the collider, gold `#f7cb52` | solid, hollow; the Frustum collider | body pose (static) |
+| `Visual/TipBand` | Navy `#293954` band at the tip, flush | decorative: printed flat | nothing |
+| `Loc_Port_mouth_start` | Locator, bore 0.10 | none | nothing |
+| `Loc_Outlet` | Locator at the exit | none | nothing |
+
+Icon: a gold cone narrowing to a dark tip. It differs from the Water funnel (wide, cream, open on top) by being a small closed cone on a pipe axis.
+
+### Behaviour and numbers
+
+- **Law (L7, L8).** Supplied by a store through the nozzle there are two apertures in series, the store's mouth join (K₀) and the exit seat (K_n): K = 1/√(1/K₀² + 1/K_n²) = 0.01336 / √(1 + 0.0256) = **0.01319**. The stream leaves at v = Q / (Cd·A_n) = K·√h / 0.003016, so v² = 0.975 × 2·g·h: 97.5% of the head becomes jet speed, never more than all of it.
+- **Rated head 2.0 m** (a full Header tank at `stand_height` 1.36, surface 2.51 m, above a nozzle whose exit is 0.50 m above the bench): Q = 0.01319 × 1.414 = 0.01866 m³/s (0.30 kg/s); v = 6.19 m/s. Thrown at 45° over level ground the stream returns to exit height v²/g = **3.90 m** away. This is the rated reach.
+- **Reach follows head.** v²/g = 1.95 × h for a 45° throw: 1.0 m of head reaches 1.95 m, 0.5 m reaches 0.98 m. As the tank drains the reach shortens. No head, no jet.
+- **A thin jet drains slowly.** The Header tank falls from 1.0 m to 0.68 m of depth (head 2.01 to 1.69 m) in (2·A/K)·(√2.01 − √1.69) = (0.5 / 0.01319) × 0.118 = 4.5 s.
+- **No force on bodies.** The stream is a transfer path (L8, L12). What it meets first receives the liquid or spills it.
+
+**Acceptance geometry (used by rows N1 to N3).** A nozzle joins only in line with its pipe, so it is aimed with a 45° elbow: tank mouth → pipe → 90° elbow down → pipe → 90° elbow → pipe along the bench → 45° elbow up → nozzle. Its exit is then 0.50 m above the bench at x = 0, aimed 45° up along +X. With `stand_height` 1.36 the head is 2.01 m, v = 6.20 m/s and the path is y = 0.50 + x − 0.2551·x². It crosses the height of a Catch basin's rim (0.55 m) on the way down at x = 3.87 m. Place the basin with its long axis along X and its centre at x = 3.87: rim opening from 3.245 to 4.495 m, near outer wall at 3.125 m, where the stream is 1.13 m up and clears the 0.55 m wall. The stream keeps landing in the opening while the downward crossing stays beyond 3.245 m, that is while v ≥ 5.69 m/s, head ≥ 1.69 m: the first 0.32 m of tank depth, 0.080 m³. With `stand_height` 0.5 and `initial_volume` 0.125 (surface 1.15 m, head 0.65 m), v = 3.53 m/s and the stream reaches the bench at x = 1.65 m, short of the basin's near wall.
 
 ## Engine capabilities
 
-Families ([element map](../general-engine-element-map.md); binding [`element-01.json`](../../coverage/engine/element-01.json), consumer `element/element-013`): EnvironmentState, FiniteLedger, FluidAdvection, GeometryQuery, JointConstraint, PressureWork, RigidBodyDynamics, StateTransaction, TopologyTransaction.
+| Row (EL-001 probe) | Mark | Use here |
+| --- | --- | --- |
+| W1 static body; W2 Frustum collider | present | body |
+| W22 authored state | present | pose |
+| W4 fluid port contract | present, untested | fitting and mouth |
+| W3 tube mouth and snap | narrower | join not compiled |
+| W7 a fixed seat with its own area in series | missing | `ENGINE-LIQUID` |
+| W8 a free end that is not a mouth, launching a stream at Q/(Cd·A) along its normal | missing | `ENGINE-LIQUID` (gap in its text) |
 
-- **Exists now.** Static box (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L120`); constant gravity for ballistic flight (`engine/gpu/WorkshopConstruction.cs@a6c914e:L123-L124`); the speed envelope ([game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope)).
-- **Missing.** Free-stream packets with initial velocity and swept capture ([S416](../invest/decisions.md#s416) advection → S418); head-to-speed conversion (pressure-work → S419). Jet impact on bodies needs ContactImpulse coupling, which is not in this element's family list (see Open questions). Required in the linked delivery slice.
-- **Element dependencies.** A head source (EL-002 via pipes, or EL-022); EL-004 target.
+Counts: 3 present, 1 untested, 1 narrower, 2 missing; one owner.
+
+### Engine conformance (22 November 2026)
+
+1. **Declaration data only.** A static body, one collider, one fitting with one fixed seat, one mouth, one outlet.
+2. **Generic laws.** "Trades supplied pressure for a bounded directed jet" is a small aperture in series (L7) and the stream start speed rule (L8), which every free end obeys; the nozzle only declares a smaller area. "Insufficient head cannot produce the rated reach" follows from v² being proportional to h.
+3. **Three layers.** *Collider:* one Frustum. *Visuals:* the table above. *Animation:* none of its own.
+4. **One-way flow and typing.** Mouth id and role are enums; the seat area is f32 data.
+5. **Flat-state counts.** Bodies 1 (static); colliders 1 Frustum; joints 0; drives 0; sensors 0; liquid nodes 1 fitting; seats 1; mouths 1; outlets 1; bindings 0; parameters 0.
+6. **Performance fitness.** One collider. One stream path per substep, bounded as L18 requires; a fast thin stream is still one path, so there is nothing to tunnel.
+7. **Tests are scenarios.** Rows N1 to N6.
 
 ## Sources and legacy
 
-- Requirements row: "Insufficient head cannot produce the rated reach." No variants.
-- Refinement [S705](../invest/refinements.md#s705) nozzle "Convert pressure to a declared outlet jet"; component research pipe-kit row (line 28) and free-stream packet row (line 15).
-- **Legacy search.** No liquid nozzle. The gas-domain nozzle gives analogue facts:
+- Requirement: "Trades supplied pressure for a bounded directed jet"; outcome "Insufficient head cannot produce the rated reach." No variants.
+- Refinement [S705](../invest/refinements.md#s705) nozzle; component research [water](../../component-research.md#water) lines 15, 20 and 28.
+- **Legacy search.** No liquid nozzle. Gas-nozzle analogue:
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Zero area, or equal upstream and back pressure, gives the NoFlow regime with zero mass rate and speed. | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L39-L57` | Carry forward: zero head gives no jet. |
-| 2 | Back pressure above source pressure throws ("forward flow only"). | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L54-L55` | Do not carry forward the exception (game-grade clamp-or-continue): reverse head simply gives no forward jet. |
-| 3 | Mass rate = area × density × speed; momentum rate = mass rate × speed; thrust adds the pressure force. | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L76-L81` | Carry forward mass rate and momentum rate. Do not carry forward the compressible (choked, adiabatic) law: liquid is incompressible, v = Cv √(2 g Δh). |
+| 1 | Zero area, or equal upstream and back pressure, gives no flow. | `engine/physics/ConvergingGasNozzle.cs@a6c914e:L39-L57` | Carry forward: no head, no jet. |
+| 2 | Back pressure above source pressure throws. | `ConvergingGasNozzle.cs@a6c914e:L54-L55` | Not carried: reverse head simply gives no jet (clamp or continue). |
+| 3 | Mass rate = area × density × speed; momentum rate = mass rate × speed. | `ConvergingGasNozzle.cs@a6c914e:L76-L81` | Carry forward the mass rate. The momentum rate is not applied to bodies (L12). Not the compressible law. |
+
+**Files harvested:** `engine/physics/ConvergingGasNozzle.cs` (analogue only).
 
 ## Acceptance outline
 
-Point of truth: [element-013](../requirements.md#element-013).
+Authority: [element-013](../requirements.md#element-013). Tolerances L17. Planned class `WaterNozzleTests`. Constructions use the acceptance geometry above.
 
-- **Chrome recipe.** Header tank (EL-002) at StandHeight 1.0 and InitialVolume 0.25 (full surface 2.15 m, head ≈ 2.0 m above the exit) → pipes along the bench → Water nozzle aimed 45° up with the rotate gizmo (exit 0.14 m above the bench). Catch basin centred 2.9 m from the exit, long side (outer 1.49 m, rim aperture 1.25 m) along the jet: outer near wall at 2.155 m, rim aperture 2.275–3.525 m.
-- **Positive.** At rated head the jet passes the near wall about 1.0 m above the bench (wall top 0.55 m), crosses the rim plane at ≈ 3.14 m — inside the aperture — and lands inside the basin (it meets the far inner wall at ≈ 0.22 m, above the 0.15 m floor). The basin catches the jet while the head stays above ≈ 1.54 m, about the first 0.115 m³ the header tank releases.
-- **Negative / control.** Header tank at StandHeight 0.5 with InitialVolume 0.125 (surface 1.15 m, head ≈ 1.0 m): v ≈ 4.23 m/s and the jet lands on the bench ≈ 1.95 m from the exit, short of the basin's near wall; the basin stays empty — insufficient head cannot reach. Empty tank: no jet.
-- **Boundaries.** As the tank drains the jet visibly shortens; once the head falls below ≈ 1.54 m the rim crossing moves inside 2.275 m and the jet strikes the near wall or the bench. Reach never exceeds the value for the current head. A capped nozzle inlet emits nothing.
-- **Run/Reset.** Exact restoration of volumes and packets. **Save/Load.** Pose, aim and joins survive reload.
-- **Integrations.** [sequence-task-385](../requirements.md#sequence-task-385) (source record [todo-335](../requirements.md#todo-335)): nozzles join by compatible water ports with the straight sections, elbows, T and cap. Generic interaction rows [IX-08 Fluid advection](../requirements.md#interaction-08) and [IX-09 Pressure work](../requirements.md#interaction-09) (head converted to jet speed). Campaign first use 61–70, reuse 71–90, 114, 126–130, 136–150 ([campaign table](../requirements.md#campaign-element-coverage)).
+| # | Given / When / Then | Planned test | Control | Boundary |
+| --- | --- | --- | --- | --- |
+| N1 | Given `stand_height` 1.36 and a full tank, when Run advances 3 s, then the basin at 3.87 m gains what the tank loses within 0.004 m³ and `Spilled` is 0 | `WaterNozzleTests.RatedHeadReachesTheBasin` | N2 | — |
+| N2 | Given `stand_height` 0.5 and `initial_volume` 0.125 (head 0.65 m), when Run advances 3 s, then the basin holds 0 and the tank's loss is in `Spilled` | `WaterNozzleTests.InsufficientHeadFallsShort` | N1 | — |
+| N3 | Given N1 run on until the tank's depth is below 0.6 m (head 1.61 m, reached at about (0.5 ÷ 0.01319) × (√2.01 − √1.61) = 5.6 s), then the basin has stopped gaining while the tank is still losing, and the basin's total is 0.080 m³ within 0.02 m³ | `WaterNozzleTests.ReachShortensAsTheHeadFalls` | — | stall guard 15 s for the depth to fall below 0.6 m (inside the default 30 s Run) |
+| N4 | Given the nozzle's committed flow at head 2.01 m, then it is 0.0187 m³/s within 10%, about a fifth of what the same route passes without the nozzle (0.0837 m³/s) | `WaterNozzleTests.TheNozzleThrottlesTheRoute` | the bare pipe end | — |
+| N5 | Given an empty tank, or a cap in place of the supply, then no stream leaves | `WaterNozzleTests.NoHeadNoJet` | N1 | — |
+| N6 | Given a solid Wall across the stream's path, then the basin holds 0; Reset restores the tank; save and load keep the aim and the join | `WaterNozzleTests.AWallStopsTheStreamAndTheAimSurvivesReload` | N1 | — |
+
+Generic cover: W22. Chrome recipe (pending): Header tank at stand height 1.36, pipes and elbows down to the bench, a 45° elbow and a nozzle, a basin 3.87 m away.
 
 ## Open questions
 
-1. Does the jet push bodies (momentum transfer ≈ 2.85 N at rated head)? If yes, add ContactImpulse to the element's families (owner S416/S418).
-2. Exit radius 0.04 m and Cv 0.95: confirm.
-3. Is the "rated reach" shown to players as a number or only as the selected-only preview arc?
-4. ρw = 16 kg/m³ is one water-family constant, aligned with Batch G (EL-023–EL-036, EL-165–EL-172); the owner confirms or replaces it once for the whole family (S416 buoyancy row → S420). Free-stream packet volume and budget are unspecified — owner S418.
+All resolved; none needs the owner.
+
+1. Does the jet push bodies: no (D19; no requirement row or lesson uses it). A general stream force would be an `ENGINE-LIQUID` addition if a later part needs it.
+2. Exit radius 0.04 m: kept (D1). The velocity coefficient 0.95 is replaced by the one family Cd, which gives 97.5% of the head as speed in this route.
+3. Rated reach shown to players: as a selected-part preview arc at the current head, which is Workbench presentation and reads committed head (L13); not a parameter.
+
+## Integration
+
+- **Works with.** EL-002, EL-008 to EL-010, EL-004, EL-022; none delivered. The delivered Wall blocks the stream in N6.
+- **Campaign.** Chapter 7, levels 61–70; reuse 71–90, 114, 126–130, 136–150. Needs the lesson-fixture story (S8).
+- **Coverage binding (planned, not yet live).** A binding section in the form main's coverage reader reads is written by the slice only once S7 allows, as EL-001 describes; S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15). **Blocked on the coverage follow-on story S7** (umbrella `todo-335`; `sequence-task-566` not co-anchored with a todo; no `s434` anchor).
+
+## Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), then: `ENGINE-LIQUID`; EL-001; EL-002; EL-008; the elbow family; EL-004; S7.
+- **Files.** Adds `elements/WaterNozzle/WaterNozzle.csproj`, `WaterNozzleElementDeclaration.cs`, `water_nozzle.tscn`, `icon.svg`, `CuriousContraptions.tests/WaterNozzleTests.cs`; edits `CuriousContraptions.slnx` and this spec.
+- **Review tier.** Data-only.
+- **Disqualifiers.** A stream that always starts at zero speed; an outlet that must be a joinable mouth; a seat area that cannot be fixed data.

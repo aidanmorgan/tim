@@ -2,7 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-202 delivery slice](../invest/named-elements.md#element-202). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citation is `path@a6c914e:Lstart-Lend` and resolves with `git show a6c914e:<path> | sed -n 'start,endp'`. **Proposed** marks an unsourced design value with a one-line justification; the owner may revise it. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
+Story 7.0 named-identity spec (Batch J). Harvest citations are `path@a6c914e:Lstart-Lend`. **Build-ready revision, 21 November 2026:** sections 1–3, 5 and 6 were verified against checkout `8d1d68aa`; citations of the form `path:line` are in that checkout, and test files are under `CuriousContraptions.tests/`. All values are canonical IEEE-754 f32 game values inside the [game-grade envelope](../../gpu-f32-physics.md#game-grade-envelope).
 
 ## 1. Identity
 
@@ -15,69 +15,55 @@ Story 7.0 named-identity spec (Batch J). Baseline commit `a6c914e`; every citati
 | Proof owner | S311 |
 | Refines / extends | Refines [CAT-019 conveyor](CAT-019-conveyor.md) ([requirement](../requirements.md#current-cat-019)); the full legacy harvest is in that spec |
 | Related | EL-199 Electric motor (drive), EL-200 Drive belt (link), EL-203 Reverse transmission |
-| Roadmap story | [EL-202 delivery slice](../invest/named-elements.md#element-202); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Delivered part | Package `conveyor`, directory `elements/Conveyor` (Story 11.1b, record `spec-11-1b-conveyor.md`, status done; commit `a0f6c4c0`) |
+| Disposition | **Candidate Duplicate closure of CAT-019.** The identity has no behaviour, parameter, port, mode, material or acceptance of its own. It is closed in the "Drive train" closure-review group ([delivery batches 2a](../invest/delivery-batches.md#2-duplicate-closures)) by the check in section 5. No package, palette or catalogue entry of its own |
+| Status | Behaviour delivered; closure review not yet run; blocked on the engine programme (owner decision 3a), which comes first and re-qualifies the delivered package (relying most on ENGINE-ISLANDS-SLEEP). Browser qualification pending |
+
+**What EL-202 adds over the delivered part: nothing.** Ledger sentence: "Finite-work driven surface moves cargo through actual contact and friction." Exact source outcome: "Unpowered or noncontact cargo is not carried along a hidden path." Both are executed by the delivered tests in section 5.
 
 ## 2. Declaration
 
-All values are sourced through [CAT-019](CAT-019-conveyor.md); this EL adds no new value.
+Delivered declaration, read from `elements/Conveyor/ConveyorElementDeclaration.cs`. Where a value below differs from the harvest in [CAT-019](CAT-019-conveyor.md), the delivered value governs.
 
-### Bodies and shapes
-- **Carrier (static).** Box full size length × 0.24 × width m at the origin; belt top at +0.12 m (`parts/ConveyorPart.cs@a6c914e:L84-L90`).
-- **Driven roller (dynamic shaft).** Radius 0.16 m, axial length width + 0.1 m, at (−length/2 + 0.15, −0.07, 0) (`parts/ConveyorPart.cs@a6c914e:L20-L24`).
+- **Interfaces.** `IHingeElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:20`), `IDrivenSurfaceElement` (`:80`), `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`) (`:13`).
+- **Bodies.** Static carrier (scene colliders: carrier box, two rails, idle roller, two supports) and one dynamic driven roller: radius 0.16 m, length 1.3 m, 0.5 kg, solid-cylinder moments (transverse m(3r² + w²)/12, axial mr²/2) (`:15`–`:17`, `:94`–`:105`). Footprint 2 bodies, 1 moving, 1 revolute (`:40`).
+- **Material.** Carrier and roller: restitution 0.05, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:56`–`:60`).
+- **Hinge.** Continuous revolute about local +Z at (−1.35, −0.07, 0); no spring; bearing friction 0.02 N·m; no drive of its own; roller and carrier do not collide (`:80`–`:107`).
+- **Driven surface.** The carrier's +Y face moves along local +X at `surface_per_radian` × the roller's rate (`:109`–`:114`). Cargo moves only through contact friction on that face.
+- **Parameters** (all build-only reals, editor default policy):
 
-### Mass and material
-Roller 0.5 kg with cylinder inertia (`parts/ConveyorPart.cs@a6c914e:L20-L20`, [CAT-019](CAT-019-conveyor.md)); belt material restitution 0.05, bounce threshold 0.1 m/s, friction 0.3 (`parts/ConveyorPart.cs@a6c914e:L72-L72`).
+  | Name | Unit | Min | Max | Default |
+  | --- | --- | --- | --- | --- |
+  | `length` | m | 1.0 | 10.0 | 3.0 |
+  | `width` | m | 0.6 | 4.0 | 1.2 |
+  | `surface_per_radian` | m/rad | 0.1 | 5.0 | 0.6666667 |
 
-### Constraints and joints
-- Free roller hinge about local +Z, connected collision disabled (`parts/ConveyorPart.cs@a6c914e:L40-L45`).
-- Driven surface: the carrier face with normal +Y moves along +X at −`surface_per_radian` × the roller's relative hinge rate (`parts/ConveyorPart.cs@a6c914e:L46-L49`; law `engine/physics/DrivenSurface.cs@a6c914e:L9-L20`). Cargo moves only through contact friction on that face.
+  (`:35`–`:37`). The harvest's "≠ 0, signed" range for `surface_per_radian` is superseded: the value is positive, and travel is reversed by reversing the shaft (Reverse transmission), not by a negative ratio. The harvest's "upper bounds open" note is closed by these ranges.
 
-### Typed ports
-| Socket | Domain | Direction | Source |
-| --- | --- | --- | --- |
-| `DriveIn` | Mechanical | Input, −1 per radian | `parts/ConveyorPart.cs@a6c914e:L64-L71` |
-| `Drive` | Mechanical | Output, −1 per radian (relay) | same |
+  **CAT-019 residual, not closed here (22 November 2026, audit M20).** `length` and `width` are admitted, saved and refused out of range, but they bind no collider, hinge frame or port (`elements/Conveyor/ConveyorElementDeclaration.cs:35`–`:36` declare them and nothing reads them; the hinge and both ports are at fixed positions). Every delivered conveyor is therefore 3.0 × 1.2 m whatever the two values say, while CAT-019 requires them to define the surface (`docs/planning/requirements.md:570`). EL-202 adds nothing to CAT-019, so its closure stands; the residual belongs to CAT-019 and needs a general capability whose owner is ENGINE-PARAMETER-BOUND-FRAMES (the size binding of a carrier; owner decision 3a places it before its first consumer, CAT-019).
+- **Ports.** `PortId.DriveIn` (role `DriveIn`, Mechanical, input) at (−1.35, −0.07, 0.78) and `PortId.Drive` (role `Drive`, Mechanical, output) at (1.35, −0.07, 0.78), both facing +Z on revolute coordinate 0 with +1 coordinate per radian and a 0.22 m rim (`:44`–`:51`). The harvest's "−1 per radian" is superseded.
+- **Stores.** None. Work arrives only through `DriveIn`.
+- **Presentation.** The roller follows its body; `Visual/PulleyOut` turns with the committed revolute angle (`:19`–`:22`).
+- **Palette.** Category Motion, order 37, id `conveyor`, title "Conveyor belt" (`:25`–`:30`).
 
-### Sensors and activation
-None. An activation command is not mechanical energy ([CAT-019](CAT-019-conveyor.md)).
+### Art and solidity
 
-### Work and energy stores
-None of its own; work arrives only through `DriveIn`, and the roller's finite kinetic energy coasts after supply loss.
+Classified in `VisibleSolidColliderTests.cs:88`: solid with colliders are `Visual_Carrier`, `Visual_RailA`, `Visual_RailB`, `Visual_IdleRoller`, `Visual_SupportA`, `Visual_SupportB` and `Roller/Visual_Roller`; listed decorative are `Roller/PulleyIn/*` and `PulleyOut/*`.
 
-### Parameters
-
-| Name | Type | Range | Default | Unit | Source |
-| --- | --- | --- | --- | --- | --- |
-| `length` | f32 | > 0 | 3.0 | m | `parts/ConveyorPart.cs@a6c914e:L74-L82`, `parts/catalog/conveyor.tres@a6c914e:L14-L14` |
-| `width` | f32 | > 0 | 1.2 | m | same |
-| `surface_per_radian` | f32 | ≠ 0, signed | 0.666666667 | m per rad | same |
-
-Upper bounds are a [CAT-019 open question](CAT-019-conveyor.md#6-open-questions).
-
-### Cosmetic curves and UI bindings
-Treads, port pulleys (radius 0.22 m, `parts/ConveyorPart.cs@a6c914e:L111-L117`) and the direction arrow follow committed roller motion ([CAT-019](CAT-019-conveyor.md)). UI: parameters through the configuration pattern (`ui/WorkshopConfiguration.cs@a6c914e:L43-L75`).
-
-### Art
-Conveyor colour `#d69c47` (`parts/catalog/conveyor.tres@a6c914e:L13-L13`); carrier `#273744` (`parts/ConveyorPart.cs@a6c914e:L90-L90`); [DESIGN colour system](../../../DESIGN.md#colour-system); [mechanical work feedback](../../../DESIGN.md#mechanical-work-feedback).
-
-### Catalogue and inventory entry
-Id `conveyor`, title "Conveyor belt", category Motion (`parts/catalog/conveyor.tres@a6c914e:L8-L14`). Declare the package with a counted allowance keyed by its bundle-issued typed id (`engine/gpu/WorkshopInventory.cs@a6c914e:L9-L23`).
-
-### Variants
-One outcome in the row; no variants.
+**Recorded visible-solid defect.** `spec-elements-visible-solid-remainder.md` (part B) measured on `8d1d68aa`: the input and output pulley wheels are cylinders of radius 0.22 m and length 0.1 m at z 0.78, outside every collider; the input pulley rides the roller's hinge body with no binding. Part B gives both wheels cylinder colliders and redraws the input spoke flush. That repair is owned by part B, not by this closure. Colours: conveyor `#d69c47`, carrier `#273744` ([DESIGN colour system](../../../DESIGN.md#colour-system)).
 
 ## 3. Engine capabilities
 
-Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, RigidBodyDynamics, ShaftTorque, SlidingFriction, plus StateTransaction ([map row](../general-engine-element-map.md); [element-03.json](../../coverage/engine/element-03.json)).
+Map families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, GeometryQuery, JointConstraint, RigidBodyDynamics, ShaftTorque, SlidingFriction, StateTransaction ([map row](../general-engine-element-map.md); navigation only, decision D14). The harvest's "Missing" list is superseded: every capability is present.
 
-**Exists now**
-- Static carrier box, dynamic cargo and Coulomb friction: `engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L120`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L701-L719`.
+| Capability | Status | Evidence |
+| --- | --- | --- |
+| Continuous revolute hinge with bearing friction | present | `RevoluteHingeDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:149`); `RevoluteDriveTests.AContinuousHingeTurnsPastTheFullCircleWithNoStopImpulseAndAccumulatesItsTravel` (`RevoluteDriveTests.cs:195`) |
+| Driven surface coupled to a coordinate, with shaft reaction | present | `DrivenSurfaceDescriptor` (`MechanicalContractValues.cs:241`); `DrivenSurfaceBindingTests.CoastingSourcePaysForCargoMotionAndUnloadedControlKeepsItsSpin` (`DrivenSurfaceBindingTests.cs:379`), `ABlockedLoadReactsOnTheSelectedShaft` (`:576`) |
+| Mechanical `DriveIn`/`Drive` ports and shaft links | present | `ConveyorTests.ChainedConveyors_DriveRelaysRotationToDownstreamConveyor` (`ConveyorTests.cs:417`) |
+| Revolute-angle presentation binding | present | `ConveyorTests.TheRollerArtFollowsTheCommittedRollerPoseAndResetsToItsScenePose` (`:608`) |
 
-**Missing** ([CAT-019](CAT-019-conveyor.md#3-engine-capabilities))
-- Roller hinge (Story 10.3), driven-surface friction law with shaft reaction, mechanical domain and sockets, cylinder collider, cosmetic bindings: Story 11.1. Owner S311.
-
-**Dependencies.** CAT-042 motor (Story 11.1) and through it CAT-005 battery (Story 8.1).
+Nothing here needs element-specific engine code.
 
 ## 4. Sources and legacy
 
@@ -88,7 +74,7 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, G
 | 1 | Driven surface speed = travel-per-radian × axis·(ω_shaft − ω_carrier) | `engine/physics/DrivenSurface.cs@a6c914e:L9-L20` | carry forward (law), do not carry forward (CPU class) | Contact transport without copied speed. |
 | 2 | Accepted: an unpowered belt holds the ball until a switched motor drives it, then the ball moves past x = 0.5 | `CuriousContraptions.tests/ConveyorTests.cs@a6c914e:L57-L83` | carry forward | Unpowered control then positive. |
 | 3 | Accepted: a body in another depth plane is not transported | `CuriousContraptions.tests/ConveyorTests.cs@a6c914e:L85-L106` | carry forward | Noncontact control. |
-| 4 | Accepted: after supply loss the belt coasts with constant energy; Reset zeroes angles | `CuriousContraptions.tests/MechanicalTests.cs@a6c914e:L113-L136` | carry forward | Finite inertia. |
+| 4 | Accepted: after supply loss the belt coasts with constant energy; Reset zeroes angles | `CuriousContraptions.tests/MechanicalTests.cs@a6c914e:L113-L136` | carry forward (Reset); superseded (coasting) | The delivered roller has 0.02 N·m bearing friction, so a cut belt slows to rest (`ConveyorTests.cs:141`). |
 
 **Files harvested:**
 - `parts/ConveyorPart.cs`
@@ -100,15 +86,50 @@ Families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuation, G
 
 ## 5. Acceptance outline
 
-Follow [element-202](../requirements.md#element-202) and the [CAT-019 outline](CAT-019-conveyor.md#5-acceptance-outline).
-- **Chrome UI recipe.** Open `conveyor_courier`; place the conveyor under the ball; connect battery → motor `PowerIn` and motor `Drive` → conveyor `DriveIn`; Run.
-- **Positive.** The ball is carried along +X into the receiver.
-- **Negative/control.** Unpowered motor or no link gives no transport; a ball beside the belt is untouched.
-- **Boundaries.** Loaded and stalled belt, coasting, reversed ratio, rotated belt.
-- **Run/Reset.** Roller and payload return exactly.
-- **Save/Load.** Parameters, pose and links round-trip.
-- **Integrations.** Retained belt and conveyor behaviour [todo-151](../requirements.md#todo-151) and conveyor teaching routes [todo-152](../requirements.md#todo-152); campaign row 2 ("... conveyor ..."): first use 11–20, moving/load variants into 41–50, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); driven by CAT-042 motor, reversed by CAT-057.
+Follow [element-202](../requirements.md#element-202) and the [CAT-019 outline](CAT-019-conveyor.md#5-acceptance-outline). The Chrome recipe (open `conveyor_courier`, place the conveyor under the ball, connect battery → motor `PowerIn` and motor `Drive` → conveyor `DriveIn`, Run) stays queued for the post-catalogue phase.
+
+### Closure check (all executed in `ConveyorTests.cs` unless named)
+
+| Criterion | Test |
+| --- | --- |
+| Positive: a driven belt carries the ball along +X | `PoweredTransport_AcceleratesBallAlongPositiveX` (`:73`) |
+| **Exact source outcome, unpowered:** no transport and no work | `UnpoweredBelt_BallStaysStationaryWithNoWork` (`:105`) |
+| **Exact source outcome, noncontact:** cargo beside the belt is ordinary rigid contact, not carried | `OffBeltMiss_SideContactRemainsOrdinaryRigid` (`:311`) |
+| Finite work: an unloaded belt transfers none; a load is paid by the shaft | `UnloadedBelt_ConservesEnergy` (`:226`); `DrivenSurfaceBindingTests.cs:379` |
+| Boundaries: power cut, reversed drive, two loads, rotated belt | `:141`, `:180`, `:280`, `:339` |
+| Run/Reset; Save/Load | `ResetAndReplay_RestoresExactAuthoredState` (`:367`); `SaveLoadRoundtrip_PreservesParametersAndMechanicalConnections` (`:451`) |
+| Parameter refusal; wrong-kind connection refusal | `InvalidParameters_RefusedAtomically` (`:496`), `RetiredParameters_RefusedAtomically` (`:516`); `InvalidMechanicalConnections_RefusedAtomically` (`:529`) |
+| Collaborators: Motor, Reverse transmission, second Conveyor | `:73`; `ReverseTransmissionTests.ReverseTransportsCargoOppositeTheZeroReverserBypass` (`ReverseTransmissionTests.cs:134`); `:417` |
+
+The closure reviewer reads each test's assertions against the ledger entry and adds a test only if one of these does not assert what its row says. None is planned.
+
+### Integration
+
+- **Collaborators.** Motor, Battery, Reverse transmission, Clutch, Windmill, Ball: all delivered.
+- **Campaign.** Row 2: first use 11–20, moving/load variants into 41–50, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained behaviour [todo-151](../requirements.md#todo-151), teaching routes [todo-152](../requirements.md#todo-152). In `content/puzzles.json`: levels 16 `conveyor_courier`, 17 `belt_relay` and 18 `reverse_belt` (planned; provable now in the Early level proof "Drive" group), and planned levels 31, 37, 46, 49, 53, 55 and 58 (several goals; after `ENGINE-GOALS`).
+- **Coverage binding.** Catalogue key `conveyor` (CAT-019). EL-202 has no package of its own and so no package source binding. No lesson-fixture story (S8) is needed by the closure.
+
+### Delivery
+
+- **Slice.** One closure-review slice for the Drive train group. Its owned diff is ledger rows and, only if the review finds a gap, tests. Review tier: data-only (Verification Gap and the two auditors). The closure is against the delivered rigid mechanical connection, which stays the default (owner decision 2); the drive belt and chain (EL-200, EL-201) are new player-chosen materials that leave it unchanged, so the closure has no ordering against ENGINE-MECHANICAL-LINKS.
+- **Prerequisites.** Blocked on the engine programme (owner decision 3a), which comes first; the closure review then re-runs its rows on the re-qualified package. It does not wait for visible-solid part B; if part B publishes first, the closure cites tests at that revision.
+- **Files.** `docs/planning/invest/named-elements.md` (the element-202 entry cites `conveyor` and the tests above), this spec's status, the closure record.
+- **What would disqualify the plan.** A reviewer finding that `:311` does not prove "noncontact cargo is not carried" for a ball in another depth plane (the harvest's fact 3): then one test is added to `ConveyorTests`, placing a ball at the belt's height but beyond its width and asserting it gains no speed along +X over 2 s.
 
 ## 6. Open questions
 
-None beyond the [CAT-019 open questions](CAT-019-conveyor.md#6-open-questions).
+None for EL-202. The [CAT-019 open questions](CAT-019-conveyor.md#6-open-questions) on parameter upper bounds are answered by the delivered ranges in section 2; whether `length` and `width` define the surface is not, and is recorded there as a CAT-019 residual owned by ENGINE-PARAMETER-BOUND-FRAMES.
+
+## Engine conformance (22 November 2026)
+
+Checked against the owner addendum of 22 November 2026, with the package opened (`elements/Conveyor/`) and the engine projects searched for the package id and name (no hit).
+
+1. **Declaration data only.** A static carrier, one hinge-carried roller, a declared driven surface, two mechanical ports and three parameters. No engine code names the package. **Finding:** two declared parameters, `length` and `width`, drive nothing. A parameter that the player can set and that changes neither physics nor art is not honest declaration data; it is the CAT-019 residual above, owned by ENGINE-PARAMETER-BOUND-FRAMES.
+2. **Generic laws.** Contact friction on a declared driven surface whose speed is a declared ratio of a revolute coordinate, the hinge's friction torque, and the bilateral coupling of a mechanical connection. Cargo moves only by friction on that face.
+3. **Three layers.** Colliders: carrier box, two rail boxes, idle-roller cylinder and two support boxes on the static body; the roller cylinder on the hinge body. Visuals: carrier, roller, port pulleys; none is a collider; the two port pulleys are the recorded visible-solid defect owned by part B (section 2). Animation: `Visual/PulleyOut` is turned by a `CommittedRevoluteAngle` binding on coordinate 0 (`elements/Conveyor/ConveyorElementDeclaration.cs:19`–`:22`); decorative, nothing written back. The roller art (`Visual/Roller`) follows its body's pose.
+4. **Flow and typing.** Two typed Mechanical ports on revolute coordinate 0; f32 Real parameters with units.
+5. **Flat state.** Bodies 2 (1 static, 1 dynamic); colliders 7 (boxes 5, cylinders 2); joints 1 revolute; drives 0; driven surfaces 1; sensors 0; domain nodes 0; stores 0; presentation bindings 2 (roller body, `PulleyOut` angle).
+6. **Performance.** One hinge and one surface relation; nothing scans the scene. The size binding of ENGINE-PARAMETER-BOUND-FRAMES must be a compile-time evaluation of declared bindings (as collider bindings are), not per-tick work. No island sleeping exists today; a resting conveyor costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part; that story keeps a body on a turning conveyor awake.
+7. **Tests are scenarios.** The delivered rows run the production simulation.
+
+**Verdict: conforms with one fix (the inert `length` and `width`, a CAT-019 residual owned by ENGINE-PARAMETER-BOUND-FRAMES).**

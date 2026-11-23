@@ -2,102 +2,156 @@
 
 **Current delivery (24 October 2026):** [EL-208 delivery slice](../invest/named-elements.md#element-208). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-## Current implementation contract — Story 12.1b
-
-The [native Balloon spec](../../../_bmad-output/implementation-artifacts/spec-12-1b-balloon.md) owns the implementation candidate and verification status. Browser/release qualification remains pending. The historical harvest below preserves source acceptance and citations; its fixed-by-kind, shared-art, moving neck anchor, capped drag and empty 0.5 kg proposals are superseded by these decisions.
-
-- Balloon is its own native Godot art and managed C# declaration package. Five BuildOnly controls retain defaults mass 0.5 kg, reference radius 0.36 m, bounce 0.2, buoyancy 11.5 m/s² and drag 0.4/s; ranges are respectively [0.125,8], [0.18,0.5], [0,1], [0,16] and [0,4]. Friction 0.3, bounce threshold 0.1 m/s and rolling resistance zero are declared material data.
-- Construction explicitly selects persisted BuildOnly Standard (101325 Pa, relative pressure 1) or Vacuum (0 Pa, relative pressure 0). These are unbounded ambient boundaries under EL-125, not finite ambient inventories. Runtime never supplies a missing pressure default. Unknown or missing serialized presets are refused. Preparation is atomic against expanded physical geometry.
-- A finite sealed ideal-gas store owns mass, volume and internal energy. Material R=2000 J/(kg·K), Cv=3000 J/(kg·K), reference temperature 300 K and positive gauge pressure 1000 Pa define a compliant isobaric envelope. The radius control describes Standard reference geometry; the same reference inventory expands adiabatically in Vacuum, exchanging boundary work and envelope potential. Temperature [1,1000] K, density ≤1 kg/m³ and pressure ≤200000 Pa are package admission limits.
-- Declared mass is initial total mass. The one centered-inventory mass source subtracts reference gas to obtain dry carrier mass, then adds current gas exactly once. Dry principal moments are fixed declared coefficients 0.4×(0.0625 m)² times dry mass; gas contributes translational mass only. Isotropic outflow carries removed momentum and kinetic energy without adding thrust.
-- Upward load is buoyancy×relative ambient pressure×current body mass×remaining gas fraction. Drag is drag×relative pressure, without angular damping. Shared drag admits finite nonnegative values using bounded exponent handling. A heavier no-lift Bowling control falls; changing only Balloon mass does not contradict the harvested mass-independent acceleration.
-- A strict >3 N·s accepted-substep impulse ruptures one exact collider-bound observation. Sum final nonnegative normal impulses only for one unordered collider pair whose pre-force approach exceeds 0.1 m/s; no cross-pair/substep accumulation or speculative-trial events. Restitution and reduced mass apply. The committed occurrence opens the exact outlet once; discharge starts the next substep.
-- Pressure-driven conductance referenceMass/(1000 Pa·1 s) vents a finite allocation and accounts enthalpy, boundary work and released envelope potential. It is not a timer. Empty state is canonical zero mass/volume/energy, zero lift and dry carrier mass. The physical sphere and committed presentation share radius cubed = dry radius cubed + 3V/(4π), leaving a 0.0625 m dry core.
-- The tensile Tie is fixed at the body origin on the dry carrier; the string is naturally occluded inside the envelope and the neck is cosmetic. Existing tensile rows provide taut restraint and slack freedom. Shrinking never moves a constraint anchor.
-- A typed IntegrityBroken goal binds exact owner and local integrity observation. Only its committed occurrence solves; another store, intact contact or a stale session epoch cannot. Reset restores full, intact authored preparation, geometry and tether; save/load preserves authored controls, atmosphere and exact goal selector.
-- Required native proof covers rise/ceiling, Vacuum and heavier controls, taut/slack/disconnected tether, rupture/depletion, exact selected goal, art and lifecycle. Fan/no-fan/missed/occluded-jet transfer and fan guidance remain with 12.2; campaign and post-catalogue browser recipes remain required at their named owners.
-
-This slice establishes the bounded finite-store/compliant-boundary/loss prerequisite before Balloon consumption. It does not complete S471 connected-volume/valve qualification or S697 gas-network integration; EL-039 and the later gas-network consumers retain those criteria and IDs. No general gas network or closed-world atmosphere is claimed.
-
-## Historical harvest and original acceptance sources
-
-Story 7.0 readiness spec ([spec](../../../_bmad-output/implementation-artifacts/spec-7-0-element-implementation-readiness.md)). Citations are `path@a6c914e:Lstart-Lend`. Values marked **proposed** have no legacy or requirement source; each carries a one-line justification and the owner may revise it.
+Rewritten on 22 November 2026 as one current text, checked against `elements/Balloon/` and its tests in checkout `8d1d68aa`. Citations without `@` are `path:line` in that checkout; `Decl` is `elements/Balloon/BalloonElementDeclaration.cs` and bare test line numbers are in `CuriousContraptions.tests/BalloonTests.cs`. `path@a6c914e` citations appear only in section 4 and are source facts. The delivered declaration is recorded once, in [CAT-003](CAT-003-balloon.md).
 
 ## 1. Identity
 
 | Field | Value |
 | --- | --- |
 | ID / name / type | EL-208 · Balloon · Gravity |
-| Anchor | [requirements.md#element-208](../requirements.md#element-208); [named-elements entry](../invest/named-elements.md#element-208); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
-| Refines | [CAT-003 balloon](CAT-003-balloon.md) ([requirement](../requirements.md#current-cat-003)); the CAT spec holds the material and buoyancy harvest. Neighbours, not merged: TH-25 Hot-air balloon, EL-090 Steerable blimp, [EL-125 Atmosphere](EL-125-authored-atmosphere-preset.md). |
-| Roadmap story | [EL-208 delivery slice](../invest/named-elements.md#element-208); canonical proof owner and prerequisite decisions are recorded there. |
-| Harvest-baseline status | Not started. No `WorkshopPartKind` member (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`). |
+| Anchor | [requirements.md#element-208](../requirements.md#element-208) (task `sequence-task-761`); [named-elements entry](../invest/named-elements.md#element-208); scope source [campaign element coverage](../requirements.md#campaign-element-coverage) |
+| Owner key / slice | S479; `named-el-208` |
+| Refines | [CAT-003 balloon](CAT-003-balloon.md) ([requirement](../requirements.md#current-cat-003)). Neighbours, not merged: TH-25 Hot-air balloon, EL-090 Steerable blimp, [EL-125 Atmosphere](EL-125-authored-atmosphere-preset.md) |
+| Row and outcome | "Gas-filled compliant buoyant cargo responds to pressure, mass and puncture properties." Outcome: "Tether force opposes ascent; lost contents alter buoyancy." |
+| Status | Delivered through package `balloon`, published in `4424da13` (Story 12.1b). The closure review is blocked on the engine programme (owner decision 3a), including `ENGINE-CONTACT-OBSERVATIONS` and `ENGINE-CAPABILITY-INSTANCES` (payload contract), and runs after it (owner decision 22); repair part C is a repair and may run before it |
+
+### Disposition
+
+**Candidate Duplicate closure of the delivered package `balloon`** (`elements/Balloon/`, palette order 65, `Decl:18`). Delivery batches 2c lists three behaviours of its own (buoyant rise, tether, puncture with gas loss); all three are delivered in the package and tested, so the identity has no delta left (Batch D reached the same result). It gets no package, catalogue entry or palette order.
+
+**Closure check.** The review records, against the published SHA:
+
+1. Tether opposes ascent: `TautTieRestrainsLiftWhileSlackAndDisconnectedControlsRise` (`:95`, opened).
+2. Lost contents alter buoyancy: `AConnectedEnvelopeRupturesAndEmptiesWithoutMovingItsDeclaredTie` (`:118`, opened): after rupture the gas mass is zero and the carrier falls.
+3. Pressure: `StandardRisesAgainstHeavierControlAndVacuumFallsWithTheSameSealedInventory` (`:22`).
+4. Mass, one added test, row A9: at the default lift a heavier Balloon ruptures on the ceiling that holds the default one. The row says "responds to ... mass", and every delivered Balloon test that changes `mass` also changes `buoyancy`, so none shows mass alone.
+5. One added test, row A6: a solid wall across the stream leaves a Balloon unguided. CAT-003 names the "occluded jet" control and no test runs it on a Balloon.
+6. Reset and save: `AllControlsAndExplicitAtmosphereSurviveSaveAndReset` (`:71`).
+
+Then the `element-208` ledger entry cites `balloon` and those tests. Group: the "Cargo" closure review with EL-189 (decided now, section 6).
+
+Nothing is deliverable now: the closure review is **blocked on the engine programme (owner decision 3a)**. The closure review runs after that programme (owner decision 22, 23 November 2026). Under the coordinator decision of 22 November 2026 the acceptance rows of [CAT-003](CAT-003-balloon.md) are the single authority for this closure identity; the rows in section 5 cite them and add rows A6 and A9, which CAT-003 takes up when its owner next edits it.
 
 ## 2. Declaration
 
-Configuration: mass, bounce, radius, buoyancy, drag, no enumerated selector ([CAT-003](../requirements.md#current-cat-003)). EL-208 adds three behaviours specified separately below: buoyant rise, tether, puncture with gas loss.
+Delivered; every value and line is in [CAT-003](CAT-003-balloon.md). In short: one dynamic body with a sphere collider whose radius follows the gas; five build-only parameters, `mass` 0.5 kg (0.125 to 8), `bounce` 0.2 (0 to 1), `radius` 0.36 m in Standard atmosphere (0.18 to 0.5), `buoyancy` 11.5 m/s² (0 to 16), `drag` 0.4 1/s (0 to 4) (`Decl:21`–`:25`); one finite sealed gas store (R 2000 and Cv 3000 J/(kg·K), 300 K, gauge 1000 Pa); one gas shape with a 0.0625 m dry core; one contact-integrity observer (impulse above 3 N·s on one collider pair approaching faster than 0.1 m/s); one ambient load whose lift is `buoyancy` × relative pressure × remaining gas fraction; one airflow receiver; one port `PortId.Tie`, Rope domain, bidirectional, at the body origin (`Decl:38`); one event kind, `IntegrityBroken`.
 
-- **Bodies and shapes.** One dynamic sphere, radius 0.36 m (`parts/catalog/balloon.tres@a6c914e:L14-L14`), declared by its own package and compiled by the shared dynamic-body path of `WorkshopPhysicsCompiler.Compile`, as the Basketball and Bowling ball packages are since C-Balls.
-- **Mass and material.** Mass 0.5 kg, bounce 0.2, buoyancy 11.5 m/s², drag 0.4 1/s (`parts/catalog/balloon.tres@a6c914e:L14-L14`); friction 0.3, threshold 0.1 m/s (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`).
-  - **Proposed** rolling resistance 0.05 — a soft skin rolls poorly; within 0–0.1 (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-  - Drag 0.4 exceeds the admitted 0–0.125 1/s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L69-L69`): see Open questions.
-- **Behaviour 1 — buoyant rise.** Upward force = buoyancy × pressure factor × mass; drag rate = drag × pressure factor (`reference/cpu/MachineWorld.cs@a6c914e:L877-L883`). At pressure 1, g = 9.81: net 1.69 m/s² upward, terminal rise ≈ 4.2 m/s ([CAT-003 spec](CAT-003-balloon.md)). Pressure comes from [EL-125](EL-125-authored-atmosphere-preset.md).
-- **Behaviour 2 — tether.** **Proposed** one `Tie` socket, rope domain, at (0, −r, 0) — where the legacy string hung (`reference/cpu/BallPart.cs@a6c914e:L26-L27`) and the same socket kind as the Weight (`parts/WeightPart.cs@a6c914e:L17-L21`). A taut rope's tension opposes ascent: "Tether force opposes ascent" ([element-208](../requirements.md#element-208)).
-- **Behaviour 3 — puncture and gas loss.**
-  - **Proposed** puncture when a single contact's normal impulse exceeds 3 N·s. The balloon floats free, so the impulse uses the reduced mass. Restitution mixes as a product (`CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L642-L642`).
-  - Bowling-ball strike: reduced mass μ = (4 × 0.5) / 4.5 = 0.444 kg; e = 0.14 × 0.2 = 0.028; J = μ(1 + e)v = 0.457·v. The threshold needs a closing speed v ≥ 3 / 0.457 = 6.6 m/s.
-  - Ceiling arrival at terminal rise: a static Wall gives μ = 0.5 kg; e = 1 × 0.2 = 0.2; J = 0.5 × 1.2 × 4.2 = 2.52 N·s < 3, so the balloon's own ascent never pops it.
-  - **Proposed** a punctured balloon vents its gas over 1.0 s; lift scales with remaining gas fraction, reaching zero, after which it falls as a 0.5 kg body — "lost contents alter buoyancy".
-  - Gas store (sealed, finite) per the gas family: lift, volume, drag; skin scale ← committed volume ([finite-gas foundation](../../finite-gas-foundation.md)).
-- **Typed ports.** `Tie` (above). No electrical or activation ports.
-- **Sensors and activation.** Puncture is a contact-impulse event on the balloon body; it emits a typed `Popped` occurrence usable by goals ("popped" predicate, [requirements](../requirements.md#sequence-task-361)).
-- **Work and energy stores.** Sealed gas store (finite); no work beyond buoyancy from the boundary atmosphere.
-- **Parameters.** Material fixed per kind (`engine/gpu/WorkshopConstruction.cs@a6c914e:L54-L62`); no player parameter.
-- **Cosmetic curves and UI bindings.** Skin scale ← committed gas volume; string art follows the tie.
-- **Art.** Shared ball art (`parts/BallPart.cs@a6c914e:L9-L17`) plus string `#e9dfcc`, thickness 0.015, from (0, −r, 0) to (0.06, −r − 0.5, 0) (`reference/cpu/BallPart.cs@a6c914e:L26-L27`). Palette `#ed6378` (`DESIGN.md@a6c914e:L168-L168`).
-- **Catalogue and inventory.** Id `balloon`, title "Balloon", category Motion, "Buoyancy lifts it; fans can guide it. Pressure changes its ascent." (`parts/catalog/balloon.tres@a6c914e:L8-L14`); appended last in the Free palette (`engine/gpu/WorkshopInventory.cs@a6c914e:L47-L60`).
+**Material, as declared data.** Restitution bound to `bounce` by a `MaterialParameterBinding`, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`Decl:45`, `:50`–`:51`): the four fields of `ContactMaterialDeclaration` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:133`–`:143`). The "puncture property" is not a material strength: the contact material has no strength field. It is a declared contact-integrity observation on the body, a general capability any package can declare. Load-limited connections and fragments are a different capability, owned by ENGINE-FRACTURE, and this identity does not need it. Gas values belong to the gas store declaration, not to the contact material.
+
+### Art and solidity
+
+| Node | Class | Moved by |
+| --- | --- | --- |
+| `Envelope`, sphere scaled to the gas radius, pink `#ed6378` | solid; sphere collider sized from the same gas radius | a presentation binding on the committed gas radius |
+| `Neck` | decorative: moved by the gas-radius binding | the same binding |
+| `Carrier`, sphere r 0.0625 m | decorative: enclosed by the envelope at every admitted radius | body pose |
+| `String`, rod r 0.006 m, 0.85 m long | decorative: the one non-solid strand (Balloon string, owner decision 1), an exception decided on 21 November 2026 and kept by owner decision 1 of 22 November 2026 | body pose |
+
+Two items from `_bmad-output/implementation-artifacts/spec-engine-art-solidity.md:92` and [visible-solid remainder part C](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md). Part C is one of the visible-solid repair parts that may run before the engine programme (owner decision 22, 23 November 2026):
+
+- The package has no row in `CuriousContraptions.tests/VisibleSolidColliderTests.cs`. Part C adds it and proves the drawn envelope equals the collider within 0.1 mm at radius 0.18, 0.36 and 0.5 m. It changes neither scene nor declaration.
+- **The 0.0625 m picture.** On construction and on every Reset each binding first draws its zero-input value, so the envelope appears at 0.0625 m against a collider of 0.18 to 0.5 m until the first committed sample arrives. Owner decision, 22 November 2026: if part C's test confirms the picture is only momentary, it is recorded as a named defect with an owning engine slice (the initial projection of a binding driven by committed state, for every package) and part C proceeds. It is a defect of the shared presentation path, not of this declaration, and it does not hold this closure.
+
+A rope tied to the Tie is drawn by the rope connection, whose strand has no collider; that defect belongs to ENGINE-CONNECTION-MATERIALS (solid strand), not to this package. At a glance: the pink envelope with a knot and a string; no ball has either.
 
 ## 3. Engine capabilities
 
-Families ([element map row](../general-engine-element-map.md), [binding](../../coverage/engine/element-03.json)): AerodynamicDrag, Buoyancy, EnvironmentState, FiniteLedger, GasState, GeometryQuery, JointConstraint, RigidBodyDynamics, StateTransaction, StructuralFracture, TopologyTransaction.
+### Capability probe
 
-- **Exists now.** Dynamic sphere, linear drag, per-body gravity vector (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L86`; `CuriousContraptions.Simulation/wwwroot/worker.js@a6c914e:L1271-L1279`). No buoyancy is compiled for a dynamic body today: a package's fluid declaration (`FluidPayload`) is not consumed by the dynamic-body compile.
-- **Missing.**
-  - Buoyancy and pressure: Story 12.1 and EL-125 (LAW-ENVIRONMENT-I, [S635](../invest/decisions.md#s635)).
-  - Tether rope row: Story 10.2.
-  - GasState sealed store and puncture (StructuralFracture/TopologyTransaction): S470 gas-state S471 and S543 fracture S563 ([decisions](../invest/decisions.md#s470)); required in the linked delivery slice, owner S479.
-  - Per-contact impulse read-back for the puncture event: owner S479.
-- **Dependencies.** EL-125 atmosphere; Rope (EL-205) or Rope anchor (CAT-058); a Wall as ceiling; Fan (CAT-028) for guidance.
+Probe of 22 November 2026. "Opened" means the test body was read for this spec; the others are cited from CAT-003's probe and confirmed by name and line.
+
+| Capability | Status | Symbol | Test |
+| --- | --- | --- | --- |
+| Lift and drag scaled by the atmosphere preset and the remaining gas fraction | present | `IAmbientLoadElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:124`) | `StandardRisesAgainstHeavierControlAndVacuumFallsWithTheSameSealedInventory` (`:22`) |
+| Rope tie on a dynamic body; taut restrains, slack does not | present | `PortRole.Tie`; `TensileConstraintSolver` (`CuriousContraptions.Simulation/TensileConstraintSolver.cs:27`) | `TautTieRestrainsLiftWhileSlackAndDisconnectedControlsRise` (`:95`, opened) |
+| Rupture by one contact pair's impulse, opening the store once | present | `IContactIntegrityElement` (`MechanicalContracts.cs:119`) | `AConnectedEnvelopeRupturesAndEmptiesWithoutMovingItsDeclaredTie` (`:118`, opened); `GasRuntimeTests.ExactContactOpensFiniteStoreAndResetRestoresPreparedState` (`CuriousContraptions.tests/GasRuntimeTests.cs:15`) |
+| Finite sealed gas store with a compliant envelope | present | `IGasStoreElement` (`MechanicalContracts.cs:109`) | `GasCapabilityTests.PreparedSealedInventoryConservesMassAndAdiabaticEnergy` (`CuriousContraptions.tests/GasCapabilityTests.cs:13`) |
+| Collider and art follow the gas radius | present | `IGasShapeElement` (`MechanicalContracts.cs:114`) | `BalloonArtTests.NativeEnvelopeAndNeckFollowCommittedRadiusWithAnIndependentDryCarrierAndCenterTie` (`CuriousContraptions.tests/BalloonArtTests.cs:10`) |
+| Airflow receiver, and occlusion of a sample line by any enabled collider | present | `IAirflowReceiverElement` (`MechanicalContracts.cs:45`); `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:151` | `FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow` (`CuriousContraptions.tests/FanGuidanceTests.cs:16`, opened, Balloon rows); occlusion on a Tennis ball in `ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`:124`, opened). Not yet run on a Balloon: row A6 |
+| Integrity goal on the committed occurrence | present | `SimulationEventKind.IntegrityBroken` (`CuriousContraptions.Abstractions/EventDescriptor.cs:33`) | `RupturePrecedesTimedPartialLossAndPauseStepResumeResetOwnTheOpenStore` (`:198`) |
+
+Counts: 7 present, 0 untested, 0 narrower, 0 missing. Joined stores, lines and valves belong to ENGINE-GAS-NETWORK and are not this identity.
 
 ## 4. Sources and legacy
 
-- **Requirements.** Row: "Gas-filled compliant buoyant cargo responds to pressure, mass and puncture properties"; outcome "Tether force opposes ascent; lost contents alter buoyancy" ([element-208](../requirements.md#element-208)). CAT-003: zero-pressure, no-fan, occluded-jet and heavier-body controls.
+- **Requirements.** Row and outcome as in section 1. CAT-003: zero-pressure, no-fan, occluded-jet and heavier-body controls.
 
 | # | Fact | Citation | Disposition |
 | --- | --- | --- | --- |
-| 1 | Material mass 0.5, bounce 0.2, radius 0.36, buoyancy 11.5, drag 0.4. | `parts/catalog/balloon.tres@a6c914e:L14-L14` | Carry forward (f32). |
-| 2 | Buoyancy and drag law scaled by world pressure. | `reference/cpu/MachineWorld.cs@a6c914e:L877-L883` | Carry forward law; CPU loop does not carry forward. |
-| 3 | Buoyant balls drew a hanging string. | `reference/cpu/BallPart.cs@a6c914e:L26-L27` | Carry forward as art and tie location. |
-| 4 | Ball parameters Radius, Mass, Bounce, Buoyancy, Drag were required; missing ones rejected. | `reference/cpu/BallPart.cs@a6c914e:L4-L13`; `CuriousContraptions.tests/RequiredPhysicsParameterTests.cs@a6c914e:L47-L81` | Carry forward rejection; not the string-keyed dictionary. |
-| 5 | No legacy level, puncture or gas behaviour for the balloon. | `content/puzzles.json@a6c914e:L1-L33007` (no `balloon` kind) | Recorded; puncture and gas loss are new. |
+| 1 | Material mass 0.5, bounce 0.2, radius 0.36, buoyancy 11.5, drag 0.4. | `parts/catalog/balloon.tres@a6c914e:L14-L14` | Delivered as the five parameter defaults (f32). |
+| 2 | Buoyancy and drag law scaled by world pressure. | `reference/cpu/MachineWorld.cs@a6c914e:L877-L883` | Delivered as the ambient load scaled by the atmosphere preset; the CPU loop is not carried. |
+| 3 | Buoyant balls drew a hanging string. | `reference/cpu/BallPart.cs@a6c914e:L26-L27` | Delivered as the `String` art; the Tie is at the body origin. |
+| 4 | Ball parameters Radius, Mass, Bounce, Buoyancy, Drag were required; missing ones rejected. | `reference/cpu/BallPart.cs@a6c914e:L4-L13`; `CuriousContraptions.tests/RequiredPhysicsParameterTests.cs@a6c914e:L47-L81` | Delivered as typed parameters with refusal; the string-keyed dictionary is not carried. |
+| 5 | No legacy level, puncture or gas behaviour for the balloon. | `content/puzzles.json@a6c914e:L1-L33007` (no `balloon` kind) | Puncture and gas loss were new and are delivered; level 63 `burst_of_motion` now places it. |
 
 Files consulted: `parts/catalog/balloon.tres`, `reference/cpu/MachineWorld.cs`, `reference/cpu/BallPart.cs`, `reference/cpu/MachinePart.cs`, `CuriousContraptions.tests/RequiredPhysicsParameterTests.cs`, `content/puzzles.json`.
 
 ## 5. Acceptance outline
 
-Point of truth: [element-208](../requirements.md#element-208), [CAT-003](../requirements.md#current-cat-003).
+Point of truth: [element-208](../requirements.md#element-208) and [CAT-003](../requirements.md#current-cat-003). Chrome proof is pending post-catalogue.
 
-- **Chrome recipe.** Place a Balloon on the bench, a Wall above it as a ceiling; in a second lane tie a Balloon to a Rope anchor so it hangs stationary at the taut rope length; in a third, tether a Balloon the same way and lift a Bowling ball above it with the gizmo.
-- **Positive.** The free balloon rises and rests against the ceiling; the tethered balloon rises until the rope is taut and hangs there. A Bowling ball released 3 m above the tethered balloon would reach 7.67 m/s in free fall and arrives at 7.59 m/s after its 0.04 1/s drag, giving J ≈ 0.457 × 7.59 = 3.47 N·s > 3: the balloon pops, loses lift over about 1 s and falls.
-- **Negative or control.** Vacuum preset: no rise. A Bowling ball released 1 m above the tethered balloon arrives at 4.43 m/s: J ≈ 2.0 N·s < 3, the balloon bounces away intact. A heavier body in the same spot does not rise.
-- **Boundaries.** Contact with the ceiling rests without penetration; the 2.52 N·s ceiling arrival does not pop it.
-- **Run/Reset.** Reset restores an intact, full balloon at its exact pose.
-- **Save/Load.** Kind and tether survive save and Load; punctured state is runtime-only.
+### Behaviour and numbers
 
-- **Integrations.** Combine the declared atmosphere, rope anchor and ceiling lanes above; repeat the Bowling-ball puncture control with the same tether, and verify the typed Popped occurrence reaches the selected goal once.
+- **Rise.** In Standard atmosphere with a full store the net upward acceleration is 11.5 − 9.81 = 1.69 m/s². With drag 0.4 1/s the speed tends to 1.69 / 0.4 = 4.2 m/s. From rest the height gained in 1 s is 4.2 × (1 − (1 − e^−0.4) / 0.4) = 4.2 × 0.176 = 0.74 m, so the free control starting at y = 3 passes the test's 3.5 m.
+- **Tether opposes ascent.** The anchor is at y = 1 and the rope is 2 m, so the taut balloon holds with its centre at y = 3 (the test allows ±0.02 m and under 0.05 m/s). The tension at rest is the net lift, 0.5 kg × 1.69 m/s² = 0.85 N. An 8 m rope is slack, and that balloon rises with the untied one (within 0.02 m).
+- **Rupture.** The impulse on a static obstacle is m·(1 + e)·v. For the default balloon arriving at its 4.2 m/s limit under a neutral wall (pair restitution 0.2 × 1): 0.5 × 1.2 × 4.2 = 2.5 N·s, under the 3 N·s threshold, so a ceiling holds it. The delivered rupture test uses mass 2 kg and buoyancy 16 m/s²: net 16 − 9.81 = 6.19 m/s²; the threshold needs v above 3 / (2 × 1.2) = 1.25 m/s, reached after 1.25² / (2 × 6.19) = 0.13 m of rise; the balloon has 4.8 − 3.36 = 1.44 m to the ceiling's underside and arrives near √(2 × 6.19 × 1.44) = 4.2 m/s (drag neglected), an impulse near 10 N·s.
+- **Responds to mass (row A9).** The lift is a declared acceleration (`buoyancy`, m/s², `Decl:69`–`:71`) and the drag a declared rate, so neither depends on `mass`: a heavier Balloon rises exactly as the default does and arrives with more momentum. In the delivered ceiling scene (`:41`) the Balloon starts at y = 3 and meets the wall's underside (y = 4.8) with its centre at 4.8 − 0.36 = 4.44, a rise of 1.44 m. With dv/dt = a − k·v, a = 1.69 m/s² and k = 0.4 1/s: v = (a/k)(1 − e^−kt) and x = (a/k)(t − (1 − e^−kt)/k), with a/k = 4.225. x = 1.44 m at t = 1.43 s (4.225 × (1.43 − 0.4356/0.4) = 4.225 × 0.341 = 1.44), where v = 4.225 × 0.4356 = 1.84 m/s. The impulse that stops the body is m·v and, with the pair restitution 0.2, at most m·1.2·v. At 0.5 kg: 0.92 to 1.10 N·s, a third of the 3 N·s threshold, so the ceiling holds it (the delivered test). At 1 kg: 1.84 to 2.21 N·s, still 26% under at the most. At 4 kg: 7.4 to 8.8 N·s, 2.4 times the threshold at the least, and the same impulse as the delivered rupture case (2 kg at 3.8 to 4.2 m/s). A 2 kg Balloon at the default lift would give 3.7 to 4.4 N·s, only 23% over at the least, so the row uses 4 kg. The body's mass also includes the sealed gas, which the arithmetic neglects; it is the same in every case.
+- **Lost contents alter buoyancy.** Lift is proportional to the remaining gas fraction, so an empty store gives zero lift and the dry carrier falls at g: the test finds it below y = 1 with a store mass of exactly zero (an emptied ledger, not a simulated float).
+- **Tick order.** By `docs/gpu-f32-physics.md` the airflow field is evaluated in Phase 2, before the four mechanical substeps of Phase 3 in which contact, the tether and the rupture impulse are solved; the store's discharge starts on the substep after the rupture commits; sensor evaluation and event dispatch are Phase 5.
+- **Fit with delivered parts.** 0.72 m across fits the Cannon's 0.6 to 0.84 m window (no test fires one: unverified). A 4 kg Bowling ball ruptures it above about 5.6 m/s closing speed (reduced mass 0.44 kg), which `burst_of_motion` uses.
+
+### Acceptance rows
+
+| # | Given / When / Then | Test | Control and boundary | State |
+| --- | --- | --- | --- | --- |
+| A1 | Tied to an anchor by a taut rope it holds at the rope's length | `TautTieRestrainsLiftWhileSlackAndDisconnectedControlsRise` | a slack rope and no rope both rise above 3.5 m; ±0.02 m; 3 s | executed |
+| A2 | Ruptured, it empties and falls, and the tie does not move | `AConnectedEnvelopeRupturesAndEmptiesWithoutMovingItsDeclaredTie` | one `IntegrityBroken` record; 8 s | executed |
+| A3 | It rises in Standard; a heavier body falls; in Vacuum the same sealed inventory falls | `StandardRisesAgainstHeavierControlAndVacuumFallsWithTheSameSealedInventory` | Bowling ball; Vacuum | executed |
+| A4 | An ordinary ceiling holds it without rupture | `OrdinaryCeilingContactSupportsTheDefaultEnvelopeWithoutRupture` (`:41`) | the threshold arithmetic above | executed |
+| A5 | A stream pushes it sideways; with no flow it is not pushed | `FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow` | flow disabled: zero sideways speed and zero airflow work | executed |
+| A6 | A solid wall across the stream leaves it unguided | planned `FanGuidanceTests.AWallAcrossTheStreamLeavesABalloonUnguided`: the scene of A5 (powered Fan, Balloon at (3, 5, 0)) plus a `wall` 3 × 2 × 0.25 m at (1, 5, 0) turned 90° about Y, as in the delivered `Control.SolidWall` row; 12 ticks. Then the Balloon's sideways speed stays under 0.01 m/s and the airflow work is zero | control: the same scene without the wall exceeds 0.1 m/s (row A5's bound). Boundary: the wall moved to z = 2.5, its near edge at z = 1.0 and 0.64 m clear of the envelope: guided again. 0.01 m/s is a tenth of what row A5 counts as guidance | planned, added by the closure review |
+| A7 | All five controls and the atmosphere survive save and Reset; a missing or unknown atmosphere is refused | `AllControlsAndExplicitAtmosphereSurviveSaveAndReset`; `MissingOrUnknownSerializedAtmosphereIsRefusedRatherThanDefaulted` (`:264`) | — | executed |
+| A8 | A wrong-kind connection to the Tie is refused | generic `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`) | — | executed |
+| A9 | At the default lift a heavier Balloon ruptures on the ceiling that holds the default one | planned `BalloonTests.AHeavierBalloonAtTheDefaultLiftRupturesOnTheCeilingThatHoldsTheDefault`: the scene of row A4 (`wall` 3 × 0.4 × 2 m at (0, 5, 0), Balloon at (0, 3, 0)) with only `mass` changed to 4 kg; 960 ticks. Then the integrity observer is Broken, one `IntegrityBroken` record is published and the store's mass is zero | control: row A4, the default 0.5 kg in the same scene stays Intact. Boundary: `mass` 1 kg stays Intact and seated (centre 4.42 to 4.46 m, as row A4). The outcome is a phase, so no tolerance on a float; 8 s stall guard, more than five times the 1.43 s rise | planned, added by the closure review |
+
+### Integration
+
+- **Collaborators.** Delivered: Fan, Wall, Rope anchor, Pulley, Weight, Bowling ball, Receiver. In flight: Bellows (12.4). Both ends of the tie are Rope-domain, bidirectional ports. Interaction rows [IX-10](../requirements.md#interaction-10), [IX-11](../requirements.md#interaction-11).
+- **Campaign.** First use 11–20 with tether and pop; level 63 `burst_of_motion` is Playable and places it.
+- **Coverage binding.** The catalogue key `balloon` in `docs/coverage/catalogue-elements.json`. A closed duplicate has no binding of its own.
+- **Lesson fixture (S8).** Only where a level pre-places it.
+
+### Delivery
+
+Closure review "Cargo": owned diff is the tests of rows A6 and A9 and the ledger row; data-only review tier.
+
+- **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (airflow occlusion, row A6), `ENGINE-CONTACT-OBSERVATIONS` (the integrity observer, rows A2, A4 and A9), `ENGINE-SENSOR-VOLUMES`, `ENGINE-ISLANDS-SLEEP` and `ENGINE-CAPABILITY-INSTANCES` (the payload contract). The closure review runs after the programme (owner decision 22, 23 November 2026), against those stories as delivered.
+
+Part C (engine tier) is a repair, may run before the programme (owner decision 22) and is independent of the closure. Disqualifiers: row A6 failing, which would be an engine defect in airflow occlusion and returns to planning; row A9's 1 kg boundary rupturing or its 4 kg case holding, which would mean the integrity measure is not the stopping impulse and returns to planning with the measure read from the solver; a change to the rupture threshold or the tie position.
 
 ## 6. Open questions
 
-1. Drag 0.4 1/s versus the admitted 0.125: widen the bound or change the value. Unspecified — owner decision (shared with CAT-003).
-2. Puncture trigger: impulse threshold (proposed 3 N·s, closing speed ≥ 6.6 m/s for a Bowling ball) or only a declared sharp feature (scissors/pin elements).
-3. Whether Story 12.1 delivers buoyancy only, with tether and puncture in a later story.
+Resolved:
+
+- **Drag 0.4 1/s.** Admitted: the package's range is 0 to 4 (`Decl:25`).
+- **Puncture trigger.** A contact impulse above 3 N·s; a sharp-feature trigger is not needed by any lesson (D19).
+- **Scope of Story 12.1b.** It delivered rise, tether and puncture together.
+- **Closure group** (decided now, standing delegation). "Cargo", with EL-189. Reason: both are payloads closed against delivered packages by one added test each; a review of its own would cost a second record for the same kind of check.
+- **The 0.0625 m picture.** Owner decision, 22 November 2026 (section 2).
+- **Closure reviews before the engine programme.** They wait for it (owner decision 22, 23 November 2026): the "Cargo" closure review (rows A6 and A9) runs after the programme; repair part C may run before it.
+
+**Needs the owner.** None.
+
+## Engine conformance (22 November 2026)
+
+Against the owner's addendum of 22 November 2026, `AGENTS.md` (element-free engine gate, Tri-Graph) and `_bmad/custom/element-free-engine-design.md`.
+
+1. **Declaration data only.** One declaration class, one scene, one icon. A search of `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions projects for `balloon` and `Balloon` found nothing. Two refactors are owed, by shared contracts the part uses and not by the part. First, the gas store can be coupled to a sphere only (`CuriousContraptions.Abstractions/GasCouplingValues.cs:10`, `CuriousContraptions.Abstractions/IsobaricGas.cs:133`; engine design audit finding E10): a product shape, removed by `ENGINE-GAS-NETWORK`. Second, its `PayloadPolicy.CaptureTarget` (`Decl:56`) is the product role that `BodyTargetKind.AllPayloads` builds into the target filter (`CuriousContraptions.Abstractions/ContactWorkDeclarationValues.cs:31`, `:43`; finding E12), replaced by a declared participation mask in `ENGINE-CAPABILITY-INSTANCES`. This package's declaration changes in each of those slices and the closure checks are re-run there.
+2. **Generic laws.** Rise and fall: the ambient-load law scaled by atmosphere and gas fraction. Size: the isobaric gas-store law. Rupture: a contact-integrity observation opening the store's outlet. Deflation: the store's conductance law. Tether: the tension-only span law on a declared port. Fan push and shelter: the conical airflow law with occlusion by any enabled collider.
+3. **Three layers.** Colliders: one hidden sphere whose radius physics takes from the gas shape. Visuals: envelope, neck, carrier, string; none is a collider. Animation: two presentation bindings read the committed gas radius and write nothing back; the momentary zero-input picture is the recorded defect above.
+4. **One-way flow and typing.** Physics publishes the gas radius; presentation reads it. The atmosphere preset is an enum and unknown values are refused.
+5. **Flat state.** Bodies 1 (dynamic); colliders 1 (sphere); joints and drives 0; contact-integrity observers 1; gas stores 1; gas shapes 1; ambient loads 1; airflow receivers 1 (4 samples); ports 1; signal and supply nodes 0; event kinds 1; material bindings 1; presentation bindings 2.
+6. **Performance.** One primitive. The integrity observer reads only its own collider's accepted contacts; finding its row by compiled handle on any body pair is `ENGINE-CONTACT-OBSERVATIONS`. The airflow pass walks every collider per sample line (`ENGINE-SPATIAL-QUERIES`), and a balloon at rest against a ceiling or on a taut tether is stepped every tick because island sleeping does not exist (`ENGINE-ISLANDS-SLEEP`). All three are engine gaps owned inside the engine programme (owner decision 3a); none is designed around here.
+7. **Tests are scenarios.** Every row runs the production simulation; `GasRuntimeTests` uses unfamiliar declarations, so the laws do not depend on this package.
+
+**Verdict: Conforms with fixes** (the visible-solid table row of part C; the recorded initial-projection defect; the E10 and E12 contract refactors owed by `ENGINE-GAS-NETWORK` and `ENGINE-CAPABILITY-INSTANCES`); blocked on the engine programme (owner decision 3a).

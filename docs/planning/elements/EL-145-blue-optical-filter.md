@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-145 delivery slice](../invest/named-elements.md#element-145). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths are legacy scene units, which the current engine treats as metres (`MetreVector`). The pane normal is local −X; the filter works from either face.
-
-The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body and one filter law; they differ only in the passed channel, pane ink, channel marks and icon.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`) and repaired the same day after its audit and the owner decisions of 22 November 2026. Legacy citations use `path@a6c914e:Lstart-Lend`. Lengths are metres. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions). [EL-143](EL-143-red-optical-filter.md) is the filter family lead for the probe, sources and conformance; this identity's declaration is CAT-011's (coordinator decision 27).
 
 ## 1. Identity
 
@@ -15,46 +13,25 @@ The three channel filters (EL-143 red, EL-144 green, EL-145 blue) share one body
 | Type | Optical |
 | Anchor | [requirements.md#element-145](../requirements.md#element-145); named entry [named-elements.md#element-145](../invest/named-elements.md#element-145); source record [todo-297](../requirements.md#todo-297) |
 | Owner | S500 |
-| Refines CAT | [CAT-011 blue_filter](CAT-011-blue_filter.md) (`blue_filter`, "Blue filter"). One catalogue part satisfies both identities; not a second implementation. |
-| Related | EL-143, EL-144 (sibling channels); EL-148 blue receiver and EL-178 blue laser (channel partners); EL-174 prism |
-| Roadmap story | [EL-145 delivery slice](../invest/named-elements.md#element-145); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | Candidate **Duplicate closure** of [CAT-011 blue_filter](CAT-011-blue_filter.md) (`blue_filter`, "Blue filter"), closed inside the Colour filters Family slice. No delta from CAT-011. |
+| Acceptance authority | The CAT-011 spec's acceptance rows are the single authority (coordinator decision 16, 22 November 2026). This identity's source outcome, "absent blue input cannot be recoloured into blue; opaque frame blocks rays", is CAT-011 rows **F4 and F5**; the ledger row cites the package and those tests. This spec carries no rows of its own. |
+| Planned package | none of its own; CAT-011's `blue_filter` (`elements/BlueFilter/`) |
+| Roadmap story | Story 13.4 |
+| Status | not started; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL, which follows ENGINE-SPATIAL-QUERIES |
 
 ## 2. Declaration
 
-- **Bodies and shapes:** one static rigid body: two horizontal frame bars 0.18 × 0.18 × 1.65 m at (0, ±0.74, 0); two vertical bars 0.18 × 1.3 × 0.18 m at (0, 0, ±0.74); base 0.9 × 0.2 × 1.65 m at (0, −1, 0), all opaque; pane collider 0.03 × 1.3 × 1.3 m at the origin that collides with bodies but does not occlude light. Pick radius 1.2 m. Types: static `RigidBodyDeclaration` and box `ColliderDeclaration`s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); the pane needs a light-transparent collider flag.
-- **Mass and material:** static, zero mass. Contact material restitution 1, bounce threshold 0.1 m/s, friction 0.3 (`reference/cpu/MachinePart.cs@a6c914e:L236-L236`) via `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- **Constraints and joints:** none.
-- **Typed ports (optical aperture):** `Main` (`OpticalPortId`), centre (0, 0, 0), normal −X, finite disc radius 0.65, Filter, transmission (0, 0, 1); either face accepts incidence; the frame blocks outside the disc. No electrical or activation ports.
-- **Sensors and activation:** none.
-- **Work and energy stores:** none. Output = input × (0, 0, 1) on the same direction with the remaining range; red and green are absorbed; nothing is recoloured or created.
-- **Parameters:** none authorable. Channel fixed at `Blue` (`OpticalColour`; only Red, Green or Blue admitted). Declared loss on the passed channel: 0 (legacy transmission 1.0).
-- **Cosmetic curves and UI bindings:** none animated. Selected-only faint aim preview (Separate) in idle construction, never activating. Traced blue beams use ink `#5b9cdb`; opacity follows maximum channel power so low-power blue stays visible against the sky ([DESIGN.md](../../../DESIGN.md#colour-optics)).
-- **Art (DESIGN.md palette):** cream frame `#fff8e9`; navy foot `#293954`; translucent pane in blue accent `#5b9cdb` at alpha 0.3, double-sided, no shadow; three raised blue bar marks on each frame face (blue = three bars).
-- **Catalogue and inventory entry:** id `blue_filter`, title "Blue filter", category Optics, colour (1, 0.97, 0.91). Description: "Passes only the blue energy already present in a beam. Other channels are absorbed." Icon `ui/WorkshopIcons.cs@a6c914e:L66-L66` (current, kept). No legacy level places it.
-
-### Variants
-
-One; red and green filters are separate identities (EL-143, EL-144).
+The `blue_filter` declaration, art and bindings are [CAT-011's declaration](CAT-011-blue_filter.md#declaration); this identity adds none (coordinator decision 27, 23 November 2026).
 
 ## 3. Engine capabilities
 
-Binding shard ([element-02.json](../../coverage/engine/element-02.json)): FiniteLedger, GeometryQuery, OpticalAbsorption, OpticalTransport, SensibleHeat, SignalPropagation, StateTransaction ([element-map row](../general-engine-element-map.md) omits StateTransaction).
-
-**Exists now:** static box body and colliders (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); contact material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-
-**Missing**
-- OpticalTransport Filter interaction and light-transparent solid colliders — Story 13.4 (emission Story 13.1). Decision owner **S484** ([decisions](../invest/decisions.md#s484)): S485, S486, S488.
-- OpticalAbsorption and SensibleHeat for absorbed channels — S489, S543 (mode-specific).
-- Construction preview — Story 13.5. No package declaration is established by the cited harvest baseline (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
-
-**Element dependencies:** a source carrying blue (CAT-036 amber laser with blue 0.32, EL-178, EL-213 output; Story 13.1/13.5), CAT-005 battery (Story 8.1), an observer (EL-148 / CAT-012 or CAT-038; Story 13.2), CAT-066 wall (delivered).
+The probe is [EL-143 section 3](EL-143-red-optical-filter.md#3-engine-capabilities) row for row, with the same citations: present R1, R2, R12; narrower R9 (owner ENGINE-SPATIAL-QUERIES); missing M2, M3, M5, M6 (owner ENGINE-OPTICAL). Counts 3 / 0 / 1 / 4.
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-145](../requirements.md#element-145): passes only the existing blue channel with declared loss; absent blue input cannot be recoloured; opaque frame blocks rays. [todo-297](../requirements.md#todo-297). CAT row [current-cat-011](../requirements.md#current-cat-011). [todo-309](../requirements.md#todo-309). Refinement **optical-pairings** (S694). Campaign: filters first use 51–60 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)).
 
-**Legacy** (shared optical facts S1–S7 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); filter body and law harvested in full in [EL-143](EL-143-red-optical-filter.md#4-sources-and-legacy), unchanged here):
+**Legacy** (shared optical facts S1–S8 in [CAT-036-laser](CAT-036-laser.md#legacy-harvest); filter body and law harvested in full in [EL-143](EL-143-red-optical-filter.md#4-sources-and-legacy), unchanged here):
 1. Aperture and Filter transmission = mask — `parts/ColourFilterPart.cs@a6c914e:L10-L12`; blue mask (0, 0, 1) — `engine/OpticalColour.cs@a6c914e:L16-L16`. Carry forward.
 2. Channel validation; frame, pane and art — `parts/ColourFilterPart.cs@a6c914e:L15-L42`; blue ink `#5b9cdb` and three marks — `engine/OpticalColour.cs@a6c914e:L28-L28`, `engine/OpticalColour.cs@a6c914e:L61-L76`. Carry forward behaviour; not Godot materials.
 3. Two-sided straight transmission — `engine/OpticalNetwork.cs@a6c914e:L94-L98`, `engine/OpticalNetwork.cs@a6c914e:L113-L126`. Carry forward.
@@ -64,18 +41,26 @@ Binding shard ([element-02.json](../../coverage/engine/element-02.json)): Finite
 
 **Files harvested:** `parts/ColourFilterPart.cs`, `parts/catalog/blue_filter.tres`, `parts/scenes/blue_filter.tscn`, `engine/OpticalColour.cs`, `engine/OpticalNetwork.cs`, `reference/cpu/MachinePart.cs`, `CuriousContraptions.tests/ColourOpticsTests.cs`, `CuriousContraptions.tests/BeamCombinerTests.cs`.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** place a battery, a triggered amber laser, the blue filter and a blue receiver in line from the actual drawer; wire with the connection UI; rotate the filter with the gizmo, including 180°. Run.
-- **Positive:** the receiver reads exactly the source's blue channel (0.32 from the amber laser, above the 0.25 default threshold); the beam beyond draws in blue ink, visible against the sky on desktop and mobile.
-- **Negative / controls:** a red-only or green-only source gives nothing beyond the filter; blue then red/green filter extinguishes; frame strike stops the ray; a ball bounces off the pane.
-- **Boundaries:** disc edge 0.65 m; identical stacked filters do not amplify; a 50% split of amber blue (0.16) is below the default receiver threshold; range and interaction budget.
-- **Run/Reset:** Reset clears traced beams. **Save/Load:** placement and orientation round-trip.
-- **Integrations:** combiner, receivers, gates; Story 13.4 suite `tools/e2e/cat-filters.test.ts`. Binding criteria: [element-145](../requirements.md#element-145), [current-cat-011](../requirements.md#current-cat-011).
+**Authority.** Acceptance is [CAT-011's rows](CAT-011-blue_filter.md#acceptance-outline) F1 to F10, with their fixtures, tolerances and stall guards. This identity's outcomes map to **F4** and **F5**; the ledger row cites those tests. No row is stated or inherited here.
+
+**Behaviour and numbers.** P′ = (0, 0, 1) ∘ P. An amber beam (10, 7.8, 3.2) W leaves as (0, 0, 3.2) W; 17.8 W is absorbed (the declared loss, K-5). That 3.2 W is the weakest filtered amber channel: 28 % above a default blue receiver's 2.5 W, 2.88 W after a combiner (still on), 1.6 W after a 50/50 splitter (off), and as a gate control a mean of 3.2 ÷ 3 = 1.07 W (off). A blue laser's (0, 0, 10) W passes whole.
 
 ## 6. Open questions
 
-1. "Declared loss" versus legacy loss 0 (as EL-143 question 1).
-2. Story 13.4 "white light beam" has no white emitter (as EL-143 question 2).
-3. Heating from absorbed red and green power; owner S489/S543, mode-specific.
-4. Confirm CAT-011 alone satisfies EL-145.
+None open: declared loss (K-5), white source (D18, K-9), absorbed heat (K-10) and the closure with CAT-011's rows as the single authority (coordinator decision 16) are decided as in [EL-143 section 6](EL-143-red-optical-filter.md#6-open-questions).
+
+Needs the owner: none.
+
+## 7. Integration
+
+As [EL-143 section 7](EL-143-red-optical-filter.md#7-integration); channel partners are the blue laser [EL-178](EL-178-blue-laser-emitter.md) and the blue receiver [EL-148](EL-148-blue-selective-receiver.md); it feeds the combiner's third input in the white-light lesson. Coverage binding (planned, not yet live): catalogue key `blue_filter` (CAT-011). A closed duplicate has no binding section of its own: it is covered by the package of the part that satisfies it and by the closure record, which the coverage follow-on story S7 must admit (owner decision 15 widens the reader).
+
+## 8. Delivery
+
+Closed inside the Colour filters Family slice. Prerequisites, in order: the engine programme (owner decision 3a) including ENGINE-SPATIAL-QUERIES; ENGINE-OPTICAL as corrected in the batch summary; a laser and a detector. Files (CAT slice): `elements/BlueFilter/`, one guarded solution line, rows in `ColourFilterTests` and `VisibleSolidColliderTests`, the ledger row. Review tier: data-only if the probe passes. Disqualifiers: as EL-143.
+
+## 9. Engine conformance
+
+Verdict: **Conforms**, on the seven points as [EL-143 section 9](EL-143-red-optical-filter.md#9-engine-conformance): six box colliders and one declared transmission vector (0, 0, 1); no engine code names the part; art, colliders and (absent) animation are separate layers; counts are fixed; its tests are CAT-011's scenarios.

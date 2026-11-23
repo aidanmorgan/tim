@@ -2,9 +2,7 @@
 
 **Current delivery (24 October 2026):** [EL-155 delivery slice](../invest/named-elements.md#element-155). Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md); browser qualification is deferred until every named element passes. Pinned legacy citations describe the harvest baseline, not current implementation instructions.
 
-Story 7.0 full spec for a named puzzle-element identity. Baseline commit `a6c914e`. Legacy citations use `path@a6c914e:Lstart-Lend` and stay retrievable from git history after the Epic 7 purge. Lengths in metres; local +X is the beam direction, local −Y the pull direction.
-
-No legacy part implements this identity (the campaign calls it the "drawstring source"). Its light reuses the legacy torch cone and its cord reuses the legacy rope connection; every other value is **proposed** with a justification.
+Brought to build-ready detail on 22 November 2026 against checkout `spec-drafts` (published main `8d1d68aa`). Legacy citations use `path@a6c914e:Lstart-Lend`; citations without `@` are `path:line` in the checkout. Lengths are metres. Local +X is the beam direction; the pull knob travels along local −Y. Optical rules are the [optical conventions](EL-176-red-laser-emitter.md#optical-conventions) and are not restated here.
 
 ## 1. Identity
 
@@ -15,75 +13,150 @@ No legacy part implements this identity (the campaign calls it the "drawstring s
 | Type | Optical |
 | Anchor | [requirements.md#element-155](../requirements.md#element-155); named entry [named-elements.md#element-155](../invest/named-elements.md#element-155); scope index [todo-196](../requirements.md#todo-196) |
 | Owner | S517 |
-| Refines CAT | none. Combines the cone source of [CAT-029 flashlight](CAT-029-flashlight.md) with the rope connection of [CAT-058 rope_anchor](CAT-058-rope_anchor.md) (rope facts R1–R19) and the supply of [CAT-005 battery](CAT-005-battery.md). |
-| Related | EL-210 flashlight (self-triggered torch); EL-205 rope; CAT-067 weight and CAT-053 pulley (pull sources); EL-153 and EL-154 (receivers) |
-| Roadmap story | [EL-155 delivery slice](../invest/named-elements.md#element-155); canonical proof owner and prerequisite decisions are recorded there. |
-| Status | not started |
+| Disposition | To deliver as a **single element**. It refines no catalogue part: it joins a rope-pulled slider, a supplied contact and a cone emitter in one package. |
+| Planned package | id `pull_cord_light`, directory `elements/PullCordLight/`, class `PullCordLightElementDeclaration` |
+| Roadmap story | [EL-155 delivery slice](../invest/named-elements.md#element-155), `named-el-155`; after ENGINE-OPTICAL and the Flashlight |
+| Status | not started; no package; **blocked on the engine programme (owner decision 3a, 22 November 2026)**, then on ENGINE-OPTICAL (which follows ENGINE-SPATIAL-QUERIES and takes every candidate from its segment query), on the Flashlight, and on ENGINE-CONNECTION-MATERIALS (solid strand) for its rope rows |
 
 ## 2. Declaration
 
-- **Bodies and shapes** (all **proposed**, sized like the torch so it reads as a light, not a winch):
-  - Housing: static body, opaque box 0.9 × 0.6 × 0.6 m at the origin; lens collar box 0.2 × 0.8 × 0.8 m at (0.5, 0, 0); navy foot 0.6 × 0.12 × 0.8 m at (0.2, −0.42, 0), spanning x −0.1 to 0.5, so the cord exit at (−0.25, −0.3, 0), the bead and its whole pull path hang clear of the foot.
-  - Pull handle: dynamic sphere radius 0.06 m, mass 0.05 kg, resting at (−0.25, −0.45, 0) (a small bead the rope tugs; light enough not to dominate any weight).
-  - Types: `RigidBodyDeclaration` (static housing, dynamic handle) and box/sphere `ColliderDeclaration`s (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L57-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); handle mass within the dynamic bound.
-- **Mass and material:** housing static; handle 0.05 kg (**proposed**), restitution 0.1, friction 0.3 (**proposed**: a soft toggle bead that does not bounce off its stop), via `ContactMaterialDeclaration` (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L54`).
-- **Constraints and joints** (**proposed**): handle on a prismatic joint along −Y, travel 0–0.10 m with hard stops; return spring force 1.0 N preload + 15 N/m × travel (2.5 N at full travel). At rest the 1.0 N preload holds the bead's own weight (0.05 kg × 9.81 = 0.49 N) with 0.51 N to spare. The lightest legacy weight (0.25 kg, 2.45 N) plus the bead's weight pulls with 2.94 N, which reaches the 0.10 m stop with 0.44 N to spare; a slack cord lets the bead return.
-- **Typed ports:**
-  - Rope `Tie` (domain Rope, bidirectional) on the handle at its centre, attachment role Load (accepts one rope end) (**proposed** placement; socket, domain and role are legacy enums — `engine/MachineData.cs@a6c914e:L68-L68`, `engine/ConnectionPort.cs@a6c914e:L11-L11`).
-  - Electrical `PowerIn` (Input) at (−0.45, 0, 0) (**proposed**: rear, as the laser's supply socket).
-  - Optical emitter at lens (0.6, 0, 0), direction +X.
-- **Sensors and activation:** a displacement switch on the handle travel: closes at ≥ 0.06 m and opens below 0.04 m (**proposed**: hysteresis so a swinging weight does not flicker it). Momentary: no latch.
-- **Work and energy stores:** none in the part; light needs `PowerIn` supplied **and** the switch closed. Rope work only moves the handle against the spring; it never powers the light.
-- **Optical emitter:** cone range 8, half-angle 15° (cosine 0.9659258), intensity 24 game units (**proposed**: equal to the legacy torch so EL-153, EL-154 and solar thresholds apply unchanged).
-- **Parameters:** none authorable (**proposed**: the single behaviour is the cord pull; travel and spring stay fixed for teaching).
-- **Cosmetic curves and UI bindings:** lens slate `#556573` → warm cream `#fff0a5` over 0.06 s linear on committed emission (**proposed**: the torch's legacy curve); the cone presentation reuses the torch's four nested shells and never supplies optical authority; the handle and cord render from solved poses.
-- **Art (DESIGN.md palette):** cream housing `#fff8e9`, gold lens collar `#f7cb52`, navy foot `#293954`, gold pull bead `#f7cb52`, dark cord as rope artwork (**proposed**: lamp-like cream body distinct from the gold torch).
-- **Catalogue and inventory entry:** id `pull_cord_light`, title "Pull-cord light", category Optics (**proposed**). Description (**proposed**): "Pulling its cord switches on a light. Tie a rope to the gold bead and connect a separate supply; a slack cord turns it off."
+Shape followed: the Linear pusher for a supply contact at a slider's endpoint (`elements/LinearPusher/LinearPusherElementDeclaration.cs:56`–`:57`), the Springboard for a sprung slider (`elements/Springboard/SpringboardElementDeclaration.cs:63`), the Impact lever for a rope port on a moving child body (`elements/ImpactLever/ImpactLeverElementDeclaration.cs:41`–`:50`), and the Flashlight ([EL-210](EL-210-flashlight.md)) for the emitter.
 
-### Variants
+| Item | Value |
+| --- | --- |
+| Interfaces | `ISliderElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:15`), `ISupplyElement` (`CuriousContraptions.Abstractions.Electrical/ElectricalContracts.cs:11`), `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`), plus the optical emitter interface **(optics)** |
+| Body 0 (static) | Colliders: housing box 0.9 × 0.6 × 0.6 m at the origin; collar cylinder, axis X, r 0.4 m, length 0.2 m at (0.55, 0, 0); foot box 0.6 × 0.12 × 0.8 m at (0.2, −0.36, 0); socket sphere r 0.075 m at the port. Material restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s. |
+| Body 1 (pull knob) | Rod cylinder, axis Y, r 0.04 m, length 0.2 m, centred (0, −0.1, 0) in the knob frame (it spans y 0 to −0.2), and a sphere r 0.06 m centred (0, −0.2, 0) at the rod's lower end; mass 0.05 kg; restitution 0.1, friction 0.3. Prismatic slider along Y based at (−0.25, −0.3, 0): lower limit −0.10 m, upper limit 0, stiffness 20 N/m, damping 0.6 N·s/m, bodies do not collide (the rod's upper part sits inside the housing). |
+| Ports | `PortId.Tie`, Rope, Bidirectional, role `Tie`, `RopeAttachmentRole.Load`, on body 1 at the knob sphere's centre (0, −0.2, 0) in the knob's frame. `PortId.PowerIn`, Electrical, Input, on body 0 at (−0.45, 0, 0), normal −X. |
+| Supply graph | `SupplyContactDescriptor` `pull` with `PrismaticContactControl(Prismatic 0, CoordinateEndpoint.Lower)` (`CuriousContraptions.Abstractions/SignalContactControl.cs:13`); `SupplyConsumerDescriptor` `emitter`, 100 W; `PowerIn` → `pull` → `emitter`. |
+| Optical emitter **(optics)** | Frame body 0; origin (0.65, 0, 0), the collar's front face; axis +X; half-angle 15°; range 8 m; radiant power (30, 30, 30) W; demand 100 W from the consumer; no enable (it is optional in the conventions): the supply contact is its switch; internal occluders = housing and collar |
+| Parameters | None. Travel and spring are fixed so the lesson is the cord, not a setting (D19). |
+| Stores | None. Rope work moves the knob against its spring and never becomes light. |
+| Presentation bindings | The knob art follows body 1's pose. `Visual/Lens` albedo slate (85, 101, 115) → warm cream (255, 240, 165), Linear over 0.06 s, from committed emission **(optics, M5)**. The cone is drawn by the shared renderer. |
+| Footprint | `ElementFootprint(Bodies: 2, MovingBodies: 1, PrismaticConstraints: 1, RevoluteConstraints: 0)`; domains Mechanical, Electrical, Rope and the optical flag |
+| Catalogue | Id `pull_cord_light`, "Pull-cord light", `ElementCategory.Power` (the Flashlight's category: both are light sources), colour (1, 0.97, 0.91), palette order 317 (coordinator decision 36, [palette allocation](readiness/palette-allocation.md)). Description: "Pulling its knob down switches on a light. Tie a rope to the gold knob and connect a separate supply; a slack rope turns it off." |
 
-One. No variants are named. A latching (pull-on, pull-off) cord is not in the row; see Open questions.
+### Art and solidity
+
+| Art node | Mesh and size | Class | Moved by |
+| --- | --- | --- | --- |
+| `Visual/Housing` | box 0.9 × 0.6 × 0.6 m, cream `#fff8e9` | solid (housing box) | nothing |
+| `Visual/Collar` | cylinder r 0.4, length 0.2, gold `#f7cb52` | solid (collar cylinder) | nothing |
+| `Visual/Lens` | disc drawn flush in the collar's front face | decorative: flush, recoloured by a binding | nothing (colour only) |
+| `Visual/Foot` | box 0.6 × 0.12 × 0.8 m at (0.2, −0.36, 0), navy `#293954` | solid (foot box) | nothing |
+| `Visual/Knob` | rod r 0.04, length 0.2, and sphere r 0.06, gold | solid (rod cylinder and knob sphere on body 1) | body 1's pose |
+| Socket stud | sphere r 0.075, gold | solid (socket sphere) | nothing |
+| Cone | translucent shells | decorative: light, drawn from the committed segment | the shared beam renderer |
+
+No cord is drawn between the housing and the knob. The legacy proposal showed a short cord with no collider; a thick strand is solid (owner decision, 22 November 2026), so the pull is a rigid knob on a rod whose every visible part is a collider. The rope a player ties to the knob is a connection, drawn and collided by its declared material under ENGINE-CONNECTION-MATERIALS. Icon: an original navy outline of a lamp with a hanging knob. It differs from the Flashlight by a box body, no top button and the knob beneath.
+
+### Compiled counts
+
+Bodies 2 (1 static, 1 dynamic). Colliders 6 (2 boxes, 2 cylinders, 2 spheres). Prismatic joints 1. Supply nodes 2. Emitters 1. Presentation bindings 3 plus one body pose. Signal nodes, stores 0.
 
 ## 3. Engine capabilities
 
-Binding shard ([element-02.json](../../coverage/engine/element-02.json)): ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, OpticalTransport, RigidBodyDynamics, SignalPropagation, StateTransaction, TensionTransmission ([element-map row](../general-engine-element-map.md) omits StateTransaction).
+Binding shard ([element-02.json](../../coverage/engine/element-02.json)): ElectricalPower, EnvironmentState, FiniteLedger, GeometryQuery, JointConstraint, OpticalTransport, RigidBodyDynamics, SignalPropagation, StateTransaction, TensionTransmission; navigation only (D14). Probe on `8d1d68aa`: 6 present, 2 present-untested, 3 narrower, 4 missing.
 
-**Exists now:** static and dynamic rigid bodies, sphere and box colliders, contact material (`engine/gpu/PhysicsDeclarations.cs@a6c914e:L42-L60`, `engine/gpu/PhysicsDeclarations.cs@a6c914e:L89-L91`); `PowerIn` socket (`engine/gpu/WorkshopConnections.cs@a6c914e:L8-L9`).
+| # | Capability | Status | Symbol | Test opened |
+| --- | --- | --- | --- | --- |
+| R1 | Static scene body with colliders from `col_` nodes | present | `ISceneGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:10`) | `StateLatchTests.Compiler_DeclaresStaticLatchBodyWithCanonicalColliders` (`CuriousContraptions.tests/StateLatchTests.cs:503`) |
+| R2 | Every visible solid has a collider | present | the package's row in `Specs` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:186`) |
+| R3 | Typed ports and wrong-kind refusal | present | `PortDescriptor` (`CuriousContraptions.Abstractions/PortDescriptor.cs:55`) | `BundlePortsTests.AWrongDomainOrOutputToOutputLinkIsStillRefused` (`CuriousContraptions.tests/BundlePortsTests.cs:262`) |
+| R7 | Proportional sharing of a per-phase power allowance among compiled consumers | present, untested as used: the cited test proves the allocation function, not an emitter among other consumers; the first optical slice adds the row | `ElectricalSupply.Reserve` (`engine/gpu/ElectricalSupply.cs:11`) | `ElectricalSupplyTests.UnequalDemandSharesProportionallyAndFullLoadReceivesNothing` (`CuriousContraptions.tests/ElectricalSupplyTests.cs:207`) |
+| R12 | Run, Reset, save and load of every admitted declaration | present | loop over `TestBundle.Packages` | `CatalogueIntegrationTests.EveryAdmittedDeclarationRetainsAuthoredStateAcrossRunResetSaveLoad` (`CuriousContraptions.tests/CatalogueIntegrationTests.cs:273`) |
+| R16 | Prismatic slider with stiffness, damping and limits | present | `PrismaticSliderDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:104`) | `WorkshopSpringboardTests.CompiledPreloadUsesActualF32PoseAndEightJoules` (`CuriousContraptions.tests/WorkshopSpringboardTests.cs:146`) |
+| R17 | Rope port on a moving child body, pulled by a falling Weight | present | Impact lever `TieA` on body 1 (`ImpactLeverElementDeclaration.cs:41`–`:50`) | `ImpactLeverTests.RopeLiftingIntegration_FallingWeightLiftsArm` (`CuriousContraptions.tests/ImpactLeverTests.cs:414`) |
+| R18 | Supply contact at the endpoint of a passive sprung slider | present, untested on a passive slider: every prismatic slot, driven or not, publishes an actuator row with its coordinate and limits (`engine/gpu/PhysicsPresentationRead.cs:25`–`:43`), which the endpoint contact reads (`CuriousContraptions.Simulation/WorkshopGpuDevice.cs:329`–`:346`), and the bundle admits the control for any declared slider (`CuriousContraptions.Bundle/SupplyBundleValidation.cs:78`–`:85`); the only executed use is on a driven slider | `PrismaticContactControl` | `LinearPusherTests.BothEndpointConsumersFollowDepartureReturnAndSupplyRemoval` (`CuriousContraptions.tests/LinearPusherTests.cs:65`); row P1 is the first proof on a passive one. If the probe fails, the owner is **ENGINE-SIGNAL-NODES** (threshold over a committed scalar, here the coordinate) |
+| R6 | Supply consumer paying a continuous target | narrower: no emitter target (`CuriousContraptions.Abstractions/SupplyContractValues.cs:42`–`:54`) | `SupplyConsumerDescriptor` | `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`CuriousContraptions.tests/FanIntegrationTests.cs:507`). Owner: **ENGINE-OPTICAL** |
+| R9 | Line-of-sight occlusion by solid colliders | narrower: airflow rows only, by a scan of every collider (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:141`, `:149`); the broadphase has only a pair-overlap query (`CuriousContraptions.Simulation/WorkshopDynamicBvh.cs:145`) | `AirflowLineClear` | `AirflowGeneralityTests.MovingSolidOcclusionIsResampledBeforeTransfer` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:13`). Owner of the ordered-crossing segment cast: **ENGINE-SPATIAL-QUERIES** |
+| R11 | Presentation binding on a committed driver | narrower: no optical driver (`CuriousContraptions.Abstractions/ElementPresentation.cs:18`–`:37`) | `PresentationDriver` | `BothGateTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset` (`CuriousContraptions.tests/BothGateTests.cs:259`). Owner: **ENGINE-OPTICAL** |
+| M1 | A declared emitter as a supply consumer target, with grant scaling | **missing** | — | owner **ENGINE-OPTICAL** |
+| M2 | The optical solve: once per tick after the last substep, with the diverging law and shadow casts from the spatial query | **missing** | — | owner **ENGINE-OPTICAL** |
+| M5 | Committed-emission driver and cone read model | **missing** | — | owner **ENGINE-OPTICAL** |
+| M6 | The optical `SimulationDomain` flag | **missing** | — | owner **ENGINE-OPTICAL** |
 
-**Missing**
-- TensionTransmission and the rope domain, `Tie` socket and route constraint — Story 10.2 (CAT-053, CAT-058); S257 rope-port row → S688.
-- JointConstraint prismatic slider with stops and spring — exists for the springboard design ([docs/gpu-f32-physics.md](../../gpu-f32-physics.md#6-unified-compliant-soft-constraints-spring-damper-formulation), CAT-062a) but not yet as a declaration for this part.
-- OpticalTransport cone emission — Story 13.1; S484 ([decisions](../invest/decisions.md#s484)): S486, S488.
-- ElectricalPower supply gating — Story 8.1; S257.
-- package declaration and bundle-issued typed id (`engine/gpu/WorkshopPartKind.cs@a6c914e:L3-L3`).
+A colliding rope is a fifth dependency, outside this package: the delivered rope draws a strand with no collider, a recorded visible-solid defect owned by ENGINE-CONNECTION-MATERIALS (owner decision, 22 November 2026).
 
-**Element dependencies:** CAT-058 rope anchor / EL-205 rope and CAT-067 weight or CAT-053 pulley (Epic 10), CAT-005 battery (Story 8.1), EL-153 or CAT-059 as an observer (Epic 13).
+**Dependencies.** Flashlight ([EL-210](EL-210-flashlight.md), which proves the cone emitter first), Weight, Pulley and Rope anchor, Battery (delivered); an observer ([EL-153](EL-153-general-light-receiver.md) or a broadband detector).
 
 ## 4. Sources and legacy
 
 **Sources.** Row [element-155](../requirements.md#element-155): real rope displacement actuates a separately supplied light source; slack rope or missing supply produces no light. [todo-196](../requirements.md#todo-196) scope index. Campaign: "drawstring source" first use 51–60 ([campaign-element-coverage](../requirements.md#campaign-element-coverage); [campaign-reservations](../invest/campaign-reservations.md)). S257 rope-port: a slack rope lifts nothing.
 
 **Legacy** (no part; mechanisms only):
-1. Torch cone values range 8, cosine 0.9659258, intensity 24; lens colour curve 0.06 s linear — `parts/FlashlightPart.cs@a6c914e:L10-L19`. Carry forward as the proposed emitter.
+1. Torch cone values range 8, cosine 0.9659258, intensity 24; lens colour curve 0.06 s linear — `parts/FlashlightPart.cs@a6c914e:L10-L19`. Carry forward as the emitter.
 2. Cone light law — `engine/LightNetwork.cs@a6c914e:L12-L52`. Carry forward the law; not the CPU solve.
 3. Rope domain and attachment roles are closed enums — `engine/MachineData.cs@a6c914e:L68-L68`, `engine/ConnectionPort.cs@a6c914e:L11-L12`; loads accept one rope end; ropes cannot branch — `engine/RopeNetwork.cs@a6c914e:L69-L78`. Carry forward.
 4. Rope route, length-at-connect, tension-only and slack/taut facts — recorded as R1–R19 in [CAT-058-rope_anchor](CAT-058-rope_anchor.md). Carry forward via that spec.
-5. Lightest legacy weight 0.25 kg — `parts/WeightPart.cs@a6c914e:L22-L27` (recorded in [CAT-067-weight](CAT-067-weight.md)). Carry forward as the sizing basis for the proposed spring.
+5. Lightest legacy weight 0.25 kg — `parts/WeightPart.cs@a6c914e:L22-L27` (recorded in [CAT-067-weight](CAT-067-weight.md)). Carry forward as the sizing basis for the spring.
 
 **Files harvested:** `parts/FlashlightPart.cs`, `engine/LightNetwork.cs`, `engine/MachineData.cs`, `engine/ConnectionPort.cs`, `engine/RopeNetwork.cs`, `parts/WeightPart.cs`.
 
-## 5. Acceptance outline
+## 5. Acceptance
 
-- **Chrome UI recipe:** from the actual drawer place the pull-cord light, a rope anchor or pulley above a ramp, a weight, a battery and a solar panel or light sensor in the beam; connect a rope from the weight to the bead with the rope tool, and battery `Supply` → light `PowerIn`. Run; the weight rolls off and pulls the cord.
-- **Positive:** the cord goes taut, the bead travels past 0.06 m, the lens and cone light, and the receiver responds.
-- **Negative / controls:** slack rope (weight resting) — no light; supply unwired — bead moves, no light; rope tied to the housing instead of the bead is refused (no Tie socket there); an occluder in the cone.
-- **Boundaries:** switch at 0.06 m on and 0.04 m off; travel stop at 0.10 m; a 0.25 kg weight (2.94 N with the bead) reaches the stop against the 2.5 N full-travel spring; at rest the bead stays up against its own weight; release returns the bead and extinguishes the light.
-- **Run/Reset:** Reset returns the bead to rest, clears emission and rope state exactly. **Save/Load:** placement, rope connection (with length) and wiring round-trip.
-- **Integrations:** EL-153, EL-154, CAT-059 solar; pulley routes. Binding criteria: [element-155](../requirements.md#element-155).
+### Behaviour and numbers
+
+Starting values (D1).
+
+- **Knob at rest.** Weight 0.05 × 9.81 = 0.49 N against a 20 N/m spring: it hangs 0.49 ÷ 20 = 0.0245 m below the upper stop, 0.0755 m short of the lower one. The contact is open.
+- **Pull.** At the lower stop the spring pushes up with 20 × 0.10 = 2.0 N, of which the knob's weight supplies 0.49 N: a rope must pull with more than 1.51 N. The lightest delivered Weight is 0.25 kg (`elements/Weight/WeightElementDeclaration.cs:33`), 2.45 N: it holds the knob on the stop with 0.94 N to spare. The heaviest, 8 kg, presses the stop with 78.5 − 1.51 = 77 N.
+- **Contact.** Closed while the coordinate is within 0.5 mm of the lower limit (`PhysicalTolerance.ActuatorStopSlopMetres`, `CuriousContraptions.Abstractions/PhysicalTolerance.cs:14`). A slack rope pulls with nothing, the spring returns the knob, and the contact opens. Momentary: there is no latch (decision K-13).
+- **Light.** As the Flashlight: (30, 30, 30) W over 0.2141 sr, I = 420.4 W/sr, 46.7 W/m² at 3 m, range 8 m. Demand 100 W = 0.833 J per tick, under the Battery's 1 J per tick. Light needs both the closed contact and a supplied `PowerIn`.
+- **Tick order.** The knob's committed coordinate of tick n closes the contact at the start of tick n + 1; energy is granted in that tick's substeps and the cone is emitted by the solve after its last substep; a detector's contact follows one tick later.
+- **Stability.** The knob is 160 times lighter than an 8 kg Weight hanging from it; the slice checks that it rests on the stop without drift under that load.
+
+### Rows
+
+Planned class `PullCordLightTests`. Fixture: the light; a Weight on a rope from the knob's `Tie`, resting on a Powered gate's blade or a ledge it can be pushed from; Battery `Supply` → `PowerIn`; a broadband detector (`threshold` 1.0 W) 3 m in front. Power tolerance ±2 %, the one optical set (coordinator decision 21); stall guard 600 ticks from the Weight's release.
+
+| # | Given / When / Then | Test | Control | Boundary and tolerance |
+| --- | --- | --- | --- | --- |
+| P1 | Given the fixture with a 0.25 kg Weight, when the Weight falls and the rope goes taut, then the knob reaches its lower stop, the cone exists and the detector reads a mean of 14.8 W | `PullCordLightTests.ATautRopePullsTheKnobAndLightsTheLamp` | P2, P3 | ±2 %; knob within 1 mm of −0.10 m |
+| P2 | **Slack rope.** Given the Weight left resting with slack in the rope, then the knob stays within 5 mm of its 0.0245 m rest sag and no segment exists | `PullCordLightTests.ASlackRopeProducesNoLight` | P1 | 600 ticks |
+| P3 | **Missing supply.** Given P1 with `PowerIn` unwired, then the knob reaches the stop and no segment exists | `PullCordLightTests.WithoutSupplyAPulledKnobProducesNoLight` | P1 | 600 ticks |
+| P4 | Given P1 lit, when the Weight is lifted again (a Linear pusher raises it) so the rope slackens, then the knob returns and the light goes out; pulled again, it relights | `PullCordLightTests.TheLightFollowsTheRopeWithoutLatching` | P1 | light off within 60 ticks of slack |
+| P5 | Given an 8 kg Weight, then the knob rests on the stop for 600 ticks with its coordinate inside the stop tolerance and the light steady | `PullCordLightTests.TheHeaviestWeightHoldsTheKnobSteadily` | P1 | coordinate within 1 mm; no reading drop |
+| P6 | Given a Wall in the cone, then the detector reads nothing; given the detector at 8.5 m, nothing | `PullCordLightTests.SolidsAndRangeLimitTheCone` | P1 | 0.5 m beyond 8 m |
+| P7 | Given a rope end offered to the housing, then no port accepts it; given an electrical wire offered to `Tie`, the edit is refused | `PullCordLightTests.OnlyTheKnobTakesARope`; generic R3 | — | typed refusal |
+| P8 | Given a lit run, when Reset, then the knob is at its authored rest, no segment remains and the rope is as authored; a saved and reloaded construction keeps the rope and its length | `PullCordLightTests.ResetAndReloadRestoreTheAuthoredState`; authored state by R12 | P1 | knob within 1 mm of rest |
+
+No parameter, so no parameter-refusal row. Chrome recipe (pending, post-catalogue): the light, a Pulley above a ledge, a Weight, a Battery and a light sensor in the beam; tie a rope from the Weight to the knob; Run.
 
 ## 6. Open questions
 
-1. Momentary (proposed) or latching pull-cord behaviour? The row says "rope displacement actuates"; owner decision.
-2. All geometry, mass, spring, switch and emitter values are proposed; owner to confirm.
-3. Should the emitter be a cone (proposed) or a narrow beam usable by laser receivers? Owner S484.
-4. Roadmap: required in the linked delivery slice; it needs Epic 10 ropes and Epic 13 cones, so it fits after Story 13.7.
+None open.
+
+1. **Momentary or latching — decided** (K-13, D19): momentary; the row says displacement actuates it.
+2. **Geometry, mass, spring and emitter values — decided** (D1): section 2, with the knob replacing the drawn cord.
+3. **Cone or narrow beam — decided** (D19): a cone equal to the Flashlight's, so torch lessons transfer.
+4. **Roadmap — resolved**: its own slice after the Flashlight.
+
+Needs the owner: none.
+
+## 7. Integration
+
+- **Collaborators.** Weight, Pulley, Rope anchor, Linear pusher, Battery (delivered); Flashlight, light sensor, light-charge receiver, Solar panel (undelivered). Port domains agree: `Tie` is Rope, Bidirectional, role Load, as the Weight's (`WeightElementDeclaration.cs:41`–`:45`); `PowerIn` is Electrical Input.
+- **Campaign.** "Drawstring source", first use 51–60.
+- **Coverage binding (planned, not yet live).** A named package is bound by the binding section that main's `tools/Coverage/NamedPackageSources.cs` reads; **blocked on the coverage follow-on story S7** (source [todo-196](../requirements.md#todo-196) is a scope index; decision S517 has no anchor in `docs/planning/invest/scope-corrections.md`). S7 also widens the reader to admit companion packages and non-EL identities (owner decision 15); the section is not written here.
+- **Lesson fixtures.** Story [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) is defined and lands after the engine programme (owner decision 22).
+
+## 8. Delivery
+
+- **Slice shape.** Single element.
+- **Prerequisites, in order.** The engine programme (owner decision 3a), including ENGINE-SPATIAL-QUERIES; ENGINE-OPTICAL as corrected in the batch summary; the Flashlight; ENGINE-CONNECTION-MATERIALS for the rope's solid strand; S7 for the binding. No joint story is needed: the endpoint contact exists (row R18).
+- **Files.** `elements/PullCordLight/PullCordLight.csproj`, `PullCordLightElementDeclaration.cs`, `pull_cord_light.tscn`, `icon.svg`; one guarded `CuriousContraptions.slnx` line; `CuriousContraptions.tests/PullCordLightTests.cs`; a `VisibleSolidColliderTests` row; this spec's binding section.
+- **Review tier.** Data-only if the probe finds every row present after its engine prerequisites; otherwise engine.
+- **Disqualifiers.** The endpoint contact failing on a passive slider (then ENGINE-SIGNAL-NODES' threshold over the committed coordinate is the owner, and the slice waits for it); the knob unstable under an 8 kg Weight (raise its mass and re-derive the spring: at 0.1 kg the rest sag is 0.049 m and the needed pull 1.02 N); a different unit scale.
+
+## 9. Engine conformance
+
+Verdict: **Conforms.**
+
+1. **Declaration data only.** Two bodies, one slider, one rope port, one endpoint contact, one consumer, one emitter. No code turns "rope pulled" into "light on".
+2. **Generic laws.** Tensile span, spring slider with stops, endpoint contact, supply reservation, the diverging segment law.
+3. **Three layers.** Colliders: six primitives on two bodies. Visuals: housing, collar, foot, knob, stud; no cord. Animation: the lens colour from committed emission; the knob's art follows its body.
+4. **One-way flow and typing.** Knob pose → contact → emitter → readings; ports and endpoint are enums.
+5. **Flat state.** Counts in section 2.
+6. **Performance fitness.** One small dynamic body, which will sleep at rest once `ENGINE-ISLANDS-SLEEP` lands (no island sleeping exists today); six primitives, each a visible solid; one diverging segment while lit.
+7. **Tests are scenarios.** Rows P1 to P8.
