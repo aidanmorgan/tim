@@ -1,5 +1,7 @@
 # Engine design gap audit — 22 November 2026
 
+> Dated audit record, kept verbatim as review evidence. Where it proposes wording later changed by decisions (for example the sleep-off comparison at its §6, replaced by coordinator decision 41's before-landing measurement), `epics.md` governs.
+
 Read-only audit of the physics engine at published main `8d1d68aa` (checkout `spec-drafts`). Nothing was built, run or measured. Every performance statement below is reasoning from the code as written; each names the measurement that would confirm it.
 
 Owner requirement audited against: a generalised engine with no custom per-element logic, data-driven components, visuals separate from colliders separate from animations, and a proper high-performance physics engine.
