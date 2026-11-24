@@ -222,7 +222,7 @@ All of this section waits for the engine programme (owner decision 22). The coun
 
 No arrival tick, trajectory or hash is asserted. Browser proof stays pending. A level changes to `Playable` only in the slice that proves it.
 
-**Provable with single-goal evaluation (9), after the engine programme.** Numbers are today's `content/puzzles.json` positions; owner decision 24f moves 03 and 05 into chapter 2 (11a, 11b) and 61 to 3, and the content slice re-orders them. Group levels that share parts into one slice.
+**Provable with single-goal evaluation (9), after the engine programme.** Numbers are today's `content/puzzles.json` positions; owner decision 24f moves 03 and 05 into chapter 2 (11a, 11b) and 61 to 3, and the content housekeeping slice (completion-ledger OS-02) labels each with its plan level in its subtitle. Group levels that share parts into one slice.
 
 | Group | Levels (number, id, goal) |
 |---|---|

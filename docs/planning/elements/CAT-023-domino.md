@@ -118,7 +118,7 @@ Files harvested:
 
 Acceptance: [CAT-023](../requirements.md#current-cat-023) and its delivery notes. Every row runs the production simulation; none depends on a domino-specific code path.
 
-- **Construction.** `domino_effect`: place four dominoes from inventory, wire the end domino to the lamp, Run. When the content slice re-authors the level (owner decision 24f; coordinator decision 41) the lamp and its wire go and the goal stays Captured: the last domino knocks a ball into a Receiving basket.
+- **Construction.** `domino_effect`: place four dominoes from inventory, wire the end domino to the lamp, Run. When the level is re-authored (completion-ledger OS-06; owner decisions 24f and 24o(3); coordinator decision 41) the lamp and its wire go and the goal stays Captured: the last domino knocks a ball into a Receiving basket.
 - **Positive.** A close-gap chain topples by real contact, each tile starting to turn only after the one before it; `ActivationOut` emits once past 45°; Solved once.
 - **Negative/control.** A gap breaks the chain; a 10° tilt rocks back without emitting; an upright tile never fires; an unwired end falls but lights nothing; a wire into a domino is refused; the striker does not reach the second tile first (the cascade test asserts the order of first motion).
 - **Run/Reset, Save/Load.** Reset restores upright poses and rearms the sensor; save and load restore the chain.
