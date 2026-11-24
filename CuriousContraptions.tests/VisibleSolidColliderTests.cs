@@ -159,6 +159,26 @@ public sealed class VisibleSolidColliderTests
         // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
         [new PartId("clock")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
             "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], []),
+
+        // Visible-solid remainder, part A. The anchor's eye is a full torus on the static body (the hidden proxy draws it).
+        [new PartId("rope_anchor")] = new(["Visual_Mount"], ["Visual_Eye"], [], [], []),
+        // The wheel turns on a binding about its own axis: its body, and its rim as a solid of revolution, are solid (a static collider
+        // follows them exactly); the spoke and the gold marker turn off the axis, so they are drawn by the binding and decorative.
+        [new PartId("pulley")] = new(["Visual/Visual_Mount", "Visual/Visual_Post", "Visual/Wheel/Visual_WheelBody"], ["Visual/Wheel/Visual_Rim"], [],
+            ["Visual/Wheel/Visual_Spoke", "Visual/Wheel/Visual_Marker"], []),
+        // The blades are turned by a binding and have no collider (owner decision, 21 November 2026); the flow arrow is printed on the
+        // base. The hub turns on its hinge (its own body).
+        [new PartId("fan")] = new(["Visual/Base", "Visual/Post", "Visual/Hub/Surface"], ["Visual/Ring"], [],
+            ["Visual/BladeAxis/Blades/*", "Visual/FlowMark/*"], ["Visual/Hub"]),
+        // The beam tips on its hinge (its own body); the inset and the four marks are printed flat on its top face.
+        [new PartId("impact_lever")] = new(["Visual/Visual_Base", "Visual/Visual_Fulcrum", "Visual/Visual_StopLeft", "Visual/Visual_StopRight",
+            "Visual/Beam/Visual_Beam"], null, [],
+            ["Visual/Beam/Visual_Inset", "Visual/Beam/Visual_Mark_0", "Visual/Beam/Visual_Mark_1", "Visual/Beam/Visual_Mark_2", "Visual/Beam/Visual_Mark_3"],
+            ["Visual/Beam"]),
+        // The bed is drawn by its deflection binding.
+        [new PartId("trampoline")] = new(["Visual/Visual_BackPlate", "Visual/Visual_SideLeft", "Visual/Visual_SideRight", "Visual/Visual_EndFront",
+            "Visual/Visual_EndBack", .. Enumerable.Range(0, 4).Select(i => $"Visual/Visual_Post{i}"),
+            .. Enumerable.Range(0, 4).Select(i => $"Visual/Visual_Foot{i}")], null, [], ["Visual/Visual_Bed"], []),
     };
 
     private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
@@ -409,7 +429,7 @@ public sealed class VisibleSolidColliderTests
     /// <summary>The Basketball (CAT-001): radius 0.34 m, restitution 0.55, linear drag 0.04 1/s.</summary>
     private const double BallRadius = .34, BallRestitution = .55, BallDrag = .04;
     /// <summary>The envelope's temporary visual penetration bound: 5 % of the smaller body's extent, the ball's radius here.</summary>
-    private const double Penetration = .05 * BallRadius;
+    private const double PenetrationShare = .05, Penetration = PenetrationShare * BallRadius;
     private const double Y = 3;
     private static readonly GpuBodyId Element = new(1), Lamp = new(2), Ramp = new(3), Ball = new(9);
 
@@ -445,11 +465,14 @@ public sealed class VisibleSolidColliderTests
     {
         LampBulb, SwitchButton, DelayHousing, DelayFace, RampSlab, BatteryTerminal, DetectorCollar, GateHousing, LogicFace, LogicLamp,
         CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace, PipeShell, PipeCollar,
-        GateCollar, Bend45Collar, Bend90Collar, FunnelCollar
+        GateCollar, Bend45Collar, Bend90Collar, FunnelCollar, AnchorEye, PulleyPost, PulleyRim, FanRing
     }
 
     /// <summary>On its back: −90° about X, the face up; a part-local point (x, y, z) is then at (x, z, −y) from the origin.</summary>
     private static readonly NumQuaternion Back = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitX, -MathF.PI / 2);
+
+    /// <summary>Face down: +90° about X; a part-local point (x, y, z) is then at (x, −z, y) from the origin.</summary>
+    private static readonly NumQuaternion Front = NumQuaternion.CreateFromAxisAngle(NumVector3.UnitX, MathF.PI / 2);
 
     /// <summary>The element, its pose, the feature's top above the element's origin, the drop's x and z offsets, and the static
     /// restitution its element doc records.</summary>
@@ -508,6 +531,19 @@ public sealed class VisibleSolidColliderTests
         // CAT-051: the Powered gate turned over about X (housing and rails below), onto its end collar's drawn 0.78 m tube at x 0.4.
         // Clear of the blade (top at 0.72, x within ±0.06: the ball reaches x 0.06 at 0.78) and the rails (|z| 0.82, below 0.2).
         Feature.GateCollar => (new PartId("powered_gate"), new(1, 0, 0, 0), .78, .4f, 0, .1),
+        // CAT-058: the Anchor on its back, the eye lying flat at height 0.18: the top of its tube (centreline radius 0.2, tube 0.0275)
+        // at x 0.2. The mount's top is 0.04 under the origin plane; the opening is 0.1725 m, narrower than the ball.
+        Feature.AnchorEye => (new PartId("rope_anchor"), Back, .18 + .0275, .2f, 0, 1),
+        // CAT-053: the Pulley face down: the post's back face (local z −0.19) is 0.19 above the origin plane, 0.105 m above the wheel's
+        // 0.085 face. Dropped at world z 0.15, over the post's length (0.025 to 0.575): resting there (centre 0.53) the ball clears
+        // the mount's near edge (z 0.475, height 0.3) by √(0.325² + 0.23²) = 0.398 m, beyond its 0.34 radius.
+        Feature.PulleyPost => (new PartId("pulley"), Front, .19, 0, .15f, 1),
+        // CAT-053: the Pulley on its back: the rim's tube (centreline radius 0.4, tube 0.035) lies flat at height 0.1, its top 0.135,
+        // 0.05 above the wheel's 0.085 face. Dropped at x 0.4, over the tube.
+        Feature.PulleyRim => (new PartId("pulley"), Back, .1 + .035, .4f, 0, 1),
+        // CAT-028: the upright Fan: the top of the ring's tube (centreline radius 0.56, tube 0.07) at the origin's x and z; the
+        // hub's top is 0.49 m lower. The ball is outside the Fan's stream: its cone has no radius at the source plane.
+        Feature.FanRing => (new PartId("fan"), NumQuaternion.Identity, .56 + .07, 0, 0, 1),
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
@@ -547,6 +583,10 @@ public sealed class VisibleSolidColliderTests
     [InlineData(Feature.Bend90Collar)]
     [InlineData(Feature.FunnelCollar)]
     [InlineData(Feature.GateCollar)]
+    [InlineData(Feature.AnchorEye)]
+    [InlineData(Feature.PulleyPost)]
+    [InlineData(Feature.PulleyRim)]
+    [InlineData(Feature.FanRing)]
     public async Task ABallDroppedOntoEachSolidFeatureStopsAtItsDrawnSurfaceAndReboundsAtTheProductRestitution(Feature feature)
     {
         var (part, rotation, top, x, z, staticRestitution) = Drop(feature);
@@ -555,7 +595,8 @@ public sealed class VisibleSolidColliderTests
             : Place(part, Element, new(0, (float)Y, 0), rotation);
         // A torus's top is a point apex, like a sphere's: no stable rest.
         await AssertDropOnto(element, x, z, top, staticRestitution, feature.ToString(),
-            OnSphereApex(part, rotation, x, z, top) || feature is Feature.PipeCollar or Feature.Bend45Collar or Feature.Bend90Collar or Feature.FunnelCollar, feature == Feature.PlateSocket ? PlateFall : .5);
+            OnSphereApex(part, rotation, x, z, top) || feature is Feature.PipeCollar or Feature.Bend45Collar or Feature.Bend90Collar or Feature.FunnelCollar
+                or Feature.AnchorEye or Feature.PulleyRim or Feature.FanRing, feature == Feature.PlateSocket ? PlateFall : .5);
     }
 
     // At the rim the cap is 5 cm proud of the sphere; at x=.3 the rim's first contact
@@ -644,11 +685,92 @@ public sealed class VisibleSolidColliderTests
         await AssertDropOnto(WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Element, 0, (float)(Y), 0, 0, 0, 0, 1, WallFixture.Default), 0, 0,
             WallFixture.Default[new("height")] * .5, 1, "Wall", apex: false, fall: .5);
 
-    private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,
-        bool apex, double fall)
+    /// <summary>CAT-058, the control for the eye's collider: a Tennis ball of radius 0.1 m, narrower than the eye's 0.1725 m opening
+    /// by 0.0725 m, dropped 0.5 m along the axis of the Anchor on its back, passes through the eye and first stops on the mount's face,
+    /// 0.04 m above the origin plane, at that height plus its radius within 5 mm, read as the drop theory reads a first impact. It
+    /// rebounds at its own 0.85. A disc in place of the eye's torus would stop it 0.2475 m higher.</summary>
+    [Fact]
+    public async Task ASmallBallPassesThroughTheAnchorEyeOntoTheMount() =>
+        await AssertDropOnto(Place(new PartId("rope_anchor"), Element, new(0, (float)Y, 0), Back), 0, 0, -.04, 1,
+            "Anchor mount", apex: true, fall: .5, SmallTennis);
+
+    /// <summary>The Impact lever's inset and four marks are printing, not raised solids (owner decision, 21 November 2026): each is a
+    /// quad facing up with the X and Z extent and position the old box had, lying between 0 and 0.5 mm above the beam's top face (the
+    /// bound the printed marks of FaceMarkingTests use; the old boxes stood 8 and 10 mm proud), and every mark is above the inset.</summary>
+    [Fact]
+    public void TheLeversBeamMarkingsArePrintedFlatAboveItsTopFace()
     {
-        var rest = Y + top + BallRadius;
-        await using var ring = await WorkshopIntegrationHarness.Running(Bench([element, BallAt(new(x, (float)(rest + fall), z))]));
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(new PartId("impact_lever")).Metadata.ScenePath).Instantiate<Node3D>();
+        try
+        {
+            var top = VerticesInRoot(root, root.GetNode<MeshInstance3D>("Visual/Beam/Visual_Beam")).Max(v => v.Y);
+            (string Name, float X, float Width, float Depth)[] printed =
+                [("Visual_Inset", 0, 3.38f, .82f), ("Visual_Mark_0", -1.2f, .035f, .3f), ("Visual_Mark_1", -.6f, .035f, .3f),
+                 ("Visual_Mark_2", .6f, .035f, .3f), ("Visual_Mark_3", 1.2f, .035f, .3f)];
+            var heights = new Dictionary<string, (float Lowest, float Highest)>();
+            const float standoff = .0005f, lateral = .005f;
+            foreach (var (name, x, width, depth) in printed)
+            {
+                var mesh = root.GetNode<MeshInstance3D>("Visual/Beam/" + name);
+                Assert.IsType<QuadMesh>(mesh.Mesh);
+                var vertices = VerticesInRoot(root, mesh);
+                AssertFacesUp(vertices, name);
+                // The height above the face is the print stand-off, 0.5 mm as in FaceMarkingTests; it also keeps the quad flat to it.
+                Assert.All(vertices, v => Assert.InRange(v.Y - top, 0f, standoff));
+                // The lateral bound is sized to the mark, not to the stand-off: 5 mm against a 35 mm wide, 0.3 m long mark excludes a
+                // mark that is moved, resized or missing, which a player would see.
+                Assert.InRange(vertices.Max(v => v.X) - vertices.Min(v => v.X), width - lateral, width + lateral);
+                Assert.InRange(vertices.Max(v => v.Z) - vertices.Min(v => v.Z), depth - lateral, depth + lateral);
+                Assert.InRange((vertices.Max(v => v.X) + vertices.Min(v => v.X)) / 2, x - lateral, x + lateral);
+                Assert.InRange((vertices.Max(v => v.Z) + vertices.Min(v => v.Z)) / 2, -lateral, lateral);
+                heights[name] = (vertices.Min(v => v.Y), vertices.Max(v => v.Y));
+            }
+            Assert.All(printed.Skip(1), mark => Assert.True(heights[mark.Name].Lowest > heights["Visual_Inset"].Highest, mark.Name + " lies under the inset"));
+        }
+        finally { root.Free(); }
+    }
+
+    /// <summary>A mesh's triangle vertices in the frame of the scene root: every node transform up to the root, composed.</summary>
+    internal static Godot.Vector3[] VerticesInRoot(Node3D root, MeshInstance3D mesh)
+    {
+        var transform = mesh.Transform;
+        for (var node = mesh.GetParent(); node != root; node = node.GetParent()) transform = ((Node3D)node).Transform * transform;
+        return mesh.Mesh!.GetFaces().Select(v => transform * v).ToArray();
+    }
+
+    /// <summary>Every triangle faces world up and the surface has a readable area (FaceMarkingTests' 1 cm²). Godot's front faces wind
+    /// clockwise, so the cross product of a front face points against its facing.</summary>
+    internal static void AssertFacesUp(Godot.Vector3[] triangles, string name)
+    {
+        Assert.NotEmpty(triangles);
+        var area = 0f;
+        for (var i = 0; i < triangles.Length; i += 3)
+        {
+            var cross = (triangles[i + 1] - triangles[i]).Cross(triangles[i + 2] - triangles[i]);
+            area += cross.Length() / 2;
+            Assert.True(cross.Normalized().Dot(Godot.Vector3.Up) < -.99f, name + " does not face up");
+        }
+        Assert.True(area > .0001f, name + " has no readable surface area");
+    }
+
+    /// <summary>A ball the drop theory drops: its radius, its own restitution, its linear drag (1/s) and how it is placed. The
+    /// envelope's temporary visual penetration is 5 % of the smaller body's extent, the ball's radius.</summary>
+    private sealed record DroppedBall(double Radius, double Restitution, double Drag, Func<NumVector3, IWorkshopInstance> At)
+    {
+        public double Penetration => PenetrationShare * Radius;
+    }
+
+    private static readonly DroppedBall Basketball = new(BallRadius, BallRestitution, BallDrag, at => BallAt(at));
+
+    /// <summary>A Tennis ball of radius 0.1 m, bounce 0.85 and drag 0.04 1/s, small enough to pass the Anchor's eye.</summary>
+    private static readonly DroppedBall SmallTennis = new(.1, .85, .04, at => TennisBallTests.Ball(Ball.Value, at.X, at.Y, radius: .1f, z: at.Z));
+
+    private static async Task AssertDropOnto(IWorkshopInstance element, float x, float z, double top, double staticRestitution, string feature,
+        bool apex, double fall, DroppedBall? dropped = null)
+    {
+        var ball = dropped ?? Basketball;
+        var rest = Y + top + ball.Radius;
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([element, ball.At(new(x, (float)(rest + fall), z))]));
         await ring.Advance(180);
         double vIn = 0, lowest = double.PositiveInfinity, contact = double.NaN; double? vOut = null; var landed = false;
         WorkshopRead? before = null;
@@ -667,12 +789,12 @@ public sealed class VisibleSolidColliderTests
         }
         Assert.True(landed, $"the ball never landed on the {feature}");
         var stop = apex ? contact : lowest;
-        Assert.True(stop >= rest - Penetration, $"the ball sank to {stop:F4} m, below the {feature}'s surface contact {rest:F4} m");
+        Assert.True(stop >= rest - ball.Penetration, $"the ball sank to {stop:F4} m, below the {feature}'s surface contact {rest:F4} m");
         Assert.True(stop <= rest + .005, $"the ball stopped at {stop:F4} m, above the {feature}'s surface contact {rest:F4} m");
-        var e = (double)((float)BallRestitution * (float)staticRestitution);
+        var e = (double)((float)ball.Restitution * (float)staticRestitution);
         Assert.True(vOut is not null, $"the ball did not rebound from the {feature}");
         var ratio = vOut!.Value / vIn;
-        var low = e - G * T * (1 + e) / vIn - 2 * BallDrag * T * e - Math.Pow(2, -20);
+        var low = e - G * T * (1 + e) / vIn - 2 * ball.Drag * T * e - Math.Pow(2, -20);
         var high = e * (1 + G * T / vIn) + Math.Pow(2, -20);
         Assert.True(ratio >= low && ratio <= high, $"the {feature} rebound ratio {ratio:F4} lies outside [{low:F4}, {high:F4}] for e {e:F4}");
     }

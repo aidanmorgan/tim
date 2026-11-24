@@ -77,7 +77,7 @@ Map families (navigation only, D14): Buoyancy, ContactImpulse, EnvironmentState,
 | --- | --- | --- |
 | W21 dynamic body with declared mass, centre and inertia | present | hull |
 | W22, W23 authored state, refusals | present | pose, `hull` |
-| G5 airflow receiver on a body | present for spheres (`AirflowGeneralityTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand`, `CuriousContraptions.tests/AirflowGeneralityTests.cs:138`; sample extent from the collider's support function, `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:113`, `:133-139`); untested on a box, V7 is its first proof | sail |
+| G5 airflow receiver on a body | present for spheres (`AirflowRuntimeTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand`, `CuriousContraptions.tests/AirflowGeneralityTests.cs:138`; sample extent from the collider's support function, `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:113`, `:133-139`); untested on a box, V7 is its first proof | sail |
 | W4 fluid port contract | present, untested | bilge store, immersed port |
 | W3 sockets and locators | narrower: socket count, package-local ids, capture distance 0.20 m and angle 20°, and outlets that are not joinable are `ENGINE-CAPABILITY-INSTANCES`; compiling joins to edges is `ENGINE-LIQUID`; the port record is `ENGINE-GAS-NETWORK`. This part: 0 sockets, 1 immersed port | leak |
 | W11 contents add to the carrying body's mass | narrower | gas at the body's centre only; liquid at its centroid (A5): `ENGINE-LIQUID` |

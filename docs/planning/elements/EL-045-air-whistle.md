@@ -91,7 +91,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 | Capability this identity needs | Mark | Evidence or owner |
 | --- | --- | --- |
 | Static scene body with cylinder colliders (C1, C10) | present | EL-044 C1, C10 |
-| Conical airflow source with per-sample solid occlusion (C8) | present | `AirflowGeneralityTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:138`) |
+| Conical airflow source with per-sample solid occlusion (C8) | present | `AirflowRuntimeTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:138`) |
 | Art visibility chosen by a `Choice` (tone bars; C13) | narrower | EL-044 C13; owned by `ENGINE-PARAMETER-BOUND-FRAMES` (choice-bound values, coordinator decision 16) |
 | `Choice` selecting a port and an input (C7) | present, untested | Fan pattern; test not opened |
 | A fluid port contract | present, untested | `IFluidElement`, `FluidPortDescriptor` (`CuriousContraptions.Abstractions.Fluid/FluidContracts.cs:5`) are declared and validated but no solver or element consumes them (`epics.md` ENGINE-GAS-NETWORK, "Present today") |

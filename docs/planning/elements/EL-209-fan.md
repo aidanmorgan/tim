@@ -24,8 +24,8 @@ Story 7.0 named-identity spec (Batch J). Harvest citations are `path@a6c914e:Lst
 | Delta | Declared at (`elements/Fan/FanElementDeclaration.cs`) | Tested by |
 | --- | --- | --- |
 | `supply` choice with Electrical and Shaft | `:20` | `FanAdmissionTests.PackageScalarEndpointsAndClosedModeAreAdmittedAtomically` (`FanAdmissionTests.cs:267`) |
-| `PowerIn`, available only in Electrical | `:61`–`:63` | `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`FanIntegrationTests.cs:507`) |
-| `DriveIn` on the hub's revolute coordinate, available only in Shaft | `:64`–`:68` | `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`:541`) |
+| `PowerIn`, available only in Electrical | `:61`–`:63` | `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`FanIntegrationTests.cs:540`) |
+| `DriveIn` on the hub's revolute coordinate, available only in Shaft | `:64`–`:68` | `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`:574`) |
 | Electrical work input with no Fan store | `:54`, `:72`–`:76` | `:507` asserts zero energy stores and a Battery debit within [work, 1.01 × work] |
 | Shaft work input with reaction on the shaft | `:55` | `:541` asserts the shaft is held below the Motor's target while it pays |
 
@@ -48,12 +48,12 @@ Map families: AerodynamicDrag, ElectricalPower, EnvironmentState, FiniteLedger, 
 | Capability | Status | Evidence |
 | --- | --- | --- |
 | Conical airflow source with paid work and solid occlusion | present | `IAirflowSourceElement` (`MechanicalContracts.cs:40`); `FanGuidanceTests.TransparentCurvedAndTaperedSolidWallsOccludeOnlyWhenInTheStream` (`FanGuidanceTests.cs:45`) |
-| Electrical work input: the source pays only exposed accepted work | present | `ElectricalAirflowInput` (`CuriousContraptions.Abstractions/AirflowValues.cs:37`); `FanIntegrationTests.cs:507` |
-| Coordinate (shaft) work input with reaction on the coordinate | present | `CoordinateAirflowInput` (`AirflowValues.cs:38`); `FanIntegrationTests.cs:541` |
+| Electrical work input: the source pays only exposed accepted work | present | `ElectricalAirflowInput` (`CuriousContraptions.Abstractions/AirflowValues.cs:37`); `FanIntegrationTests.cs:540` |
+| Coordinate (shaft) work input with reaction on the coordinate | present | `CoordinateAirflowInput` (`AirflowValues.cs:38`); `FanIntegrationTests.cs:574` |
 | Continuous-work supply target | present | `SupplyContinuousWorkTarget` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:50`); `FanIntegrationTests.ThousandSharedConsumersCommitPaidWorkThroughInstalledValidation` (`:109`) |
-| Choice-selected ports, inputs, stores and bindings | present | `FanIntegrationTests.SelectedModeCompilesOneWorkInputAndOneBladeWriterWithoutHiddenStores` (`:452`) |
-| Flow-speed and revolute-angle presentation drivers | present | `FanIntegrationTests.CommittedFlowPhaseHoldsOnPauseStepsOnceAndResetsWithoutUnexposedDebit` (`:586`) |
-| A Motor's shaft work debiting its Battery | **missing** (not a Fan capability) | ENGINE-SUPPLY-DEMAND (sprint key `engine-supply-drive-demand`; owner decision 3a); `FanIntegrationTests.cs:579` asserts the Motor's Battery debit is zero today. It limits what the Shaft mode can teach about batteries; the closure's own rows do not depend on it, and the programme re-qualifies the Shaft mode |
+| Choice-selected ports, inputs, stores and bindings | present | `FanIntegrationTests.SelectedModeCompilesOneWorkInputAndOneBladeWriterWithoutHiddenStores` (`:485`) |
+| Flow-speed and revolute-angle presentation drivers | present | `FanIntegrationTests.CommittedFlowPhaseHoldsOnPauseStepsOnceAndResetsWithoutUnexposedDebit` (`:619`) |
+| A Motor's shaft work debiting its Battery | **missing** (not a Fan capability) | ENGINE-SUPPLY-DEMAND (sprint key `engine-supply-drive-demand`; owner decision 3a); `FanIntegrationTests.cs:612` asserts the Motor's Battery debit is zero today. It limits what the Shaft mode can teach about batteries; the closure's own rows do not depend on it, and the programme re-qualifies the Shaft mode |
 
 Nothing here needs element-specific engine code.
 
@@ -95,11 +95,11 @@ Follow [element-209](../requirements.md#element-209) and [current-cat-028](../re
 
 | Criterion | Test |
 | --- | --- |
-| Electrical, positive: a wired Battery pays and the ball is pushed | `FanIntegrationTests.cs:507` (wired row); `FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`FanGuidanceTests.cs:124`) |
+| Electrical, positive: a wired Battery pays and the ball is pushed | `FanIntegrationTests.cs:540` (wired row); `FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`FanGuidanceTests.cs:124`) |
 | **Absent supply, Electrical:** unwired, no push, no work, no debit | `:507` (unwired row) |
 | Shaft, positive: a Motor on `DriveIn` drives the field and is loaded by it | `:541` (connected, 6 rad/s, exposed) |
 | **Absent supply, Shaft:** disconnected shaft or speed 0, no work and no push | `:541` (disconnected row; speed 0 row) |
-| **Blocked flow:** a solid in the stream stops the force; the Fan's own hub does not | `FanGuidanceTests.cs:45`, `:97`; `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`:481`) |
+| **Blocked flow:** a solid in the stream stops the force; the Fan's own hub does not | `FanGuidanceTests.cs:45`, `:97`; `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`:514`) |
 | No hidden store: Electrical compiles no energy store; each mode has one work input | `:507`; `:452` |
 | Exposure alone costs nothing | `:541` (connected, unexposed row: the shaft runs at the Motor's speed); `:586` |
 | Boundaries: parameter endpoints and the closed mode set | `FanAdmissionTests.cs:267` |
@@ -110,7 +110,7 @@ Follow [element-209](../requirements.md#element-209) and [current-cat-028](../re
 
 **One control to add at closure.** A start-empty Battery is covered (`FanGuidanceTests.cs:112`, `:133`, control `EmptyBattery`). Not covered: a Battery that runs out mid-run. Add `FanIntegrationTests.ADepletedBatteryStopsTheElectricalCone`:
 
-- **Given** an Electrical Fan wired to a Battery whose authored energy is less than the run's exposed work, and a Tennis ball in the cone, **when** the Battery reaches zero, **then** the source's committed work stops growing, the Battery's remaining energy is at least 0 and no more than 1 % of its authored energy (the debit is quantised, `FanIntegrationTests.cs:526`), and the ball's speed along the axis stops increasing. Stall guard 10 s of game time.
+- **Given** an Electrical Fan wired to a Battery whose authored energy is less than the run's exposed work, and a Tennis ball in the cone, **when** the Battery reaches zero, **then** the source's committed work stops growing, the Battery's remaining energy is at least 0 and no more than 1 % of its authored energy (the debit is quantised, `FanIntegrationTests.cs:559`), and the ball's speed along the axis stops increasing. Stall guard 10 s of game time.
 - **Control.** The same scene with a full Battery keeps paying over the same time.
 - **Boundary.** The tick that empties the Battery pays no more than what remained (the committed work total never exceeds the Battery's authored energy, with the 1% allowance of `:526`).
 

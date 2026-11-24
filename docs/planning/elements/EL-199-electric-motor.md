@@ -65,9 +65,9 @@ Map families: ElectricalPower, EnvironmentState, FiniteLedger, FiniteWorkActuati
 | Run-control target speed | present | `RevoluteDriveTargetRead` (`RevoluteConstraintValues.cs:45`); `MotorTests.ASpeedChangeDuringRunDrivesTheShaftToTheNewSpeedFromTheNextCommittedStep` (`MotorTests.cs:397`) |
 | Committed drive state: supplied, travel, positive work | present | `RevoluteStateRead` (`RevoluteConstraintValues.cs:40`); `MotorTests.cs:217`, `:732` |
 | Supply route enabling a drive, including through a gate | present | `SupplyDriveTarget` (`CuriousContraptions.Abstractions/SupplyContractValues.cs:52`); `MotorTests.AMotorSuppliedThroughAnEitherGateRunsOnlyWhileTheGateIsOn` (`:497`) |
-| Mechanical `Drive` port with rim, driving other parts | present | `ConveyorTests.PoweredTransport_AcceleratesBallAlongPositiveX` (`ConveyorTests.cs:73`); `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`FanIntegrationTests.cs:541`) |
+| Mechanical `Drive` port with rim, driving other parts | present | `ConveyorTests.PoweredTransport_AcceleratesBallAlongPositiveX` (`ConveyorTests.cs:73`); `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`FanIntegrationTests.cs:574`) |
 | Drive-supply presentation driver | present | `MotorTests.TheSupplyLampBlendsFromSlateToGoldOverATenthOfASecondWhenSupplied` (`:265`) |
-| A drive's committed positive work debits its route's finite source | **missing** | Owner: ENGINE-SUPPLY-DEMAND (owner decision 3a; recorded as deferred work at `deferred-work.md:209`–`:213`). `FanIntegrationTests.cs:579` asserts the debit is zero today |
+| A drive's committed positive work debits its route's finite source | **missing** | Owner: ENGINE-SUPPLY-DEMAND (owner decision 3a; recorded as deferred work at `deferred-work.md:209`–`:213`). `FanIntegrationTests.cs:612` asserts the debit is zero today |
 
 The missing capability is ENGINE-SUPPLY-DEMAND, named by owner decision 3a and not yet written in `epics.md`; its text is in the batch summary with Batch H's demand clause. No change to the Motor package may add a private drain: the law is one demand law for every powered part.
 
@@ -107,7 +107,7 @@ Follow [element-199](../requirements.md#element-199) and the [CAT-042 outline](C
 | Boundaries: speed 0 holds a loaded shaft; declared bounds admitted | `:555`, `:573`; `:1033` |
 | Wrong-kind connection refusal; parameter refusal | `AnActivationWireIntoThePowerInputIsRefused` (`:316`); `AnOutOfRangeOrNonFiniteParameterIsRefusedAtEverySeamAndChangesNothing` (`:1044`) |
 | Run/Reset; Save/Load | `:812`; `:837`, `:469` |
-| Collaborators: Battery and gate, rope-hung Weight, Conveyor, Fan | `:497`; `:619`; `ConveyorTests.cs:73`; `FanIntegrationTests.cs:541` |
+| Collaborators: Battery and gate, rope-hung Weight, Conveyor, Fan | `:497`; `:619`; `ConveyorTests.cs:73`; `FanIntegrationTests.cs:574` |
 
 ### Planned in ENGINE-SUPPLY-DEMAND (the rows that close EL-199)
 
@@ -131,7 +131,7 @@ No arrival tick or hash is asserted. Speeds use the delivered Motor speed envelo
 
 - **Slice.** None of its own. ENGINE-SUPPLY-DEMAND (sprint key `engine-supply-drive-demand`) carries rows B1–B4 and closes EL-199 and the Motor half of EL-196 together. Review tier: engine (all six layers).
 - **Prerequisites.** Blocked on the engine programme (owner decision 3a), which includes ENGINE-SUPPLY-DEMAND itself; the closure rows run inside that story, after DOC-ENGINE-STATUS, ENGINE-SPATIAL-QUERIES, ENGINE-CONTACT-OBSERVATIONS, ENGINE-SENSOR-VOLUMES, ENGINE-ISLANDS-SLEEP and ENGINE-ONE-WAY-INSTALL in the programme's order. Independent of S3–S8.
-- **Files (in that slice, for this identity).** `CuriousContraptions.tests/MotorTests.cs`; `FanIntegrationTests.cs:579`, whose zero-debit assertion becomes a positive one; `docs/planning/elements/CAT-042-motor.md` §6 item 4; the element-199 ledger entry; this spec. No change to `elements/Motor` is expected: the consumer and its drive target are already declared.
+- **Files (in that slice, for this identity).** `CuriousContraptions.tests/MotorTests.cs`; `FanIntegrationTests.cs:612`, whose zero-debit assertion becomes a positive one; `docs/planning/elements/CAT-042-motor.md` §6 item 4; the element-199 ledger entry; this spec. No change to `elements/Motor` is expected: the consumer and its drive target are already declared.
 - **What would disqualify the plan.** The drain slice needing a per-part efficiency or standing-demand value to make B1 hold: then the Motor declares it as data and this spec's section 6 item 1 is reopened.
 
 ## 6. Open questions

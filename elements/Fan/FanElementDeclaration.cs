@@ -49,7 +49,7 @@ public sealed class FanElementDeclaration : IHingeElement, IEnergyStoreElement, 
             MechanicalValue.FromParameter("force"),
             MechanicalValue.Multiply(MechanicalOperand.FromParameter("force", ParameterUnit.Newton),
                 MechanicalOperand.Fixed(12, ParameterUnit.MetrePerSecond)),
-            [new(new(0), new(0)), new(new(1), new(0))],
+            [new(new(0), new(0)), new(new(0), new(1)), new(new(0), new(2)), new(new(1), new(0))],
             [new StoredAirflowInput(Select(SupplyMode.SelfContained), new(1)) { Enable = new(new("powered"), new("enable")) },
              new ElectricalAirflowInput(Select(SupplyMode.Electrical), new("consumer")) { Enable = null },
              new CoordinateAirflowInput(Select(SupplyMode.Shaft), new(CoordinateKind.Revolute, 0), PortId.DriveIn, -1) { Enable = null }])];

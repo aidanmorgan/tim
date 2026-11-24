@@ -77,7 +77,7 @@ Uses TH-04 R1 to R3, R5, R6, R9 to R13. R10 covers this part's static pairs (pum
 | # | Capability | State | Symbol | Exercising test |
 | --- | --- | --- | --- | --- |
 | K1 | A converter row between two thermal nodes and one supply node, with a declared performance law and operating range, whose three flows sum to zero each tick; a declaration whose law can exceed the Carnot fraction is refused | **missing** | none | none; owner ENGINE-THERMAL |
-| K2 | A Choice option selecting which of several declared rows is active | present, test not opened | `ChoicePredicate` as the Fan's `Select` (`elements/Fan/FanElementDeclaration.cs:14`) | `FanIntegrationTests.SelectedModeCompilesOneWorkInputAndOneBladeWriterWithoutHiddenStores` (`CuriousContraptions.tests/FanIntegrationTests.cs:452`, not opened) |
+| K2 | A Choice option selecting which of several declared rows is active | present, test not opened | `ChoicePredicate` as the Fan's `Select` (`elements/Fan/FanElementDeclaration.cs:14`) | `FanIntegrationTests.SelectedModeCompilesOneWorkInputAndOneBladeWriterWithoutHiddenStores` (`CuriousContraptions.tests/FanIntegrationTests.cs:485`, not opened) |
 
 Counts: present 5 (TH-04 R1 to R3, R5, R6), untested 1 (K2), narrower 0, missing 6 (TH-04 R9 to R13, K1). All missing rows have one owner, **ENGINE-THERMAL**; its text in `epics.md` has store-paid sources but no two-node converter (complete proposed text in the [Batch N summary](readiness/batch-n.md)). The debit of the consumer's grant follows ENGINE-SUPPLY-DEMAND. Nothing here needs code that names this part.
 
