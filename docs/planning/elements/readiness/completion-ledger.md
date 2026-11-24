@@ -125,7 +125,7 @@ Each contract is untracked in `_bmad-output/implementation-artifacts/`. Three fa
 - **Compile lines:** S2 compiles every top-level test source by one rule (`CuriousContraptions.tests.csproj:77`), so any "add a Compile line" step is obsolete. A new test file is staged with `git add`, because the staged-source rule refuses an intent-to-add file.
 - **Package count:** `elements/` has 45 packages, not 44.
 
-Only visible-solid parts A, B, B2 and C, the Baseball repair, and S3, S5 and S6 may run before the engine programme (owner 22).
+Only visible-solid parts A, B, B2 and C, the Baseball repair, and S3, S5 and S6 may run before the engine programme (owner 22), with S5b and S6b–S6g (owner 24h) and, under owner 24m, the lane 3 slices (lettered level ids, then the content slice once its contract passes planning) and the lane 4 policy-tool fixes, in up to four lanes.
 
 | id | item | file(s) | source | owner | state |
 |---|---|---|---|---|---|
@@ -389,7 +389,7 @@ Findings of the independent review [audits/plan-review.md](audits/plan-review.md
 
 | id | item | file(s) | source | owner | state |
 |---|---|---|---|---|---|
-| OS-01 | Executing the pre-programme slices: visible-solid parts A, B, B2 and C, the Baseball repair, S3, S5 and S6 | contracts listed in CP-06 | owner 22 | implementer per slice | open |
+| OS-01 | Executing the pre-programme slices: visible-solid parts A, B, B2 and C, the Baseball repair, S3, S5 and S6, with S5b and S6b–S6g (owner 24h) and, under owner 24m, the lane 3 slices (lettered level ids, then the content slice once its contract passes planning) and the lane 4 policy-tool fixes, in up to four lanes | contracts listed in CP-06 | owner 22, 24h and 24m | implementer per slice | open |
 | OS-02 | The `content/puzzles.json` content slice: remove the 29 Planned levels; convert `double_cold_start` and `grand_contraption` (retitled *One Thing Leads to Another*); re-author chapter 1's `domino_effect` without the lamp, goal Captured: the last domino knocks a ball into a Receiving basket (owner 24f, coordinator decision 41; DominoEffectTests.cs, current-consumers.md:10); move the 34 kept levels to their planned positions; rename the duplicate "Around the corner" | content/puzzles.json; level count and order tests | campaign-coverage :38, :98-137, :147-190 | content slice | open |
 | OS-03 | Authoring campaign levels 17, 25, 29, 49, 79 and 89 for Batch M's goal and environment identities | content/puzzles.json | batch-m.md:150 | content slice | open |
 | OS-04 | Policy-tool fixes: `TODO.md` on the data-only allow-list; the harness role-card item; the 767/798 registration filter | tools/anvil/VerifyPolicy.cs; tools/anvil/CheckStagedTests.cs; docs/delivery-workflow.md:67 | deferred-work.md:324-325; TODO.md:7 | policy-tool slice | open |
