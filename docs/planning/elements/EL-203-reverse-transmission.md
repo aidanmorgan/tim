@@ -102,7 +102,7 @@ Follow [element-203](../requirements.md#element-203) and the [CAT-057 spec](CAT-
 ### Integration
 
 - **Collaborators.** Motor, Conveyor, Clutch, Battery: all delivered.
-- **Campaign.** Row 2: first use 11–20, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); [todo-151](../requirements.md#todo-151), [todo-152](../requirements.md#todo-152). In `content/puzzles.json` it appears only in level 18 `reverse_belt` (planned; provable now in the Early level proof "Drive" group).
+- **Campaign.** Row 2: first use 11–20, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); [todo-151](../requirements.md#todo-151), [todo-152](../requirements.md#todo-152). In `content/puzzles.json` it appears only in level 18 `reverse_belt` (authored position before decision 24d, paired with its plan level, 14c, in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d); planned; provable from delivered parts after the engine programme, owner decision 3a, in the Early level proof "Drive" group).
 - **Coverage binding.** Catalogue key `reverse_transmission` (CAT-057). EL-203 has no package of its own and so no package source binding. The closure needs no lesson-fixture story (S8).
 
 ### Delivery

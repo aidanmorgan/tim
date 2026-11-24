@@ -122,3 +122,10 @@ This is the patch from the coordinator's pass-3 message (entry 7). Anvil validat
 - Main brought S3: seven `CuriousContraptions.tests` files, `TODO.md`, `deferred-work.md`, the S3 contract and run log, `docs/delivery-workflow.md` and `delivery-batches.md`. None touches this lane's code (`tools/Ownership`, `tools/Coverage`, `tools/Coverage.Tests`) or the seven invest documents.
 - Conflicts under 24m rule (2): `TODO.md` only, resolved as one brief naming every lane's state (lane 2: S3 published as `3a80c6a8`, S5 in progress; lane 3: this slice merged, the merged round and SnapshotApproval of the merged SHA remaining). `deferred-work.md` merged automatically with both slices' entries kept. The "committed SHA" wording in `TODO.md` and the contract's status line now names the merged SHA.
 - The merged commit's full round (expected S3's 7317 + 15 = 7332), its SnapshotApproval and the push receipt are recorded after the merge commit, in the next lane-3 slice's candidate, as the protocol's Terminal completion requires.
+
+## Entry 11 — merged-commit receipts, carried by the content housekeeping slice (25 November 2026)
+
+- Recorded under the protocol's Terminal completion by the next lane-3 slice (`spec-content-campaign-housekeeping.md`, task 0b), from the coordinator's receipts of 24 November 2026.
+- Merged commit `2ce73eedcc151dc1b513013c74284ac798e14e00` (the merge of `3a80c6a8` into `f60849bd`): full local round 7332 passed, 0 failed, `Skipped: 0` (Coverage.Tests 130); registration check 775 passed, 0 failed, 0 skipped.
+- SnapshotApproval Pass on `2ce73eed` by a fresh independent reviewer, no findings; pushed to `main` as a fast-forward from `3a80c6a8`.
+- Remote build, artifact and deployment unverified (owner instruction of 29 October 2026).

@@ -100,7 +100,7 @@ No legacy bridge element exists: searches for `bridge` in parts, engine and cont
 - `engine/physics/PhysicsJointChange.cs`
 - `CuriousContraptions.tests/PhysicsImpactJointTests.cs`
 - `parts/catalog/impact_lever.tres` (beam mass reference)
-- Checked, no element knowledge: `content/puzzles.json` (level `double_bridge`, domino "bridges"), `engine/bridge/` (host interop namespace).
+- Checked at `a6c914e`, no element knowledge: `content/puzzles.json` (level `double_bridge`, domino "bridges"; the level since removed under owner decision 24d), `engine/bridge/` (host interop namespace).
 - Searched with no hit for `temporary bridge` or a bridge part: `parts/`, `engine/` (including `engine/physics/`), `CuriousContraptions.tests/`, `tools/`, `reference/`, `diagnostics/`.
 
 ## 5. Acceptance outline

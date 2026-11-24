@@ -138,7 +138,7 @@ Needs the owner: nothing.
 ## 7. Integration
 
 - **Collaborators.** Basketball and Bowling ball (strikers), Signal lamp (`ActivationIn`), Delay box, Ramp, Wall, the bench. All delivered. The tile's output is a Signal pulse and matches the lamp's input domain.
-- **Campaign.** `domino_effect` (Playable; plan level 4, re-authored without the lamp and with a Captured goal, [campaign coverage](readiness/campaign-coverage.md#chapter-1-re-authoring-and-relocated-authored-levels-owner-decisions-24f-and-24e)) in `content/puzzles.json`; first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
+- **Campaign.** `domino_effect` (Playable; plan level 4; its re-authoring without the lamp and with a Captured goal is completion-ledger OS-06, [campaign coverage](readiness/campaign-coverage.md#chapter-1-re-authoring-and-relocated-authored-levels-owner-decisions-24f-and-24e)) in `content/puzzles.json`; first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
 - **Coverage binding.** Catalogue key `domino` in `docs/coverage/catalogue-elements.json`. A level that offers it from the player's inventory needs no lesson-fixture story; a level that locks it as a fixture adds a `FIX-` row to the catalogue fixture table ([current consumers](../invest/current-consumers.md), read by `tools/Coverage/CurrentCatalogue.cs:100`), and needs [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) only for per-parameter or connection locks.
 
 ## 8. Delivery

@@ -204,13 +204,13 @@ The companion-placement question is decided: a companion package is declared not
 
 All of this section waits for the engine programme (owner decision 22). The counts were measured on 21 November 2026 against 44 delivered packages.
 
-`content/puzzles.json` holds 63 levels: 15 `Playable` and 48 `Planned`.
+`content/puzzles.json` holds 34 levels: 15 `Playable` and 19 `Planned`, after owner decision 24d removed 29 (content housekeeping, completion-ledger OS-02). Level numbers below are plan levels, the prefix of each level's `subtitle`.
 
-- **45** planned levels use only delivered parts (part kinds in `inventory`, `parts` and `solution` against the 44 delivered package ids). The other three (21 `solar_motor`, 22 `solar_shadow`, 24 `delayed_solar`) need the Flashlight and Solar panel.
-- **11 of the 45 can be proven with single-goal evaluation.** The engine evaluates one goal per level, of kind `None`, `Captured`, `ActivatedAfter` or `IntegrityBroken` (`engine/gpu/WorkshopPuzzle.cs:9`, `:75`). Twelve planned levels have a single `captured` or `activated` goal, but level 02 `power_trip`'s `activated` goal has no fixed predecessor node, which `ActivatedAfter` requires (`engine/gpu/WorkshopPuzzle.cs:22`–`:24`; its fixed parts are a ball and the lamp).
-- **34 wait for the goal slices** (`ENGINE-GOALS`; the goals domain, EL-120 to EL-123): 32 have two to five goals (14 with two, 13 with three, 4 with four, 1 with five), level 14 `battery_motor` has a single `turned` goal, a kind the engine does not have, and level 02 `power_trip` needs an activation goal with no predecessor. `powered_after` also appears (level 49 among these 45).
+- **16** planned levels use only delivered parts (part kinds in `inventory`, `parts` and `solution` against the 44 delivered package ids). The other three (51a `solar_motor`, 51b `solar_shadow`, 51c `delayed_solar`) need the Flashlight and Solar panel.
+- **9 of the 16 can be proven with single-goal evaluation.** The engine evaluates one goal per level, of kind `None`, `Captured`, `ActivatedAfter` or `IntegrityBroken` (`engine/gpu/WorkshopPuzzle.cs:9`, `:75`). Ten planned levels have a single `captured` or `activated` goal, but level 11 `power_trip`'s `activated` goal has no fixed predecessor node, which `ActivatedAfter` requires (`engine/gpu/WorkshopPuzzle.cs:22`–`:24`; its fixed parts are a ball and the lamp).
+- **7 wait for the goal slices** (`ENGINE-GOALS`; the goals domain, EL-120 to EL-123): 5 have two to five goals (3 with two, 1 with three, 1 with five), level 12 `battery_motor` has a single `turned` goal, a kind the engine does not have, and level 11 `power_trip` needs an activation goal with no predecessor. `powered_after` also appears (levels 12a `switched_motor` and 19b `double_cold_start`).
 - A catalogue part placed as a lesson fixture is admitted today through the Coverage fixture table (`FIX-` rows in `current-consumers.md`, `tools/Coverage/CurrentCatalogue.cs:117`). A level that places any other package as a fixture, or locks a fixture's parameters or connections, needs structural story S8.
-- **Owner decision 24d (23 November 2026) removes 29 planned levels and converts 2** as repeats of an already introduced mechanic ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). A removed level is not Early-proven. The 63 then reconcile as 15 Playable + 9 provable with single-goal evaluation (08 `wind_signal` and 12 `wall_return` leave the 11) + 7 after the goal slices (02, 09, 14, 15, 29, 49, 58; 49 and 58 in their converted form) + 3 blocked on parts + 29 removed.
+- **Owner decision 24d (23 November 2026) removed 29 planned levels and converts 2** as repeats of an already introduced mechanic ([campaign coverage, section 5](../elements/readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)); the content housekeeping slice deleted the 29 from `content/puzzles.json`. The 34 reconcile as 15 Playable + 9 provable with single-goal evaluation + 7 after the goal slices (11, 11d, 12, 12a, 19a, 19b, 20; 19b and 20 in their converted form, completion-ledger OS-08) + 3 blocked on parts.
 
 **Every level must first be authored into the playable shape.** Planned entries use a different content shape (`goals` array, `parts`) that the engine indexes but never constructs (`engine/gpu/PuzzleCatalogue.cs:10`; `engine/gpu/PuzzleDefinition.cs:100`–`:101` refuses any entry that is not `Playable`). A playable entry has `goal`, `placements`, `profiles`, `presentation` and `connections_allowed`. So each level is an authoring task plus a proof, not a test over existing data.
 **Proven natively** means what the existing level tests already do (`CuriousContraptions.tests/DominoEffectTests.cs` is the pattern), under [testing guidance](../../testing-guidance.md):
@@ -222,16 +222,16 @@ All of this section waits for the engine programme (owner decision 22). The coun
 
 No arrival tick, trajectory or hash is asserted. Browser proof stays pending. A level changes to `Playable` only in the slice that proves it.
 
-**Provable with single-goal evaluation (9), after the engine programme.** Numbers are today's `content/puzzles.json` positions; owner decision 24f moves 03 and 05 into chapter 2 (11a, 11b) and 61 to 3, and the content housekeeping slice (completion-ledger OS-02) labels each with its plan level in its subtitle. Group levels that share parts into one slice.
+**Provable with single-goal evaluation (9), after the engine programme.** Numbers are plan levels, the prefix of each level's `subtitle` (content housekeeping, completion-ledger OS-02). Group levels that share parts into one slice.
 
 | Group | Levels (number, id, goal) |
 |---|---|
-| Signals | 07 `spring_signal` (activated) |
-| Air and capture | 03 `air_mail`, 05 `third_dimension`, 61 `a_gentle_rebound` (all captured) |
-| Drive | 16 `conveyor_courier`, 17 `belt_relay`, 18 `reverse_belt` (all captured) |
-| Ropes | 19 `counterweight`, 20 `pulley_depth` (both activated) |
+| Signals | 11c `spring_signal` (activated) |
+| Air and capture | 11a `air_mail`, 11b `third_dimension`, 03 `a_gentle_rebound` (all captured) |
+| Drive | 14a `conveyor_courier`, 14b `belt_relay`, 14c `reverse_belt` (all captured) |
+| Ropes | 12b `counterweight`, 12c `pulley_depth` (both activated) |
 
-**After the goal slices (7).** 02, 09, 14, 15, 29, 49 and 58 (49 and 58 in their converted form). Level 02 needs an activation goal with no predecessor node; level 14 needs the `turned` kind; 15 and 49 also use `turned` or `powered_after`.
+**After the goal slices (7).** 11, 11d, 12, 12a, 19a, 19b and 20 (19b and 20 in their converted form). Level 11 needs an activation goal with no predecessor node; level 12 needs the `turned` kind; 12a and 19b also use `turned` or `powered_after`.
 
 These levels were authored against the legacy engine. Expect some solutions to need re-tuning on the current solver; that is the useful finding, and it is cheaper before the browser phase.
 
@@ -349,4 +349,4 @@ Published 21 November 2026 from another session (`spec-registration-derivation.m
 - **Delivered:** 45 packages under `elements/`: 44 matching one CAT spec each, and the Baseball (EL-239). 28 CAT parts remain.
 - **Section 2:** 50 refining identities: 35 candidate duplicates (15 of delivered parts, 20 of undelivered parts) and 15 refinements or variants with rows of their own. No identity is listed in more than one of 2a, 2b and 2c; section 2d only explains why EL-071, EL-072, EL-242 and TH-05 are not closures.
 - **Section 1** groups identities for planning; an identity named in no row of sections 1 and 2 is a single element, placed by the roadmap's teaching order, whose spec names the engine stories it waits for.
-- **Section 4:** 63 levels = 15 playable + 11 provable with single-goal evaluation + 34 after the goal slices + 3 blocked on parts (measured 21 November 2026; level 02 moved to the goal slices). After owner decision 24d: 15 playable + 9 provable + 7 after the goal slices + 3 blocked on parts + 29 removed.
+- **Section 4:** 34 levels = 15 playable + 9 provable with single-goal evaluation + 7 after the goal slices + 3 blocked on parts, after owner decision 24d removed 29 (measured 21 November 2026 over the 63 then authored: 15 + 11 + 34 + 3; level 02 moved to the goal slices).

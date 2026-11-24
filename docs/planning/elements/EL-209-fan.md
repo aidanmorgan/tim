@@ -84,7 +84,7 @@ Nothing here needs element-specific engine code.
 - `CuriousContraptions.tests/AirJetOcclusionTests.cs`
 - `CuriousContraptions.tests/AirJetGeometryTests.cs`
 - `CuriousContraptions.tests/AirJetBoundaryTests.cs`
-- `content/puzzles.json` (level `wind_signal`)
+- `content/puzzles.json` (level `wind_signal`; checked at `a6c914e`, the level since removed under owner decision 24d)
 - The remaining fan and air-jet files are harvested in [CAT-028](CAT-028-fan.md#appendix-historical-evidence) (Batch D). Searched with no hit for an electrically or shaft-supplied fan at the harvest baseline: `parts/`, `engine/` (including `engine/physics/` and `engine/bridge/`), `CuriousContraptions.tests/`, `tools/`, `reference/`, `diagnostics/`.
 
 ## 5. Acceptance outline
@@ -117,7 +117,7 @@ Follow [element-209](../requirements.md#element-209) and [current-cat-028](../re
 ### Integration
 
 - **Collaborators.** Battery, Motor, Tennis ball, Bowling ball, Wall, Pipe, Receiver, Impact switch, Windmill: all delivered. CAT-069 Wind chimes: not delivered; its integration is that part's criterion.
-- **Campaign.** Row 2 ("… fan"): first use 11–20, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); fan → windmill → belt in [todo-190](../requirements.md#todo-190). The Fan is in 22 levels of `content/puzzles.json`; 3 `air_mail`, 5 `third_dimension` and 8 `wind_signal` are provable now (Early level proof), and 9 `cold_start` and the composite levels wait for `ENGINE-GOALS`. Those levels use the Self-contained mode. No authored level yet uses Electrical or Shaft; the first that does needs no new part.
+- **Campaign.** Row 2 ("… fan"): first use 11–20, reuse 31–50, 61–80, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); fan → windmill → belt in [todo-190](../requirements.md#todo-190). The Fan is in 5 levels of `content/puzzles.json` (numbers are authored positions before decision 24d, each paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)): 3 `air_mail` and 5 `third_dimension` are provable from delivered parts after the engine programme (owner decision 3a; Early level proof), and 9 `cold_start`, 29 `two_deliveries` and 49 `double_cold_start` wait for `ENGINE-GOALS`. Those levels use the Self-contained mode. No authored level yet uses Electrical or Shaft; the first that does needs no new part.
 - **Coverage binding.** Catalogue key `fan` (CAT-028). EL-209 has no package of its own and so no package source binding. No lesson-fixture story (S8) is needed by the closure.
 
 ### Delivery

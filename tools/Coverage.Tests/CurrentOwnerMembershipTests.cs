@@ -59,6 +59,52 @@ public class CurrentOwnerMembershipTests
         finally { root.Delete(true); }
     }
 
+    [Fact]
+    public void TheCampaignDocumentDeclaresExactlyThePlacedLetteredLevels()
+    {
+        // Owner decisions 24d to 24f: the 21 lettered levels that hold a kept authored level (campaign coverage, section 5),
+        // and the 122 fixture rows of the 34 kept levels; the removed wall_return's only Bumper row is gone with its proof.
+        string[] placed =
+        [
+            "LEVEL-003a", "LEVEL-009a", "LEVEL-011a", "LEVEL-011b", "LEVEL-011c", "LEVEL-011d", "LEVEL-012a", "LEVEL-012b",
+            "LEVEL-012c", "LEVEL-014a", "LEVEL-014b", "LEVEL-014c", "LEVEL-019a", "LEVEL-019b", "LEVEL-021a", "LEVEL-022a",
+            "LEVEL-023a", "LEVEL-041a", "LEVEL-051a", "LEVEL-051b", "LEVEL-051c",
+        ];
+        var members = CurrentOwnerMembership.Read(RepositoryRoot().FullName).Select(id => id.Value).ToArray();
+
+        Assert.Equal(Sorted(placed), Sorted(members.Where(id => Regex.IsMatch(id, @"\ALEVEL-[0-9]{3}[a-z]\z"))));
+        Assert.Equal(122, members.Count(id => id.StartsWith("FIX-", StringComparison.Ordinal)));
+        Assert.DoesNotContain("FIX-015-001", members);
+        Assert.DoesNotContain("CAT-015-V", members);
+    }
+
+    [Fact]
+    public void TheInvestHeadingCensusEqualsTheDeclaredCount()
+    {
+        // The real tree declares exactly the shared count; one more declared heading counts exactly one more.
+        Assert.Equal(CurrentOwnerMembership.DeclaredHeadingCount, CurrentOwnerMembership.CountDeclaredHeadings(RepositoryRoot().FullName));
+        var root = CopyInvestDocuments();
+        try
+        {
+            var campaign = Path.Combine(root.FullName, InvestPath, "campaign.md");
+            const string nextSlot = "<a id=\"level-070\"></a>";
+            File.WriteAllText(campaign, File.ReadAllText(campaign).Replace(nextSlot, "<a id=\"level-069z\"></a>\n### LEVEL-069z\n\n" + nextSlot));
+            Assert.Equal(CurrentOwnerMembership.DeclaredHeadingCount + 1, CurrentOwnerMembership.CountDeclaredHeadings(root.FullName));
+        }
+        finally { root.Delete(true); }
+
+        // A heading the census pattern counts but no owner prefix declares is refused by name, never skipped.
+        var undeclared = CopyInvestDocuments();
+        try
+        {
+            var campaign = Path.Combine(undeclared.FullName, InvestPath, "campaign.md");
+            File.WriteAllText(campaign, File.ReadAllText(campaign) + "\n### GAP-18 Not a declared owner\n");
+            var error = Assert.Throws<InvalidOperationException>(() => CurrentOwnerMembership.CountDeclaredHeadings(undeclared.FullName));
+            Assert.Contains("GAP-18", error.Message, StringComparison.Ordinal);
+        }
+        finally { undeclared.Delete(true); }
+    }
+
     [Theory]
     [InlineData("LEVEL-001a")]
     [InlineData("LEVEL-069z")]
@@ -107,11 +153,16 @@ public class CurrentOwnerMembershipTests
 
     private static string[] Sorted(IEnumerable<string> values) => values.Order(StringComparer.Ordinal).ToArray();
 
-    private static DirectoryInfo CopyInvestDocuments()
+    private static DirectoryInfo RepositoryRoot()
     {
         var source = new DirectoryInfo(AppContext.BaseDirectory);
         while (source is not null && !File.Exists(Path.Combine(source.FullName, InvestPath, "campaign.md"))) source = source.Parent;
-        if (source is null) throw new InvalidOperationException("Actual current authority missing.");
+        return source ?? throw new InvalidOperationException("Actual current authority missing.");
+    }
+
+    private static DirectoryInfo CopyInvestDocuments()
+    {
+        var source = RepositoryRoot();
         var root = new DirectoryInfo(Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N")));
         var invest = Directory.CreateDirectory(Path.Combine(root.FullName, InvestPath));
         try

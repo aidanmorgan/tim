@@ -54,20 +54,8 @@ internal static class CurrentOwnerMembershipOracles
         if (root is not null)
         {
             var actual = CurrentOwnerMembership.Read(root);
-            foreach (var name in new[] { "engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign" })
-            {
-                var document = File.ReadAllText(Path.Combine(root, "docs/planning/invest", name + ".md"));
-                foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(document, @"(?m)^#{2,3} ([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:[a-z][0-9]*)?)(?=\s|$)"))
-                {
-                    if (!match.Groups[1].Value.Any(char.IsDigit) && !match.Groups[1].Value.Contains('-')) continue;
-                    if (!actual.Contains(new(match.Groups[1].Value))) throw new InvalidOperationException("Actual declared heading owner omitted: " + match.Groups[1].Value);
-                    actualHeadingCount++;
-                }
-            }
-            // 545 since 8f682f8 added the ENGINE-CORE-2d and LEGACY-0 owner headings to engine.md (543 at 9107148);
-            // the census now also counts lowercase sub-slice owners, which the previous pattern skipped.
-            // Each LEVEL- heading a later slice adds, numbered or lettered (LEVEL-069c), raises 545 by one.
-            if (actualHeadingCount != 545 || actual.Contains(new("ELEMENT-n")) || actual.Contains(new("S010-D")))
+            actualHeadingCount = CurrentOwnerMembership.CountDeclaredHeadings(root);
+            if (actualHeadingCount != CurrentOwnerMembership.DeclaredHeadingCount || actual.Contains(new("ELEMENT-n")) || actual.Contains(new("S010-D")))
                 throw new InvalidOperationException("Actual authority heading census or non-owner rejection changed.");
         }
         return new { ActualHeadingCount = actualHeadingCount, Positive = true, RepeatedDeclarationsCoalesced = true, NegativeCount = rejected.Count,
