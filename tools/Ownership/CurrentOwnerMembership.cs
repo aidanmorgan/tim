@@ -106,7 +106,9 @@ public static class CurrentOwnerMembership
     {
         // Roadmap slice owners (ENGINE, ANIM, LEGACY) may carry one lowercase sub-slice letter with an optional
         // ordinal, exactly as the ordered roadmap names them (ENGINE-CORE-2d, ENGINE-CORE-2a1, ANIM-1a, LEGACY-0a).
-        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+(?:[a-z][0-9]*)?|LEGACY-[0-9]+(?:[a-z][0-9]*)?|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}|FIX-[0-9]{3}-[0-9]{3})\z"))
+        // A campaign level placed after a numbered slot is that slot's three digits plus one lowercase letter
+        // (LEVEL-069c), so the ordinal order of the canonical spelling is the campaign order.
+        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+(?:[a-z][0-9]*)?|LEGACY-[0-9]+(?:[a-z][0-9]*)?|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}[a-z]?|FIX-[0-9]{3}-[0-9]{3})\z"))
             throw new InvalidDataException($"Invalid current owner identity '{value}'.");
         return new(value);
     }

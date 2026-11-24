@@ -5,7 +5,7 @@
 **Next (owner decisions 22, 24h, 24m):** before the engine programme, up to four lanes run in parallel worktrees, one slice at a time in each, with one publish token (the holder merges `origin/main` once, repeats the full round on the merged commit, gets SnapshotApproval on it and fast-forward pushes):
 - Lane 1, collider repairs: part B (in progress) → B2 → C and the Baseball repair.
 - Lane 2, structural stories: S3 (in progress) → S5 → S5b → S6 → S6b–S6g (each S6 follow-on replanned at dispatch).
-- Lane 3: lettered level ids ([contract](_bmad-output/implementation-artifacts/spec-tool-lettered-level-ids.md)), then the content slice that uses them (contract not yet drafted; runs once it passes planning).
+- Lane 3: lettered level ids ([contract](_bmad-output/implementation-artifacts/spec-tool-lettered-level-ids.md); reviewed in four passes with every finding repaired; full local round 7324/0/0, `Skipped: 0`, maintainability gate PASS; remaining: SnapshotApproval of the committed SHA and publication under 24m), then the content slice that uses them (contract not yet drafted; runs once it passes planning).
 - Lane 4: policy-tool fixes ([contract](_bmad-output/implementation-artifacts/spec-policy-tool-fixes.md)).
 
 Each slice captures its dispatch baseline from the published main (coordinator decision 38); contracts and audits are under `_bmad-output/implementation-artifacts/` and [readiness/audits](docs/planning/elements/readiness/audits/). Then the engine programme, one slice at a time, in the order of [vertical-delivery](docs/planning/invest/vertical-delivery.md); then elements in campaign first-teaching order (owner decision 24a).

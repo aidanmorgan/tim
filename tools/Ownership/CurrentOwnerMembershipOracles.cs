@@ -25,9 +25,9 @@ internal static class CurrentOwnerMembershipOracles
             | --- | --- | --- | --- | --- |
             | <a id="fix-001-001"></a>FIX-001-001 | first/ball | ball / True | CAT-001-V | FIX-001-001 |
             """;
-        const string scope = "## S269 Current owner\n### LAW-FIELD-I Grouped owner\nGrouped LAW-FIELD-F criterion only.\n## ANIM-1\n## MOBILE-02\n## MOBILE-03\n## MOBILE-05\n## MOBILE-06\n## OPT-SLEEP\n## LEVEL-001\n## ELEMENT-n Generic placeholder";
+        const string scope = "## S269 Current owner\n### LAW-FIELD-I Grouped owner\nGrouped LAW-FIELD-F criterion only.\n## ANIM-1\n## MOBILE-02\n## MOBILE-03\n## MOBILE-05\n## MOBILE-06\n## OPT-SLEEP\n## LEVEL-001\n## LEVEL-069c\n## ELEMENT-n Generic placeholder";
         var owners = CurrentOwnerMembership.Parse(engine, consumers, [scope, scope]);
-        var expected = new WorkId[] { new("ENGINE-CORE-1"), new("ENGINE-CORE-2d"), new("LEGACY-0"), new("P0-001"), new("P0-002"), new("P0-003"), new("P0-022"), new("P0-023"), new("CAT-001-I"), new("CAT-001-V"), new("FIX-001-001"), new("S269"), new("LAW-FIELD-I"), new("ANIM-1"), new("MOBILE-02"), new("MOBILE-03"), new("MOBILE-05"), new("MOBILE-06"), new("OPT-SLEEP"), new("LEVEL-001") };
+        var expected = new WorkId[] { new("ENGINE-CORE-1"), new("ENGINE-CORE-2d"), new("LEGACY-0"), new("P0-001"), new("P0-002"), new("P0-003"), new("P0-022"), new("P0-023"), new("CAT-001-I"), new("CAT-001-V"), new("FIX-001-001"), new("S269"), new("LAW-FIELD-I"), new("ANIM-1"), new("MOBILE-02"), new("MOBILE-03"), new("MOBILE-05"), new("MOBILE-06"), new("OPT-SLEEP"), new("LEVEL-001"), new("LEVEL-069c") };
         if (!owners.SetEquals(expected)) throw new InvalidOperationException("Current owner membership differs from explicit declarations.");
         var rejected = new List<Attack>();
         foreach (var attack in Enum.GetValues<Attack>())
@@ -66,6 +66,7 @@ internal static class CurrentOwnerMembershipOracles
             }
             // 545 since 8f682f8 added the ENGINE-CORE-2d and LEGACY-0 owner headings to engine.md (543 at 9107148);
             // the census now also counts lowercase sub-slice owners, which the previous pattern skipped.
+            // Each LEVEL- heading a later slice adds, numbered or lettered (LEVEL-069c), raises 545 by one.
             if (actualHeadingCount != 545 || actual.Contains(new("ELEMENT-n")) || actual.Contains(new("S010-D")))
                 throw new InvalidOperationException("Actual authority heading census or non-owner rejection changed.");
         }

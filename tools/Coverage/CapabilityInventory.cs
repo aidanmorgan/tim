@@ -33,12 +33,14 @@ public enum ModeChoice { Fixed, Adjustable, And, Or, Xor, Nor, Nand, Broadband, 
 
 public readonly record struct WorkOrderId
 {
+    // The owner-identity shape, unanchored so other patterns can embed it; CurrentOwnerMembership.Identity narrows
+    // it per family. An optional lowercase sub-slice letter and ordinal follow a digit, as the ordered roadmap and
+    // the campaign name them (ENGINE-CORE-2d, ENGINE-CORE-2a1, LEGACY-0a, LEVEL-069c).
+    internal const string Grammar = @"[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?";
     public string Value { get; }
     public WorkOrderId(string value)
     {
-        // An optional lowercase roadmap sub-slice letter and ordinal, as the ordered roadmap names its slices
-        // (ENGINE-CORE-2d, ENGINE-CORE-2a1, LEGACY-0a).
-        if(value is null || !Regex.IsMatch(value,@"\A[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?\z"))
+        if(value is null || !Regex.IsMatch(value,@"\A" + Grammar + @"\z"))
             throw new ArgumentException($"Invalid work-order identity '{value}'.");
         Value=value;
     }
