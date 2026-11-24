@@ -107,8 +107,8 @@ Map row families: AerodynamicDrag, EnvironmentState, FiniteLedger, FiniteWorkAct
 
 | Capability | Status | Evidence |
 | --- | --- | --- |
-| Conical airflow source with internal occluders | present | `AirflowValues.cs:45`; `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`CuriousContraptions.tests/FanIntegrationTests.cs:481`) |
-| Electrical input that pays only exposed work | present | `AirflowValues.cs:37`; `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`FanIntegrationTests.cs:507`) |
+| Conical airflow source with internal occluders | present | `AirflowValues.cs:45`; `FanIntegrationTests.ActualHubDoesNotOccludeThePaidConeButOffAndVacuumDoNotTransfer` (`CuriousContraptions.tests/FanIntegrationTests.cs:514`) |
+| Electrical input that pays only exposed work | present | `AirflowValues.cs:37`; `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`FanIntegrationTests.cs:540`) |
 | Ball receivers with distributed samples | present | `elements/Ball/BallElementDeclaration.cs:30`; `FanIntegrationTests.ExposedPayloadLifecyclePreservesPaidStateAndRestoresAuthoredInputs` (`FanIntegrationTests.cs:25`) |
 | Flow-speed presentation binding | present | `FanIntegrationTests.DeclaredFlowBindingSamplesQueuedInteriorsAndStopsWithItsActualSource` (`FanIntegrationTests.cs:353`) |
 | Tube and Frustum colliders, tube mouths | present | `HollowElementTests.ABallDroppedIntoTheFunnelsInletLeavesThroughItsThroatInsideTheWall` (`CuriousContraptions.tests/HollowElementTests.cs:437`); `TubeMouthSnapTests.APipeSnapsOntoTheEndMouthOfEveryTubePart` (`CuriousContraptions.tests/TubeMouthSnapTests.cs:184`) |

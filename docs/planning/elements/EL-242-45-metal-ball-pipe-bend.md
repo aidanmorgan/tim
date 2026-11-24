@@ -68,7 +68,7 @@ Colours as EL-071: shell pale grey `#ccd9df` (`DESIGN.md:248`), collars cream `#
 | A ball crosses a stub-to-arc seam and a snapped part-to-part seam without a step | *present* | `TubeMouthDescriptor` `SceneGeometry.cs:39` | `WorkshopPhysicsLawHollowTests.cs:1132`; `HollowElementTests.cs:24`; `TubeMouthSnapTests.cs:405` |
 | A fitting sphere passes and an oversized one jams at a bend mouth | *present* | as above | `WorkshopPhysicsLawHollowTests.cs:618` (both delivered bends), `:216` |
 | Mouths snap only on equal bores | *present* | `TubeMouthDescriptor` | `TubeMouthSnapTests.cs:184`, `:269` |
-| Per-package static contact material | *present* | `SceneBodyGeometry` `SceneGeometry.cs:8` | `CuriousContraptions.tests/VisibleSolidColliderTests.cs:550`; `WorkshopPhysicsLawHollowTests.cs:687` |
+| Per-package static contact material | *present* | `SceneBodyGeometry` `SceneGeometry.cs:8` | `CuriousContraptions.tests/VisibleSolidColliderTests.cs:590`; `WorkshopPhysicsLawHollowTests.cs:687` |
 | Reset and save/load of a connected hollow passage | *present* | — | `HollowElementTests.cs:86` |
 | A fast ball (8 to 20 m/s) through a torus segment and its seams | *present, untested* | same narrowphase; the only speed test is a straight Tube (`WorkshopPhysicsLawHollowTests.cs:822`) | none; the bend tests release from rest or 0.5 m. The Family slice adds the test |
 | Several balls in contact inside one bore | *present, untested* | sphere–sphere and sphere–hollow rows are each tested alone | none found in `HollowElementTests.cs`, `TubeMouthSnapTests.cs` or `WorkshopPhysicsLawHollowTests.cs`. The Family slice adds the test |

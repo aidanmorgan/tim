@@ -87,7 +87,7 @@ Families ([element map row](../general-engine-element-map.md); [binding](../../c
 | Capability this identity needs | Mark | Evidence or owner |
 | --- | --- | --- |
 | Static scene body with cylinder and tube colliders (C1, C10) | present | EL-044 C1, C10 |
-| Conical airflow with per-sample occlusion (C8) | present | `AirflowGeneralityTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:138`) |
+| Conical airflow with per-sample occlusion (C8) | present | `AirflowRuntimeTests.OneOfFourOccludedSamplesRemovesItsOwnQuarterOfDemand` (`CuriousContraptions.tests/AirflowGeneralityTests.cs:138`) |
 | Generic lifecycle and refusals (C9) | present | EL-044 C9 |
 | Conserved liquid store with a declared interior, its committed level observation, stream credit inside the interior through an open aperture, overflow and spill | missing | `ENGINE-LIQUID` (EL-001 L4, L8–L10, L13; stream candidates from `ENGINE-SPATIAL-QUERIES`, L18) |
 | The store as a thermal node with an authored starting temperature (owner decision 20) | missing | `ENGINE-THERMAL` (TH-04 §11 T2); no row of this part needs it |

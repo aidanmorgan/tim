@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=17 format=3]
 
 [sub_resource type="StandardMaterial3D" id="Mat_Base"]
 albedo_color = Color(0.14902, 0.239216, 0.294118, 1)
@@ -42,17 +42,13 @@ height = 0.28
 material = SubResource("Mat_Blade")
 size = Vector3(0.16, 0.6, 0.1)
 
-[sub_resource type="CylinderMesh" id="Mesh_Arrow"]
+[sub_resource type="QuadMesh" id="Mesh_FlowShaft"]
 material = SubResource("Mat_Arrow")
-top_radius = 0.025
-bottom_radius = 0.025
-height = 0.55
+size = Vector2(0.14, 0.03)
 
-[sub_resource type="CylinderMesh" id="Mesh_Tip"]
+[sub_resource type="QuadMesh" id="Mesh_FlowHead"]
 material = SubResource("Mat_Arrow")
-top_radius = 0
-bottom_radius = 0.07
-height = 0.12
+size = Vector2(0.08, 0.03)
 
 [sub_resource type="BoxShape3D" id="Shape_Base"]
 size = Vector3(0.65, 0.18, 1)
@@ -60,11 +56,23 @@ size = Vector3(0.65, 0.18, 1)
 [sub_resource type="SphereShape3D" id="Shape_Hub"]
 radius = 0.14
 
+[sub_resource type="BoxShape3D" id="Shape_Post"]
+size = Vector3(0.13, 0.5, 0.15)
+
 [node name="Fan" type="Node3D"]
 
 [node name="col_base" type="CollisionShape3D" parent="."]
 position = Vector3(0, -0.55, 0)
 shape = SubResource("Shape_Base")
+
+[node name="col_post" type="CollisionShape3D" parent="."]
+position = Vector3(0, -0.3, 0)
+shape = SubResource("Shape_Post")
+
+[node name="col_visual_ring" type="MeshInstance3D" parent="."]
+visible = false
+rotation = Vector3(0, 0, -1.5707964)
+mesh = SubResource("Mesh_Ring")
 
 [node name="Loc_Port_ActivationIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
@@ -120,12 +128,17 @@ rotation = Vector3(0, 0, 4.1887903)
 position = Vector3(0, 0.28, 0)
 mesh = SubResource("Mesh_Blade")
 
-[node name="Arrow" type="MeshInstance3D" parent="Visual"]
-position = Vector3(0.875, 0, 0)
-rotation = Vector3(0, 0, -1.5707964)
-mesh = SubResource("Mesh_Arrow")
+[node name="FlowMark" type="Node3D" parent="Visual"]
+position = Vector3(0.2, -0.4598, 0)
 
-[node name="Tip" type="MeshInstance3D" parent="Visual"]
-position = Vector3(1.15, 0, 0)
-rotation = Vector3(0, 0, -1.5707964)
-mesh = SubResource("Mesh_Tip")
+[node name="Shaft" type="MeshInstance3D" parent="Visual/FlowMark"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -0.03, 0, 0)
+mesh = SubResource("Mesh_FlowShaft")
+
+[node name="HeadA" type="MeshInstance3D" parent="Visual/FlowMark"]
+transform = Transform3D(0.7071068, 0.7071068, 0, 0, 0, 1, 0.7071068, -0.7071068, 0, 0.0717, 0, -0.0283)
+mesh = SubResource("Mesh_FlowHead")
+
+[node name="HeadB" type="MeshInstance3D" parent="Visual/FlowMark"]
+transform = Transform3D(0.7071068, -0.7071068, 0, 0, 0, 1, -0.7071068, -0.7071068, 0, 0.0717, 0, 0.0283)
+mesh = SubResource("Mesh_FlowHead")

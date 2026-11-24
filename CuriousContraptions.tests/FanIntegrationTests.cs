@@ -416,8 +416,10 @@ public sealed class FanIntegrationTests
     [InlineData(Supply.Shaft, false)]
     public async Task PassiveHubReceivesExternalContactWithoutEmittingUnpaidFlow(Supply mode, bool hitsHub)
     {
-        var cargo = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("tennis"), new(2),
-            0, 6, hitsHub ? .25f : .8f, 0, 0, 0, 1);
+        // The ring is solid, so a ball reaches the hub only through its 0.49 m opening. The hitting ball (radius 0.1 m) starts at rest
+        // inside the opening, 0.3 m above the hub's centre and 0.1 m off its axis, and falls onto the hub's top. The other starts
+        // 1 m above the hub and 0.8 m off the axis, 0.17 m beyond the ring's 0.63 m outer edge, and falls past.
+        var cargo = hitsHub ? TennisBallTests.Ball(2, 0, 5.3f, radius: .1f, z: .1f) : TennisBallTests.Ball(2, 0, 6, radius: .1f, z: .8f);
         await using var h = await WorkshopIntegrationHarness.Running(TennisBallTests.Scene(Fan(mode, powered: false), cargo));
         var moved = false;
         for (var tick = 0; tick < 120; tick++)
@@ -431,6 +433,37 @@ public sealed class FanIntegrationTests
         Assert.Equal(hitsHub, moved);
         await h.Reset();
         Assert.All(h.Committed.Presentation.Actuators.ToArray(), row => Assert.Equal(0f, row.Coordinate));
+    }
+
+    /// <summary>The Fan's own post and ring are internal occluders: they do not shadow its stream (only the base, post, ring and hub are
+    /// listed, and a collider that is not the Fan's own still does). A Tennis ball of radius 0.0625 m (the declared minimum) and no
+    /// drag starts 4.2 m downstream directly behind the ring's tube (the cone's radius there is 0.714 m, and the tube spans 0.49 to
+    /// 0.63 m from the axis), or 2.5 m downstream directly behind the post (cone radius 0.425 m). After 12 ticks (0.1 s) it has been
+    /// pushed along the axis and the source has paid work. Without the exemption each sample reaching the ball starts inside the
+    /// ring or the post and is shadowed, so both would be exactly zero. The control puts a default Wall, which is not the Fan's,
+    /// at 2 m, z 0.435 to 0.685: it covers every streamline that could reach the first ball, and both stay exactly zero.</summary>
+    [Theory]
+    [InlineData(4.2f, 0f, .56f, false)]
+    [InlineData(2.5f, -.3f, 0f, false)]
+    [InlineData(4.2f, 0f, .56f, true)]
+    public async Task TheFansOwnRingAndPostDoNotShadowItsStream(float x, float y, float z, bool behindAWall)
+    {
+        IWorkshopInstance[] parts = behindAWall
+            ? [Fan(), TennisBallTests.Ball(2, x, 5 + y, radius: 1f / 16, drag: 0, z: z), WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(3), 2, 5, .56f, 0, 0, 0, 1, WallFixture.Default)]
+            : [Fan(), TennisBallTests.Ball(2, x, 5 + y, radius: 1f / 16, drag: 0, z: z)];
+        await using var h = await WorkshopIntegrationHarness.Running(TennisBallTests.Scene(parts));
+        await h.Advance(12);
+        var (speed, work) = (Body(h, 2).Velocity.X, h.Committed.Airflow[0].Work.Value);
+        if (behindAWall)
+        {
+            Assert.Equal(0f, speed);
+            Assert.Equal(0f, work);
+        }
+        else
+        {
+            Assert.True(speed > 0, "the ball behind the Fan's own ring or post is pushed along the axis");
+            Assert.True(work > 0, "the Fan pays work for the push");
+        }
     }
 
     public enum Supply { SelfContained, Electrical, Shaft }
@@ -462,7 +495,7 @@ public sealed class FanIntegrationTests
             _ => throw new ArgumentOutOfRangeException(nameof(mode))
         };
         Assert.Equal(expected, source.Input.Kind);
-        Assert.Equal(2, source.InternalOccluders.Length);
+        Assert.Equal(4, source.InternalOccluders.Length);
         var hinge = Assert.Single(scene.Physics.Revolutes.ToArray());
         var hub = Assert.Single(scene.Physics.Bodies.ToArray(), body => body.Id == hinge.BodyB);
         Assert.Equal(.15f, hub.Mass.Value);
@@ -609,6 +642,49 @@ public sealed class FanIntegrationTests
 [Collection<NativeSceneCollectionDefinition>]
 public sealed class FanArtworkTests(NativeSceneFixture godot)
 {
+    /// <summary>The flow arrow is flat printing on the base's top face (owner decision, 21 November 2026), not a free-standing solid in the
+    /// air: the old Arrow and Tip are gone, and the three surfaces of the new mark lie between 0 and 0.5 mm above the face (the
+    /// bound the printed marks of FaceMarkingTests use), facing up. Read on the X, Z projection, ink covers (0.29, 0) at the tip,
+    /// and (0.25, 0.04) on a head stroke 4 cm beside the axis, and not (0.15, 0.04), a point beside the shaft where a reversed
+    /// arrow's head would be. A headless print leaves (0.25, 0.04) bare; a reversed one covers (0.15, 0.04).</summary>
+    [Fact]
+    public void TheFlowArrowIsPrintedOnTheBaseAndPointsAlongTheStream()
+    {
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(new("fan")).Metadata.ScenePath).Instantiate<Godot.Node3D>();
+        try
+        {
+            Assert.Null(root.GetNodeOrNull("Visual/Arrow"));
+            Assert.Null(root.GetNodeOrNull("Visual/Tip"));
+            var faceTop = VisibleSolidColliderTests.VerticesInRoot(root, root.GetNode<Godot.MeshInstance3D>("Visual/Base")).Max(v => v.Y);
+            var surfaces = root.GetNode("Visual/FlowMark").GetChildren().Cast<Godot.MeshInstance3D>().ToArray();
+            Assert.Equal(3, surfaces.Length);
+            var ink = new List<Godot.Vector3>();
+            foreach (var surface in surfaces)
+            {
+                var vertices = VisibleSolidColliderTests.VerticesInRoot(root, surface);
+                Assert.All(vertices, v => Assert.InRange(v.Y - faceTop, 0f, .0005f));
+                VisibleSolidColliderTests.AssertFacesUp(vertices, surface.Name);
+                ink.AddRange(vertices);
+            }
+            Assert.True(Covers(ink, .29f, 0), "the arrow's tip is missing");
+            Assert.True(Covers(ink, .25f, .04f), "the arrow has no head stroke");
+            Assert.False(Covers(ink, .15f, .04f), "the arrow's head is reversed");
+        }
+        finally { root.Free(); }
+    }
+
+    /// <summary>Whether a triangle of the surfaces covers the point (x, z) on the X, Z projection.</summary>
+    private static bool Covers(List<Godot.Vector3> triangles, float x, float z)
+    {
+        for (var i = 0; i < triangles.Count; i += 3)
+        {
+            float Side(Godot.Vector3 p, Godot.Vector3 q) => (q.X - p.X) * (z - p.Z) - (q.Z - p.Z) * (x - p.X);
+            var (first, second, third) = (Side(triangles[i], triangles[i + 1]), Side(triangles[i + 1], triangles[i + 2]), Side(triangles[i + 2], triangles[i]));
+            if ((first >= 0 && second >= 0 && third >= 0) || (first <= 0 && second <= 0 && third <= 0)) return true;
+        }
+        return false;
+    }
+
     [Fact]
     public async Task NativeBladesUseCommittedPhaseAndPrivateArtworkRestoresOnReset()
     {
