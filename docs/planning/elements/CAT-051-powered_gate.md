@@ -65,7 +65,7 @@ The slider, its spring and damping, the electrical supply route and the bounded 
 
 Counts: 7 present, 0 untested, 0 narrower, 3 missing. Row 2 is present for behaviour; its enforcement cost is owned by `ENGINE-ISLANDS-SLEEP`, whose contract confines drive-budget trials to the island they affect.
 
-**Element dependencies.** Battery; Pipe for mouths and routes; supply partners Hold timer, Counter and Pressure plate; obstruction partners Cannon (muzzle) and Wound spring (plunger). All delivered, but the campaign teaches the Counter, Pressure plate, Cannon and Wound spring after the gate (taught at 24 with the Hold timer), so the gate rows that use them (facts 22 to 25) are cross-part rows owned by those parts' slices (coordinator decisions 36 and 41).
+**Element dependencies.** Battery; Pipe for mouths and routes; supply partners Hold timer, Counter and Pressure plate; obstruction partners Cannon (muzzle) and Wound spring (plunger). All delivered, but the campaign teaches the Counter, Pressure plate, Cannon and Wound spring after the gate (taught at 24 with the Hold timer), so the gate rows that use them (facts 23 to 25) are cross-part rows owned by those parts' slices: [CAT-020](CAT-020-counter.md) and [CAT-052](CAT-052-pressure_plate.md) (fact 23), [CAT-016](CAT-016-cannon.md) (fact 24) and [CAT-071](CAT-071-wound_spring.md) (fact 25), each of which lists the row it owns (coordinator decisions 36 and 41). Fact 22's Hold timer is taught with the gate at 24, so fact 22 stays in the gate's slice.
 
 ## 4. Legacy harvest
 
@@ -136,7 +136,7 @@ This outline points to [CAT-051](../requirements.md#current-cat-051), [todo-244]
 - **Boundaries.** Loaded or blocked closing stops at the ball without crushing it (fact 14); supply interruption mid-stroke; clearing and retry; rotated passage (fact 13); horizontal mounting (fact 11).
 - **Run/Reset.** Reset closes the blade exactly and keeps connections (fact 12).
 - **Save/Load.** A round trip preserves pose, mouths and connection; a reloaded construction behaves the same in the tested cases.
-- **Integrations.** Hold timer, counter and pressure plate supplies; cannon muzzle and wound-spring plunger obstruction (facts 22–25), each after its partner element's story.
+- **Integrations.** Hold timer, counter and pressure plate supplies; cannon muzzle and wound-spring plunger obstruction (facts 22–25), each after its partner element's story; facts 23 to 25 are owned by the Counter, Pressure plate, Cannon and Wound spring specs.
 - **Status of the Blocked state.** Proven natively: the closing blade stops on a ball partly through the opening without ejecting it, reads Blocked on every tick after rest and shows the ochre cue; free travel, the spring return, a mid-stroke cut, both stops and a ball pressing on the closed blade's face read not Blocked (`LatchSupplyFixtureTests`, `DeclaredPrismaticDriveTests`, `DeclaredPresentationTests`). Browser case `cat-051-interrupt` is pending post-catalogue E2E.
 
 **Native tests that exist (22 November 2026), in `CuriousContraptions.tests/`.** Each criterion of [CAT-051](../requirements.md#current-cat-051) against its test:
@@ -178,7 +178,7 @@ The questions were: 1 whether the spring is the fail-closed law; 2 the bore; 3 t
 
 - **Supply collaborators (all delivered; each `Supply` is an Electrical output into the gate's Electrical `PowerIn`).** Battery, Impact switch, State latch, Hold timer, Counter, Pressure plate and the electrical gates.
 - **Passage collaborators (delivered).** Pipe and both bends at either mouth (bore radius 0.65 m); every ball. A Basketball (radius 0.34 m) and a Bowling ball pass the open bore; the 1.44 m blade covers the bore, 1.3 m across, when closed.
-- **Later partners.** Cannon muzzle and Wound spring plunger obstruction (facts 22 to 25) are owned by those parts' specs; optical parts (Epic 13) for beam occlusion.
+- **Later partners.** Counter, Pressure plate, Cannon muzzle and Wound spring plunger rows (facts 23 to 25) are owned by those parts' specs; optical parts (Epic 13) for beam occlusion.
 - **Campaign.** No level in `content/puzzles.json` places or stocks the Powered gate. It is taught by a level still to be authored; nothing blocks that authoring.
 - **Coverage binding.** Catalogue key `powered_gate` (CAT-051) in `docs/coverage/catalogue-elements.json`. No named identity maps to it (EL-184 and EL-163 are separate elements).
 - **Lesson fixtures.** Not needed for the part.
@@ -196,6 +196,8 @@ Delivered as recorded in section 1. Every residual slice is blocked on the engin
 | Clearing-and-retry test | The next slice that touches the package or its fixture; a missing test is a patch | Data-only | the engine programme |
 | Stale summary comment in the declaration (`PoweredGateElementDeclaration.cs:10`–`:13`) | The same slice | Data-only | the engine programme |
 | Browser qualification (`cat-051-interrupt` and the recipe in section 5) | Post-catalogue E2E phase | n/a | n/a |
+
+**Later row owned here (coordinator decisions 36 and 41).** [EL-216](EL-216-capture-cradle.md) row A5 (`CradleTests.ASeparatelyPlacedGateReleasesTheCargo`): with `outlet_width` 0.62 and an unpowered Powered gate placed in the cradle's doorway, a Bowling ball lowered into the cup rolls through the doorway, rests against the closed blade for 5 s, and passes the blade when the gate is supplied; with no gate placed the ball rolls straight out. It is a cross-part row owned by this slice, because the gate is taught at 24, after the cradle at 8a; EL-216 keeps its Given, When, Then, control and variation.
 
 No named identity is closed by this part. **What a residual slice's capability probe must re-check:** for occlusion, that the optical engine tests a ray against Tube, box and sphere colliders of a moving body at its committed pose; for the rest coordinate, that preload through a declared rest does not need the limit refusal at `MechanicalValueDomain.cs:81` relaxed for any other package, and that the Beam shutter can declare the same field; for drain, that prismatic and revolute drives share one demand law and that an exhausted source lets the spring close the blade (the fail-closed law of question 1).
 

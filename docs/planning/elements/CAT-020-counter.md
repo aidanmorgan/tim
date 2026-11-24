@@ -208,6 +208,7 @@ Checked against `elements/Counter`, its scene and its tests on published main `8
 - **Floating foot, face panel and sockets.** Required scene-data repair, [repair 3](#repair-3-seated-foot-face-panel-and-sockets) in section 3; no engine capability, owned by repair part D after the engine programme (coordinator decision 33).
 - **Required forward-only refactors.** Rename `ActivationNodeKind.Counter` to `PulseCount` (and `StateLatch` to `Memory`), owned by `ENGINE-CAPABILITY-INSTANCES` (audit E1); remove the unread `ElectricalNodes` ratings (12 V, 0.05 Ω, 100 W, `CounterElementDeclaration.cs:95–98`, only checked finite at `CuriousContraptions.Bundle/BundleValidator.cs:873–876`). The deferred-work text for the ratings is in batch B readiness.
 - Requirement row CAT-020 stays unchecked until the post-catalogue browser phase.
+- **Later row owned here (coordinator decisions 36 and 41).** [CAT-051](CAT-051-powered_gate.md) fact 23, counter half (`CounterTests.cs:46–70` at harvest commit `a6c914e`): a Counter powers the Powered gate only at its target and only with supply. It is a cross-part row owned by this part's slice, because the Counter is taught at 26, after the gate at 24; CAT-051 keeps the fact's text.
 
 **Integration.**
 - Delivered collaborators: Ball detector (three balls, `MemoryGuardTests`), System clock (`ClockGuardTests`), Signal lamp, Battery and Powered gate.

@@ -132,24 +132,24 @@ development_status:
   7-4-legacy-cpu-physics-unshipped-engine-purge: done
   epic-7-retrospective: optional
 
-  epic-8: done
-  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); cat-005 Chrome clause pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8 (AGENTS.md browser exception); Motor clause moved to 11-1
-  8-1-battery-dc-power-source-network-graph: done # native Pass 54ffd9 (9a-39 addendum); browser pending
+  epic-8: in-progress
+  # reopened 18 Oct 2026 (retro-verification); native addendum appended by 9a-39 (23 Oct 2026, Pass native at 54ffd9f0); stays in-progress until cat-005 passes in Chrome (post-catalogue E2E); Motor clause moved to 11-1
+  8-1-battery-dc-power-source-network-graph: in-progress
   # weak Pass (retro-verification 18 Oct 2026); repaired by 9r-3; re-verified by addendum in 9a-c-gate
   8-2-powered-gate-passageway-barrier: done
   epic-8-retrospective: optional
 
   epic-9: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-4 and 9r-5; closes via an addendum in 9a-c-plate
-  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8
-  9-1-pressure-plate-surface-contact-load-sensor: done # native Pass 146588 (9a-c-plate addendum); browser pending
+  # 9a-c-plate addendum appended 23 Oct 2026: native Pass at 146588; Chrome clause pending post-catalogue E2E, so not yet done
+  9-1-pressure-plate-surface-contact-load-sensor: in-progress
   # reopened 18 Oct 2026 (retro-verification); repaired by 9r-1; closes via addenda in 9a-2 and 9a-c-memory
-  9-2-pulse-counter-event-accumulator: done # 9a-2 and 9a-c-memory addenda done (native Pass f5ffdb); browser pending
+  9-2-pulse-counter-event-accumulator: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via addenda in 9a-0 and the final 9a-45
   9-2b-modular-element-isolation-and-wasm-solver-consolidation: in-progress
   # reopened 18 Oct 2026 (retro-verification); closes via an addendum in 9a-c-clock (9r-10)
-  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, recorded as browser pending like 9-4 to 9-8
-  9-3-system-clock-periodic-pulse-generator: done # native Pass ae3cac (9a-c-clock addendum); browser pending
+  # 9a-c-clock addendum appended 23 Oct 2026: native Pass at ae3cac; Chrome clause (cat-017) pending post-catalogue E2E, so not yet done
+  9-3-system-clock-periodic-pulse-generator: in-progress
   9-4-state-latch-bistable-memory: done
   # Coordinator 18 Oct 2026: pre-existing cumulative Chrome failures found during 9.4 (see spec-9-4 item 3).
   9-4b-cumulative-chrome-regression-repair: done

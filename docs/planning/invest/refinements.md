@@ -1155,7 +1155,7 @@ Original owner, all criteria and technical stage: S789. **Exact source clauses:*
 
 Original owner, all criteria and technical stage: S790. **Exact source clauses:** [sequence-task-315](../requirements.md#sequence-task-315).
 
-- **campaign-order:** Allocate each of150 slots to taught prerequisites with no forward-reference gap.
+- **campaign-order:** Allocate each campaign slot (244 planned) to taught prerequisites with no forward-reference gap.
 
 <a id="s791"></a>
 ## S791
@@ -1484,7 +1484,7 @@ Original owner, all criteria and technical stage: S818. **Exact source clauses:*
 
 Original owner, all criteria and technical stage: S819. **Exact source clauses:** [sequence-task-344](../requirements.md#sequence-task-344).
 
-- **rebalance:** Move one identified overloaded lesson objective while preserving all150 slots and prerequisite order.
+- **rebalance:** Move one identified overloaded lesson objective while preserving every campaign slot (244 planned) and prerequisite order.
 
 <a id="s820"></a>
 ## S820
@@ -1623,7 +1623,7 @@ Original owner, all criteria and technical stage: S835. **Exact source clauses:*
 
 Original owner, all criteria and technical stage: S836. **Exact source clauses:** [sequence-task-772](../requirements.md#sequence-task-772).
 
-- **campaign-audit:** Audit all150individual LEVEL proofs.
+- **campaign-audit:** Audit the individual LEVEL proof of every campaign level (244 planned).
 
 <a id="s837"></a>
 ## S837

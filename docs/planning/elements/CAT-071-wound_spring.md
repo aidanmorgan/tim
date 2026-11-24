@@ -172,6 +172,7 @@ Every question the harvest raised is decided; none needs the owner.
 
 - **Delivered** by 11.4a (commit `494c3711`). Contradiction to clear: the slice record's front matter says `status: 'in-progress'` while the package and both levels are on published main; a status edit owned by the next slice that touches the package.
 - **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it, the one-test slice included. The stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP` and `ENGINE-OPTICAL` (section 3).
+- **Later row owned here (coordinator decisions 36 and 41).** [CAT-051](CAT-051-powered_gate.md) fact 25 (`WoundSpringTests.cs:457–501` at harvest commit `a6c914e`): a timer-driven Powered gate rotated 90° blocks a released plunger (spring Blocked, charge retained). It is a cross-part row owned by this part's slice, because the Wound spring is taught at 41, after the gate at 24; CAT-051 keeps the fact's text.
 - **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states). (2) WS-R1: one test, data-only tier, or absorbed by S4.
 - **Probe re-check for part B:** separating the six drawn proxies must leave every collider index, the sleeve's three dimensions and the footprint (3 bodies, 2 moving, 1 prismatic, 1 revolute) unchanged; `Mark0`–`4` keep their `stroke` height bindings and become quads at z 0.1002.
 

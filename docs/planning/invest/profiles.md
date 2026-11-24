@@ -57,7 +57,7 @@ These are reusable constraints, not INVEST scores or evidence of completion. Unr
 <a id="campaign"></a>
 ## campaign
 
-**Boundary:** one level's taught causal objective after its element has shipped. **Negotiable:** layout and allowed alternatives; the 150 slots and teaching prerequisites are fixed. **Uncertainty:** named level, first use, modes and human attempts. **Chrome proof:** real UI solution, a meaningful unsuccessful route, Solved/Reset, save where supported; human clarity judged separately.
+**Boundary:** one level's taught causal objective after its element has shipped. **Negotiable:** layout and allowed alternatives; every campaign slot (244 planned) and the teaching prerequisites are fixed. **Uncertainty:** named level, first use, modes and human attempts. **Chrome proof:** real UI solution, a meaningful unsuccessful route, Solved/Reset, save where supported; human clarity judged separately.
 
 <a id="engine"></a>
 ## engine

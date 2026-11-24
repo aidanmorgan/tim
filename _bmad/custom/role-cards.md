@@ -88,7 +88,7 @@ Read: this card and the [loop protocol](bmad-loop-protocol.md) fully.
 - Write the close note and deferred-work additions before the candidate commit.
 - Do not read the candidate diff into your own context. Read `git diff --stat` against the owned scope list, the handoff report with its command results, and only the hunks a finding cites ([Coordinator reading](bmad-loop-protocol.md#coordinator-reading-and-the-review-step), which also lists step-04 in order).
 - Record in the Code Map at planning whether the slice is a single element, a Family slice or a closure review, and its review tier. Before each launch compare the changed paths with the Review tiers allow-list and open the hunks of any path accepted as a list line. Launch only that tier's layers, with both auditors and Verification Gap on every pass; a mis-tiered slice reruns all six as a first pass.
-- An Early level proof runs in its own worktree; publish one slice at a time, and the later publisher merges main once and repeats the full local round.
+- An Early level proof runs only after the engine programme, never in parallel with an element slice (owner decision 22; coordinator decision 41), in its own worktree; publish one slice at a time, and the later publisher merges main once and repeats the full local round.
 - Stage the blind layers' diff without the generated and asset pathspecs in the protocol's Reviewer inputs.
 - Have an informed existing reviewer perform the Final diff scope check from the full diff, and record its compact result.
 - Keep the contract inside the protocol's Contract budget. The planning scout, check runners and status reconciliation may use a smaller model; implementers, reviewers and auditors keep the inherited one.

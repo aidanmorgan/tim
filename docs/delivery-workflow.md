@@ -143,7 +143,7 @@ Use the [ordered roadmap](planning/invest/vertical-delivery.md#rolling-playable-
 | 4 | [Core new components](planning/requirements.md#core-parts) | Unlock many combinations with ball routing, metering, timing, drive conversion and cargo handling. |
 | 5 | [Additional physical/signal systems](planning/requirements.md#new-domains) | Add distinct water, pneumatic, optical and acoustic decisions after their foundations. |
 | 6 | [Specialist variants and advanced systems](planning/requirements.md#specialist) | Finish all remaining distinct roles; cosmetic variants follow useful mechanics. |
-| 7 | [Full campaign, mobile and fidelity qualification](planning/requirements.md#qualification) | Finish the 150-level progression and broad device/difficulty evidence after component coverage. |
+| 7 | [Full campaign, mobile and fidelity qualification](planning/requirements.md#qualification) | Finish the campaign progression (every level; 244 planned) and broad device/difficulty evidence after component coverage. |
 | Always | [Delivery and verification requirements](planning/requirements.md#delivery) | Focused correctness, typed contracts, build, per-part real-UI proof, Reset/save and individual commit/push. |
 | Reference | [Completed work](planning/requirements.md#completed-work) · [Preserved scope and research context](planning/requirements.md#retained-context) | Keep past achievements, failures, original source qualifications and the completion gate available. |
 

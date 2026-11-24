@@ -84,6 +84,7 @@ Collaborators (all delivered): Battery, Impact switch, Powered gate. The researc
 
 ## 8. Delivery
 
+- **Later row owned in the CAT-025 slice (coordinator decisions 36 and 41).** [EL-241](EL-241-ball-hopper.md) row H6, the hopper fed by a clock and a NOR, is owned and run in the [CAT-025](CAT-025-electrical_nor.md) slice, the single declaration of this package (coordinator decision 27).
 - **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-CAPABILITY-INSTANCES` and the self-edge rule row of `ENGINE-SIGNAL-NODES`; the programme comes first. Then the replanned closure contract, which checks this gate in its post-E2 form.
 
 Closed in the one closure review described in [EL-133 §8](EL-133-electrical-and-gate.md#8-delivery): tests and ledger rows only; engine tier while the self-wire capability is narrower. Disqualifiers: row G4 failing after the prerequisite publishes; a parameter, port or mode added to `electrical_nor` before closure, other than the forward-only edit of `ENGINE-CAPABILITY-INSTANCES` (finding E2).

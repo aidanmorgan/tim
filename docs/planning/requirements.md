@@ -122,7 +122,7 @@ Concurrent CPU service and elapsed critical-path time are different measurements
 
 <a id="accept-content"></a>
 
-**CONTENT profile — campaign, teaching, help and progression.** Enumerate every named level/objective/mode and map it to implemented worker-compatible parts and current individual evidence. Verify unlock/navigation/save and goal outcomes from authoritative results, independent of render/animation rate; labels/help cannot select behaviour. Each changed lesson needs a real-UI reference, a meaningful near/wrong-route control, exact Reset/save; workload-budget qualification remains at its named phase. Teaching/comfort claims require predefined questions, participant counts and pass thresholds with retained feedback, not a solver win. Preserve 150 levels, explicit introductions/practice/reuse and no untaught prerequisites; the full 1,800-cell matrix and exhaustive difficulty sweeps remain deferred until component coverage, never the changed lesson's focused proof.
+**CONTENT profile — campaign, teaching, help and progression.** Enumerate every named level/objective/mode and map it to implemented worker-compatible parts and current individual evidence. Verify unlock/navigation/save and goal outcomes from authoritative results, independent of render/animation rate; labels/help cannot select behaviour. Each changed lesson needs a real-UI reference, a meaningful near/wrong-route control, exact Reset/save; workload-budget qualification remains at its named phase. Teaching/comfort claims require predefined questions, participant counts and pass thresholds with retained feedback, not a solver win. Preserve every campaign level (at least 150; 244 planned), explicit introductions/practice/reuse and no untaught prerequisites; the full matrix of the real level count × 3 difficulties × 4 placement variants (2,928 cells at 244 levels; owner decisions 24d and 24e, coordinator decision 41) and exhaustive difficulty sweeps remain deferred until component coverage, never the changed lesson's focused proof.
 
 <a id="accept-review"></a>
 
@@ -155,7 +155,7 @@ Prepare every configuration/Load candidate, internal body, assistance value and 
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [REVIEW](#accept-review); additional profiles apply to cross-cutting requirements.
 
-**Review conclusion:** The architecture and feature inventory define the intended product, but the functional-slice workflow and technical dependencies now control readiness. Complete its preparation steps before dependent implementation; task-specific evidence records still need to be instantiated. Do not infer that a long task description, historical checkpoint or unchecked implementation note is current proof. The owner confirmed **150 levels** on 29 September 2026; active project rules use that target, while historical evidence remains unchanged.
+**Review conclusion:** The architecture and feature inventory define the intended product, but the functional-slice workflow and technical dependencies now control readiness. Complete its preparation steps before dependent implementation; task-specific evidence records still need to be instantiated. Do not infer that a long task description, historical checkpoint or unchecked implementation note is current proof. The owner confirmed **150 levels** on 29 September 2026; owner decisions 24d and 24e (23 November 2026) widened that to a campaign of at least 150 levels (244 planned), and every per-level criterion applies to every campaign level (coordinator decision 41); historical evidence remains unchanged.
 
 P0 is the highest-priority workstream, not a requirement to qualify unimplemented future parts before allowing their implementation. These milestone definitions describe completion states; the slice workflow schedules their work without waiving prerequisites:
 
@@ -1053,7 +1053,7 @@ These are current behavior and control criteria under WASM SIMD f32 physics auth
 
 <a id="sequence-task-092"></a>
 
-- [ ] **Canonical construction orientation.** One canonical typed orientation representation is shared by editor preview, content, current tools, saves and Reset; shortest-arc assistance uses the authoritative geometry. Old schemas reject atomically, and rotated construction round-trips exactly in the current canonical format. The campaign target remains 150 levels.
+- [ ] **Canonical construction orientation.** One canonical typed orientation representation is shared by editor preview, content, current tools, saves and Reset; shortest-arc assistance uses the authoritative geometry. Old schemas reject atomically, and rotated construction round-trips exactly in the current canonical format. The campaign target is every campaign level (at least 150; 244 planned, owner decisions 24d and 24e).
 
 <a id="sequence-task-093"></a>
 
@@ -1975,7 +1975,7 @@ Use existing typed contracts and finish missing behaviour; do not recreate alrea
 
 - [ ] **Choose connection purpose and endpoints while wiring.** After selecting source and target, show the compatible power/control choices and specific ports in the existing contextual/radial connection UI. When more than one connection is valid, require an explicit player choice and preview both endpoints and the role before committing; never silently choose power instead of control or reuse one wire for both. A sole compatible choice remains visibly identified. Reject unsupported combinations with a short explanation and no partial mutation. Use distinct socket/cable shapes, original icons and concise labels as well as colour, preserving DESIGN.md's palette and Monument Valley-inspired minimal style. Support touch, cancellation, reconnection and one-step Undo.
 
-**Successful outcome:** For each affected element, real-UI Playwright proof selects and verifies the actual typed source port, target port and connection role. Demonstrate supply-only, command-only, both-connected and neither-connected states according to that element's declared contract: devices requiring both cannot perform their commanded work with either missing. Test ambiguous choices, incompatible roles/directions, independently removing supply or control, and Cancel/Undo without disturbing existing links. Run/Reset and current-schema save/reload restore the exact selected roles, ports and configuration. Keep valid power-only/control-only devices governed by their own capability declarations. Teach supply first, then control and their combination within the existing 150-level campaign; integrate these cases into the all-element connection matrix.
+**Successful outcome:** For each affected element, real-UI Playwright proof selects and verifies the actual typed source port, target port and connection role. Demonstrate supply-only, command-only, both-connected and neither-connected states according to that element's declared contract: devices requiring both cannot perform their commanded work with either missing. Test ambiguous choices, incompatible roles/directions, independently removing supply or control, and Cancel/Undo without disturbing existing links. Run/Reset and current-schema save/reload restore the exact selected roles, ports and configuration. Keep valid power-only/control-only devices governed by their own capability declarations. Teach supply first, then control and their combination within the existing campaign (every level; 244 planned); integrate these cases into the all-element connection matrix.
 
 <a id="todo-435"></a>
 
@@ -2275,9 +2275,9 @@ The campaign target is **244 levels**: the original 150 slots plus 94 lettered l
 
 <a id="sequence-task-315"></a>
 
-- [ ] Author and rebalance the **150-level teaching progression** below. Maintain 15 chapters of 10 levels, extended by the lettered levels of owner decisions 24c to 24f and coordinator decisions 35 and 36 (244 levels, at most three new parts in any level; [campaign coverage additions](#campaign-coverage-additions)), with explicit introductions, practice, combinations and chapter finales. Preserve current draft/evidence identities when reworking content; old level numbers are historical until the current authoring/tooling is updated.
+- [ ] Author and rebalance the **campaign teaching progression** below (every level; 244 planned). Maintain 15 chapters of 10 levels, extended by the lettered levels of owner decisions 24c to 24f and coordinator decisions 35 and 36 (244 levels, at most three new parts in any level; [campaign coverage additions](#campaign-coverage-additions)), with explicit introductions, practice, combinations and chapter finales. Preserve current draft/evidence identities when reworking content; old level numbers are historical until the current authoring/tooling is updated.
 
-#### Campaign structure: 15 chapters, 150 levels
+#### Campaign structure: 15 chapters, 244 levels
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
 
@@ -2302,7 +2302,7 @@ The “new elements” column reserves teaching space for **each named element**
 | 15 · **141–150: All Together Now** | **No new required elements, modes, controls or physical rules.** Revisit all adopted families through combinations; do not force every catalogue item into one puzzle. | Progress from coordinated subsystems to 10–14 meaningful roles across 4–6 domains, parallel delivery, constrained supply, feedback and ordered goals. Final puzzles allow different valid machines and require explaining failures from visible state. |
 | **Total** | **15 chapters, 244 planned levels:** 150 slots plus 94 lettered levels (owner decisions 24c to 24f, coordinator decisions 35 and 36; [per-level allocation](elements/readiness/campaign-coverage.md#6-per-level-allocation-and-progression-check-owner-decisions-24e-and-24f)). | Each new family reuses earlier skills; each finale increases integration rather than merely decorating a larger scene. |
 
-The dense chapter allocations are **capacity reservations, not a verified fit**. The breadth of the backlog requires a per-element lesson ledger, staged objectives and rebalancing across chapter boundaries. Do not compress an unfamiliar set into one level just to preserve this table. If hands-on teaching needs more space, redistribute the 150 slots and move introductions earlier; no required element may disappear into workshop-only content to make the numbers work. Potential radiation candidates retain their proposal status until adopted, but all 22 have reserved lessons here.
+The dense chapter allocations are **capacity reservations, not a verified fit**. The breadth of the backlog requires a per-element lesson ledger, staged objectives and rebalancing across chapter boundaries. Do not compress an unfamiliar set into one level just to preserve this table. If hands-on teaching needs more space, redistribute the numbered slots and the lettered levels and move introductions earlier; no required element may disappear into workshop-only content to make the numbers work. Potential radiation candidates retain their proposal status until adopted, but all 22 have reserved lessons here.
 
 <a id="campaign-delight"></a>
 
@@ -2347,13 +2347,13 @@ These are working titles to test for clarity and tone, not behavior selectors or
 | Meaningful choice | Offer two or three available puzzles when their prerequisites are met, plus Replay and Workshop. Unlock taught parts for creative workshop use without a currency grind. | A branch cannot expose a required untaught mode. Every campaign level (at least 150; 244 planned) remains tracked even when their local order is flexible; optional challenges cannot replace missing introductions. |
 | Visible progress | Show chapters and completed levels, with a small chapter-completion keepsake or original workshop ornament in the approved palette. Progress represents solved puzzles and learned connections. | Completion and rewards are persisted once, survive reload and are not duplicated by replay. No points for repeatedly failing, resetting or farming the same easy action. |
 | Friendly celebration | Let the successful machine finish its satisfying motion, then give a short skippable celebration and specific feedback such as “Both deliveries arrived in order.” Offer Continue, Replay and Take a break. | Muted and reduced-motion presentation conveys the same success; no mandatory animation delay, blocked controls or exaggerated praise for a failed condition. |
-| Optional mastery | After the first completion, reveal one contextual remix such as use less water, design another route or run on a finite charge. Give an optional distinct stamp, without downgrading the original completion. | First-time players see a full success rather than an empty three-star judgment. Remixes are outside the 150-level count, use taught elements and never gate later lessons. |
+| Optional mastery | After the first completion, reveal one contextual remix such as use less water, design another route or run on a finite charge. Give an optional distinct stamp, without downgrading the original completion. | First-time players see a full success rather than an empty three-star judgment. Remixes are outside the campaign's level count, use taught elements and never gate later lessons. |
 | Helpful failure and hints | Unlimited Run/Reset/Undo; keep the player's construction. On request, offer goal reminder → relevant causal clue → suggested experiment → explicit solution help. A gentle hint offer may appear after repeated failed attempts and can be dismissed. | No lost lives, currency fee, reward deduction or shaming for hints/assistance. Test wrong connections, near misses and restart; a hint never silently changes game state or imports a solution. |
 | Rhythm and curiosity | Introductions are short and focused; combinations build tension; chapter finales provide a payoff and a natural stopping point. Preview a future toy visually without requiring its untaught rule. | Do not pad play with long waits or tedious rebuilds. A late introduction still gets breathing room, and previews do not count as teaching/evidence. |
 | Warm purpose and ownership | Frame machines as small helpful jobs: deliver a parcel, return a character home, fill a garden or ring a welcome bell. Keep saved favorite constructions and optional replay captures as personal achievements. | Narrative stays brief and skippable; self-expression does not require social sharing, competitive ranking or copying the author's machine. |
 | Comfortable participation | Keep touch controls, readable icons, captions and muted play; offer existing difficulty choices and no default speed scoring. Save/resume makes stopping safe. | Same completion access regardless of hints, audio or difficulty; no streak loss, time-limited rewards, daily obligations, random reward rolls or pressure to keep playing. |
 
-Proposed unlock rule: finish the prerequisite introduction(s) to access dependent puzzles; independent practice branches remain available. A player stuck on a prerequisite may use graduated help, including a guided completion with the same completion reward, then try a transfer problem with help available. Optional optimization never blocks progress. A chapter celebrates completion of its ten core levels; supported side routes change order, not the 150-level denominator.
+Proposed unlock rule: finish the prerequisite introduction(s) to access dependent puzzles; independent practice branches remain available. A player stuck on a prerequisite may use graduated help, including a guided completion with the same completion reward, then try a transfer problem with help available. Optional optimization never blocks progress. A chapter celebrates completion of all its levels (its real count in the campaign structure above: ten in chapters 9 and 11 to 15, more in the others); supported side routes change order, not the campaign's level denominator (244 planned).
 
 **Example reward loop:** In **Queue the applause**, release one ball and see its arrival acknowledged; a held-trigger failure reveals why an escapement matters. Finish the queue objective, receive the normal completion and a readable hopper notebook entry, then choose the next available lesson or stop. A later optional “two destinations, one feeder” remix rewards a new solution rather than repeated clicking. In **Half-life of the party**, clearly separate rate and accumulated exposure before offering an optional lower-exposure route.
 
@@ -2423,7 +2423,7 @@ Proposed unlock rule: finish the prerequisite introduction(s) to access dependen
 
 <a id="campaign-gap-allocation"></a>
 
-#### Cross-game additions: exact objectives within the 150 levels
+#### Cross-game additions: exact objectives within the campaign's levels
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
 
@@ -2492,7 +2492,7 @@ Owner decision 24c (23 November 2026) requires every placeable part to be used b
 
 - [ ] Expand the above objectives into the typed per-mode authoring ledger and playtest each staged level for time, clarity, fatigue and reward pacing. Track original and GAP objectives separately, with actual player construction and meaningful controls.
 
-**Successful outcome:** All 18 GAP records have an introduction, guided practice and at least two later applications, with explicit mode exceptions/checkpoints recorded above; all original element reservations remain present. A chapter closes only after its individual objectives fit a positive play session. This is a complete proposed allocation, not proof that the currently dense chapters are well paced. Rebalance objectives within the 150 slots if playtests reveal crowding, preserving prerequisites and coverage rather than silently deleting lessons.
+**Successful outcome:** All 18 GAP records have an introduction, guided practice and at least two later applications, with explicit mode exceptions/checkpoints recorded above; all original element reservations remain present. A chapter closes only after its individual objectives fit a positive play session. This is a complete proposed allocation, not proof that the currently dense chapters are well paced. Rebalance objectives within the campaign's levels (the numbered slots and the lettered levels) if playtests reveal crowding, preserving prerequisites and coverage rather than silently deleting lessons.
 
 <a id="campaign-synthesis"></a>
 
@@ -2546,7 +2546,7 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 | Task | Distinct behaviour and visible state | Puzzle combination and focused acceptance |
 | --- | --- | --- |
-| <a id="todo-393"></a> [ ] <a id="sequence-task-325"></a> P1 **Cannon campaign lessons** | Add progressively taught loading, separate charging/triggering, aiming, obstruction and feeder lessons within the 150-level campaign. Prove each through the real UI; keep author-defined forgiveness and gradual difficulty. | Begin with one supplied shot into a receiver, then introduce gates, timed reload, gaps and funnels. |
+| <a id="todo-393"></a> [ ] <a id="sequence-task-325"></a> P1 **Cannon campaign lessons** | Add progressively taught loading, separate charging/triggering, aiming, obstruction and feeder lessons within the campaign (every level; 244 planned). Prove each through the real UI; keep author-defined forgiveness and gradual difficulty. | Begin with one supplied shot into a receiver, then introduce gates, timed reload, gaps and funnels. |
 
 <a id="todo-245"></a>
 
@@ -2646,7 +2646,7 @@ No finale requires every part simultaneously. Across these levels, distribute re
 
 <a id="sequence-task-338"></a>
 
-- [ ] Teach one distinction at a time: **Bank the Bounce** (the pool-ball bank shot at 8, owner decision 24d), **Catch, Then Lift** (with the cable winch at 47), **Load Before Fire** (with the cannonball at 45), **Save the Spring** (removed as a separate lesson by owner decision 24d: the playable `saved_for_later` teaches it), **One Ball at a Time** (owner decision 24d: a build-up in which the hopper feeds the Cannon's reload shuttle, not a second hopper introduction), **Hold the Light**, **Dock Before Drop** and **Carry Without Iron**. First use nearly planar layouts; later combine depth, optics, sound, water and logic. Reallocate within the 150-level target, allowing additional workshop challenges without pretending these levels already exist.
+- [ ] Teach one distinction at a time: **Bank the Bounce** (the pool-ball bank shot at 8, owner decision 24d), **Catch, Then Lift** (with the cable winch at 47), **Load Before Fire** (with the cannonball at 45), **Save the Spring** (removed as a separate lesson by owner decision 24d: the playable `saved_for_later` teaches it), **One Ball at a Time** (owner decision 24d: a build-up in which the hopper feeds the Cannon's reload shuttle, not a second hopper introduction), **Hold the Light**, **Dock Before Drop** and **Carry Without Iron**. First use nearly planar layouts; later combine depth, optics, sound, water and logic. Reallocate within the campaign (at least 150 levels; 244 planned; owner decisions 24d and 24e), allowing additional workshop challenges without pretending these levels already exist.
 
 <a id="todo-279"></a>
 
@@ -2989,7 +2989,7 @@ Reuse charge/hinge/rope infrastructure, but prove each distinct launcher separat
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [ELEMENT](#accept-element); additional profiles apply to cross-cutting requirements.
 
-**When:** After finite-volume, load and energy foundations; extend within the 150-level teaching budget.
+**When:** After finite-volume, load and energy foundations; extend within the campaign's teaching budget (244 planned levels).
 
 **Gameplay outcome:** Players pour a finite supply, route it downhill, turn a wheel and change a counterweight. Spilled or discharged water remains accounted for, and reusing it creates an intentional puzzle decision.
 
@@ -3214,7 +3214,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 <a id="radiation"></a>
 
-### 5.5 Potential radiation elements and 150-level campaign research
+### 5.5 Potential radiation elements and campaign research
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [ELEMENT](#accept-element); additional profiles apply to cross-cutting requirements.
 
@@ -3222,7 +3222,7 @@ Core outcomes must be identical across audio suspension, mute and camera changes
 
 **Gameplay outcome:** Players control penetration, instantaneous radiation rate and accumulated exposure, inspect materials, convert radiation to visible signals and combine these with transport, water, timing and mechanical work.
 
-**Status and scope — owner direction, 24 October 2026:** Every named radiation element in these 22 source rows, including the individually named children of umbrella rows, is adopted for implementation. P1/P2/P3 and “potential” labels retain their research provenance and ordering information; they no longer permit omission from the complete named-element delivery plan. This does not select unnamed alternative designs or claim implementation/verification. Resolve their bounded model decisions under their canonical owners, then pass each element’s native unit/integration, build, independent review and individual publication criteria before post-catalogue browser qualification. The planning horizon remains **150 puzzles**; historical content and evidence remain intact. Detailed fictional models, typed contracts, per-mode proof and teaching plans remain in [radiation component research](../radiation-component-research.md).
+**Status and scope — owner direction, 24 October 2026:** Every named radiation element in these 22 source rows, including the individually named children of umbrella rows, is adopted for implementation. P1/P2/P3 and “potential” labels retain their research provenance and ordering information; they no longer permit omission from the complete named-element delivery plan. This does not select unnamed alternative designs or claim implementation/verification. Resolve their bounded model decisions under their canonical owners, then pass each element’s native unit/integration, build, independent review and individual publication criteria before post-catalogue browser qualification. The planning horizon is the whole campaign (at least 150 levels; 244 planned, owner decisions 24d and 24e); historical content and evidence remain intact. Detailed fictional models, typed contracts, per-mode proof and teaching plans remain in [radiation component research](../radiation-component-research.md).
 
 <a id="radiation-01"></a>
 
@@ -4069,7 +4069,7 @@ Each TX is a separate acceptance/teaching obligation composed from IX abstractio
 
 <a id="thermal-campaign-allocation"></a>
 
-#### Thermal integration into the same 150 levels
+#### Thermal integration into the same campaign
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
 
@@ -4418,7 +4418,7 @@ The palette's category enum must cover these roles; a grain dispenser stays a di
 
 - [ ] Author every GAP-01–18 introductory/practice/reuse objective from the [campaign allocation](#campaign-gap-allocation) within the campaign's levels (the 150 numbered slots and the lettered levels), with the shared art direction and [positive-play requirements](#campaign-delight).
 
-**Successful outcome:** All 18 records are represented; physical pieces are assembled by the player, UI tools receive guided use, and individual goal/environment modes are taught before dependent puzzles. Existing lessons and radiation coverage remain accounted for. Keep 150 numbered levels, retain failed teaching attempts, and rebalance staged objectives after playtests without silently removing a required element.
+**Successful outcome:** All 18 records are represented; physical pieces are assembled by the player, UI tools receive guided use, and individual goal/environment modes are taught before dependent puzzles. Existing lessons and radiation coverage remain accounted for. Keep every campaign level (the 150 numbered slots and the lettered levels), retain failed teaching attempts, and rebalance staged objectives after playtests without silently removing a required element.
 
 <a id="individual-element-register"></a>
 <a id="individual-puzzle-elements"></a>
@@ -4433,7 +4433,7 @@ These records split previously grouped scope; they do not duplicate delivered pa
 
 **Common architecture/proof contract:** Every row declares typed geometry, material, ports, state and capabilities to shared subsystems. A part name, catalogue ID or pair of part classes must never select interaction behaviour. Effects depend on generic contact, transport, field, energy, material and sensing rules. All closed sets remain enums through callers, content, collections and tests. Each record requires its own positive/control real-UI construction, applicable typed connections, exact Run/Reset and current-schema save/reload, native boundary checks, build, revision/captures and retained failures before its own implementation/verification/commit/push completion. Existing evidence stays historical until refreshed when affected.
 
-**Campaign contract:** Each record inherits its original family's reserved first-use window in the campaign ledger (244 levels), but receives an independent introduction, practice and spaced-use objective before its chapter closes. Modes are separate objectives; no crowded family-level reservation counts as teaching proof. Rebalance staged objectives within the same 150 levels, preserve prerequisites and reward breaks, and introduce no new required element in 136–150.
+**Campaign contract:** Each record inherits its original family's reserved first-use window in the campaign ledger (244 levels), but receives an independent introduction, practice and spaced-use objective before its chapter closes. Modes are separate objectives; no crowded family-level reservation counts as teaching proof. Rebalance staged objectives within the same campaign, preserve prerequisites and reward breaks, and introduce no new required element in 136–150.
 
 <a id="element-001"></a>
 
@@ -6183,7 +6183,7 @@ Use the complete [springboard model and parameter contract](../springboard-elast
 
 <a id="campaign-qualification"></a>
 
-### 7.1 Final 150-level progression and difficulty qualification
+### 7.1 Final campaign progression and difficulty qualification
 
 **Design acceptance for every item below:** [common gates](#design-acceptance) + [CONTENT](#accept-content); additional profiles apply to cross-cutting requirements.
 
@@ -6693,7 +6693,7 @@ Yellow/cyan/magenta/white receivers require every named channel at threshold and
 
 <a id="todo-323"></a>
 
-Superseded 75-level slot allocation; no current action. The current 150-level campaign reservation and teaching contracts own placement/order of all retained mechanisms.
+Superseded 75-level slot allocation; no current action. The current campaign reservation (244 levels planned) and teaching contracts own placement/order of all retained mechanisms.
 
 <a id="todo-345"></a>
 
@@ -6773,7 +6773,7 @@ Canonical construction Save survives fresh-page reload/Load at the actual deploy
 
 <a id="todo-492"></a>
 
-Superseded 40-level report-completion instruction; no current action. Every final level remains subject to the current 150-level real-UI/difficulty/campaign acceptance.
+Superseded 40-level report-completion instruction; no current action. Every final level remains subject to the current real-UI/difficulty/campaign acceptance, which applies to every campaign level (244 planned; owner decisions 24d and 24e, coordinator decision 41).
 
 <a id="todo-501"></a>
 
@@ -6787,4 +6787,4 @@ Shift-drag aligns the selected movement axis to the tenth-unit world grid while 
 
 ## Scope and delivery policy
 
-Deliver every named element and variant through the [current acceptance contract](#design-acceptance), [delivery workflow](../delivery-workflow.md), [current architecture](../engine-contracts.md) and the [ordered roadmap](invest/vertical-delivery.md#rolling-playable-roadmap). Preserve real 3D geometry, typed connections, original palette/artwork, author-controlled assistance, alternative solutions, reliable Reset, 150 progressively taught levels and the unlimited free-play workshop. Component coverage (ELEMENT-n after LEGACY-0) precedes exhaustive campaign/difficulty sweeps (CAMPAIGN). Current requirements above contain the complete required outcomes; historical schedules and reports create no additional prerequisites.
+Deliver every named element and variant through the [current acceptance contract](#design-acceptance), [delivery workflow](../delivery-workflow.md), [current architecture](../engine-contracts.md) and the [ordered roadmap](invest/vertical-delivery.md#rolling-playable-roadmap). Preserve real 3D geometry, typed connections, original palette/artwork, author-controlled assistance, alternative solutions, reliable Reset, at least 150 progressively taught levels (244 planned; owner decisions 24d and 24e) and the unlimited free-play workshop. Component coverage (ELEMENT-n after LEGACY-0) precedes exhaustive campaign/difficulty sweeps (CAMPAIGN). Current requirements above contain the complete required outcomes; historical schedules and reports create no additional prerequisites.

@@ -19,7 +19,7 @@ The one current text of every engine story is in [epics.md, "Engine-first capabi
 | 7 | ENGINE-SUPPLY-DEMAND | `engine-supply-drive-demand` | 1 | 38 | Backlog |
 | 8 | ENGINE-CAPABILITY-INSTANCES | `engine-capability-instances` | 4 | 56 | Backlog |
 | 8a | ENGINE-WIRE-ABI | `engine-wire-abi` | S5, S5b, 6, 8 | 0 (wire, shared memory and presentation feed) | Backlog (owner decision 24k) |
-| 8b | ENGINE-WASM-THREADS | `engine-wasm-threads` | 8a | 0 (threads and shared memory) | Backlog (owner decision 24k); first slice is the gate that threads work with the AOT build |
+| 8b | ENGINE-WASM-THREADS | `engine-wasm-threads` | 8a, 5 | 0 (threads and shared memory) | Backlog (owner decision 24k); first slice is the gate that threads work with the AOT build |
 | 8c | ENGINE-INSTANCED-RENDERING | `engine-instanced-rendering` | 8a | 0 (instanced draws from the pose ring; Story 16.2) | Backlog (coordinator decision 40); first slice is the gate that establishes the WebGL 2 instanced path and whether WebGPU is reachable |
 | 9 | ENGINE-TICK-ALLOCATION | `engine-tick-allocation` | 5, 8, 8a | 0 (performance) | Backlog |
 | 10 | ENGINE-SOA-SIMD | `engine-soa-simd` | 9, 8b | 0 (performance) | Backlog |

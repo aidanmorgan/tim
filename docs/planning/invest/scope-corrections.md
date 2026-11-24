@@ -102,7 +102,7 @@ Separate the retained missed-drag cause at Basketball placement, missed-wire cau
 <a id="s267"></a>
 ### S267 · Audit/reconciliation aggregate
 
-Bind each remaining 40-level assumption (loading/navigation, save identity, hints, tests, tooling) to its current consumer; S789 owns the 150-level capacity migration. No duplicate all-campaign rewrite.
+Bind each remaining 40-level assumption (loading/navigation, save identity, hints, tests, tooling) to its current consumer; S789 owns the campaign-level capacity migration (every level; 244 planned). No duplicate all-campaign rewrite.
 
 <a id="s268"></a>
 ### S268 · Aggregate of two distinct visible closures

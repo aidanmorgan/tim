@@ -115,6 +115,7 @@ The other CAT-067 rows (pendulum period, direction invariance, collaborators) ar
 
 Closure review "Rope parts" (with EL-206; EL-205's own verdict now waits for the solid strand): one record, one candidate commit, one approval; owned diff is the ledger row and the citations. Data-only review tier.
 
+- **Later rows owned in the CAT-067 slice (coordinator decisions 36 and 41).** This identity is a Duplicate closure of [CAT-067](CAT-067-weight.md) and has no slice of its own: the cross-part rows that need a Weight (EL-113 B1 and B2, EL-114 P1, P3, P5 and P6, EL-115 L1 to L3) are owned and run in the CAT-067 slice, as its [section 8](CAT-067-weight.md#8-delivery-and-residuals) lists.
 - **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES`, `ENGINE-SENSOR-VOLUMES` and `ENGINE-ISLANDS-SLEEP` (a hanging or resting weight is the kind of body sleeping changes). The closure review runs after the programme (owner decision 22, 23 November 2026), against those stories as delivered; its four checks are re-run when ENGINE-CONNECTION-MATERIALS gives the strand a collider. Disqualifiers: a change to the collider indices or their bindings; ENGINE-CONNECTION-MATERIALS or `ENGINE-TENSILE-EXTENSIONS` changing the span law so that any of the four checks no longer holds.
 
 ## 6. Open questions
