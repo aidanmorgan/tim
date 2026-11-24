@@ -559,8 +559,8 @@ public sealed class CSharpStaticGateTests
     [
         ("2dog.godotsharp", "Godot.SourceGenerators.dll", ["CuriousContraptions.csproj"]),
         ("microsoft.extensions.logging.abstractions", "Microsoft.Extensions.Logging.Generators.dll", ["tools/TraceAllocations/TraceAllocations.csproj"]),
-        ("microsoft.net.illink.tasks", "ILLink.CodeFixProvider.dll", TrimLinkedCompiles()),
-        ("microsoft.net.illink.tasks", "ILLink.RoslynAnalyzer.dll", TrimLinkedCompiles()),
+        ("microsoft.net.illink.tasks", "ILLink.CodeFixProvider.dll", TrimLinkedCompiles(Files)),
+        ("microsoft.net.illink.tasks", "ILLink.RoslynAnalyzer.dll", TrimLinkedCompiles(Files)),
         ("xunit.analyzers", "xunit.analyzers.dll", XunitProjects),
         ("xunit.analyzers", "xunit.analyzers.fixes.dll", XunitProjects),
     ];
@@ -607,10 +607,42 @@ public sealed class CSharpStaticGateTests
         }
     }
 
+    /// <summary>S3 (M1, M2): an element package project is recognised by its path alone, as the bundle generator's glob finds it; a
+    /// path one segment shorter or longer, outside <c>elements/</c> or not a project file is not one.</summary>
+    [Theory]
+    [InlineData("elements/Unfamiliar/Unfamiliar.csproj", true)]
+    [InlineData("elements/Unfamiliar.csproj", false)]
+    [InlineData("elements/Unfamiliar/nested/Other.csproj", false)]
+    [InlineData("tools/elements/Unfamiliar/Unfamiliar.csproj", false)]
+    [InlineData("elements/Unfamiliar/Unfamiliar.cs", false)]
+    public void ElementPackageProjectsAreRecognisedByPathAlone(string path, bool expected) =>
+        Assert.Equal(expected, IsElementProject(path));
+
+    /// <summary>S3 (M1): a package project found only by its path must compile with the trim analyzer on. The required-switch table is
+    /// built by the derivation the gate itself uses, from a file list naming one unfamiliar package and one non-package project.</summary>
+    [Fact]
+    public void AnElementProjectCompiledWithoutTheTrimAnalyzerIsReported()
+    {
+        var required = RequiredAnalyzerSwitchesFor(["elements/Unfamiliar/Unfamiliar.csproj", "tools/Preview/Preview.csproj"]);
+        var directory = Directory.CreateTempSubdirectory("s3-generated-config-");
+        try
+        {
+            var switchOff = Path.Combine(directory.FullName, "off.editorconfig");
+            var switchOn = Path.Combine(directory.FullName, "on.editorconfig");
+            File.WriteAllLines(switchOff, ["is_global = true", "build_property.TargetFramework = net10.0"]);
+            File.WriteAllLines(switchOn, ["is_global = true", "build_property.TargetFramework = net10.0", "build_property.EnableTrimAnalyzer = true"]);
+            Assert.Equal(["build_property.EnableTrimAnalyzer =  (must be true here)"],
+                GeneratedConfigViolations(switchOff, "elements/Unfamiliar/Unfamiliar.csproj", required).ToArray());
+            Assert.Empty(GeneratedConfigViolations(switchOn, "elements/Unfamiliar/Unfamiliar.csproj", required).ToArray());
+            Assert.Empty(GeneratedConfigViolations(switchOff, "tools/Preview/Preview.csproj", required).ToArray());
+        }
+        finally { directory.Delete(recursive: true); }
+    }
+
     /// <summary>The compiles the trim analyzer runs in from its NuGet package: the trimmable projects, the web host and
     /// the file-based apps.</summary>
-    private static string[] TrimLinkedCompiles() =>
-        [.. TrimAnalyzedProjects(), WebProject, "tools/anvil/CheckStagedTests.cs.csproj", "tools/anvil/VerifyPolicy.cs.csproj"];
+    private static string[] TrimLinkedCompiles(IEnumerable<string> files) =>
+        [.. TrimAnalyzedProjects(files), WebProject, "tools/anvil/CheckStagedTests.cs.csproj", "tools/anvil/VerifyPolicy.cs.csproj"];
 
     /// <summary>Every Csc switch a gate compile may pass (by name; every other token must be one of its Sources). An
     /// unknown or future switch fails until it is pinned here.</summary>
@@ -657,17 +689,21 @@ public sealed class CSharpStaticGateTests
         ["EffectiveAnalysisLevelStyle"] = "10.0", ["EnableCodeStyleSeverity"] = "", ["GodotDisabledSourceGenerators"] = "",
     };
     /// <summary>The analyzer switches: each may only be on ("true") or unset, and must be on in the compiles listed.</summary>
-    private static readonly Dictionary<string, string[]> RequiredAnalyzerSwitches = new(StringComparer.Ordinal)
+    private static readonly Dictionary<string, string[]> RequiredAnalyzerSwitches = RequiredAnalyzerSwitchesFor(Files);
+
+    /// <summary>The required-switch table for a repository file list: every package project found in it needs the trim analyzer.</summary>
+    private static Dictionary<string, string[]> RequiredAnalyzerSwitchesFor(IEnumerable<string> files) => new(StringComparer.Ordinal)
     {
-        ["EnableTrimAnalyzer"] = TrimLinkedCompiles(),
+        ["EnableTrimAnalyzer"] = TrimLinkedCompiles(files),
         ["EnableAotAnalyzer"] = ["tools/anvil/CheckStagedTests.cs.csproj", "tools/anvil/VerifyPolicy.cs.csproj"],
         ["EnableSingleFileAnalyzer"] = ["tools/anvil/CheckStagedTests.cs.csproj", "tools/anvil/VerifyPolicy.cs.csproj"],
         ["EnforceExtendedAnalyzerRules"] = [],
         ["VerifyReferenceAotCompatibility"] = [],
         ["VerifyReferenceTrimCompatibility"] = ["CuriousContraptions.csproj"],
     };
-    /// <summary>The trimmable projects (IsTrimmable): the trim analyzer must run on them.</summary>
-    private static string[] TrimAnalyzedProjects() =>
+    /// <summary>The trimmable projects (IsTrimmable): the trim analyzer must run on them. The fixed projects, then every element
+    /// package project in the repository file list, found by path.</summary>
+    private static string[] TrimAnalyzedProjects(IEnumerable<string> files) =>
     [
         "CuriousContraptions.csproj", "CuriousContraptions.Core/CuriousContraptions.Core.csproj", "CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj",
         "CuriousContraptions.Abstractions.Electrical/CuriousContraptions.Abstractions.Electrical.csproj",
@@ -678,31 +714,14 @@ public sealed class CSharpStaticGateTests
         "CuriousContraptions.Animation/CuriousContraptions.Animation.csproj",
         "CuriousContraptions.Animation.Worker/CuriousContraptions.Animation.Worker.csproj",
         "CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj",
-        "elements/Ball/Ball.csproj", "elements/BallDetector/BallDetector.csproj", "elements/Battery/Battery.csproj",
-        "elements/BowlingBall/BowlingBall.csproj", "elements/Bumper/Bumper.csproj", "elements/Counter/Counter.csproj",
-        "elements/DelayBox/DelayBox.csproj", "elements/Domino/Domino.csproj", "elements/Funnel/Funnel.csproj",
-        "elements/HoldTimer/HoldTimer.csproj", "elements/BothGate/BothGate.csproj", "elements/ElectricalNand/ElectricalNand.csproj",
-        "elements/ElectricalNor/ElectricalNor.csproj", "elements/ElectricalOr/ElectricalOr.csproj",
-        "elements/ElectricalXor/ElectricalXor.csproj",
-        "elements/ImpactSwitch/ImpactSwitch.csproj", "elements/Pipe/Pipe.csproj",
-        "elements/PipeBend45/PipeBend45.csproj", "elements/PipeBend90/PipeBend90.csproj",
-        "elements/PoweredGate/PoweredGate.csproj", "elements/PressurePlate/PressurePlate.csproj",
-        "elements/Ramp/Ramp.csproj", "elements/Receiver/Receiver.csproj", "elements/SignalLamp/SignalLamp.csproj",
-        "elements/Springboard/Springboard.csproj", "elements/StateLatch/StateLatch.csproj", "elements/SystemClock/SystemClock.csproj",
-        "elements/Wall/Wall.csproj", "elements/Weight/Weight.csproj", "elements/RopeAnchor/RopeAnchor.csproj",
-        "elements/Pulley/Pulley.csproj", "elements/ImpactLever/ImpactLever.csproj",
-        "elements/Trampoline/Trampoline.csproj", "elements/Motor/Motor.csproj",
-        "elements/Conveyor/Conveyor.csproj", "elements/Clutch/Clutch.csproj",
-        "elements/ReverseTransmission/ReverseTransmission.csproj",
-        "elements/LinearPusher/LinearPusher.csproj",
-        "elements/WoundSpring/WoundSpring.csproj",
-        "elements/Cannon/Cannon.csproj",
-        "elements/TennisBall/TennisBall.csproj",
-        "elements/Baseball/Baseball.csproj",
-        "elements/Balloon/Balloon.csproj",
-        "elements/Fan/Fan.csproj",
-        "elements/Windmill/Windmill.csproj",
+        .. files.Where(IsElementProject).Order(StringComparer.Ordinal),
     ];
+
+    /// <summary>An element package project: a project file one directory below <c>elements/</c>, the rule of the bundle generator's
+    /// <c>elements/*/*.csproj</c> glob (tools/BundleElements/BundleElements.csproj).</summary>
+    internal static bool IsElementProject(string path) =>
+        path.Split('/') is ["elements", { Length: > 0 }, var file] && file.Length > ".csproj".Length &&
+        file.EndsWith(".csproj", StringComparison.Ordinal);
     private static readonly string[] RequiredAnalyzers =
     [
         "Microsoft.CodeAnalysis.NetAnalyzers.dll", "Microsoft.CodeAnalysis.CSharp.NetAnalyzers.dll",
@@ -789,7 +808,7 @@ public sealed class CSharpStaticGateTests
             if (name == ".editorconfig" && !InRepository(config) && IsUnder(Root, Path.GetDirectoryName(config)!)) continue;
             if (own && name == run.ProjectName + ".GeneratedMSBuildEditorConfig.editorconfig")
             {
-                foreach (var line in GeneratedConfigViolations(config, project)) yield return $"{where}: {Display(config)}: {line}";
+                foreach (var line in GeneratedConfigViolations(config, project, RequiredAnalyzerSwitches)) yield return $"{where}: {Display(config)}: {line}";
                 continue;
             }
             if (own && name == run.ProjectName + ".PackageSources.globalconfig")
@@ -803,7 +822,7 @@ public sealed class CSharpStaticGateTests
 
     // The generated MSBuild config carries only the pinned build properties (analyzers read them), with the analyzer
     // switches at their pinned values; no item metadata.
-    private static IEnumerable<string> GeneratedConfigViolations(string config, string project)
+    private static IEnumerable<string> GeneratedConfigViolations(string config, string project, IReadOnlyDictionary<string, string[]> requiredSwitches)
     {
         var present = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var line in File.ReadAllLines(config).Select(line => line.Trim()).Where(line => line.Length > 0 && !line.StartsWith('#')))
@@ -819,7 +838,7 @@ public sealed class CSharpStaticGateTests
         }
         foreach (var (key, value) in PinnedGeneratedValues)
             if (present.TryGetValue(key, out var actual) && actual != value) yield return $"build_property.{key} = {actual} (pinned {value})";
-        foreach (var (key, required) in RequiredAnalyzerSwitches)
+        foreach (var (key, required) in requiredSwitches)
         {
             var value = present.GetValueOrDefault(key, "");
             if (value is not ("" or "true")) yield return $"build_property.{key} = {value} (only true or unset)";

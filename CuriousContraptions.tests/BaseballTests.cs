@@ -204,6 +204,8 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
         var material = Assert.Single(compiled.Materials.ToArray(), value => value.Id == collider.Material);
         Assert.Equal(.35f, material.Restitution.Value); Assert.Equal(.3f, material.Friction.Value);
         Assert.Equal(.04f, Assert.Single(compiled.AmbientLoads.ToArray()).LinearDrag);
+        // The Baseball is declared a capture-target payload.
+        Assert.True(DeclaredPhysics.IsPayload(new PartId("baseball")));
         await using var h = await WorkshopIntegrationHarness.Building(authored);
         var epoch = h.Committed.Epoch;
         foreach (var value in new[] { float.NaN, float.PositiveInfinity, float.NegativeInfinity })

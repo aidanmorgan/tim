@@ -146,7 +146,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EveryPayloadPackageCompilesItsDeclaredMaterial()
     {
         var balls = Packages().Where(package => DeclaredPhysics.IsPayload(new PartId(package.Declaration.Metadata.Id))).ToArray();
-        Assert.Equal(["ball", "balloon", "baseball", "bowling", "tennis"], balls.Select(package => package.Declaration.Metadata.Id).Order(StringComparer.Ordinal));
+        Assert.NotEmpty(balls);
         foreach (var package in balls)
         {
             var ball = (IMechanicalElement)package.Declaration;
@@ -174,7 +174,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     public void EverySliderPackageDeclaresTheCompiledPrismaticJointAndMovingBody()
     {
         var sliders = Packages().Where(package => package.Declaration is ISliderElement).ToArray();
-        Assert.Equal(["LinearPusher", "PoweredGate", "Springboard", "WoundSpring"], sliders.Select(package => package.Package));
+        Assert.NotEmpty(sliders);
         foreach (var package in sliders)
         {
             var element = (ISliderElement)package.Declaration;
@@ -220,7 +220,7 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
     {
         _ = godot;
         var hinges = Packages().Where(package => package.Declaration is IHingeElement).ToArray();
-        Assert.Equal(["Clutch", "Conveyor", "Fan", "ImpactLever", "Motor", "ReverseTransmission", "Windmill", "WoundSpring"], hinges.Select(package => package.Package).Order());
+        Assert.NotEmpty(hinges);
         foreach (var package in hinges)
         {
             var element = (IHingeElement)package.Declaration;
@@ -377,7 +377,8 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                     (compiled[i].Shape, (compiled[i].Radius.Value), (compiled[i].HalfExtents.Y), (compiled[i].HalfExtents.Z)));
         }
 
-        // Every slider at its default parameters (the rows the retired golden held), against the numbers its package authors:
+        // The four delivered sliders at their default parameters (the rows the retired golden held), against the numbers each package
+        // authors; a later slider's slice authors its own joint literals in its own tests (S3 residual R3). For example:
         // the Powered gate's blade travels 0 → 1.55 m on a 14 N/m, 4 N·s/m spring; the Springboard's plate 0.25 m down from a base
         // frame 0.14 m up, on its default 400 N/m, 0.2 N·s/m spring. Neither joint's bodies collide.
         var authored = new Dictionary<string, (float Lower, float Upper, float Stiffness, float Damping, System.Numerics.Vector3 Base, System.Numerics.Quaternion Rotation)>
@@ -397,7 +398,6 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 (joint.FrameA.Position, joint.FrameA.Rotation, joint.FrameB.Position, joint.FrameB.Rotation));
             Assert.Equal(ConnectedCollision.Disabled, joint.Collision);
         }
-        Assert.Equal(authored.Count, Packages().Count(package => package.Declaration is ISliderElement));
     }
 
     private static IPhysicsSceneDeclaration Compile(IWorkshopInstance instance) =>
@@ -637,40 +637,70 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
         };
     }
 
-    /// <summary>One newly placed instance of the part, as MachineWorld.CaptureInstance builds it.</summary>
-    internal static IWorkshopInstance Placed(PartId id) => id.Value switch
+    /// <summary>S3 (M3): placement reads only the package declaration. The Ramp's baked entry, re-identified as a package no test names
+    /// and installed through the scoped declaration seams, is placed with exactly its declared defaults (length 3 m and width 1.3 m,
+    /// RampElementDeclaration) and compiles one owner body carrying every baked collider; an identity with no declaration is refused
+    /// by the production declaration lookup.</summary>
+    [Fact]
+    public void AnUnfamiliarDeclaredPackageIsPlacedFromItsDeclarationAlone()
     {
-        "ball" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ball"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "bowling" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bowling"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "basket" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("basket"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("spring"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "ramp" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "wall" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("wall"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "battery" => PlacedParts.Battery(Owner, 0, 3, 0),
-        "bumper" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("bumper"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "domino" => PlacedParts.Domino(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "pipe" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),Owner, 0, 3, 0, 0, 0, 0, 1),
-        "baseball" or "lamp" or "ball_detector" or "funnel" or "pipe_bend_45" or "pipe_bend_90" or "powered_gate" or "hold_timer" or "both_gate" or "electrical_nand" or "electrical_nor" or "electrical_or" or "electrical_xor" or "weight" or "rope_anchor" or "pulley" or "impact_lever" or "trampoline" or "motor" or "conveyor" or "clutch" or "reverse_transmission" or "linear_pusher" or "wound_spring" or "cannon" or "tennis" or "balloon" or "fan" or "windmill" =>
-            WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1),
-        "pressure_plate" => PlacedParts.Plate(Owner, 0, 3, 0, .5f),
-        "counter" => PlacedParts.Counter(Owner, 0, 3, 0, 0, 0, 0, 1, 3),
-        "clock" => PlacedParts.Clock(Owner, 0, 3, 0, 0, 0, 0, 1, 1f),
-        "latch" => PlacedParts.Latch(Owner, 0, 3, 0, 0, 0, 0, 1),
-        "switch" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("switch"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        "delay" => WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("delay"), Owner, 0, 3, 0, 0, 0, 0, 1),
-        _ => throw new ArgumentException($"No placement for packaged part '{id}'.")
-    };
+        _ = godot;
+        var id = new PartId("unfamiliar_placed");
+        var source = TestBundle.Entry(new PartId("ramp"));
+        var entry = source with { Metadata = source.Metadata with { Id = id.Value } };
+        Assert.NotEmpty(entry.Colliders);
+        using (DeclaredPhysics.Scoped([entry]))
+        using (DeclaredPorts.Scoped(TestBundle.Ports.Extend([(id, entry.Ports)])))
+        {
+            var placed = Assert.IsType<WorkshopGenericInstance>(Placed(id));
+            Assert.Equal((id, Owner), (placed.PartId, placed.Id));
+            // The shared pose: 3 m up at 16 cells per metre is cell 48 with no local offset, unrotated.
+            Assert.Equal((new CellOrigin(0, 48, 0), new LocalPosition(0f, 0f, 0f), new CanonicalRotation(0f, 0f, 0f, 1f)),
+                (placed.Cell, placed.Local, placed.Rotation));
+            Assert.Equal(new Dictionary<ParameterId, float> { [new ParameterId("length")] = 3f, [new ParameterId("width")] = 1.3f },
+                placed.Parameters.ToDictionary());
+            var scene = Compile(placed);
+            Assert.Single(scene.Bodies.ToArray(), body => body.Id == Owner);
+            Assert.Equal(entry.Colliders.Count, scene.Colliders.ToArray().Count(collider => collider.Body == Owner));
+        }
+        Assert.Throws<InvalidOperationException>(() => Placed(new PartId("unregistered_payload")));
+    }
 
-    /// <summary>One placed slider part with its declared parameters set to these values.</summary>
-    private static IWorkshopInstance Placed(PartId id, Dictionary<string, float> parameters) => id.Value switch
+    /// <summary>S3 (M4): a slider package is placed with the values it is given for its declared parameters. The Springboard's baked
+    /// entry, re-identified and installed through the scoped seams, is placed with each parameter at its declared maximum
+    /// (SpringboardElementDeclaration: stiffness 1200 N/m, damping 8 N·s/m, initial compression 0.2 m) and holds those values.
+    /// Production validation refuses an omitted declared key and a value just above its declared maximum, and the declaration
+    /// lookup refuses an identity with no declaration.</summary>
+    [Fact]
+    public void AnUnfamiliarSliderPackageIsPlacedWithEveryDeclaredParameterBound()
     {
-        "spring" => PlacedParts.Springboard(Owner, 0, 3, 0, 0, 0, 0, 1, parameters["initial_compression"],
-            parameters["stiffness"], parameters["damping"]),
-        "powered_gate" => Placed(id),
-        "linear_pusher" or "wound_spring" => WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1,
-            new(parameters.Select(pair => new KeyValuePair<ParameterId, float>(new(pair.Key), pair.Value)).ToArray())),
-        _ => throw new ArgumentException($"No slider placement for packaged part '{id}'.")
-    };
+        _ = godot;
+        var id = new PartId("unfamiliar_slider");
+        var source = TestBundle.Entry(new PartId("spring"));
+        var entry = source with { Metadata = source.Metadata with { Id = id.Value } };
+        Assert.NotEmpty(entry.Mechanical!.Sliders);
+        var maxima = new Dictionary<string, float>(StringComparer.Ordinal) { ["stiffness"] = 1200f, ["damping"] = 8f, ["initial_compression"] = .2f };
+        using (DeclaredPhysics.Scoped([entry]))
+        using (DeclaredPorts.Scoped(TestBundle.Ports.Extend([(id, entry.Ports)])))
+        {
+            var placed = Placed(id, maxima);
+            Assert.Equal(maxima.ToDictionary(pair => new ParameterId(pair.Key), pair => pair.Value), placed.Parameters.ToDictionary());
+            var omitted = maxima.Where(pair => pair.Key != "damping").ToDictionary(StringComparer.Ordinal);
+            Assert.Equal("Missing or unknown declared parameters.", Assert.Throws<ArgumentException>(() => Placed(id, omitted)).Message);
+            var above = new Dictionary<string, float>(maxima, StringComparer.Ordinal) { ["stiffness"] = float.BitIncrement(1200f) };
+            Assert.Equal("Invalid declared parameter value.", Assert.Throws<ArgumentException>(() => Placed(id, above)).Message);
+        }
+        Assert.Throws<InvalidOperationException>(() => Placed(new PartId("unregistered_payload"), maxima));
+    }
+
+    /// <summary>One newly placed instance of the part at the shared pose with its declared default parameters, as
+    /// MachineWorld.CaptureInstance builds it. An identity with no declaration is refused by the production declaration lookup.</summary>
+    internal static IWorkshopInstance Placed(PartId id) => WorkshopInput.Generic(RuntimeTestServices.Bundle, id, Owner, 0, 3, 0, 0, 0, 0, 1);
+
+    /// <summary>One placed instance of the part at the shared pose with its declared parameters set to these values; production
+    /// validation refuses a missing, unknown or out-of-range value.</summary>
+    private static WorkshopGenericInstance Placed(PartId id, Dictionary<string, float> parameters) => WorkshopInput.Generic(RuntimeTestServices.Bundle,
+        id, Owner, 0, 3, 0, 0, 0, 0, 1, new(parameters.Select(pair => new KeyValuePair<ParameterId, float>(new(pair.Key), pair.Value)).ToArray()));
 
     // Baked art is unscaled. Parameter bindings apply even at their default;
     // Weight's authored default scale is .136734*4+.453070 = 1.000006.
