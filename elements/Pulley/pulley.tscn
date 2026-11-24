@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3]
+[gd_scene load_steps=15 format=3]
 
 
 [sub_resource type="StandardMaterial3D" id="Mat_Navy"]
@@ -53,6 +53,9 @@ size = Vector3(0.5, 0.15, 0.4)
 radius = 0.4
 height = 0.17
 
+[sub_resource type="BoxShape3D" id="Shape_Post"]
+size = Vector3(0.12, 0.55, 0.12)
+
 [node name="pulley" type="Node3D"]
 
 [node name="col_mount" type="CollisionShape3D" parent="."]
@@ -62,6 +65,15 @@ shape = SubResource("Shape_Mount")
 [node name="col_wheel" type="CollisionShape3D" parent="."]
 quaternion = Quaternion(0.7071068, 0, 0, 0.7071068)
 shape = SubResource("Shape_Wheel")
+
+[node name="col_post" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.3, -0.13)
+shape = SubResource("Shape_Post")
+
+[node name="col_visual_rim" type="MeshInstance3D" parent="."]
+visible = false
+transform = Transform3D(1, 0, 0, 0, 0, -1, 0, 1, 0, 0, 0, 0.1)
+mesh = SubResource("Mesh_Rim")
 
 [node name="Loc_Port_Tie" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0.12)

@@ -8,8 +8,8 @@ public sealed class TennisBallTests
 {
     private static readonly PartId Tennis = new("tennis");
     internal static WorkshopGenericInstance Ball(ulong id = 1, float x = 0f, float y = 3f, float mass = .35f,
-        float radius = .25f, float bounce = .85f, float drag = .04f, float buoyancy = 0f) =>
-        WorkshopInput.Generic(RuntimeTestServices.Bundle, Tennis, new(id), x, y, 0, 0, 0, 0, 1,
+        float radius = .25f, float bounce = .85f, float drag = .04f, float buoyancy = 0f, float z = 0f) =>
+        WorkshopInput.Generic(RuntimeTestServices.Bundle, Tennis, new(id), x, y, z, 0, 0, 0, 1,
             new([new(new("mass"), mass), new(new("radius"), radius), new(new("bounce"), bounce),
                 new(new("drag"), drag), new(new("buoyancy"), buoyancy)]));
     internal static WorkshopConstruction Scene(params IWorkshopInstance[] instances) =>

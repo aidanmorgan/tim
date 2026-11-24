@@ -117,11 +117,14 @@ public sealed class BalloonTests
     [Fact]
     public async Task AConnectedEnvelopeRupturesAndEmptiesWithoutMovingItsDeclaredTie()
     {
+        // The eye's centreline radius and tube radius mirror rope_anchor.tscn; eyeY is the anchor's height here. carrierRadius is the
+        // Balloon's declared (full) radius: the emptied carrier's collider shrinks with its gas, so it is a loose upper bound.
+        const float eyeY = 1, eyeRadius = .2f, eyeTube = .0275f, carrierRadius = .36f;
         var anchor = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("rope_anchor"), new(2),
-            0, 1, -.18f, 0, 0, 0, 1);
+            0, eyeY, -.18f, 0, 0, 0, 1);
         var ceiling = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("wall"), new(3), 0, 5, 0, 0, 0, 0, 1,
             new([new(new("width"), 3), new(new("height"), .4f), new(new("thickness"), 2)]));
-        var scene = TennisBallTests.Scene(Balloon(mass: 2, buoyancy: 16), anchor, ceiling) with
+        var scene = TennisBallTests.Scene(Balloon(mass: 2, radius: carrierRadius, buoyancy: 16), anchor, ceiling) with
         {
             Connections = new(new WorkshopConnection(new(2), PortId.Tie, new(1), PortId.Tie,
                 WorkshopConnectionDomain.Rope, 5))
@@ -133,7 +136,8 @@ public sealed class BalloonTests
         Assert.Single(h.Of(SimulationEventKind.IntegrityBroken));
         Assert.Equal(System.Numerics.Vector3.Zero, DeclaredPorts.Current.LocalPosition(Balloon(), PortId.Tie));
         Assert.Equal(scene.Connections, h.Construction.Connections);
-        Assert.True(Y(Body(h)) < 1, "After losing lift, the empty carrier must fall below the ceiling.");
+        // The highest centre at which a carrier of at most the declared radius could rest on the Rope anchor's eye: the eye's tube top plus that radius.
+        Assert.True(Y(Body(h)) < eyeY + eyeRadius + eyeTube + carrierRadius, "After losing lift, the emptied carrier must have fallen from its start height of 3 to the Rope anchor's eye or below.");
     }
 
     [Fact]

@@ -243,7 +243,7 @@ Visible = solid repairs of delivered parts (owner decision of 21 November 2026; 
 
 | Repair | Scope | When |
 |---|---|---|
-| Part A ([contract](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder.md)) | Rope anchor, Pulley, Fan, Impact lever and Trampoline | before the engine programme (owner decision 22) |
+| Part A ([contract](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder.md)) | Rope anchor, Pulley, Fan, Impact lever and Trampoline | before the engine programme (owner decision 22). **Delivered** in the candidate on baseline `0959e883`: colliders for the eye, the Pulley's post and rim and the Fan's post and ring, the lever's marks and the Fan's arrow printed flat, five table rows; full local round 7309/0/0 (`Skipped: 0`). Parts B, B2 and C and the Baseball repair stay queued. |
 | Part B ([contract](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md)) | Conveyor, Linear pusher and Wound spring | before the programme, after part A |
 | Part B2 ([contract](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b2.md)) | Tennis ball: its seam printed flush, with no collider (owner decision 24i) | before the programme, after part B |
 | Part C ([contract](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md)) | Cannon, Windmill and Balloon; the Balloon's first-drawn envelope is recorded as the named defect of owner decision 5 if its test confirms it is momentary | before the programme, after parts B and B2 |

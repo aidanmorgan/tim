@@ -23,7 +23,7 @@ Delivered declaration: `elements/BowlingBall/BowlingBallElementDeclaration.cs`; 
 | Collider | Baked from the scene (`Colliders => []`, `:36`): one sphere, radius 0.28 m (`bowling.tscn:12`–`13`, node `col_0_0`, `:22`). |
 | Mass and moments | 4 kg; centre of mass at the origin; principal moments 0.12544 kg·m² on each axis (0.4 × 4 × 0.28²); identity principal frame; gravity (0, −9.81, 0) m/s² (`:53`–`59`). |
 | Material (f32) | restitution 0.14, friction 0.3, rolling resistance 0.03, bounce threshold 0.1 m/s (`:40`). Owner decision 9 October 2026: game scale, smaller than the Basketball. |
-| Ambient load | Linear drag 0.04 1/s on body 0, zero world acceleration, no gas inventory (`:61`–`62`): not buoyant. The compiled drag follows the scene's atmosphere preset: 0.04 1/s in Standard, 0 in Vacuum (`BalloonTests.ExistingBallsHaveAmbientDragOnlyInStandardAndRestoreTheirEnvironment`, `CuriousContraptions.tests/BalloonTests.cs:167`, row `bowling`). The mass frame's own `linearDrag` is 0 (`:58`). |
+| Ambient load | Linear drag 0.04 1/s on body 0, zero world acceleration, no gas inventory (`:61`–`62`): not buoyant. The compiled drag follows the scene's atmosphere preset: 0.04 1/s in Standard, 0 in Vacuum (`BalloonTests.ExistingBallsHaveAmbientDragOnlyInStandardAndRestoreTheirEnvironment`, `CuriousContraptions.tests/BalloonTests.cs:171`, row `bowling`). The mass frame's own `linearDrag` is 0 (`:58`). |
 | Airflow receiver | One receiver on collider 0, `AirflowSampling.ColliderNormalized`, four samples at (0, ±0.5, 0) and (0, 0, ±0.5) of the collider, weight 0.25 each (`:32`–`35`). |
 | Payload | `PayloadPolicy.CaptureTarget` (`:51`). |
 | Parameters | none (`Parameters: []`, `:26`). No editor panel; a record carrying any parameter or material is refused. |

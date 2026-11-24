@@ -70,7 +70,7 @@ Icon: a pink envelope with a knot and a curling string. At a glance it differs f
 | Lift and drag scaled by atmosphere and gas fraction | present | `IAmbientLoadElement` (`MechanicalContracts.cs:124`); `BalloonTests.StandardRisesAgainstHeavierControlAndVacuumFallsWithTheSameSealedInventory` (`CuriousContraptions.tests/BalloonTests.cs:22`) |
 | Rope tie on a dynamic body | present | `PortRole.Tie`; `BalloonTests.TautTieRestrainsLiftWhileSlackAndDisconnectedControlsRise` (`:95`) |
 | Airflow receiver | present | `IAirflowReceiverElement` (`MechanicalContracts.cs:45`); `FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow` (`CuriousContraptions.tests/FanGuidanceTests.cs:16`) |
-| Integrity goal | present | `SimulationEventKind.IntegrityBroken` (`CuriousContraptions.Abstractions/EventDescriptor.cs:33`); `BalloonTests.RupturePrecedesTimedPartialLossAndPauseStepResumeResetOwnTheOpenStore` (`:198`) |
+| Integrity goal | present | `SimulationEventKind.IntegrityBroken` (`CuriousContraptions.Abstractions/EventDescriptor.cs:33`); `BalloonTests.RupturePrecedesTimedPartialLossAndPauseStepResumeResetOwnTheOpenStore` (`:202`) |
 
 Counts: 7 present, 0 untested, 0 narrower, 0 missing. Joined stores, lines and valves are not this part: they belong to `ENGINE-GAS-NETWORK`.
 

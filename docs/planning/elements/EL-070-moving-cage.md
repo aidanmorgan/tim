@@ -88,12 +88,12 @@ Every bar, rail, post, guide and the eye has a collider (owner rule, visible = s
 | --- | --- | --- | --- |
 | Dynamic body with many child colliders and a declared mass frame | *present* | `MassFrameDeclaration` `CuriousContraptions.Abstractions/MassFrameValues.cs:38`; `WeightElementDeclaration.cs:96` | `CuriousContraptions.tests/CompoundMassAndRollingTests.cs:19` (many-child support), `:221`; `CuriousContraptions.tests/WeightTests.cs:139` |
 | A real parameter bound to a collider offset on a dynamic body, refused when it evaluates out of range | *present* | `ColliderParameterBinding` `SceneGeometry.cs:27`; validation `CuriousContraptions.Bundle/BundleValidator.cs:411`–`:428` | `WeightTests.cs:139` (offset and extents follow the parameter), `:286` |
-| Art moved by the same parameter as its collider | *present* | `PresentationProperty.LocalY` `ElementPresentation.cs:14` | `CuriousContraptions.tests/VisibleSolidColliderTests.cs:186`, which compares art with colliders at each bound parameter's minimum and maximum (`:176`–`:183`) |
+| Art moved by the same parameter as its collider | *present* | `PresentationProperty.LocalY` `ElementPresentation.cs:14` | `CuriousContraptions.tests/VisibleSolidColliderTests.cs:206`, which compares art with colliders at each bound parameter's minimum and maximum (`:176`–`:183`) |
 | Torus collider on a dynamic body | *present* | `ColliderShapeKind` `CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`; `elements/Weight/weight.tscn:91` | `CompoundMassAndRollingTests.cs:403` (the Weight's eye), `:114` |
 | Rope Load port on a dynamic body; tension-only span | *present* | `RopeAttachmentRole` `CuriousContraptions.Abstractions/PortDescriptor.cs:73` | `CuriousContraptions.tests/RopeTests.cs:21`, `:34`; `WeightTests.cs:1153` |
 | Reset and save/load of a rope-hung dynamic body and its parameter | *present* | — | `WeightTests.cs:1275`, `:1309`, `:805` |
 | A dynamic sphere carried inside a cage of thin box children whose body hangs from a rope | *present, untested* | composition of the rows above | nearest: `WeightTests.cs:585`, `RopeTests.cs:362` |
-| Thin (0.05 m) box children of a **dynamic** body stopping a ball at 8 to 20 m/s | *present, untested* | the tunnelling bound is stated for barriers (`docs/gpu-f32-physics.md:375`) | static only: `CuriousContraptions.tests/WorkshopWallTests.cs:88`; `VisibleSolidColliderTests.cs:872` |
+| Thin (0.05 m) box children of a **dynamic** body stopping a ball at 8 to 20 m/s | *present, untested* | the tunnelling bound is stated for barriers (`docs/gpu-f32-physics.md:375`) | static only: `CuriousContraptions.tests/WorkshopWallTests.cs:88`; `VisibleSolidColliderTests.cs:994` |
 
 Counts: 6 present, 2 present-untested, 0 narrower, 0 missing.
 
