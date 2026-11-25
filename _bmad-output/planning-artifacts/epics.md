@@ -4459,7 +4459,7 @@ A performance comparison never uses a flag or setting that disables an engine fe
 ### Engine programme (owner decision 3a): before any further element delivery
 
 ### Story DOC-ENGINE-STATUS: The documents describe the engine that exists
-*Status: in review in lane 4 (owner decision 24q; contract `_bmad-output/implementation-artifacts/spec-doc-engine-status.md`). Sprint key: `doc-engine-status`. Order 1. Documents only.*
+*Status: done in lane 4 (owner decision 24q; contract `_bmad-output/implementation-artifacts/spec-doc-engine-status.md`). Sprint key: `doc-engine-status`. Order 1. Documents only.*
 
 *Outcome:* the authority documents stop stating absent features as present, so every element spec's conformance section cites real behaviour.
 

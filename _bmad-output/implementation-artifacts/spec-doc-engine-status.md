@@ -563,7 +563,7 @@ No tolerance applies; these are text and link checks.
   - PD-23, `sprint-status.yaml`, `deferred-work.md`;
   - this contract and its run log.
 
-**Review.** Eight passes, recorded in the Review Triage Log and run log E22. Every confirmed finding is repaired, except nine deferred under Re-review scope, each with an owner; they are listed in frontmatter `deferred` and `deferred-work.md`. No forward-only violation remains, and Verification Gap reports no gap. The Element-Free verdict: Scoped Pass for this documents slice.
+**Review.** Eight passes, recorded in the Review Triage Log and run log E22. Every confirmed finding is repaired except nine deferrals, each with an owner and listed in frontmatter `deferred` and `deferred-work.md`. Eight are deferred under Re-review scope. VG-1, the automated anchor test, was deferred at pass 1 under the intent contract's Never clause and awaits the coordinator's ruling. No forward-only violation remains, and Verification Gap reports no gap. The Element-Free verdict: Scoped Pass for this documents slice.
 
 **Follow-up review recommendation:** false.
 
