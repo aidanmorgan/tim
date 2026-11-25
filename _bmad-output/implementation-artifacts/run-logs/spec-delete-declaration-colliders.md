@@ -238,3 +238,9 @@ Coordinator message (two documents still claiming a kinematic body); uncommitted
 - Anvil no-op validation of the Auto Run Result's **Files** and **Review** lines as committed (search and replace with the same text): `allow`.
 - Record lines fixed: `delivery-batches.md:247` and the part B paragraph of `TODO.md` now say the declaration `Colliders` member is deleted by lane 1's next slice (this one). The registration figure in `TODO.md` (827) is the value measured on `819940be` (E20); the check is repeated on the merged commit.
 - The merged commit's capture builds, maintainability gate, full round (expected 7415), registration check and SnapshotApproval are the token holder's and the approver's checks on that commit.
+
+## E27 Coordinator: checks on the merged commit `39cefe41`; registration figure corrected (25 November 2026)
+
+- On `39cefe41f4dc9d7fe062d0f96aa410feb6235bda` (HEAD and HEAD-AFTER in every log, clean status): capture builds 0 warnings, 0 errors (`capture-builds-merge.log`); maintainability gate PASS, `Coupling dependencies: contract=4627, model=4, intrusive=0; violations=0` (`maintainability-merge.log`); full round 17 + 329 + 132 + 256 + 6681 = 7415 passed, 0 failed, `Skipped: 0` (`full-round-merge.log`); registration 17 + 203 + 83 + 97 + 429 = **829**, 0 failed, `Skipped: 0` (`registration-merge.log`); `VerifyPolicy.cs` 78/0/0 and `--bmad-check --self-test` 37/0/0 (`verifypolicy-merge.log`).
+- Registration 829, not 827: ruling 5 added two cases to filtered classes (`BundleRoundTripTests`, `BundleValidatorTests`) after the 827 measurement on `819940be`. `TODO.md` line 3 now states the measured 829 (coordinator ruling). The contract's 826 (handoff) and 827 (`819940be`) lines stay, each true of its candidate.
+- This records-only commit changes the SHA, so the checks are repeated on it with HEAD and HEAD-AFTER the push SHA.
