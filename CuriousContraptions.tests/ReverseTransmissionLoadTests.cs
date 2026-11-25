@@ -27,7 +27,7 @@ public sealed partial class ReverseTransmissionTests
         {
             Metadata = template.Metadata with { Id = "finite_shaft_load" },
             Footprint = new(2, 1, 0, 1),
-            Mechanical = template.Mechanical with { Hinges = [hinge], Transmissions = [] },
+            Mechanical = template.Mechanical with { Hinges = [hinge], MovingBodyColliders = [template.Mechanical.MovingBodyColliders[0]], Transmissions = [] },
             Ports = [template.Ports.Single(port => port.Id == PortId.DriveIn)],
             Presentation = template.Presentation with { Bodies = [], Bindings = [] }
         };

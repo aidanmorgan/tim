@@ -20,7 +20,7 @@ Delivered declaration: `elements/Wall/WallElementDeclaration.cs`; scene `element
 | Item | Value and source |
 | --- | --- |
 | Body | One static body (`KinematicMode.Static`, `:58`; footprint 1 body, 0 moving, no constraints, `:33`), at any full 3D pose. Mass frame zero (`:62`–`68`). |
-| Collider | One box baked from the scene (`Colliders => []`, `:47`; `wall.tscn:18`–`19`, node `col_0_0`, `:36`), half extents (width/2, height/2, thickness/2) m at the origin, sized by three `ColliderBindings` (`:40`–`45`). |
+| Collider | One box baked from the scene (the declaration states none; `wall.tscn:18`–`19`, node `col_0_0`, `:36`), half extents (width/2, height/2, thickness/2) m at the origin, sized by three `ColliderBindings` (`:40`–`45`). |
 | Material (f32) | restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:51`). Restitution 1 is neutral under the product pair law. |
 | Parameters | `width`: Real, metres, default 3, minimum 0.4, maximum 8 (`:28`). `height`: Real, metres, default 2, minimum 0.4, maximum 6 (`:29`). `thickness`: Real, metres, default 0.25, minimum 0.12, maximum 2 (`:30`). All three take the descriptor defaults `ParameterEditorPolicy.Reject` and `ParameterRunEdit.BuildOnly` (`CuriousContraptions.Abstractions/ParameterDescriptor.cs:60`–`61`). |
 | Ports, events, stores, sensors, signal/supply/electrical nodes, anchors | none (`Ports`, `:35`; `Events`, `:54`; `AnchorPoints`, `:70`; `TubeMouthBindings`, `:38`; `SupportedDomains` is Mechanical only, `:56`). `PayloadPolicy.None` (`:60`). It declares nothing optical or acoustic. |
@@ -58,7 +58,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | `Visual/Visual_Body` (`:25`) | unit box 1 × 1 × 0.998, scaled to the dimensions | solid | `col_0_0`, the full box | nothing during Run |
 | `Visual/Visual_StripeLeft` (`:28`), `Visual/Visual_StripeRight` (`:32`) | boxes 0.035 × 0.94 × 1 at x ∓0.46 of the unit box, cream (0.976, 0.91, 0.788) | decorative: printed flat | flush with the collider's faces and inside it; nothing stands proud of the collider | nothing during Run |
 
-The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the collider takes the full thickness, so it is 0.001 × thickness thicker per face than the drawn body, at most 2 mm at the 2 m maximum. The hand table records this as a stated fit (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:118`, `Fit: .002f`). The three presentation bindings size the `Visual` node from the three `BuildOnly` parameters and the three collider bindings size the box from the same parameters: static sizing in Build, not animation.
+The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the collider takes the full thickness, so it is 0.001 × thickness thicker per face than the drawn body, at most 2 mm at the 2 m maximum. The hand table records this as a stated fit (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:136`, `Fit: .002f`). The three presentation bindings size the `Visual` node from the three `BuildOnly` parameters and the three collider bindings size the box from the same parameters: static sizing in Build, not animation.
 
 **Generic laws.**
 

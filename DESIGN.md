@@ -82,13 +82,14 @@ All 3D puzzle elements, fixtures, and tools are delivered in open-source, indust
    - Simplified proxy geometry co-located in the same `.glb` container alongside visual meshes.
    - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual meshes are dedicated exclusively to presentation rendering; collider meshes are dedicated physics proxies (`col_box`, `col_sphere`, etc.) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
    - **Analytic Shape Naming Conventions:**
-     - `col_box` (or `*-col_box`, `-col` box): Box volume mapped to half-extents.
-     - `col_sphere` (or `*-col_sphere`): Sphere volume mapped to radius.
-     - `col_capsule` (or `*-col_capsule`): Capsule volume mapped to radius and half-height.
-     - `col_cylinder` (or `*-col_cylinder`): Cylinder volume mapped to radius and height.
+     - `col_box`: Box volume mapped to half-extents.
+     - `col_sphere`: Sphere volume mapped to radius.
+     - `col_capsule`: Capsule volume mapped to radius and half-height.
+     - `col_cylinder`: Cylinder volume mapped to radius and height.
+     - A proxy is a `CollisionShape3D` node or a node named with the `col_` prefix; a name that carries `-col_` without that prefix is refused at bake.
    - **Convex Hull Naming Convention:**
-     - `col_hull` (or `-convcol`): Convex polyhedral hull for irregular rigid bodies.
-   - **Khronos Physics Extension:** The official Khronos `KHR_physics_rigid_bodies` glTF extension is fully supported for authoring rigid body properties and colliders directly from compliant DCC export tools.
+     - `col_hull`: Convex polyhedral hull for irregular rigid bodies.
+   - **Khronos Physics Extension:** Authoring rigid body properties and colliders through the Khronos `KHR_physics_rigid_bodies` glTF extension is a planned capability, not admitted today: nothing reads it, and a package's colliders come only from the scene proxies baked into the bundle.
    - Collision nodes are flagged as non-rendering or filtered by the presentation loader; they exist purely to supply physical bounds to the compiler.
 4. **Socket Locator Empties (`Loc_Port_<Id>`):**
    - Plain Empty axes placed at exact contact/pin vertices for electrical, activation, and mechanical connections.
@@ -101,7 +102,7 @@ All 3D puzzle elements, fixtures, and tools are delivered in open-source, indust
 
 All 14 existing puzzle elements (Basketball, Bowling Ball, Tennis Ball, Floating Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery) must be converted forward from legacy procedural C# primitives (`PartArt.cs`) and hardcoded shape tables to self-contained glTF 2.0 (`.glb`) assets in `parts/models/`.
 - Visual meshes must conform to the sculptural, matte ceramic/plaster aesthetic and canonical palette defined above.
-- Physical collision shapes must be authored directly as co-located proxy nodes (`col_box`, `col_sphere`, etc.) or via `KHR_physics_rigid_bodies`.
+- Physical collision shapes must be authored directly as co-located proxy nodes (`col_box`, `col_sphere`, etc.); `KHR_physics_rigid_bodies` is a planned capability, not admitted today.
 - Connection points must be authored as named locator empties (`Loc_Port_<Id>`).
 - Bespoke per-part C# scripts (`parts/*Part.cs`), procedural mesh generation in `engine/PartArt.cs`, hardcoded dimension resources, and closed part enums (`WorkshopPartKind`) must be completely deleted upon conversion. Strictly zero backwards compatibility shims, dual loaders, or fallback paths are permitted.
 
@@ -215,7 +216,7 @@ These are source colours, before lighting, transparency and display conversion. 
 <a id="dynamic-part-discovery-and-catalog-palette"></a>
 ### Dynamic Part Discovery and Extensible PartId Catalog
 
-Every puzzle element is declared only by its own `elements/<Name>/` package (Story 9A.14): identity, category, player-facing title and description, approved colour, palette order, its `icon.svg`, its own `.tscn` scene and its typed parameters, ports, colliders and domain payloads. Puzzle parts are NOT hardcoded into closed enums (such as `WorkshopPartKind`) or static file registration arrays. `tools/BundleElements` discovers the packages at build time and writes the one element bundle (`res://elements/elements.bundle.json`); at start-up `PartRegistry.Load()` reads only that bundle, rejects a missing or structurally invalid bundle with a message naming the problem, and builds each `PartDefinition` from one bundle entry. Extensible identities use strongly-typed `PartId` record structs wrapping canonical string identifiers rather than closed enums. `PartRegistry.Create(PartId)` instantiates parts directly from their package scenes. Each package declares its ports (typed socket, domain, direction, signal kind and anchor position), and wire and cable connections attach at those declared anchors; no engine or UI table restates them (Story 9A.17). The element's scene keeps an empty locator node at each socket, named by the typed socket exactly (`Loc_Port_PowerIn`, `Loc_Port_ActivationOut`), and the bundle build fails when a locator and its declared port disagree. Gameplay and visual behaviors bind directly to these declared ports. Furthermore, the Free Workshop palette (`PartRegistry.Free`) lists every loaded element with an unlimited allowance in its declared palette order, and the palette draws each element's package icon.
+Every puzzle element is declared only by its own `elements/<Name>/` package (Story 9A.14): identity, category, player-facing title and description, approved colour, palette order, its `icon.svg`, its own `.tscn` scene and its typed parameters, ports, scene bodies and domain payloads; the bundle build bakes each body's colliders from the collider proxies of its scene. Puzzle parts are NOT hardcoded into closed enums (such as `WorkshopPartKind`) or static file registration arrays. `tools/BundleElements` discovers the packages at build time and writes the one element bundle (`res://elements/elements.bundle.json`); at start-up `PartRegistry.Load()` reads only that bundle, rejects a missing or structurally invalid bundle with a message naming the problem, and builds each `PartDefinition` from one bundle entry. Extensible identities use strongly-typed `PartId` record structs wrapping canonical string identifiers rather than closed enums. `PartRegistry.Create(PartId)` instantiates parts directly from their package scenes. Each package declares its ports (typed socket, domain, direction, signal kind and anchor position), and wire and cable connections attach at those declared anchors; no engine or UI table restates them (Story 9A.17). The element's scene keeps an empty locator node at each socket, named by the typed socket exactly (`Loc_Port_PowerIn`, `Loc_Port_ActivationOut`), and the bundle build fails when a locator and its declared port disagree. Gameplay and visual behaviors bind directly to these declared ports. Furthermore, the Free Workshop palette (`PartRegistry.Free`) lists every loaded element with an unlimited allowance in its declared palette order, and the palette draws each element's package icon.
 
 Part visual identity and canonical colors are declared in each element package's metadata. Preserve these palette relationships when adding variants. Hex below is the nearest 8-bit representation of the recorded source RGB values. These exact approved palette identities are an explicit rendering boundary; they do not authorize a wider floating game-value model or physical feedback.
 

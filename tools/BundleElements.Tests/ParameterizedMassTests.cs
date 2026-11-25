@@ -7,7 +7,7 @@ namespace CuriousContraptions.BundleElements.Tests;
 
 public sealed class ParameterizedMassTests
 {
-    private static BundleEntry Entry() => BundleSchema.Entry(new Fixture
+    private static BundleEntry Entry() => FixtureBake.Entry(new Fixture
     {
         KinematicMode = KinematicMode.Dynamic,
         Footprint = new(1, 1, 0, 0),
@@ -87,13 +87,12 @@ public sealed class ParameterizedMassTests
     {
         var original = new MaterialProperties(.2f, .3f, .04f, .5f);
         var shape = Fixture.Box(new(.5f)) with { Material = original };
-        var entry = BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
-            Colliders = [shape],
             Parameters = [.. Fixture.SpringParameters, new("surface", unit, ParameterKind.Real, 0, maximum, maximum / 2, [])],
-            Sliders = [Fixture.Slider(moving: [shape, shape with { Offset = new(1, 0, 0) }])],
+            Sliders = [Fixture.Slider()],
             Footprint = new(2, 1, 1, 0)
-        }) with { MaterialBindings = [new(new(1), component, new("surface"))] };
+        }, [shape], [[shape, shape with { Offset = new(1, 0, 0) }]]) with { MaterialBindings = [new(new(1), component, new("surface"))] };
         Assert.Empty(Check(entry));
         var values = Fixture.SpringParameters.ToDictionary(p => p.Key, p => p.Default);
         values["surface"] = supplied;
@@ -113,7 +112,7 @@ public sealed class ParameterizedMassTests
     [Fact]
     public void MaterialBindingsSelectTheExactBodyAndRefuseDuplicateOrForeignWriters()
     {
-        var entry = BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             Parameters = Fixture.SpringParameters.Append(new ParameterDescriptor("surface", ParameterUnit.None, ParameterKind.Real, 0, 1, .4f, [])).ToArray(),
             Sliders = [Fixture.Slider()], Footprint = new(2, 1, 1, 0)
@@ -131,5 +130,22 @@ public sealed class ParameterizedMassTests
             [new(new(1), MaterialComponent.Restitution, new("missing"))]
         }) Assert.Contains(Check(entry with { MaterialBindings = bindings }), e => e.Code == BundleErrorCode.OutOfRange);
         Assert.True(RunControlBindings.IsBoundToNonLane(entry, "surface"));
+    }
+
+    /// <summary>A material binding on body 0 resolves the base colliders only when the part has a body: on a part whose footprint has
+    /// no bodies it is refused as an unresolved material body, even with colliders on its entry. Control: the same entry with a
+    /// one-body footprint is admitted; the two differ only in the footprint.</summary>
+    [Fact]
+    public void AMaterialBindingOnTheBaseOfAPartWithoutBodiesIsRefused()
+    {
+        var surface = new ParameterDescriptor("surface", ParameterUnit.None, ParameterKind.Real, 0, 1, .4f, []);
+        BundleEntry Bound(BundleEntry entry) => entry with
+        {
+            Metadata = entry.Metadata with { Parameters = [surface] },
+            MaterialBindings = [new(new(0), MaterialComponent.Restitution, new("surface"))]
+        };
+        Assert.Empty(Check(Bound(FixtureBake.Entry(new SignalFixture { Footprint = new(1, 0, 0, 0) }, FixtureBake.Lamp, []))));
+        Assert.Contains("BUNDLE006 unfamiliar.MaterialBindings: outside its declared range",
+            Check(Bound(FixtureBake.Entry(new SignalFixture { Footprint = new(0, 0, 0, 0) }, FixtureBake.Lamp, []))).Select(error => error.ToString()));
     }
 }

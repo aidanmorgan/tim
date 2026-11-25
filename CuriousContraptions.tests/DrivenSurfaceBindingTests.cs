@@ -46,6 +46,7 @@ public sealed class DrivenSurfaceBindingTests
             Mechanical = motor.Mechanical with
             {
                 Hinges = reordered ? [driven, passive] : [passive, driven],
+                MovingBodyColliders = [motor.Mechanical.MovingBodyColliders[0], motor.Mechanical.MovingBodyColliders[0]],
                 DrivenSurfaces = [new(new(1), new(0), new(0), face,
                     new(CoordinateKind.Revolute, reordered ? 0 : 1), Vector3.UnitX, MechanicalValue.Fixed(.2f))]
             },
@@ -249,9 +250,7 @@ public sealed class DrivenSurfaceBindingTests
             BaseFrame = new(Vector3.Zero, Quaternion.Identity),
             MovingBody = child.MovingBody with
             {
-                MassFrame = MassFrameDeclaration.Constant(1000f, Vector3.Zero, new(1000f), Quaternion.Identity, 0f, Vector3.Zero),
-                Colliders = [Box(new(.15f, 2f, .5f), Vector3.Zero) with
-                    { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2f) }]
+                MassFrame = MassFrameDeclaration.Constant(1000f, Vector3.Zero, new(1000f), Quaternion.Identity, 0f, Vector3.Zero)
             }
         };
         var source = bed.Mechanical.Hinges[1] with
@@ -264,6 +263,8 @@ public sealed class DrivenSurfaceBindingTests
             Mechanical = bed.Mechanical with
             {
                 Hinges = [child, source],
+                MovingBodyColliders = [[Box(new(.15f, 2f, .5f), Vector3.Zero) with
+                    { Rotation = Quaternion.CreateFromAxisAngle(Vector3.UnitZ, MathF.PI / 2f) }], bed.Mechanical.MovingBodyColliders[1]],
                 DrivenSurfaces = [bed.Mechanical.DrivenSurfaces[0] with { Carrier = new(1), Face = BoxFace.PositiveX }]
             }
         };
@@ -617,12 +618,9 @@ public sealed class DrivenSurfaceBindingTests
     {
         await using var harness = await WorkshopIntegrationHarness.Initialized(WorkshopCadenceSettings.Default());
         var bed = BedEntry(); var cargo = CargoEntry();
-        var hinges = bed.Mechanical!.Hinges.ToArray();
-        hinges[0] = hinges[0] with { MovingBody = hinges[0].MovingBody with
-            { Colliders = [Box(new(.1f), Vector3.Zero), Box(new(.1f), new(0, 0, -.3f))] } };
-        bed = bed with { Mechanical = bed.Mechanical with
+        bed = bed with { Mechanical = bed.Mechanical! with
         {
-            Hinges = hinges,
+            MovingBodyColliders = [[Box(new(.1f), Vector3.Zero), Box(new(.1f), new(0, 0, -.3f))], bed.Mechanical.MovingBodyColliders[1]],
             DrivenSurfaces =
             [
                 bed.Mechanical.DrivenSurfaces[0] with { Id = new(7), TravelPerRadian = MechanicalValue.Fixed(-.2f) },

@@ -54,8 +54,6 @@ public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISc
             MechanicalRim: new(new(0), new(0f, 0f, .605f), Quaternion.Identity, .3f, 1f))
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>The housing and the rotor take the catalogue's rigid-part contact material (CAT-042 §6): restitution 0, friction 0.3,
     /// bounce threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
@@ -110,8 +108,7 @@ public sealed class MotorElementDeclaration : IHingeElement, ISupplyElement, ISc
                         RotorMass * (3f * RotorRadius * RotorRadius + RotorWidth * RotorWidth) / 12f),
                     principalFrame: new Quaternion(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)),
                     linearDrag: 0f,
-                    gravity: new Vector3(0f, -9.81f, 0f)),
-                Colliders: []),
+                    gravity: new Vector3(0f, -9.81f, 0f))),
             Drive: new(TargetSpeed: MechanicalValue.FromParameter("speed"), MaxTorque: MechanicalValue.FromParameter("torque")))
     ];
 

@@ -80,8 +80,6 @@ public sealed class ClutchElementDeclaration : IHingeElement, IMechanicalTransmi
             new Vector3(0f, -.35f, .5f), Vector3.UnitZ)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>The housing and both shafts take the catalogue's rigid-part contact material: restitution 0, friction 0.3, bounce
     /// threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
@@ -138,8 +136,7 @@ public sealed class ClutchElementDeclaration : IHingeElement, IMechanicalTransmi
                     principalMoments: new Vector3(transverse, axial, transverse),
                     principalFrame: new Quaternion(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)),
                     linearDrag: 0f,
-                    gravity: new Vector3(0f, -9.81f, 0f)),
-                Colliders: []),
+                    gravity: new Vector3(0f, -9.81f, 0f))),
             Drive: null);
     }
 

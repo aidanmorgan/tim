@@ -31,7 +31,6 @@ public sealed class ReverseTransmissionElementDeclaration : IHingeElement, IMech
             new(.36f, 0f, .4f), Vector3.UnitZ, Coordinate: new(CoordinateKind.Revolute, 1), CoordinatePerRadian: -1f,
             MechanicalRim: new(new(0), new(.36f, 0f, .39f), Quaternion.Identity, .32f, 1f))
     ];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0f, .3f, 0f, .1f)),
@@ -55,7 +54,7 @@ public sealed class ReverseTransmissionElementDeclaration : IHingeElement, IMech
             -MathF.PI, MathF.PI, RevoluteTravel.Continuous,
             MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f),
             false, new(MassFrameDeclaration.Constant(mass, Vector3.Zero, new(transverse, axial, transverse),
-                new(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)), 0f, new(0f, -9.81f, 0f)), []), null);
+                new(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)), 0f, new(0f, -9.81f, 0f))), null);
     }
     public IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions =>
         [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1), MechanicalValue.Fixed(-1f), TransmissionConstraintKind.Bilateral)];

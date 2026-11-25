@@ -29,6 +29,7 @@ public sealed class DirectionalCompositionTests(NativeSceneFixture godot)
     {
         var source = TestBundle.Entry(new("linear_pusher"));
         var sliders = new PrismaticSliderDescriptor[2];
+        var moving = new IReadOnlyList<ColliderDescriptor>[2];
         var nodes = new List<SupplyNodeDescriptor> { new SupplyLogicDescriptor(new("bus"), LogicGateOperation.Nor) };
         var edges = new List<SupplyConnection>();
         var ports = new List<PortDescriptor> { new(new("feed"), SimulationDomain.Electrical, PortDirection.Input,
@@ -39,10 +40,10 @@ public sealed class DirectionalCompositionTests(NativeSceneFixture godot)
             var speed = i == 0 ? .3f : .5f;
             sliders[i] = new(new(new(Anchor(i), 0, 0), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
                 MechanicalValue.Fixed(0), MechanicalValue.Fixed(Travel[i]), MechanicalValue.Fixed(0), MechanicalValue.Fixed(0), MechanicalValue.Fixed(0), false,
-                new(MassFrameDeclaration.Constant(i == 0 ? .5f : .8f, Vector3.Zero, new(.02f), Quaternion.Identity, 0, Vector3.Zero),
-                    [Box(new(.1f), Vector3.Zero), Box(new(Widths[i].X, -Cuts[i] / 2, Widths[i].Y), new(0, Cuts[i] / 2, 0))]),
+                new(MassFrameDeclaration.Constant(i == 0 ? .5f : .8f, Vector3.Zero, new(.02f), Quaternion.Identity, 0, Vector3.Zero)),
                 new(MechanicalValue.Fixed(Travel[i]), MechanicalValue.Fixed(speed), MechanicalValue.Fixed(2), MechanicalValue.Fixed(10), MechanicalValue.Fixed(10 * speed),
                     PrismaticTargetSelection.Directional, PrismaticInactiveResponse.SelfLock, new(Positive[i]), new(Negative[i])));
+            moving[i] = [Box(new(.1f), Vector3.Zero), Box(new(Widths[i].X, -Cuts[i] / 2, Widths[i].Y), new(0, Cuts[i] / 2, 0))];
             nodes.Add(new SupplyConsumerDescriptor(new("motor" + i), [new SupplyDriveTarget(new(CoordinateKind.Prismatic, i))]));
             nodes.Add(new SupplyConsumerDescriptor(new(Positive[i]), [])); nodes.Add(new SupplyConsumerDescriptor(new(Negative[i]), []));
             edges.Add(new(new(new("bus"), SupplyTerminal.Output), new(new("motor" + i), SupplyTerminal.PowerIn)));
@@ -68,7 +69,7 @@ public sealed class DirectionalCompositionTests(NativeSceneFixture godot)
             Colliders = [Box(new(.1f), Vector3.Zero)], Ports = ports,
             Mechanical = source.Mechanical! with { KinematicMode = KinematicMode.Dynamic,
                 MassFrame = MassFrameDeclaration.Constant(2f, Vector3.Zero, new(.2f), Quaternion.Identity, 0, Vector3.Zero),
-                Sliders = sliders, Extrusions = [new(new(CoordinateKind.Prismatic, 0), new(1), new(0), new(1), Cuts[0], 0, Widths[0]),
+                Sliders = sliders, MovingBodyColliders = moving, Extrusions = [new(new(CoordinateKind.Prismatic, 0), new(1), new(0), new(1), Cuts[0], 0, Widths[0]),
                     new(new(CoordinateKind.Prismatic, 1), new(2), new(0), new(1), Cuts[1], 0, Widths[1])] },
             Electrical = new([new("distribution", ElectricalRole.LogicGate, 12, .05f, 0, 400)], new(nodes, edges, bindings)),
             Presentation = new(2f, PresentationAxes.None,

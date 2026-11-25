@@ -62,7 +62,7 @@ Authority: the owner's engine-conformance instruction of 22 November 2026, `AGEN
 
 **Why four colliders.** Visible = solid: the collar is a true hollow Tube; the housing, the gold socket and the indicator are each drawn proud and collide as drawn (coordinator decision, 25 October 2026). None exists for a cosmetic purpose alone.
 
-**Art layers** (`ball_detector.tscn:61`–`86`; classification as `VisibleSolidColliderTests.cs:75`–`77`).
+**Art layers** (`ball_detector.tscn:61`–`86`; classification as `VisibleSolidColliderTests.cs:90`–`92`).
 
 | Art node | Mesh | Class | Collider | Moved by |
 | --- | --- | --- | --- | --- |

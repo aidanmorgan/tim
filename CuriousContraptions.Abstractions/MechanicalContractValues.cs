@@ -4,11 +4,11 @@ using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Mechanical;
 
+/// <summary>How a declared body moves: a static body never moves; a dynamic body is integrated by the solver.</summary>
 public enum KinematicMode : byte
 {
     Static = 0,
-    Dynamic = 1,
-    Kinematic = 2
+    Dynamic = 1
 }
 
 public readonly record struct RigidBodyMassProperties(
@@ -22,7 +22,7 @@ public readonly record struct RigidBodyMassProperties(
 
     public void Validate(KinematicMode mode)
     {
-        if (!Enum.IsDefined(mode) || mode == KinematicMode.Kinematic)
+        if (!Enum.IsDefined(mode))
             throw new ArgumentException("Unsupported mass-frame motion.");
         ValidateFrame();
         if (mode == KinematicMode.Static)
@@ -71,10 +71,10 @@ public readonly record struct SliderFrame(
     Vector3 Position,
     Quaternion Rotation);
 
-/// <summary>The moving body a slider carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
+/// <summary>The moving body a slider carries, in its own local frame: its mass, gravity and linear drag. Its colliders are baked
+/// from its scene root into the bundle payload's moving-body collider lists.</summary>
 public readonly record struct SliderBodyDescriptor(
-    MassFrameDeclaration MassFrame,
-    IReadOnlyList<ColliderDescriptor> Colliders);
+    MassFrameDeclaration MassFrame);
 
 /// <summary>A bounded drive on one slider, enabled while the element's PowerIn supply route is closed. It moves the slider toward
 /// <see cref="Target"/> (m, within the slider's limits) at the stopping-profile speed sign(d)·min(<see cref="MaxSpeed"/>,
@@ -119,10 +119,10 @@ public readonly record struct HingeFrame(
     Vector3 Position,
     Quaternion Rotation);
 
-/// <summary>The moving body a hinge carries, in its own local frame: its mass, gravity, linear drag and colliders.</summary>
+/// <summary>The moving body a hinge carries, in its own local frame: its mass, gravity and linear drag. Its colliders are baked
+/// from its scene root into the bundle payload's moving-body collider lists.</summary>
 public readonly record struct HingeBodyDescriptor(
-    MassFrameDeclaration MassFrame,
-    IReadOnlyList<ColliderDescriptor> Colliders);
+    MassFrameDeclaration MassFrame);
 
 /// <summary>How far a revolute hinge may turn. <see cref="Limited"/> stops it at its declared limits; <see cref="Continuous"/> lets it
 /// turn without end, its stop rows inert through bounds set to zero (its limits are then exactly [−π, π] and it has no axial spring).</summary>

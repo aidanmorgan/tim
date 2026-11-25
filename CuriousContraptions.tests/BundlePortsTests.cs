@@ -308,14 +308,21 @@ public sealed class BundlePortsTests
         Assert.True(hits.Length == 0, "A hand-written port source is re-added:\n" + string.Join("\n", hits));
     }
 
-    /// <summary>The locator names are matched exactly: a differently cased name is a different locator.</summary>
+    private static readonly string[] LocatorMatchingSources =
+        ["tools/BundleElements/SceneGeometryExtractor.cs", "tools/BundleElements/PackageValidator.cs"];
+
+    /// <summary>The locator names are matched exactly: a differently cased name is a different locator. The bundle tool matches them in
+    /// its locator check and its scene extractor, through the <c>Loc_Port_</c> prefix and the one tube-mouth rule.</summary>
     [Fact]
     public void LocatorNamesAreMatchedOrdinally()
     {
-        var locatorLines = File.ReadAllLines(System.IO.Path.Combine(Root, "tools/BundleElements/SceneGeometryExtractor.cs"))
-            .Where(line => line.Contains("Loc_Port_", StringComparison.Ordinal) || line.Contains("Dictionary<string, ExtractedPortLocator>", StringComparison.Ordinal))
+        var locatorLines = LocatorMatchingSources
+            .SelectMany(file => File.ReadAllLines(System.IO.Path.Combine(Root, file)))
+            .Where(line => line.Contains("Loc_Port_", StringComparison.Ordinal) || line.Contains("LocatorPrefix", StringComparison.Ordinal) ||
+                line.Contains("\"mouth_", StringComparison.Ordinal) || line.Contains("ocator", StringComparison.Ordinal))
             .Where(line => !line.TrimStart().StartsWith("//", StringComparison.Ordinal)).ToArray();
-        Assert.NotEmpty(locatorLines);
+        // The selection reaches the validator's comparer of locator names, so a case-insensitive comparer there fails below.
+        Assert.Contains(locatorLines, line => line.Contains("StringComparer.Ordinal", StringComparison.Ordinal));
         Assert.All(locatorLines, line => Assert.DoesNotContain("IgnoreCase", line, StringComparison.Ordinal));
     }
 }
@@ -370,8 +377,8 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
     private static string LocatorPath(BundlePackage package, PortDescriptor port)
     {
         if (port.Body.Value == 0) return $"Loc_Port_{port.Id}";
-        var geometry = Assert.IsAssignableFrom<ISceneGeometryElement>(package.Declaration);
-        Assert.InRange(port.Body.Value, 1, geometry.SceneBodies.Count - 1);
-        return $"{geometry.SceneBodies[port.Body.Value].Root}/Loc_Port_{port.Id}";
+        var bodies = package.Declaration.SceneBodies;
+        Assert.InRange(port.Body.Value, 1, bodies.Count - 1);
+        return $"{bodies[port.Body.Value].Root}/Loc_Port_{port.Id}";
     }
 }

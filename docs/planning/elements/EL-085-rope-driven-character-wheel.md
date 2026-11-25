@@ -85,7 +85,7 @@ Icon: a spoked wheel on an A-frame with running figures round its rim and a rope
 | A shaft output turning a downstream shaft part | present | `ConveyorTests.ChainedConveyors_DriveRelaysRotationToDownstreamConveyor` (`T/ConveyorTests.cs:417`) |
 | Tension-only rope: a slack span applies no force and a landed load releases tension | present | `RopeTests.SlackRopeDoesNotAccelerateTheFallingLoad` (`T/RopeTests.cs:34`); `RopeTests.AtwoodSlackTransitionOnFloorContactReleasesTension` (`T/RopeTests.cs:842`) |
 | A rope end tied to a hinge-carried body | present | `elements/ImpactLever/ImpactLeverElementDeclaration.cs:40`; `ImpactLeverTests.RopeLiftingIntegration_FallingWeightLiftsArm` (`T/ImpactLeverTests.cs:414`) |
-| A hinge body carrying two cylinder colliders, and a `Drive` port on an undriven continuous hinge | present, untested | admitted by `HingeBodyDescriptor` (`A/MechanicalContractValues.cs:123`); delivered rotors carry one collider and a drive |
+| A hinge body carrying two cylinder colliders, and a `Drive` port on an undriven continuous hinge | present, untested | admitted as the hinge body's baked list in `MechanicalPayload.MovingBodyColliders` (`A/BundleServices.cs:75`); delivered rotors carry one collider and a drive |
 | A rope wound on a revolute coordinate of any package, driven or not: pay-out follows the angle at a declared radius within a capacity, and tension reacts on the coordinate | missing | **ENGINE-TENSILE-EXTENSIONS** (owner decision 3a; the winding wording is Batch I's gap G3) |
 | A solid rope strand | missing | **ENGINE-CONNECTION-MATERIALS** (owner decision 1 and coordinator decision 16) |
 

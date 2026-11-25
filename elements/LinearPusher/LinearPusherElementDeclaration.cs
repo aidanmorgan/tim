@@ -22,7 +22,6 @@ public sealed class LinearPusherElementDeclaration : ISliderElement, ISupplyElem
     public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero,
         Quaternion.Identity, 0f, Vector3.Zero);
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(0f, .3f, 0f, .1f)), new("Visual/Head", new(0f, .3f, 0f, .1f))];
     public IReadOnlyList<PrismaticSliderDescriptor> Sliders =>
@@ -30,7 +29,7 @@ public sealed class LinearPusherElementDeclaration : ISliderElement, ISupplyElem
         new(new(new(.85f, 0, 0), AxialFrame), new(Vector3.Zero, AxialFrame),
             MechanicalValue.Fixed(0f), MechanicalValue.FromParameter("stroke"), MechanicalValue.Fixed(0f),
             MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), false,
-            new(MassFrameDeclaration.Constant(.5f, Vector3.Zero, new(.0125f), Quaternion.Identity, 0f, new(0, -9.81f, 0)), []),
+            new(MassFrameDeclaration.Constant(.5f, Vector3.Zero, new(.0125f), Quaternion.Identity, 0f, new(0, -9.81f, 0))),
             new(MechanicalValue.FromParameter("stroke"), MechanicalValue.FromParameter("speed"),
                 MechanicalValue.FromParameter("acceleration"), MechanicalValue.FromParameter("force"),
                 MechanicalValue.Multiply(MechanicalOperand.FromParameter("force", ParameterUnit.Newton),

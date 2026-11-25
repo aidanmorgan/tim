@@ -903,13 +903,13 @@ public sealed class MotorTests
             BaseFrame = new(new(-3f, 0f, 4f), Quaternion.Identity), MovingFrame = new(Vector3.Zero, Quaternion.Identity),
             LowerLimit = MechanicalValue.Fixed(-1f), UpperLimit = MechanicalValue.Fixed(1f), Stiffness = MechanicalValue.Fixed(14f),
             Damping = MechanicalValue.Fixed(4f), Compression = MechanicalValue.Fixed(0f), Drive = null,
-            MovingBody = new(MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
-                TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0].MovingBody.Colliders)
+            MovingBody = new(MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)))
         };
         entry = entry with
         {
             Footprint = new(3, 2, 1, 1),
-            Mechanical = entry.Mechanical! with { Sliders = [slider] },
+            Mechanical = entry.Mechanical! with { Sliders = [slider], MovingBodyColliders =
+                [TestBundle.Entry(new("powered_gate")).Mechanical!.MovingBodyColliders[0], entry.Mechanical.MovingBodyColliders[0]] },
             Presentation = entry.Presentation with { Bodies = entry.Presentation.Bodies.Select(b => b with { Body = new(2) }).ToArray() }
         };
         using var declared = DeclaredPhysics.Scoped([entry]);
@@ -1053,6 +1053,42 @@ public sealed class MotorTests
         Assert.Equal(DefaultSpeed, Assert.IsType<WorkshopGenericInstance>(admitted.Instances[0]).Parameters[new("speed")]);
         var bytes = PayloadInstanceTests.GenericSave("motor", [("speed", speed), ("torque", torque)]);
         SaveFixture.Refused(save, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
+    }
+
+    // Each compiled moving body takes its own baked collider list, sliders first, then hinges: a slider and a hinge with different
+    // collider counts each carry exactly their own colliders at the baked offsets. The control swaps the counts; a slip between the
+    // slider and hinge lists would give one body the other's colliders.
+    [Theory]
+    [InlineData(1, 2)]
+    [InlineData(2, 1)]
+    public void ASliderAndAHingeWithDifferentColliderCountsEachCompileTheirOwnBakedColliders(int sliderColliders, int hingeColliders)
+    {
+        static IReadOnlyList<ColliderDescriptor> Boxes(int count, Vector3 step) => [.. Enumerable.Range(1, count).Select(k =>
+            new ColliderDescriptor(CuriousContraptions.Abstractions.ColliderShapeKind.Box, new(.05f), step * k, Quaternion.Identity,
+                new(0f, .3f, 0f, .1f), 0f))];
+        var sliderList = Boxes(sliderColliders, new(.2f, 0f, 0f));
+        var hingeList = Boxes(hingeColliders, new(0f, 0f, .2f));
+        var entry = TestBundle.Entry(Motor);
+        var slider = TestBundle.Entry(new("powered_gate")).Mechanical!.Sliders[0] with
+        {
+            BaseFrame = new(new(-3f, 0f, 4f), Quaternion.Identity), MovingFrame = new(Vector3.Zero, Quaternion.Identity),
+            LowerLimit = MechanicalValue.Fixed(-1f), UpperLimit = MechanicalValue.Fixed(1f), Stiffness = MechanicalValue.Fixed(14f),
+            Damping = MechanicalValue.Fixed(4f), Compression = MechanicalValue.Fixed(0f), Drive = null,
+            MovingBody = new(MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.1f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)))
+        };
+        entry = entry with
+        {
+            Footprint = new(3, 2, 1, 1),
+            Mechanical = entry.Mechanical! with { Sliders = [slider], MovingBodyColliders = [sliderList, hingeList] },
+            Presentation = entry.Presentation with { Bodies = entry.Presentation.Bodies.Select(b => b with { Body = new(2) }).ToArray() }
+        };
+        using var declared = DeclaredPhysics.Scoped([entry]);
+        var scene = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, new WorkshopConstruction(
+            new ConstructionRevision(1), WorkshopCadenceSettings.Default(), new WorkshopInstances(MotorPart())), new(1, 2));
+        Vector3[] Offsets(GpuBodyId body) => [.. scene.Colliders.ToArray().Where(collider => collider.Body == body)
+            .Select(collider => new Vector3(collider.Pose.Translation.X, collider.Pose.Translation.Y, collider.Pose.Translation.Z))];
+        Assert.Equal(sliderList.Select(collider => collider.Offset), Offsets(Assert.Single(scene.Prismatics.ToArray()).BodyB));
+        Assert.Equal(hingeList.Select(collider => collider.Offset), Offsets(Assert.Single(scene.Revolutes.ToArray()).BodyB));
     }
 }
 

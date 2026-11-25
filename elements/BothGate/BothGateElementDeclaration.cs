@@ -27,7 +27,6 @@ public sealed class BothGateElementDeclaration : ISupplyElement, ISceneGeometryE
         new(PortId.PowerIn,SimulationDomain.Electrical,PortDirection.Input,PortRole.PowerIn, new("PowerIn", SocketGlyph.Power),null,new(0,-.75f,.55f),Vector3.UnitZ),
         new(PortId.Supply,SimulationDomain.Electrical,PortDirection.Output,PortRole.Supply, new("Supply", SocketGlyph.Text),null,new(.94f,0,0),Vector3.UnitX)
     ];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".",new(1f,.3f,0f,.1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<ElectricalNodeDescriptor> ElectricalNodes => [new("logic",ElectricalRole.LogicGate,12f,.05f,0f,100f)];

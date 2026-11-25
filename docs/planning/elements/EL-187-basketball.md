@@ -33,7 +33,7 @@ Delivered and unchanged by this identity; every value and line is in [CAT-001 §
 
 ### Art and solidity
 
-Two art nodes, both moved only by the body's pose: `Visual/Visual_Sphere` (solid, collider `col_0_0`) and `Visual/Visual_Stripe` (a torus 1 cm proud, collider `col_visual_stripe`). No presentation binding. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:109`). `_bmad-output/implementation-artifacts/spec-engine-art-solidity.md` lists no finding for `ball`. At a glance: the only ball with one dark tilted seam on orange (`#f57d38`).
+Two art nodes, both moved only by the body's pose: `Visual/Visual_Sphere` (solid, collider `col_0_0`) and `Visual/Visual_Stripe` (a torus 1 cm proud, collider `col_visual_stripe`). No presentation binding. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:127`). `_bmad-output/implementation-artifacts/spec-engine-art-solidity.md` lists no finding for `ball`. At a glance: the only ball with one dark tilted seam on orange (`#f57d38`).
 
 ## 3. Engine capabilities
 

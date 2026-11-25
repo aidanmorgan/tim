@@ -217,9 +217,9 @@ public sealed class GasRuntimeTests
             InitialAngle = MechanicalValue.Fixed(0), FrictionTorque = MechanicalValue.Fixed(0),
             MovingBody = new(new(new(BodyMassSourceKind.CenteredInventory, MassScalar.Constant(2), default,
                 [new((uint)store)], new(.2f)), MassVector.Constant(Vector3.Zero), Quaternion.Identity,
-                MassScalar.Constant(0), WorldAccelerationDeclaration.Constant(Vector3.Zero)),
-                [sphere, sphere with { Offset = new(1.5f, 0, 0) }])
+                MassScalar.Constant(0), WorldAccelerationDeclaration.Constant(Vector3.Zero)))
         };
+        IReadOnlyList<ColliderDescriptor> envelope = [sphere, sphere with { Offset = new(1.5f, 0, 0) }];
         GasStoreDescriptor[] stores = [
             new(new(7), new(1), material, MassScalar.Constant(.1f), 102325, 300, 1000, .001f),
             new(new(41), new(2), material, MassScalar.Constant(.05f), 102325, 300, 1000, .002f)];
@@ -237,7 +237,7 @@ public sealed class GasRuntimeTests
             Events = [new(SimulationEventKind.IntegrityBroken, Integrity: new(9)), new(SimulationEventKind.IntegrityBroken, Integrity: new(12))],
             Mechanical = template.Mechanical! with
             {
-                Hinges = [Child(7, 0), Child(41, 3)], GasStores = reverse ? stores.Reverse().ToArray() : stores,
+                Hinges = [Child(7, 0), Child(41, 3)], MovingBodyColliders = [envelope, envelope], GasStores = reverse ? stores.Reverse().ToArray() : stores,
                 GasShapes = [new(new(7), new(1), new(1), .0625f)],
                 IntegrityObservers = reverse ? observers.Reverse().ToArray() : observers
             }

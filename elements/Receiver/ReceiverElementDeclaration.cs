@@ -53,9 +53,6 @@ public sealed class ReceiverElementDeclaration : IResidenceSensorElement, IPlana
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    /// <summary>The floor, the two side walls, the back wall and the lower front lip.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0.12f, 0.3f, 0f, 0.1f))

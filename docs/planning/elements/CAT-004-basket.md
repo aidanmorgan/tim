@@ -61,7 +61,7 @@ Authority: the owner's engine-conformance instruction of 22 November 2026, `AGEN
 
 **Why five colliders.** Visible = solid: each of the five drawn walls is its own box, and the open top and the lowered front lip are the part's gameplay shape. Fewer boxes cannot make an open container.
 
-**Art layers** (`basket.tscn:52`–`75`; classification as `VisibleSolidColliderTests.cs:125`–`126`).
+**Art layers** (`basket.tscn:52`–`75`; classification as `VisibleSolidColliderTests.cs:143`–`144`).
 
 | Art node | Mesh | Class | Collider | Moved by |
 | --- | --- | --- | --- | --- |

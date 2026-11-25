@@ -573,7 +573,8 @@ development_status:
   # epics.md governs when it may start; the roadmap is docs/planning/invest/vertical-delivery.md#capability-cluster-order.
   # Owner decision 22: before the programme only the visible-solid repairs A, B, B2 and C, the Baseball repair and S3, S5, S6 run.
   # Owner decision 24h adds S5b (straight after S5) and S6's follow-ons S6b-S6g (with S6; coordinator decision 42 split S6f into S6f and S6g); order and inventory in delivery-batches.md S6.
-  s5b-generate-typescript-wire-in-build: in-progress # spec-s5b-generate-typescript-wire-in-build.md; lane 2, baseline 77e2b6aa; on slice-s5b, narrowed (coordinator decision B); awaits the publish token, then SnapshotApproval
+  s5b-generate-typescript-wire-in-build: done # spec-s5b-generate-typescript-wire-in-build.md; lane 2, baseline 77e2b6aa; implemented as 7d9af19f (narrowed, coordinator decision B), published by its merge with 466ff4ca
+  s5c-one-wire-schema-file: backlog # drafted: spec-s5c-one-wire-schema-file.md; after S5b, before S6 (owner decision 24p)
   s6b-response-codec-read-family-table: backlog # drafted: spec-s6b-response-codec-read-family-table.md; after S5b and the first S6 slice
   s6c-presentation-route-tables: backlog # drafted: spec-s6c-presentation-route-tables.md; after S6b
   s6d-signal-node-route-tables: backlog # drafted: spec-s6d-signal-node-route-tables.md; after S6c

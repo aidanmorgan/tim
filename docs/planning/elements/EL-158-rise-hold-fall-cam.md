@@ -39,7 +39,7 @@ A dwell needs an arc of constant radius about the axle. No delivered collider is
 
 ### Art and solidity (21 November 2026)
 
-`Base`, `GuidePlate` and `Visual/Follower` as EL-156. `Visual/Cam` is fourteen cylinder meshes, each with the radius, half-width and pose of one cam collider (the 0.18 m disc and thirteen 0.06 m cylinders on the 0.24 m circle), classed Solid and matched one to one: the visible-solid check accepts as solid only a box, a full sphere or a straight cylinder (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:241`) and fails on any collider left unmatched (`:231`), so one scalloped mesh would fail it. Their union is the scalloped band: an outer edge at 0.30 m with twelve scallops 2.6 mm deep, rounded ends of radius 0.06 m, and flanks that follow the end cylinder down to the disc. The gold dwell band is printed flat on their outer faces (Decorative). Icon: a disc with a raised arc band under a flat-footed bar. It differs from EL-156 (plain off-centre disc) and EL-157 (peanut) by the flat-topped band.
+`Base`, `GuidePlate` and `Visual/Follower` as EL-156. `Visual/Cam` is fourteen cylinder meshes, each with the radius, half-width and pose of one cam collider (the 0.18 m disc and thirteen 0.06 m cylinders on the 0.24 m circle), classed Solid and matched one to one: the visible-solid check accepts as solid only a box, a full sphere or a straight cylinder (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:274`) and fails on any collider left unmatched (`:284`), so one scalloped mesh would fail it. Their union is the scalloped band: an outer edge at 0.30 m with twelve scallops 2.6 mm deep, rounded ends of radius 0.06 m, and flanks that follow the end cylinder down to the disc. The gold dwell band is printed flat on their outer faces (Decorative). Icon: a disc with a raised arc band under a flat-footed bar. It differs from EL-156 (plain off-centre disc) and EL-157 (peanut) by the flat-topped band.
 
 ### Behaviour and numbers (21 November 2026)
 
@@ -71,7 +71,7 @@ The capability probe below is the whole engine probe (baseline `a6c914e` lists a
 
 | Capability | Status | Symbol | Exercising test |
 | --- | --- | --- | --- |
-| Several colliders on one moving body, each keeping its own contact | present | `HingeBodyDescriptor.Colliders`, `CuriousContraptions.Abstractions/MechanicalContractValues.cs:123` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`) |
+| Several colliders on one moving body, each keeping its own contact | present | `MechanicalPayload.MovingBodyColliders`, `CuriousContraptions.Abstractions/BundleServices.cs:75` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`) |
 | A flat follower crossing from one small cylinder to the next without chatter (fourteen colliders on a turning body) | present, untested | same | none at this count on a hinge-carried body |
 | The visible-solid check accepting an art arc matched by cylinders within a fit tolerance | not needed | — | `Visual/Cam` is fourteen cylinder meshes matched one to one with the fourteen cam colliders (Art and solidity above), so no fit tolerance is relied on |
 | A sector or convex-prism collider on a moving body | not used; missing if the crossing row above fails | none | ENGINE-PROFILE-COLLIDER (owner decision 3a; before its first consumer, this part) |

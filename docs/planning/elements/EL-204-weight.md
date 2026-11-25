@@ -40,7 +40,7 @@ Delivered; every value and line is in [CAT-067 §2](CAT-067-weight.md#2-declarat
 
 ### Art and solidity
 
-`Visual_Body`, `Visual_Base`, both bands and `Visual_Eye` each have a collider (`col_cylinder` and four `col_visual_` proxies); the hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:123`, `Fit: 4e-6f`), and `spec-engine-art-solidity.md` lists no finding for `weight` and keeps the declared fit (its D4). The art follows the body pose and is scaled in Build by one parameter binding. The rope strand that hangs it belongs to the rope connection, not to this package (Disposition). At a glance: a blue cylinder (`#45639c`) with two bands and a lifting eye; the Bowling ball shares the colour and is a plain sphere.
+`Visual_Body`, `Visual_Base`, both bands and `Visual_Eye` each have a collider (`col_cylinder` and four `col_visual_` proxies); the hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:141`, `Fit: 4e-6f`), and `spec-engine-art-solidity.md` lists no finding for `weight` and keeps the declared fit (its D4). The art follows the body pose and is scaled in Build by one parameter binding. The rope strand that hangs it belongs to the rope connection, not to this package (Disposition). At a glance: a blue cylinder (`#45639c`) with two bands and a lifting eye; the Bowling ball shares the colour and is a plain sphere.
 
 ## 3. Engine capabilities
 
@@ -59,7 +59,7 @@ Probe of 22 November 2026. "Opened" means the test body was read for this spec; 
 | Energy is not created by the span or the contact | present | the solver's energy-removing regularisation (CAT-058 decision 2) | `SuspendedPendulum_DampsGraduallyWithoutEnergyGrowth` (`:1021`, opened) |
 | Typed parameter admission and refusal | present | `ParameterDescriptor` (`CuriousContraptions.Abstractions/ParameterDescriptor.cs:39`) | `AnOutOfRangeOrNonFiniteMassIsRefusedAtEverySeamAndChangesNothing` (`:96`) |
 | Run/Reset and save round trip | present | generic lifecycle | `ResetRestoresTheBuiltPosesAndAReplayRepeatsTheRunIncludingAfterAMassEdit` (`:782`); `SaveRoundTripsPoseRotationAndMassExactlyWithNoWireChange` (`:805`) |
-| Parameter-driven uniform scale of the art | present | `PresentationProperty.UniformScale` (`CuriousContraptions.Abstractions/ElementPresentation.cs:14`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:206`, opened to its collider matching): its parameter sets (`:176`–`:182`) are the defaults and each collider-bound parameter at its minimum and maximum, so the Weight's art is built at `mass` 0.25, 4 and 8 kg and each drawn solid is matched to its collider within the declared fit. CAT-067 still lists this as untested (its residual R1) |
+| Parameter-driven uniform scale of the art | present | `PresentationProperty.UniformScale` (`CuriousContraptions.Abstractions/ElementPresentation.cs:14`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:237`, opened to its collider matching): its parameter sets (`:227`–`:233`) are the defaults and each collider-bound parameter at its minimum and maximum, so the Weight's art is built at `mass` 0.25, 4 and 8 kg and each drawn solid is matched to its collider within the declared fit. CAT-067 still lists this as untested (its residual R1) |
 
 Counts: 10 present, 0 untested, 0 narrower, 0 missing.
 

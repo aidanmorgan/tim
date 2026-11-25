@@ -663,7 +663,7 @@ public sealed class FanArtworkTests(NativeSceneFixture godot)
             {
                 var vertices = VisibleSolidColliderTests.VerticesInRoot(root, surface);
                 Assert.All(vertices, v => Assert.InRange(v.Y - faceTop, 0f, .0005f));
-                VisibleSolidColliderTests.AssertFacesUp(vertices, surface.Name);
+                VisibleSolidColliderTests.AssertFaces(vertices, Godot.Vector3.Up, surface.Name);
                 ink.AddRange(vertices);
             }
             Assert.True(Covers(ink, .29f, 0), "the arrow's tip is missing");

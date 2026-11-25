@@ -48,7 +48,7 @@ Delivered declaration, read from `elements/Conveyor/ConveyorElementDeclaration.c
 
 ### Art and solidity
 
-Classified in `VisibleSolidColliderTests.cs:88`: solid with colliders are `Visual_Carrier`, `Visual_RailA`, `Visual_RailB`, `Visual_IdleRoller`, `Visual_SupportA`, `Visual_SupportB` and `Roller/Visual_Roller`; listed decorative are `Roller/PulleyIn/*` and `PulleyOut/*`.
+Classified in `VisibleSolidColliderTests.cs:105`: solid with colliders are `Visual_Carrier`, `Visual_RailA`, `Visual_RailB`, `Visual_IdleRoller`, `Visual_SupportA`, `Visual_SupportB` and `Roller/Visual_Roller`; listed decorative are `Roller/PulleyIn/*` and `PulleyOut/*`.
 
 **Recorded visible-solid defect.** `spec-elements-visible-solid-remainder.md` (part B) measured on `8d1d68aa`: the input and output pulley wheels are cylinders of radius 0.22 m and length 0.1 m at z 0.78, outside every collider; the input pulley rides the roller's hinge body with no binding. Part B gives both wheels cylinder colliders and redraws the input spoke flush. That repair is owned by part B, not by this closure. Colours: conveyor `#d69c47`, carrier `#273744` ([DESIGN colour system](../../../DESIGN.md#colour-system)).
 
@@ -61,7 +61,7 @@ Map families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActuatio
 | Continuous revolute hinge with bearing friction | present | `RevoluteHingeDescriptor` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:149`); `RevoluteDriveTests.AContinuousHingeTurnsPastTheFullCircleWithNoStopImpulseAndAccumulatesItsTravel` (`RevoluteDriveTests.cs:195`) |
 | Driven surface coupled to a coordinate, with shaft reaction | present | `DrivenSurfaceDescriptor` (`MechanicalContractValues.cs:241`); `DrivenSurfaceBindingTests.CoastingSourcePaysForCargoMotionAndUnloadedControlKeepsItsSpin` (`DrivenSurfaceBindingTests.cs:379`), `ABlockedLoadReactsOnTheSelectedShaft` (`:576`) |
 | Mechanical `DriveIn`/`Drive` ports and shaft links | present | `ConveyorTests.ChainedConveyors_DriveRelaysRotationToDownstreamConveyor` (`ConveyorTests.cs:417`) |
-| Revolute-angle presentation binding | present | `ConveyorTests.TheRollerArtFollowsTheCommittedRollerPoseAndResetsToItsScenePose` (`:608`) |
+| Revolute-angle presentation binding | present | `ConveyorTests.TheRollerArtFollowsTheCommittedRollerPoseAndResetsToItsScenePose` (`:630`) |
 
 Nothing here needs element-specific engine code.
 

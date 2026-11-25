@@ -328,8 +328,7 @@ public sealed partial class ClutchTests
             MovingBody = hinge.MovingBody with
             {
                 MassFrame = MassFrameDeclaration.Constant(ClutchShaftMass, Vector3.Zero,
-                    new(ClutchShaftAxialInertia), Quaternion.Identity, 0f, Vector3.Zero),
-                Colliders = hinge.MovingBody.Colliders.Select(collider => collider with { Material = material }).ToArray()
+                    new(ClutchShaftAxialInertia), Quaternion.Identity, 0f, Vector3.Zero)
             }
         }).ToArray();
         hinges[0] = hinges[0] with { Drive = new(MechanicalValue.Fixed(targetSpeed), MechanicalValue.Fixed(20f)) };
@@ -339,7 +338,9 @@ public sealed partial class ClutchTests
             Metadata = template.Metadata with { Id = "equal_inertia_probe", Parameters = [] },
             Colliders = template.Colliders.Select(collider => collider with { Material = material }).ToArray(),
             Ports = [powerPort with { Id = drivePort }, powerPort with { Id = coilPort }],
-            Mechanical = template.Mechanical with { Hinges = hinges, Transmissions =
+            Mechanical = template.Mechanical with { Hinges = hinges,
+                MovingBodyColliders = template.Mechanical.MovingBodyColliders
+                    .Select(body => body.Select(collider => collider with { Material = material }).ToArray()).ToArray(), Transmissions =
                 [new(new(1), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Revolute, 1),
                     MechanicalValue.Fixed(1f), TransmissionConstraintKind.Bilateral, MechanicalValue.Fixed(closeSeconds))] },
             Electrical = template.Electrical! with { SupplyGraph = new(
@@ -964,14 +965,14 @@ public sealed partial class ClutchTests
     public async Task SyntheticTwoTransmissionPackage_KeepsSlotsAndReadsIndependent()
     {
         var template = TestBundle.Entry(ClutchId);
-        var shaftShape = template.Mechanical!.Hinges[0].MovingBody.Colliders[0];
+        var shaftShape = template.Mechanical!.MovingBodyColliders[0][0];
         var shaftMass = template.Mechanical.Hinges[0].MovingBody.MassFrame;
         RevoluteHingeDescriptor HingeAt(float x, float y) => new(
             new(0),
             new(new(x, y, 0.43f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
             -MathF.PI, MathF.PI, RevoluteTravel.Continuous,
             MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f),
-            false, new(shaftMass, [shaftShape]), null);
+            false, new(shaftMass), null);
 
         var entry = template with
         {
@@ -989,6 +990,7 @@ public sealed partial class ClutchTests
             Mechanical = template.Mechanical with
             {
                 Hinges = [HingeAt(-1.2f, 0.8f), HingeAt(0f, 0.8f), HingeAt(0f, -0.8f), HingeAt(1.2f, -0.8f)],
+                MovingBodyColliders = [[shaftShape], [shaftShape], [shaftShape], [shaftShape]],
                 Transmissions =
                 [
                     // Slot 1: timed transmission (0 -> 1); Slot 2: untimed fixed gear ratio (2 -> 3)

@@ -18,7 +18,7 @@ public sealed class SceneGeometryExtractorTests
         shape = SubResource("Box")
         """;
     private static readonly MaterialProperties Surface = new(.1f, .3f, 0f, .1f);
-    private static BundleEntry Empty => BundleSchema.Entry(new Fixture { Colliders = [] });
+    private static BundleEntry Empty => BundleSchema.Entry(new Fixture());
     private static BundleEntry Bake(string text) => SceneGeometryExtractor.Bake(text, Empty, [new(".", Surface)]);
 
     [Fact]
@@ -51,17 +51,69 @@ public sealed class SceneGeometryExtractorTests
         Assert.Equal(new Vector3(.34f), Assert.Single(Bake(sphere).Colliders).HalfExtents);
     }
 
+    /// <summary>A collider proxy is named only by its <c>col_</c> prefix: a box mesh named with a <c>-col_</c> infix, which an older
+    /// rule baked as a proxy, is refused as <see cref="BundleErrorCode.ProxyNameInfix"/> with a reason naming the node, in either case;
+    /// the same mesh named <c>col_box</c> bakes, and so does a prefixed name that also carries the infix (<c>col_box-col_b</c>).</summary>
     [Theory]
-    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(0, 4, 6)")]
-    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(-2, 4, 6)")]
-    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(NaN, 4, 6)")]
-    [InlineData("position = Vector3(0, 2, 0)", "scale = Vector3(-1, 1, 1)")]
-    [InlineData("position = Vector3(3, 0, 0)", "scale = Vector3(1, 0, 1)")]
-    [InlineData("size = Vector3(2, 4, 6)", "")]
-    [InlineData("type=\"Node3D\" parent=\".\"", "type=\"Node3D\" parent=\"missing\"")]
-    [InlineData("name=\"Root\" type=\"Node3D\"", "name=\"Root\" type=\"Node\"")]
-    public void MalformedGeometryIsRejected(string before, string after) =>
-        Assert.ThrowsAny<ArgumentException>(() => Bake(BoxScene.Replace(before, after)));
+    [InlineData("Box-col_box")]
+    [InlineData("Box-COL_box")]
+    public void ANodeNamedWithAColInfixInsteadOfThePrefixIsRefused(string name)
+    {
+        var mesh = BoxScene.Replace("BoxShape3D", "BoxMesh").Replace("CollisionShape3D", "MeshInstance3D").Replace("shape =", "mesh =");
+        Assert.Single(Bake(mesh).Colliders);
+        Assert.Single(Bake(mesh.Replace("name=\"col_box\"", "name=\"col_box-col_b\"")).Colliders);
+        var refusal = Assert.Throws<SceneGeometryRefusalException>(() => Bake(mesh.Replace("name=\"col_box\"", $"name=\"{name}\"")));
+        Assert.Equal(BundleErrorCode.ProxyNameInfix, refusal.Code);
+        Assert.Contains("Visual/" + name, refusal.Message, StringComparison.Ordinal);
+        // The scene root (path ".") is refused under its own name.
+        var root = Assert.Throws<SceneGeometryRefusalException>(() => Bake(mesh.Replace("name=\"Root\"", $"name=\"{name}\"")));
+        Assert.Equal(BundleErrorCode.ProxyNameInfix, root.Code);
+        Assert.EndsWith(": " + name, root.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>The code of the refusal <paramref name="bake"/> raises; it fails unless the extractor refuses with its typed refusal.</summary>
+    private static BundleErrorCode RefusalCode(Func<BundleEntry> bake) => Assert.Throws<SceneGeometryRefusalException>(() => bake()).Code;
+
+    /// <summary>Geometry the bake cannot take is refused under the code of its kind. The shape reference <c>SubResource(")</c>, whose
+    /// two delimiters overlap, is not a local sub-resource reference and is refused as one, not read past its end.</summary>
+    [Theory]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(0, 4, 6)", BundleErrorCode.OutOfRange)]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(-2, 4, 6)", BundleErrorCode.OutOfRange)]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(NaN, 4, 6)", BundleErrorCode.NonFinite)]
+    [InlineData("position = Vector3(0, 2, 0)", "scale = Vector3(-1, 1, 1)", BundleErrorCode.OutOfRange)]
+    [InlineData("position = Vector3(3, 0, 0)", "scale = Vector3(1, 0, 1)", BundleErrorCode.OutOfRange)]
+    [InlineData("size = Vector3(2, 4, 6)", "", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("shape = SubResource(\"Box\")", "shape = SubResource(\")", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("type=\"Node3D\" parent=\".\"", "type=\"Node3D\" parent=\"missing\"", BundleErrorCode.UnresolvedReference)]
+    [InlineData("name=\"Root\" type=\"Node3D\"", "name=\"Root\" type=\"Node\"", BundleErrorCode.MalformedScene)]
+    public void MalformedGeometryIsRejected(string before, string after, BundleErrorCode code) =>
+        Assert.Equal(code, RefusalCode(() => Bake(BoxScene.Replace(before, after))));
+
+    /// <summary>Scene text the parser cannot read is refused under its own code, one case per parser refusal: a value stated twice; a
+    /// section attribute stated twice; a reused sub-resource id; a sub-resource without its id; a sub-resource without its type; a node
+    /// without a name; a node name containing '/' (which would make its path ambiguous with a body root's); a line that is not a one-line
+    /// <c>key = value</c> (<c>position=Vector3(…)</c>, which an older parser dropped, baking the proxy at its default pose); a value
+    /// continued onto a later line (Godot's multi-line dictionary form, which no shipped scene uses); a value line before the first
+    /// section (which an older parser dropped); and a section header without its closing bracket.</summary>
+    [Theory]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(2, 4, 6)\nsize = Vector3(2, 4, 6)", BundleErrorCode.MalformedScene)]
+    [InlineData("[node name=\"Visual\" type=\"Node3D\" parent=\".\"]", "[node name=\"Visual\" type=\"Node3D\" type=\"Node3D\" parent=\".\"]",
+        BundleErrorCode.MalformedScene)]
+    [InlineData("[node name=\"Root\" type=\"Node3D\"]", "[sub_resource type=\"BoxShape3D\" id=\"Box\"]\nsize = Vector3(1, 1, 1)\n[node name=\"Root\" type=\"Node3D\"]",
+        BundleErrorCode.DuplicateId)]
+    [InlineData("[sub_resource type=\"BoxShape3D\" id=\"Box\"]", "[sub_resource type=\"BoxShape3D\"]", BundleErrorCode.MalformedScene)]
+    [InlineData("[sub_resource type=\"BoxShape3D\" id=\"Box\"]", "[sub_resource id=\"Box\"]", BundleErrorCode.MalformedScene)]
+    [InlineData("[node name=\"Visual\" type=\"Node3D\" parent=\".\"]", "[node type=\"Node3D\" parent=\".\"]", BundleErrorCode.MalformedScene)]
+    [InlineData("name=\"col_box\"", "name=\"A/col_box\"", BundleErrorCode.MalformedScene)]
+    [InlineData("position = Vector3(0, 2, 0)", "position=Vector3(0, 2, 0)", BundleErrorCode.MalformedScene)]
+    [InlineData("position = Vector3(3, 0, 0)", "position = Vector3(3, 0, 0)\nmetadata/rows = {\n\"a\": 1\n}", BundleErrorCode.MalformedScene)]
+    [InlineData("[gd_scene format=3]", "position = Vector3(1, 2, 3)\n[gd_scene format=3]", BundleErrorCode.MalformedScene)]
+    [InlineData("[node name=\"Visual\" type=\"Node3D\" parent=\".\"]", "[node name=\"Visual\" type=\"Node3D\" parent=\".\"", BundleErrorCode.MalformedScene)]
+    public void UnreadableSceneTextIsRefusedUnderItsCode(string before, string after, BundleErrorCode code)
+    {
+        Assert.Contains(before, BoxScene, StringComparison.Ordinal);
+        Assert.Equal(code, RefusalCode(() => Bake(BoxScene.Replace(before, after))));
+    }
 
     // Story 10.1: a Godot cylinder proxy (axis local +Y) bakes as the true Cylinder (r, height / 2, r).
     private const string CylinderScene = """
@@ -90,7 +142,7 @@ public sealed class SceneGeometryExtractorTests
         var closed = Assert.Single(Bake(mesh.Replace("height = 0.17", "height = 0.17\ncap_top = true\ncap_bottom = true")).Colliders);
         Assert.Equal(ColliderShapeKind.Cylinder, closed.ShapeKind);
         Assert.Equal(new Vector3(.4f, .085f, .4f), closed.HalfExtents);
-        Assert.Throws<ArgumentException>(() => Bake(mesh.Replace("height = 0.17", "height = 0.17\ncap_top = invalid")));
+        Assert.Equal(BundleErrorCode.MalformedScene, RefusalCode(() => Bake(mesh.Replace("height = 0.17", "height = 0.17\ncap_top = invalid"))));
 
         // The height scales by scale.Y, the radius by the equal radial scale.
         var scaled = Assert.Single(Bake(CylinderScene.Replace("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 3, 2)")).Colliders);
@@ -98,19 +150,19 @@ public sealed class SceneGeometryExtractorTests
     }
 
     [Theory]
-    [InlineData("radius = 0.4", "")]
-    [InlineData("height = 0.17", "")]
-    [InlineData("radius = 0.4", "radius = 0")]
-    [InlineData("height = 0.17", "height = -1")]
-    [InlineData("radius = 0.4", "radius = NaN")]
-    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 1, 1)")]
-    [InlineData("name=\"col_cylinder\"", "name=\"col_capsule\"")]
-    [InlineData("name=\"col_cylinder\"", "name=\"col_hull\"")]
-    [InlineData("CylinderShape3D", "CapsuleShape3D")]
-    public void MalformedCylindersAreRejected(string before, string after)
+    [InlineData("radius = 0.4", "", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("height = 0.17", "", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("radius = 0.4", "radius = 0", BundleErrorCode.OutOfRange)]
+    [InlineData("height = 0.17", "height = -1", BundleErrorCode.OutOfRange)]
+    [InlineData("radius = 0.4", "radius = NaN", BundleErrorCode.NonFinite)]
+    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(2, 1, 1)", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("name=\"col_cylinder\"", "name=\"col_capsule\"", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("name=\"col_cylinder\"", "name=\"col_hull\"", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("CylinderShape3D", "CapsuleShape3D", BundleErrorCode.UnsupportedColliderProxy)]
+    public void MalformedCylindersAreRejected(string before, string after, BundleErrorCode code)
     {
         Assert.Contains(before, CylinderScene, StringComparison.Ordinal);
-        Assert.Throws<ArgumentException>(() => Bake(CylinderScene.Replace(before, after)));
+        Assert.Equal(code, RefusalCode(() => Bake(CylinderScene.Replace(before, after))));
     }
 
     [Theory]
@@ -121,7 +173,7 @@ public sealed class SceneGeometryExtractorTests
     {
         var mesh = CylinderScene.Replace("CylinderShape3D", "CylinderMesh").Replace("radius = 0.4", radii)
             .Replace("CollisionShape3D", "MeshInstance3D").Replace("shape =", "mesh =");
-        Assert.Throws<ArgumentException>(() => Bake(mesh));
+        Assert.Equal(BundleErrorCode.UnsupportedColliderProxy, RefusalCode(() => Bake(mesh)));
     }
 
     [Fact]
@@ -133,16 +185,19 @@ public sealed class SceneGeometryExtractorTests
         Assert.Equal(ColliderShapeKind.Box, Assert.Single(Bake(scene).Colliders).ShapeKind);
     }
 
-    [Fact]
-    public void DataOnlyGeometryIsUnchangedAndMixedSourcesFailAtomically()
+    /// <summary>The scene ownership names the base at the scene root, then each moving body once, at disjoint roots; otherwise the bake
+    /// is refused as <see cref="BundleErrorCode.SceneColliderOwnership"/>: a list of the wrong count (two bodies for a part with no
+    /// moving body), a first root other than ".", or a moving root nested under another. Control:
+    /// <see cref="MovingSubtreeBelongsOnlyToItsDeclaredBody"/>, which bakes a valid base and slider ownership.</summary>
+    [Theory]
+    [InlineData(0, ".", "Visual")]
+    [InlineData(0, "Visual")]
+    [InlineData(2, ".", "Visual", "Visual/col_box")]
+    public void AnOwnershipThatDoesNotNameTheBaseAndEachMovingBodyOnceIsRefused(int sliders, params string[] roots)
     {
-        var entry = BundleSchema.Entry(new Fixture());
-        Assert.Equal(entry.Colliders, SceneGeometryExtractor.Bake("[node name=\"Root\" type=\"Node3D\"]", entry, null).Colliders);
-        Assert.Throws<ArgumentException>(() => SceneGeometryExtractor.Bake(BoxScene, entry, [new(".", Surface)]));
-        var mixedAcrossBodies = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()] } };
-        Assert.Throws<ArgumentException>(() => SceneGeometryExtractor.Bake(BoxScene, mixedAcrossBodies,
-            [new(".", Surface), new("Visual", Surface)]));
-        Assert.Throws<ArgumentException>(() => Bake("[node name=\"Root\" type=\"Node3D\"]"));
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = Enumerable.Repeat(Fixture.Slider(), sliders).ToArray() } };
+        Assert.Equal(BundleErrorCode.SceneColliderOwnership,
+            RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, entry, roots.Select(root => new SceneBodyGeometry(root, Surface)).ToArray())));
     }
 
     [Fact]
@@ -153,46 +208,137 @@ public sealed class SceneGeometryExtractorTests
             [node name="BaseCollider" type="CollisionShape3D" parent="."]
             shape = SubResource("Box")
             """;
-        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider(moving: [])] } };
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()] } };
         var baked = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Visual", Surface)]);
         Assert.Single(baked.Colliders);
-        var moving = Assert.Single(Assert.Single(baked.Mechanical!.Sliders).MovingBody.Colliders);
+        var moving = Assert.Single(Assert.Single(baked.Mechanical!.MovingBodyColliders));
         Assert.Equal(new Vector3(0, 2, 0), moving.Offset);
-        Assert.Throws<ArgumentException>(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new(".", Surface)]));
-        Assert.Throws<ArgumentException>(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("missing", Surface)]));
-        Assert.Throws<ArgumentException>(() => SceneGeometryExtractor.Bake(BoxScene, entry, [new(".", Surface), new("Visual", Surface)]));
+        Assert.Equal(BundleErrorCode.SceneColliderOwnership,
+            RefusalCode(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new(".", Surface)])));
+        Assert.Equal(BundleErrorCode.UnresolvedReference,
+            RefusalCode(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("missing", Surface)])));
+        Assert.Equal(BundleErrorCode.BodyWithoutCollider,
+            RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, entry, [new(".", Surface), new("Visual", Surface)])));
+    }
+
+    /// <summary>R2: a slider's and a hinge's colliders are baked from their own scene roots into the payload's moving-body collider
+    /// lists, one list per moving body in the order of the ownership (sliders, then hinges), and the base keeps only the proxy outside
+    /// every moving root. Naming the hinge's root before the slider's swaps the two lists, so a list belongs to its position in the
+    /// ownership, not to its shape. Control: the base's one box.</summary>
+    [Fact]
+    public void ASliderAndAHingeBakeTheirOwnRootsIntoTheirListsInBodyOrder()
+    {
+        const string scene = """
+            [gd_scene format=3]
+            [sub_resource type="BoxShape3D" id="Box"]
+            size = Vector3(2, 4, 6)
+            [sub_resource type="SphereShape3D" id="Ball"]
+            radius = 0.25
+            [node name="Root" type="Node3D"]
+            [node name="Base" type="CollisionShape3D" parent="."]
+            shape = SubResource("Box")
+            [node name="Slide" type="Node3D" parent="."]
+            [node name="col_box" type="CollisionShape3D" parent="Slide"]
+            position = Vector3(0, 2, 0)
+            shape = SubResource("Box")
+            [node name="Arm" type="Node3D" parent="."]
+            [node name="col_ball" type="CollisionShape3D" parent="Arm"]
+            shape = SubResource("Ball")
+            """;
+        var hinge = default(RevoluteHingeDescriptor) with { MovingBody = new(Fixture.Slider().MovingBody.MassFrame) };
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()], Hinges = [hinge] } };
+        var baked = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Slide", Surface), new("Arm", Surface)]);
+        var block = Assert.Single(baked.Colliders);
+        Assert.Equal((ColliderShapeKind.Box, Vector3.Zero), (block.ShapeKind, block.Offset));
+        var lists = baked.Mechanical!.MovingBodyColliders;
+        Assert.Equal(2, lists.Count);
+        var slider = Assert.Single(lists[0]);
+        Assert.Equal((ColliderShapeKind.Box, new Vector3(0, 2, 0)), (slider.ShapeKind, slider.Offset));
+        var arm = Assert.Single(lists[1]);
+        Assert.Equal((ColliderShapeKind.Sphere, new Vector3(.25f)), (arm.ShapeKind, arm.HalfExtents));
+        var swapped = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Arm", Surface), new("Slide", Surface)]);
+        Assert.Equal([ColliderShapeKind.Sphere, ColliderShapeKind.Box],
+            swapped.Mechanical!.MovingBodyColliders.Select(body => Assert.Single(body).ShapeKind));
     }
 
     [Theory]
-    [InlineData("0.65", true)]
-    [InlineData("0", false)]
-    [InlineData("-1", false)]
-    [InlineData("NaN", false)]
-    [InlineData("\"0.65\"", false)]
-    public void MouthBoreIsBakedOrRejected(string bore, bool accepted)
+    [InlineData("0.65", null)]
+    [InlineData("0", BundleErrorCode.OutOfRange)]
+    [InlineData("-1", BundleErrorCode.OutOfRange)]
+    [InlineData("NaN", BundleErrorCode.NonFinite)]
+    [InlineData("\"0.65\"", BundleErrorCode.MalformedScene)]
+    public void MouthBoreIsBakedOrRejected(string bore, BundleErrorCode? refused)
     {
         var scene = BoxScene + "\n[node name=\"Loc_Port_mouth_end\" type=\"Node3D\" parent=\".\"]\nposition = Vector3(1, 0, 0)\nmetadata/bore_radius = " + bore;
-        if (accepted)
+        if (refused is { } code)
         {
-            var mouth = Assert.Single(Bake(scene).TubeMouths);
-            Assert.Equal(TubeEnd.End, mouth.End);
-            Assert.Equal(.65f, mouth.BoreRadius);
-            Assert.Equal(Vector3.UnitX, mouth.Position);
+            Assert.Equal(code, RefusalCode(() => Bake(scene)));
+            return;
         }
-        else Assert.ThrowsAny<ArgumentException>(() => Bake(scene));
+        var mouth = Assert.Single(Bake(scene).TubeMouths);
+        Assert.Equal(TubeEnd.End, mouth.End);
+        Assert.Equal(.65f, mouth.BoreRadius);
+        Assert.Equal(Vector3.UnitX, mouth.Position);
     }
 
     [Fact]
     public void MissingAndUnknownMouthsAreRejected()
     {
-        Assert.ThrowsAny<Exception>(() => Bake(BoxScene + "\n[node name=\"Loc_Port_mouth_end\" type=\"Node3D\" parent=\".\"]"));
-        Assert.Throws<ArgumentException>(() => Bake(BoxScene + "\n[node name=\"Loc_Port_mouth_side\" type=\"Node3D\" parent=\".\"]"));
+        Assert.Equal(BundleErrorCode.MalformedScene, Assert.Throws<SceneGeometryRefusalException>(
+            () => Bake(BoxScene + "\n[node name=\"Loc_Port_mouth_end\" type=\"Node3D\" parent=\".\"]")).Code);
+        // The generator's locator check refuses this locator first under the same code; the extractor refuses it on its own.
+        Assert.Equal(BundleErrorCode.UndeclaredPortLocator, Assert.Throws<SceneGeometryRefusalException>(
+            () => Bake(BoxScene + "\n[node name=\"Loc_Port_mouth_side\" type=\"Node3D\" parent=\".\"]")).Code);
+        // A second End mouth (under another parent, so its path differs) is a duplicate mouth.
+        static string EndMouth(string parent) => $"\n[node name=\"Loc_Port_mouth_end\" type=\"Node3D\" parent=\"{parent}\"]\nmetadata/bore_radius = 0.65";
+        Assert.Equal(BundleErrorCode.UndeclaredPortLocator, RefusalCode(() => Bake(BoxScene + EndMouth(".") + EndMouth("Visual"))));
+    }
+
+    /// <summary>FO5-2: the locator check and the extractor read tube-mouth names by one rule (<see cref="PackageValidator.TubeMouth"/>):
+    /// a name with the <c>mouth_</c> prefix names a tube mouth, never a declared socket. A declared port so named is refused on its id
+    /// (<see cref="BundleErrorCode.OutOfRange"/>). Its locator <c>mouth_x</c> names neither end and is refused by both checks as
+    /// <see cref="BundleErrorCode.UndeclaredPortLocator"/>; its locator <c>mouth_start</c> is a tube mouth to both, and the extractor
+    /// bakes it. Control: the same port and locator named <c>socket_x</c> are accepted by both, and the extractor bakes no tube
+    /// mouth.</summary>
+    [Theory]
+    [InlineData("mouth_x", BundleErrorCode.UndeclaredPortLocator, 0, BundleErrorCode.UndeclaredPortLocator, BundleErrorCode.OutOfRange)]
+    [InlineData("mouth_start", null, 1, BundleErrorCode.OutOfRange)]
+    [InlineData("socket_x", null, 0)]
+    public void ADeclaredPortNamedLikeATubeMouthIsTreatedAlikeByTheLocatorCheckAndTheExtractor(string name, BundleErrorCode? baked, int mouths,
+        params BundleErrorCode[] located)
+    {
+        var port = new PortDescriptor(new PortId(name), SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn,
+            new(name, SocketGlyph.Text), null, Vector3.Zero, -Vector3.UnitX);
+        var scene = BoxScene + $"\n[node name=\"Loc_Port_{name}\" type=\"Node3D\" parent=\".\"]\nmetadata/bore_radius = 0.65";
+        var errors = InPackage(scene, root => PackageValidator.Locators(root, [new BundlePackage("Fixture", new SceneOwnedFixture { Ports = [port] })]));
+        Assert.Equal(located, errors.Select(error => error.Code));
+        if (baked is { } code)
+        {
+            Assert.Equal(code, RefusalCode(() => Bake(scene)));
+            return;
+        }
+        Assert.Equal(mouths, Bake(scene).TubeMouths.Count);
+    }
+
+    /// <summary>Tube-mouth names are matched with their case: <c>Loc_Port_Mouth_end</c> does not take the <c>mouth_</c> prefix, so the
+    /// locator check refuses it as naming no declared socket (<see cref="BundleErrorCode.UndeclaredPortLocator"/>) and the extractor
+    /// bakes no tube mouth for it. Control: <c>Loc_Port_mouth_end</c> is accepted by the locator check and bakes the End mouth.</summary>
+    [Theory]
+    [InlineData("Mouth_end", true)]
+    [InlineData("mouth_end", false)]
+    public void ATubeMouthNameIsMatchedWithItsCase(string name, bool refused)
+    {
+        var scene = BoxScene + $"\n[node name=\"Loc_Port_{name}\" type=\"Node3D\" parent=\".\"]\nmetadata/bore_radius = 0.65";
+        var errors = InPackage(scene, root => PackageValidator.Locators(root, [new BundlePackage("Fixture", new SceneOwnedFixture())]));
+        BundleErrorCode[] expected = refused ? [BundleErrorCode.UndeclaredPortLocator] : [];
+        Assert.Equal(expected, errors.Select(error => error.Code));
+        Assert.Equal(refused ? 0 : 1, Bake(scene).TubeMouths.Count);
     }
 
     [Fact]
     public void GeometryBindingsRejectUnknownOutOfRangeAndDuplicateTargets()
     {
-        var entry = BundleSchema.Entry(new Fixture()) with
+        var entry = FixtureBake.Entry(new Fixture()) with
         {
             ColliderBindings = [new(0, GeometryComponent.HalfExtentX, "missing", .5f, 0f)]
         };
@@ -200,7 +346,7 @@ public sealed class SceneGeometryExtractorTests
         entry = entry with { ColliderBindings = [new(50, (GeometryComponent)255, "missing", float.NaN, 0f)] };
         Assert.NotEmpty(BundleValidator.Validate([new("Fixture", entry)]));
         var binding = new ColliderParameterBinding(0, GeometryComponent.OffsetX, "stiffness", 0f, 0f);
-        entry = BundleSchema.Entry(new Fixture { Parameters = Fixture.SpringParameters }) with { ColliderBindings = [binding, binding] };
+        entry = FixtureBake.Entry(new Fixture { Parameters = Fixture.SpringParameters }) with { ColliderBindings = [binding, binding] };
         Assert.NotEmpty(BundleValidator.Validate([new("Fixture", entry)]));
     }
 
@@ -210,7 +356,7 @@ public sealed class SceneGeometryExtractorTests
     [InlineData(1f, true)]
     public void BundleMouthOrientationMustBeUnitLength(float w, bool accepted)
     {
-        var entry = BundleSchema.Entry(new Fixture()) with
+        var entry = FixtureBake.Entry(new Fixture()) with
         { TubeMouths = [new(TubeEnd.End, Vector3.UnitX, new Quaternion(0, 0, 0, w), .65f)] };
         Assert.Equal(accepted, BundleValidator.Validate([new("Fixture", entry)]).Count == 0);
     }
@@ -280,16 +426,16 @@ public sealed class SceneGeometryExtractorTests
     }
 
     [Theory]
-    [InlineData("cap_top = false\n", "")] // one cap open
-    [InlineData("cap_bottom = false\n", "")]
-    [InlineData("cap_top = false", "cap_top = true")]
-    [InlineData("metadata/wall_thickness = 0.05", "")] // an open cylinder states its wall
-    [InlineData("metadata/wall_thickness = 0.05", "metadata/wall_thickness = NaN")]
-    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(1, 2, 1)")] // nonuniform scale
-    public void AMalformedOpenCylinderProxyIsRejected(string before, string after)
+    [InlineData("cap_top = false\n", "", BundleErrorCode.UnsupportedColliderProxy)] // one cap open
+    [InlineData("cap_bottom = false\n", "", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("cap_top = false", "cap_top = true", BundleErrorCode.UnsupportedColliderProxy)]
+    [InlineData("metadata/wall_thickness = 0.05", "", BundleErrorCode.UnsupportedColliderProxy)] // an open cylinder states its wall
+    [InlineData("metadata/wall_thickness = 0.05", "metadata/wall_thickness = NaN", BundleErrorCode.NonFinite)]
+    [InlineData("position = Vector3(0, 0.5, 0)", "scale = Vector3(1, 2, 1)", BundleErrorCode.UnsupportedColliderProxy)] // nonuniform scale
+    public void AMalformedOpenCylinderProxyIsRejected(string before, string after, BundleErrorCode code)
     {
         Assert.Contains(before, OpenScene, StringComparison.Ordinal);
-        Assert.Throws<ArgumentException>(() => Bake(OpenScene.Replace(before, after)));
+        Assert.Equal(code, RefusalCode(() => Bake(OpenScene.Replace(before, after))));
     }
 
     [Theory]
@@ -299,6 +445,56 @@ public sealed class SceneGeometryExtractorTests
     public void AMalformedTorusProxyIsRejected(string before, string after)
     {
         Assert.Contains(before, TorusScene, StringComparison.Ordinal);
-        Assert.Throws<ArgumentException>(() => Bake(TorusScene.Replace(before, after)));
+        Assert.Equal(BundleErrorCode.UnsupportedColliderProxy, RefusalCode(() => Bake(TorusScene.Replace(before, after))));
+    }
+
+    /// <summary>The result of <paramref name="act"/> on a temporary repository root holding one package, <c>Fixture</c>, whose scene is
+    /// <paramref name="scene"/>, with its icon.</summary>
+    private static T InPackage<T>(string scene, Func<string, T> act)
+    {
+        var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var package = Path.Combine(root, "elements", "Fixture");
+        Directory.CreateDirectory(package);
+        try
+        {
+            File.WriteAllText(Path.Combine(package, "fixture.tscn"), scene);
+            File.WriteAllText(Path.Combine(package, "icon.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>");
+            return act(root);
+        }
+        finally { Directory.Delete(root, true); }
+    }
+
+    /// <summary>The generator's result for the one package <paramref name="declaration"/>, named <c>Fixture</c>, whose scene is
+    /// <paramref name="scene"/>, in a temporary repository root.</summary>
+    private static GeneratedBundle Generate(IPuzzleElementDeclaration declaration, string scene) =>
+        InPackage(scene, root => BundleGenerator.Generate(new CuriousContraptions.Bundle.BundleServices(), root,
+            new DiscoveryResult([new BundlePackage("Fixture", declaration)], [])));
+
+    /// <summary>Coordinator decision 3: an extractor refusal reaches the build under the code of its kind, reported against the package
+    /// (the detail starts "Fixture: ", which the validator's own errors, naming a field as "Fixture.Colliders", never do) and naming the
+    /// refused node or value where the refusal has one, and no bundle is written; one case for each code the extractor raises through
+    /// the generator. Control: the unedited scene generates a bundle with no error.</summary>
+    [Theory]
+    [InlineData("name=\"col_box\"", "name=\"Box-col_box\"", BundleErrorCode.ProxyNameInfix, "Visual/Box-col_box")]
+    [InlineData("name=\"col_box\" type=\"CollisionShape3D\"", "name=\"Box\" type=\"Node3D\"", BundleErrorCode.BodyWithoutCollider, null)]
+    [InlineData("[node name=\"Visual\" type=\"Node3D\" parent=\".\"]",
+        "[node name=\"Visual\" type=\"Node3D\" parent=\".\"]\n[node name=\"Visual\" type=\"Node3D\" parent=\".\"]", BundleErrorCode.DuplicateId, "Visual")]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(NaN, 4, 6)", BundleErrorCode.NonFinite, null)]
+    [InlineData("size = Vector3(2, 4, 6)", "size = Vector3(0, 4, 6)", BundleErrorCode.OutOfRange, null)]
+    [InlineData("shape = SubResource(\"Box\")", "shape = SubResource(\"Missing\")", BundleErrorCode.UnresolvedReference, "Visual/col_box")]
+    [InlineData("position = Vector3(3, 0, 0)", "position = Vector3(3, 0)", BundleErrorCode.MalformedScene, null)]
+    [InlineData("BoxShape3D", "CapsuleShape3D", BundleErrorCode.UnsupportedColliderProxy, "CapsuleShape3D")]
+    public void AnExtractorRefusalReachesTheBuildUnderTheCodeOfItsKind(string before, string after, BundleErrorCode code, string? names)
+    {
+        var control = Generate(new SceneOwnedFixture(), BoxScene);
+        Assert.Empty(control.Errors);
+        Assert.NotNull(control.Json);
+        Assert.Contains(before, BoxScene, StringComparison.Ordinal);
+        var refused = Generate(new SceneOwnedFixture(), BoxScene.Replace(before, after));
+        Assert.Null(refused.Json);
+        var error = Assert.Single(refused.Errors);
+        Assert.Equal(code, error.Code);
+        Assert.StartsWith("Fixture: ", error.Detail, StringComparison.Ordinal);
+        if (names is not null) Assert.Contains(names, error.Detail, StringComparison.Ordinal);
     }
 }

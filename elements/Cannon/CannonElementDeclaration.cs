@@ -22,7 +22,6 @@ public sealed class CannonElementDeclaration : IEnergyStoreElement, IChamberRegi
     public PayloadPolicy Payload => PayloadPolicy.None;
     public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero);
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(0f, .3f, 0f, .1f))];
     public IReadOnlyList<EnergyStoreDescriptor> EnergyStores =>
         [new(new(1), new(0), EnergyExpression.Direct(MechanicalValue.FromParameter("capacity")),

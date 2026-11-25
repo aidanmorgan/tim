@@ -260,19 +260,22 @@ public sealed class CompiledIdentityMap
         ImmutableDictionary<GpuBodyId, GpuBodyId>.Builder owners, Func<ulong> Allocate,
         Func<int, ImmutableArray<GpuColliderId>> Colliders)
     {
+        // One baked collider list per moving body, in package body order: sliders, then hinges.
+        var moving = entry.Mechanical?.MovingBodyColliders ?? [];
+        var sliderCount = entry.Mechanical?.Sliders.Count ?? 0;
         var sliders = ImmutableArray.CreateBuilder<CompiledSliderIdentities>(4);
-        foreach (var slider in entry.Mechanical?.Sliders ?? [])
+        for (var i = 0; i < sliderCount; i++)
         {
             var body = new GpuBodyId(Allocate());
             owners.Add(body, owner);
-            sliders.Add(new(body, new(Allocate()), Colliders(slider.MovingBody.Colliders.Count), new(Allocate())));
+            sliders.Add(new(body, new(Allocate()), Colliders(moving[i].Count), new(Allocate())));
         }
         var hinges = ImmutableArray.CreateBuilder<CompiledHingeIdentities>(4);
-        foreach (var hinge in entry.Mechanical?.Hinges ?? [])
+        for (var i = 0; i < (entry.Mechanical?.Hinges.Count ?? 0); i++)
         {
             var body = new GpuBodyId(Allocate());
             owners.Add(body, owner);
-            hinges.Add(new(body, new(Allocate()), Colliders(hinge.MovingBody.Colliders.Count), new(Allocate())));
+            hinges.Add(new(body, new(Allocate()), Colliders(moving[sliderCount + i].Count), new(Allocate())));
         }
         return (sliders.ToImmutable(), hinges.ToImmutable());
     }

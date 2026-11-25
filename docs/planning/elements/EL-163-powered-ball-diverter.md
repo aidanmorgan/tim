@@ -90,7 +90,7 @@ Map row families: ContactImpulse, EnvironmentState, FiniteLedger, FiniteWorkActu
 | Blocked phase against an obstruction | present | `LinearPusherTests.ObstructionStopsTheHeadAndReportsBlockedWhileAnAdjacentWallDoesNot` (`LinearPusherTests.cs:125`) |
 | One source feeding power and a command | present | `LinearPusherTests.OneSourceCanSupplyBothPowerAndCommandWithAnUnwiredCommandControl` (`LinearPusherTests.cs:249`) |
 | Phase-driven indicator binding | present | `LinearPusherTests.PackageInstallationRoundTripsItsDriveExtrusionAndPhaseBinding` (`LinearPusherTests.cs:17`) |
-| A slider's moving body carrying **two yawed box colliders** | present, untested | multi-collider moving bodies are admitted (`SliderBodyDescriptor`, `MechanicalContractValues.cs:75`–`:77`), but the delivered slider bodies (gate blade, pusher head, springboard plate) each carry one |
+| A slider's moving body carrying **two yawed box colliders** | present, untested | multi-collider moving bodies are admitted (each body's baked list in `MechanicalPayload.MovingBodyColliders`, `BundleServices.cs:75`), but the delivered slider bodies (gate blade, pusher head, springboard plate) each carry one |
 
 Nothing is missing. The revolute alternatives the earlier draft assumed (a hinge servo with Hold/Lower/Upper, a position drive) do not exist and belong to ENGINE-JOINT-KINDS (revolute position drive with rest window); this design does not use them.
 

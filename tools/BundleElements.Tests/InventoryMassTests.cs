@@ -9,7 +9,7 @@ public sealed class InventoryMassTests
 {
     private static BundleEntry Entry()
     {
-        var entry = BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             KinematicMode = KinematicMode.Dynamic, Footprint = new(1, 1, 0, 0),
             MassFrame = new(new(BodyMassSourceKind.CenteredInventory, MassScalar.Constant(2), default,

@@ -62,8 +62,6 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
             new PackageBodyIndex(1))
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f)),
@@ -114,8 +112,7 @@ public sealed class ImpactLeverElementDeclaration : IHingeElement, ISceneGeometr
                     CentreOfMass: MassVector.Constant(Vector3.Zero),
                     PrincipalFrame: Quaternion.Identity,
                     LinearDrag: MassScalar.Constant(0f),
-                    Gravity: WorldAccelerationDeclaration.Constant(new Vector3(0f, -9.81f, 0f))),
-                Colliders: []),
+                    Gravity: WorldAccelerationDeclaration.Constant(new Vector3(0f, -9.81f, 0f)))),
             Drive: null)
     ];
 }

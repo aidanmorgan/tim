@@ -20,7 +20,7 @@ Delivered declaration: `elements/Ramp/RampElementDeclaration.cs`; scene `element
 | Item | Value and source |
 | --- | --- |
 | Body | One static body (`KinematicMode.Static`, `:63`; footprint 1 body, 0 moving, no constraints, `:31`), at any full 3D pose. Mass frame zero (`:67`–`73`). |
-| Colliders | Three boxes baked from the scene (`Colliders => []`, `:52`; `ramp.tscn:18`–`25`, nodes `col_0_0`, `col_0_1`, `col_0_2` at `:42`, `:48`, `:54`) and sized by eight `ColliderBindings` (`:40`–`50`). Collider 0, the slab: half extents (length/2, 0.09, width/2) m at the origin. Colliders 1 and 2, the rails: half extents (length/2, 0.0275, 0.0275 × width/1.3) m at (0, 0.11, ∓0.598 × width/1.3) m. Slab thickness 0.18 m, rail height 0.055 m and rail height offset 0.11 m do not scale. All share the body's one material. |
+| Colliders | Three boxes baked from the scene (the declaration states none; `ramp.tscn:18`–`25`, nodes `col_0_0`, `col_0_1`, `col_0_2` at `:42`, `:48`, `:54`) and sized by eight `ColliderBindings` (`:40`–`50`). Collider 0, the slab: half extents (length/2, 0.09, width/2) m at the origin. Colliders 1 and 2, the rails: half extents (length/2, 0.0275, 0.0275 × width/1.3) m at (0, 0.11, ∓0.598 × width/1.3) m. Slab thickness 0.18 m, rail height 0.055 m and rail height offset 0.11 m do not scale. All share the body's one material. |
 | Material (f32) | restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:56`). Restitution 1 is the neutral value under the product pair law: the ball's own restitution decides the bounce. |
 | Parameters | `length`: Real, metres, default 3, minimum 0.125, maximum 4 (`:27`). `width`: Real, metres, default 1.3, minimum 0.125, maximum 4 (`:28`). Both take the descriptor defaults `ParameterEditorPolicy.Reject` and `ParameterRunEdit.BuildOnly` (`CuriousContraptions.Abstractions/ParameterDescriptor.cs:60`–`61`): an out-of-range or non-finite value is refused, not clamped, and neither changes during Run. |
 | Ports, events, stores, sensors, signal/supply/electrical nodes, anchors | none (`Ports`, `:33`; `Events`, `:59`; `AnchorPoints`, `:75`; `TubeMouthBindings`, `:35`; `SupportedDomains` is Mechanical only, `:61`). `PayloadPolicy.None` (`:65`). |
@@ -58,7 +58,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | `Visual/Visual_RailA` (`:34`) | box 3 × 0.055 × 0.055 m at (0, 0.11, −0.598), cream (0.976, 0.91, 0.788) | solid, 0.0475 m proud of the slab | `col_0_1` | nothing during Run |
 | `Visual/Visual_RailB` (`:38`) | the same at z +0.598 | solid, 0.0475 m proud | `col_0_2` | nothing during Run |
 
-The two presentation bindings size the parent `Visual` node from `length` and `width`, which are `BuildOnly`; the eight collider bindings size the three boxes from the same two parameters by the same factors. This is static sizing in Build, not animation: no art moves relative to its collider, and nothing is driven during Run. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:71`).
+The two presentation bindings size the parent `Visual` node from `length` and `width`, which are `BuildOnly`; the eight collider bindings size the three boxes from the same two parameters by the same factors. This is static sizing in Build, not animation: no art moves relative to its collider, and nothing is driven during Run. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:86`).
 
 **Generic laws.**
 

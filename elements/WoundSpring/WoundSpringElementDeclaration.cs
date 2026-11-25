@@ -22,7 +22,6 @@ public sealed class WoundSpringElementDeclaration : ISliderElement, IHingeElemen
     public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero,
         Quaternion.Identity, 0f, Vector3.Zero);
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
         [new(".", new(0f, .3f, 0f, .1f)), new("Visual/Head", new(0f, .3f, 0f, .1f)),
@@ -33,7 +32,7 @@ public sealed class WoundSpringElementDeclaration : ISliderElement, IHingeElemen
             MechanicalValue.NegatedParameter("stroke"), MechanicalValue.Fixed(0f),
             MechanicalValue.FromParameter("stiffness"), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), false,
             new(MassFrameDeclaration.Constant(.5f, Vector3.Zero, new(.02048f), Quaternion.Identity,
-                0f, new(0f, -9.81f, 0f)), []), null)
+                0f, new(0f, -9.81f, 0f))), null)
     ];
     public IReadOnlyList<RevoluteHingeDescriptor> Hinges
     {
@@ -46,7 +45,7 @@ public sealed class WoundSpringElementDeclaration : ISliderElement, IHingeElemen
                 new(Vector3.Zero, Quaternion.Identity), -MathF.PI, MathF.PI, RevoluteTravel.Continuous,
                 MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f),
                 false, new(MassFrameDeclaration.Constant(mass, Vector3.Zero, new(transverse, axial, transverse),
-                    new(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)), 0f, new(0f, -9.81f, 0f)), []), null)];
+                    new(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)), 0f, new(0f, -9.81f, 0f))), null)];
         }
     }
     public IReadOnlyList<MechanicalTransmissionDescriptor> Transmissions =>

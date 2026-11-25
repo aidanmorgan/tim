@@ -2,7 +2,7 @@
 title: 'Generate the TypeScript wire accessors in the build (S5b)'
 type: 'refactor'
 created: '2026-11-23'
-status: 'in-review'
+status: 'done'
 baseline_revision: '77e2b6aa'
 review_loop_iteration: 1
 followup_review_recommended: false

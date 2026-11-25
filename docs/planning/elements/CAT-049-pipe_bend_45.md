@@ -24,7 +24,7 @@ Delivered declaration. `D:` is `elements/PipeBend45/PipeBend45ElementDeclaration
 | Interfaces | `IMechanicalElement`, `ISceneGeometryElement` `D:11`. `SupportedDomains` is Mechanical only `D:40`. |
 | Catalogue | Id `pipe_bend_45`, title 45° pipe bend, category Motion, palette order 17, colour (0.4, 0.72, 0.79) `D:16-25`. |
 | Body | One static body (`KinematicMode.Static` `D:42`); footprint 1 body, 0 moving, 0 constraints `D:27`; mass 0 and zero moments `D:46-52`; `PayloadPolicy.None` `D:44`; no anchor points `D:54`. |
-| Colliders | Baked from hidden scene proxies (`Colliders => []` `D:31`), all on the one body. `col_arc`: Torus segment, sweep 45°, centreline radius 2.4 m, tube outer radius 0.7 m, wall 0.05 m (bore radius 0.65 m), arc centre (−0.91844, −2.217311, 0) `S:32-34`, `S:105-111`. `col_stub_start`, `col_stub_end`: Tubes 0.09 m long, outer 0.7 m, wall 0.05 m, from each collar to its mouth `S:22-26`, `S:113-124`. `col_collar_start`, `col_collar_end`: full Torus, inner 0.65 m, outer 0.78 m `S:36-39`, `S:126-135`. |
+| Colliders | Baked from hidden scene proxies (the declaration states none), all on the one body. `col_arc`: Torus segment, sweep 45°, centreline radius 2.4 m, tube outer radius 0.7 m, wall 0.05 m (bore radius 0.65 m), arc centre (−0.91844, −2.217311, 0) `S:32-34`, `S:105-111`. `col_stub_start`, `col_stub_end`: Tubes 0.09 m long, outer 0.7 m, wall 0.05 m, from each collar to its mouth `S:22-26`, `S:113-124`. `col_collar_start`, `col_collar_end`: full Torus, inner 0.65 m, outer 0.78 m `S:36-39`, `S:126-135`. |
 | Material | Restitution 0.15, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s `D:33-36`. |
 | Parameters, ports, stores, events, domain nodes | None `D:25`, `D:29`, `D:38`. Fixed geometry: no resize axis `D:13`. |
 | Tube mouths | Start at (−1.008440, 0.182689, 0) facing −X; End at (0.842256, −0.583894, 0) facing (0.7071, −0.7071, 0); bore radius 0.65 m each `S:97-103`. The mouth rule is the family's (CAT-048 section 2): 0.09 m beyond the collar, equal bore. |
@@ -41,7 +41,7 @@ The package is declaration data and a scene. It has no script, callback or updat
 
 | Art node | Classification | Moved by |
 | --- | --- | --- |
-| `Visual/Visual_Shell/Visual_Shell_Seg_*` | Arc chords of `col_arc` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:136-137`) | Nothing |
+| `Visual/Visual_Shell/Visual_Shell_Seg_*` | Arc chords of `col_arc` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:154-155`) | Nothing |
 | `Visual/Visual_Shell/Visual_Stub_*` | Hollow; match the stub Tubes | Nothing |
 | `Visual/Visual_Collar_Start`, `_End` | Hollow; match the collar tori | Nothing |
 

@@ -33,9 +33,6 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    /// <summary>The base slab.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0f, 0.1f, 0f, 0.05f)),
@@ -76,8 +73,7 @@ public sealed class SpringboardElementDeclaration : ISliderElement, ISceneGeomet
                     new Vector3((.25f / 3f) * (.075f * .075f + .6f * .6f),
                         (.25f / 3f) * (.65f * .65f + .6f * .6f),
                         (.25f / 3f) * (.65f * .65f + .075f * .075f)),
-                    Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f)),
-                Colliders: []),
+                    Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f))),
             Drive: null)
     ];
 }

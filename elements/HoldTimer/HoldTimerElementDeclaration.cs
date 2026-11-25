@@ -27,7 +27,6 @@ public sealed class HoldTimerElementDeclaration : ISignalElement, ISupplyElement
         new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new(-.78f,0f,0f), -Vector3.UnitX),
         new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new(.78f,0f,0f), Vector3.UnitX)
     ];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f,.3f,0f,.1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public IReadOnlyList<SignalNodeDescriptor> SignalNodes => [new SignalTimerDescriptor(new("signal"), new("hold_seconds"), TimerCompletionPolicy.Rearm, TimerBoundary.BeforeNetworks, TimerElapsedSignal.None)];

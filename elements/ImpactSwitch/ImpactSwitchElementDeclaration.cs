@@ -42,9 +42,6 @@ public sealed class ImpactSwitchElementDeclaration : IMechanicalElement, ISignal
         new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new(.58f, 0f, 0f), Vector3.UnitX)
     ];
 
-    /// <summary>The base, then the button.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

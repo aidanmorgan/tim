@@ -20,7 +20,7 @@ Delivered declaration: `elements/BowlingBall/BowlingBallElementDeclaration.cs`; 
 | Item | Value and source |
 | --- | --- |
 | Body | One dynamic body (`KinematicMode.Dynamic`, `:48`; footprint 1 body, 1 moving, no constraints, `:28`). A zero-parameter generic instance. |
-| Collider | Baked from the scene (`Colliders => []`, `:36`): one sphere, radius 0.28 m (`bowling.tscn:12`–`13`, node `col_0_0`, `:22`). |
+| Collider | Baked from the scene (the declaration states none): one sphere, radius 0.28 m (`bowling.tscn:12`–`13`, node `col_0_0`, `:22`). |
 | Mass and moments | 4 kg; centre of mass at the origin; principal moments 0.12544 kg·m² on each axis (0.4 × 4 × 0.28²); identity principal frame; gravity (0, −9.81, 0) m/s² (`:53`–`59`). |
 | Material (f32) | restitution 0.14, friction 0.3, rolling resistance 0.03, bounce threshold 0.1 m/s (`:40`). Owner decision 9 October 2026: game scale, smaller than the Basketball. |
 | Ambient load | Linear drag 0.04 1/s on body 0, zero world acceleration, no gas inventory (`:61`–`62`): not buoyant. The compiled drag follows the scene's atmosphere preset: 0.04 1/s in Standard, 0 in Vacuum (`BalloonTests.ExistingBallsHaveAmbientDragOnlyInStandardAndRestoreTheirEnvironment`, `CuriousContraptions.tests/BalloonTests.cs:171`, row `bowling`). The mass frame's own `linearDrag` is 0 (`:58`). |
@@ -63,7 +63,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | --- | --- | --- | --- | --- |
 | `Visual/Visual_Sphere` (`:19`) | sphere, radius 0.28 m | solid | `col_0_0`, sphere 0.28 m | body 0 pose |
 
-No presentation binding exists, so nothing is animated. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:110`).
+No presentation binding exists, so nothing is animated. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:128`).
 
 **Generic laws.**
 

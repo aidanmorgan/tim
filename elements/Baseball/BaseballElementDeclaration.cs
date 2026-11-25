@@ -13,7 +13,6 @@ public sealed class BaseballElementDeclaration : IMechanicalElement, ISceneGeome
     public ElementPresentation Presentation => new(.35f, PresentationAxes.None, [], [], [], []);
     public ElementFootprint Footprint => new(1, 1, 0, 0);
     public IReadOnlyList<PortDescriptor> Ports => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(.35f, .3f, .03f, .1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;

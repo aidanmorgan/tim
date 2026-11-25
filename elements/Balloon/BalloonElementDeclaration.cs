@@ -41,7 +41,6 @@ public sealed class BalloonElementDeclaration : IMechanicalElement, ISceneGeomet
         [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
             [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
              new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(.2f, .3f, 0, .1f))];
     public IReadOnlyList<ColliderParameterBinding> ColliderBindings =>
         [new(0, GeometryComponent.HalfExtentX, "radius", 1, 0),
