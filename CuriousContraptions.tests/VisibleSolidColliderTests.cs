@@ -126,6 +126,8 @@ public sealed class VisibleSolidColliderTests
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),
         [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], []),
+        // The seam is printed flush with no collider (owner decision 24i), as owner decision 11 rules for the planned Pool ball's stripe.
+        [new PartId("tennis")] = new(["Visual/Felt"], null, [], ["Visual/Seam"], []),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
         [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], []),

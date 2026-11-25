@@ -2,8 +2,8 @@
 title: 'ELEMENTS-VISIBLE-SOLID-REMAINDER, part B2: Tennis ball seam printed flush'
 type: 'bugfix'
 created: '2026-11-22'
-status: 'draft'
-baseline_revision: 'captured at dispatch (the main that contains the planning work)'
+status: 'done'
+baseline_revision: '466ff4ca360c6ce0879f053f6c646f244bfd7bd5'
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
@@ -11,7 +11,14 @@ context:
   - '{project-root}/docs/delivery-workflow.md'
   - '{project-root}/_bmad/custom/element-free-engine-design.md'
 warnings: []
-deferred: []
+deferred:
+  - summary: >-
+      spec-engine-art-solidity.md cites VisibleSolidColliderTests.cs lines (:249, :241, :194) that already named unrelated code at the baseline.
+    evidence: |-
+      Review pass 3, Element-Free Engine auditor observation 3; pre-existing, outside the repair diff, breaks no hard rule (Re-review scope). Already owned by the part A carry-forward, deferred-work.md:364 (each slice re-reads its cited lines at dispatch).
+    location: >-
+      _bmad-output/implementation-artifacts/spec-engine-art-solidity.md
+    severity: low
 ---
 
 <intent-contract>
@@ -42,31 +49,34 @@ deferred: []
 
 ## Code Map
 
-Delivery shape: one small product repair over one package, split from part B (`spec-elements-visible-solid-remainder-b.md`). The repair story runs in the order A, B, B2, C. Review tier: **engine**: every capability is present and the scene, table row and test are on the data-only allow-list, but the candidate commit carries `TODO.md`, which is outside it (`_bmad/custom/bmad-loop-protocol.md`, Review tiers; the Baseball repair is tiered the same way for the same reason). No new source file and no test-project edit: `CuriousContraptions.tests.csproj:77` compiles every top-level `*.cs` (S2, `25df3cd5`).
+Delivery shape: one small product repair over one package (a single element repair; not a Family slice or closure review), split from part B (`spec-elements-visible-solid-remainder-b.md`). The repair story runs in the order A, B, B2, C. Review tier: **engine** (coordinator, at dispatch): every capability is present and the scene, table row, tests, element documents and `TODO.md` are on the data-only allow-list (`_bmad/custom/bmad-loop-protocol.md:54–60`), but the candidate also carries the declaration-`Colliders` deletion slice's run log (its publication receipt), which is not this slice's own record, and in doubt a slice is engine tier (protocol, Review tiers). No new source file and no test-project edit: `CuriousContraptions.tests.csproj:73` compiles every top-level `*.cs` (S2).
 
-**When.** Before the engine programme: repair parts A, B, B2 and C and the Baseball repair are among the slices owner decision 22 (23 November 2026) allows before it. This part follows part B and is replanned from the revision that publishes it; that is sequence, not an external blocker.
+**When.** Before the engine programme: repair parts A, B, B2 and C and the Baseball repair are among the slices owner decision 22 (23 November 2026) allows before it. This part follows part B (`c3456907`) and the declaration-`Colliders` deletion (`466ff4ca`), both published, and is replanned from `466ff4ca`.
 
-**Baseline.** Captured at dispatch (coordinator decision 38, 23 November 2026): `baseline_revision` is the published main that contains the planning work (and, by sequence, part B), and every scope guard and `git diff` in this contract compares against it. Drafted on `25df3cd5`, which is the drafting revision only, not a baseline. Precondition (coordinator decision 37, 23 November 2026): the planning work of 22–23 November 2026 (the `docs/planning/elements/readiness/` folder with owner decision 24i and the Repairs table of `delivery-batches.md` section 5) is published, and part B is published; the baseline is the main that contains both, captured by the coordinator before first implementation, and the line anchors in `VisibleSolidColliderTests.cs` are re-read there. Every file cited with a line number was read at `25df3cd5` on 23 November 2026. Expected totals are baseline + delta against the current full local round.
+**Baseline.** `466ff4ca360c6ce0879f053f6c646f244bfd7bd5` (frontmatter), the published main containing the planning work of 22–23 November 2026, parts A and B and the declaration-`Colliders` deletion, captured at dispatch (coordinator decision 38); every scope guard and `git diff` in this contract compares against it. Drafted on `25df3cd5`; every line cited here was re-read at the baseline by the planning scout (run log E2) and the dispatch re-audit. Baseline totals: full local round 7415/0/0, registration 829 (`TODO.md`); expected totals are baseline + delta.
 
-Planning verdict: Scoped Pass (fourth audit, `docs/planning/elements/readiness/audits/audit-visible-solid-B2-4.md`); fixes applied 23 November 2026. The fourth audit judged the flush-print design of owner decision 24i and raised N1 (frontmatter baseline), applied here; no re-audit needed. The third audit (`docs/planning/elements/readiness/audits/audit-visible-solid-B2-3.md`) audited the earlier torus design; owner decision 24i replaced that design, which voids its F1, F2, R1 and R4 and the matcher changes it checked. Its R2 (baseline precondition, without the withdrawn airflow entry) and R3 (stale record lines) are applied. Planning only; no test has run.
+Planning verdict: Scoped Pass, the dispatch re-audit at the baseline (`docs/planning/elements/readiness/audits/audit-visible-solid-B2-5.md`); its N1–N6 applied and C1 ruled, no re-audit needed (run log E4). Earlier: Scoped Pass by the fourth audit at `25df3cd5` (`audit-visible-solid-B2-4.md`); the third audit judged the torus design that owner decision 24i withdrew. Planning audits ran no tests; implementation results are in run log E5 onward.
+
+Implementation owner: agent `a53535a1780135c53` (fresh, no inherited history; checkout `.claude/worktrees/slice-visible-solid-b2`; run log E5).
 
 Owned scope:
 
 - `elements/TennisBall/tennis.tscn` -- the `Seam` sub-resource at 16–19 (today a `TorusMesh`, inner 0.245, outer 0.253) becomes the band below; `Visual/Seam` at 31–33 keeps its name, quaternion and mesh reference. `load_steps` stays 6 (five sub-resources before and after).
-- `CuriousContraptions.tests/VisibleSolidColliderTests.cs` -- one `Specs` row, after the `bowling` row (`:110` at `25df3cd5`).
+- `CuriousContraptions.tests/VisibleSolidColliderTests.cs` -- one `Specs` row, after the `bowling` row (`:128`).
 - `CuriousContraptions.tests/TennisArtTests.cs` -- one new fact (T1, T2).
-- `docs/planning/elements/CAT-064-tennis.md` -- the seam's art row and the conformance point 3 (delivered flush); `docs/planning/invest/delivery-batches.md` section 5 (Repairs, part B2's row); `TODO.md`; this contract and its run log.
+- Records: `docs/planning/elements/CAT-064-tennis.md` (`:3`, `:48`, `:50`, `:98`, `:108`, conformance point 3, and the stale citations of run log E2 and E4); `docs/planning/elements/EL-189-tennis-ball.md` (`:16`, `:53`, `:55`, `:124`, `:134`, `:147`, `:150`, and the stale citations of E2); `docs/planning/elements/EL-092-toy-rocket.md:36` (the Tennis ball's collider count, false since owner decision 24i; run log E6); `docs/planning/elements/readiness/batch-m.md:40` (the EL-189 row) and `_bmad-output/implementation-artifacts/spec-engine-art-solidity.md:92` (its `tennis` survey row), both stale once the seam is flush (review pass 1); `docs/planning/elements/readiness/batch-d.md:17` (the CAT-064 row); `docs/planning/elements/readiness/completion-ledger.md:318` (XB-04: its `VisibleSolidColliderTests.cs` citations moved by the new row, and the ruling of E4); `_bmad-output/implementation-artifacts/deferred-work.md` (one line, `:377`, after the delete-declaration-colliders carry-forward entry `:376`, naming the citations the new row moves; E4); `docs/planning/invest/delivery-batches.md` section 5 (`:248`, part B2's row); `TODO.md`; `docs/planning/elements/readiness/audits/audit-visible-solid-B2-5.md`; this contract and its run log; `_bmad-output/implementation-artifacts/run-logs/spec-delete-declaration-colliders.md` (E30, that slice's publication receipt, written by the coordinator).
 
-Not changed: `elements/TennisBall/TennisBallElementDeclaration.cs`, every existing test, `content/puzzles.json`, `deferred-work.md`. `elements/elements.bundle.json` is build output, not committed (`.gitignore:17`); task 0 captures a baseline copy.
+Not changed: `elements/TennisBall/TennisBallElementDeclaration.cs`, every existing test and shared test helper (the stale comments XB-04 names stay, routed to part C, E4), `content/puzzles.json`. `elements/elements.bundle.json` is build output, not committed (`.gitignore:17`); task 0 captures a baseline copy.
 
 ### Capability probe
 
-Four present; none untested, narrower or missing.
+Five present; none untested, narrower or missing (re-checked at the baseline, run log E2).
 
-- **Present.** Art that is not a collider: the extractor bakes only `CollisionShape3D` and `col_` nodes (`tools/BundleElements/SceneGeometryExtractor.cs:23–25`), so `Visual/Seam` yields no collider whatever its mesh. Test: `TennisArtTests.NativeFeltAndSeamScaleTogetherWithTheConfiguredPhysicalSphere` (`:34`, one collider for the ball's body).
-- **Present.** Art classified as print in the visible-solid table: the `Decorative` list of `ArtSpec` ("printing flat on a face", `VisibleSolidColliderTests.cs:50–51`), checked for classification only. Test: `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (the `delay` and `reverse_transmission` rows' decorative entries).
+- **Present.** Art that is not a collider: the extractor bakes only `CollisionShape3D` and `col_` nodes (`tools/BundleElements/SceneGeometryExtractor.cs:27–28`; `Hollow`, the only reader of `cap_top`, `cap_bottom` and `wall_thickness`, runs only on those proxies, `:59–64`, `:113`, `:197–236`), and tube mouths come only from `Loc_Port_` locators (`Mouths`, `:69–83`), so `Visual/Seam` yields no collider, mouth or other bundle data whatever its mesh. Test: `TennisArtTests.NativeFeltAndSeamScaleTogetherWithTheConfiguredPhysicalSphere` (`:34`, one collider for the ball's body).
+- **Present.** Art classified as print in the visible-solid table: the `Decorative` list of `ArtSpec` ("printing flat on a face", `VisibleSolidColliderTests.cs:55–56`), checked for classification only (`:245–246`). Test: `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (the `delay` and `reverse_transmission` rows' decorative entries).
 - **Present.** Seam and felt scaled together by one presentation binding on `Visual` (`TennisBallElementDeclaration.cs:24`, UniformScale 4 · radius). Test: `TennisArtTests.NativeFeltAndSeamScaleTogetherWithTheConfiguredPhysicalSphere`.
 - **Present.** The delivered print bound, 0 to 0.5 mm in front of the surface, never buried: `FaceMarkingTests.cs:60`. Test: `FaceMarkingTests.EveryPrintedSurfaceIsPresentFrontFacingAndAttachedToTheRotatingFace`.
+- **Present.** A scene node's mesh vertices in the scene frame: `VisibleSolidColliderTests.VerticesInRoot` (`:908`, `internal static`; composes node transforms to the scene root and applies no presentation binding, so it is exact at the default radius, where `Visual` is unscaled). Tests: `LinearPusherArtTests.cs:91` and `ConveyorTests.cs:610`, through `AssertPrintedFlat` (`:935`). Used unchanged.
 
 ### Repair
 
@@ -74,9 +84,9 @@ Four present; none untested, narrower or missing.
 |---|---|---|
 | `Seam` sub-resource, drawn by `Visual/Seam` (quaternion (0.38268343, 0, 0, 0.9238795), 45° about X) | `TorusMesh`, inner 0.245, outer 0.253: 3 mm proud of the 0.25 m felt, no collider | `CylinderMesh`, material `Cream`, `top_radius = 0.2504`, `bottom_radius = 0.2504`, `height = 0.008`, `cap_top = false`, `cap_bottom = false`, default 64 radial segments: an 8 mm open band on the same great circle (the cylinder's axis is local Y, as the torus's was) |
 
-Numbers, at the default radius (Visual scale 1). A band vertex at height y lies √(0.2504² + y²) from the centre, y within ±0.004: 0.2504 to 0.250432 m, so 0.40 to 0.43 mm outside the felt, inside the 0.5 mm bound. Between vertices a facet comes nearest the centre at 0.2504 · cos(π/64) = 0.250099 m, so no facet dips inside the felt's sphere, and none inside the felt mesh, which is inscribed in it. At radius r the whole `Visual` node is scaled by 4r, so the seam stands proud by 0.16 to 0.17 % of r at every size (0.1 mm at 1/16 m, 27.6 mm at 16 m), under the felt mesh's own faceting at the same size (its 32 rings alone sag 0.48 % of r). The 0.5 mm bound is the bound at the drawn default size, the one size at which the print contract's metre-scale bound applies; the scale relation is proven by the existing scale test.
+Numbers, at the default radius (Visual scale 1). A band vertex at height y lies √(0.2504² + y²) from the centre, y within ±0.004: 0.2504 to 0.250432 m, so 0.40 to 0.43 mm outside the felt, inside the 0.5 mm bound. Between vertices a facet comes nearest the centre at 0.2504 · cos(π/64) = 0.250098 m, so no facet dips inside the felt's sphere, and none inside the felt mesh, which is inscribed in it. At radius r the whole `Visual` node is scaled by 4r, so the seam stands proud by 0.16 to 0.17 % of r at every size (0.1 mm at 1/16 m, 27.6 mm at 16 m), under the felt mesh's own faceting at the same size (its combined sag at a facet centre is about 0.23 % of r; audit 5, N3). The 0.5 mm bound is the bound at the drawn default size, the one size at which the print contract's metre-scale bound applies; the scale relation is proven by the existing scale test.
 
-`Specs` row (solid; hollow; arc; decorative; moving roots): `tennis`: `["Visual/Felt"]`; none; none; `["Visual/Seam"]`, its comment citing owner decision 24i ("printed flush, like the Pool ball's stripe; no collider"); none. At the 16 m bound the felt compares exactly (0.25 × 64 and 16 × 1 are exact in f32), so the row needs no `Fit` and no matcher change.
+`Specs` row (solid; hollow; arc; decorative; moving roots): `tennis`: `["Visual/Felt"]`; none; none; `["Visual/Seam"]`, its comment citing owner decision 24i and, for the planned Pool ball's stripe, owner decision 11 ("printed flush with no collider"); none. At the 16 m bound the felt compares exactly (0.25 × 64 and 16 × 1 are exact in f32), so the row needs no `Fit` and no matcher change.
 
 ### Decisions
 
@@ -94,11 +104,11 @@ No owner decision is open.
 
 **Execution:**
 
-0. Before any edit -- build at the baseline and copy `elements/elements.bundle.json` to `.tools/visible-solid-remainder-b2-evidence/bundle-baseline.json` -- AC2's baseline.
-1. `CuriousContraptions.tests/TennisArtTests.cs` -- add the fact of T1 and T2 and run it on the baseline: it fails on the 3 mm torus -- red before green.
+0. Before any edit -- build `tools/BundleElements/BundleElements.csproj -c Debug` at the baseline and copy the generated `elements/elements.bundle.json` (ignored build output) to `.tools/visible-solid-remainder-b2-evidence/bundle-baseline.json` -- AC2's baseline.
+1. `CuriousContraptions.tests/TennisArtTests.cs` -- add the fact of T1 and T2, its vertex-distance assertion first (acceptance-to-test table), and run it on the baseline: it fails on that assertion (the torus's outer vertices 3 mm proud, its inner ones buried), not on the mesh type -- red before green.
 2. `elements/TennisBall/tennis.tscn` -- replace the `Seam` sub-resource with the band of the repair table -- T1.
 3. `CuriousContraptions.tests/VisibleSolidColliderTests.cs` -- add the `tennis` row -- T4.
-4. `CAT-064-tennis.md`, `delivery-batches.md`, `TODO.md` -- record the seam as delivered flush (radius 0.2504, height 0.008, 0.40–0.43 mm proud at the default size, the same fraction of the radius at every size), no collider, part B2's row delivered and part C queued.
+4. `CAT-064-tennis.md`, `EL-189-tennis-ball.md`, `delivery-batches.md`, `TODO.md` -- refresh the two element documents' stale citations listed in run log E2 (with E4's correction), each checked at its baseline line, and record the seam as delivered flush (radius 0.2504, height 0.008, 0.40–0.43 mm proud at the default size, the same fraction of the radius at every size), no collider, part B2's row delivered and part C queued, on every record line the Code Map names (`batch-d.md:17` included); in `completion-ledger.md:318` (XB-04) refresh the `VisibleSolidColliderTests.cs` lines the new row moves and record the E4 ruling (those comments go to part C); in `deferred-work.md`, after the carry-forward entry `:376`, add one line (`:377`) naming the `VisibleSolidColliderTests.cs` citations after `:128` that the new row moves (owner: each slice at dispatch).
 
 **Acceptance Criteria:**
 
@@ -114,6 +124,53 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
 
 ## Review Triage Log
 
+### 2026-11-25 — Review pass 1 (engine tier, all six layers; candidate uncommitted on `466ff4ca`; run log E7)
+- verdicts: 23 findings — high 0, medium 0, low 15, false 8, maybe-false 0
+- findings:
+  - `low` `patch` BH1: the new comments at `TennisArtTests.cs:47` and `VisibleSolidColliderTests.cs:129` cite "the Pool ball's stripe" as if delivered; the only delivered ball stripe (`ball`, Hollow) is the opposite — reword to cite owner decisions 24i and 11 (the planned Pool ball, EL-098). Its second part, the pre-existing `ball` row comment `:126`, is existing test code (Never clause) already routed to part C by XB-04 (ruling 2): routed, not patched here.
+  - `low` `patch` ECH1: a zero-height or vanishing band passes every assertion of the new fact (an invisible seam) — assert the band's drawn width is the seam's authored 8 mm (D3).
+  - `low` `patch` VG-O1: same root as BH1 (grouped).
+  - `low` `reject` VG-O2: the fact's collider loop overlaps the scale test — T2 requires one sphere at the default and both bounds and the kind check is new; removing it would drop a contract row.
+  - `low` `patch` IA1 (with EFE evidence limit): the fact does not check the T1 row's "on the seam's great circle" — assert every band vertex lies within half the band height of the 45°-about-X great-circle plane.
+  - `false` `reject` IA2: no "printed flush" table category — the `Decorative` list is defined as including "printing flat on a face" (`VisibleSolidColliderTests.cs:55–56`), as the contract specifies.
+  - `false` `reject` IA3: flushness measured at the default radius only — the intent's Always clause sets the 0.5 mm bound at the default size and proportion elsewhere, proven by the existing scale test.
+  - `false` `reject` IA4: whole-entry equality not in the fact — AC2's decoded comparison ran (`{"sameIds":true,"unequal":[]}`, run log E5).
+  - `false` `reject` IA5: a straight band, not a spherical zone — the intent's open band, inside its stated bounds.
+  - `low` `patch` IA6: Pool-ball precedent — grouped with BH1.
+  - `false` `reject` IA7: T3/T5 execution not visible — they ran in the full round 7417/0/0 and the scoped trx (run log E5; confirmed by the Element-Free auditor).
+  - `false` `reject` IA8: print relief and facing not applied — the intent cites only the 0.5 mm bound and adds the facet rule.
+  - `false` `reject` IA9: exact equalities — the palette colour and the ×1 radius pass-through are exact by contract.
+  - `low` `patch` FO-a: `batch-m.md:40` (EL-189) still says B2 "may run before it" and "Conforms with fixes" — restate as delivered (path added to owned scope).
+  - `low` `patch` FO-b: `spec-engine-art-solidity.md:92` still surveys the seam as "a torus 3 mm proud" — mark the row repaired by part B2 (path added to owned scope).
+  - `low` `patch` EFE-R1: `CAT-064-tennis.md:5` and `EL-189-tennis-ball.md:7` anchor citations to checkout `8d1d68aa`, where the refreshed lines are false — re-anchor to part B2's commit.
+  - `low` `patch` EFE-R2a: `batch-d.md:17` Prerequisites still says "part B2 after part B".
+  - `false` `reject` EFE-R2b: `delivery-batches.md:246–247` say B2 stays queued — those are parts A and B's delivery records; B2's current state is its own row `:248` and `TODO.md`.
+  - `low` `patch` EFE-R3: `completion-ledger.md:227` names audit B2-2 as current — name audit 5.
+  - `low` `patch` EFE-R4: `deferred-work.md:377` count (137 in 100) has no reproducible command, and "the Tennis ball's two element documents … were refreshed" has nothing to refresh — state the command and its count; drop the claim.
+  - `low` `patch` EFE-R5: contract `:51` "no test has run" and Design Note 8 "unexecuted tests" are stale (coordinator corrected both); run log E5 says E8 not triggered — owner appends the correction.
+  - `low` `patch` EFE-R6: records cite `.tools/` files (ignored) as evidence — state the results inline as the record and label `.tools/` files as transient review inputs (`role-cards.md:15`); no further `cp`.
+  - `low` `patch` EFE evidence limit (orientation): grouped with IA1.
+
+### 2026-11-25 — Review pass 2 (re-review of repair 1: Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free Engine; run log E9)
+- verdicts: 8 findings — high 0, medium 0, low 7, false 1, maybe-false 0
+- findings:
+  - `low` `patch` ECH2-1: the new 1 µm tolerance on the great-circle plane check (`TennisArtTests.cs:77–83`) is justified by f32 spacing on transformed vertices, so a sub-micrometre re-authoring no player can see fails — bound the plane and width checks by the 0.5 mm print bound the test already uses.
+  - `low` `patch` VG2-O1: same root as ECH2-1 (grouped).
+  - `low` `patch` BH2-1: same root as ECH2-1 (grouped).
+  - `low` `patch` BH2-2: the tolerance comment names "a band turned 1° off its great circle", but a tilted band through the centre is still on a great circle; the check excludes a seam drawn off its authored 45° great circle — correct the comment.
+  - `false` `reject` FO2-O1: `CAT-064-tennis.md:50` and `EL-189-tennis-ball.md:55` say "like the Pool ball's stripe" — they restate owner decision 24i's own words, and owner decision 11 does rule that stripe printed flush (`owner-decisions-2026-11-22.md:23`, `:62`); true as a decision record.
+  - `low` `patch` EFE2-F1: `completion-ledger.md:227` status cell still says "`draft`; Scoped Pass after repair (:47)" — state the contract's status at the candidate commit (`done`, set at Finalize) and point at the planning verdict `:51`.
+  - `low` `patch` EFE2-F2: `deferred-work.md:377` counts only the `VisibleSolidColliderTests.cs:N` form — say so and name the continuation (`, :N`) and range-end forms that also move.
+  - `low` `patch` EFE2-F3: contract Code Map `:82` still quotes the pre-repair comment, and the Code Map and task 4 point at `deferred-work.md:376` for the line at `:377` — corrected by the coordinator in this pass.
+
+### 2026-11-25 — Review pass 3 (re-review of repair 2: Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free Engine; Re-review scope applies; run log E11)
+- verdicts: 4 findings — high 0, medium 0, low 2, false 2, maybe-false 0
+- findings:
+  - `false` `reject` BH3-1: the width and great-circle checks reuse the 0.5 mm print stand-off, not a lateral bound — both check authored scene values (D3's 8 mm width, the intent's 45°-about-X great circle), which the testing guidance allows exactly; the 0.5 mm window is looser than exact, still fails the named defects, and has 0.5 mm margin on the authored scene (Verification Gap and Element-Free auditor agree).
+  - `false` `reject` EFE3-O1: `completion-ledger.md:227` says `done` while the contract is `in-review` — Finalize sets `done` in the same candidate commit.
+  - `low` `patch` EFE3-O2: the Verification executor line names only the implementation owner, but the coordinator ran the final capture, gate and round — line corrected by the coordinator.
+  - `low` `defer` EFE3-O3: `spec-engine-art-solidity.md` cites `VisibleSolidColliderTests.cs:249`, `:241`, `:194`, already stale at the baseline — outside the repair, no rule broken (Re-review scope); owned by the part A carry-forward (`deferred-work.md:364`); in `deferred:`.
+
 ## Design Notes
 
 1. **Behaviour delivered.** The Tennis ball's seam is printed flush; its only solid is its sphere; the package joins the visible-solid proof. Source: owner rule "visible = solid" (25 October 2026) and owner decision 24i (23 November 2026).
@@ -123,11 +180,11 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
 5. **Ownership.** No new collider, body or state. Reset, save and load are unaffected.
 6. **Generality.** Not an engine change.
 7. **Deleted.** The proud torus seam. No raised copy remains.
-8. **Uncertain.** None beyond the unexecuted tests. Rules E1, E6, E7 and E8 apply; E9 is run as always.
+8. **Uncertain.** None; the planned tests ran (run log E5). Rules E1, E6, E7, E8 (scope, review and deferred browser qualification) and E9 apply; E2–E5 and D1–D7 are not engaged (no engine, schema, lifecycle or storage change).
 
 ## Verification
 
-Executor for every command: the implementation owner. Raw output goes under `.tools/visible-solid-remainder-b2-evidence/`.
+Executor for every command: the implementation owner, except the final candidate's capture builds, maintainability gate and full local round, which the coordinator ran as designated executor after review (run log E11). Raw logs go under `~/.local/share/tim-toolchain/logs/slice-visible-solid-b2/`; `.tools/visible-solid-remainder-b2-evidence/` holds transient review inputs (ignored, gone with the worktree; `role-cards.md:15`), and the run log states each result inline as the record.
 
 Environment: the pinned toolchain first on `PATH`: `PATH=$HOME/.local/share/tim-toolchain/dotnet-10.0.403:$HOME/.local/share/tim-toolchain/node-v26.12.1-darwin-arm64/bin:$PATH` and `DOTNET_ROOT=$HOME/.local/share/tim-toolchain/dotnet-10.0.403` (on this host the default `PATH` has Homebrew node v26.13.1 and a dotnet without `wasm-tools`, so the capture's node check and the web build fail otherwise); record the session environment check in the run log.
 
@@ -135,19 +192,21 @@ Environment: the pinned toolchain first on `PATH`: `PATH=$HOME/.local/share/tim-
 
 | Rows | Named discriminating test | Control and boundary | Run |
 |---|---|---|---|
-| T1, T2 | `TennisArtTests.TheSeamIsPrintedFlushOnTheFeltAndTheBallHasOnlyItsSphereCollider` (new fact). From the part made by `PartRegistry`: `Visual/Seam` is a `CylinderMesh` with both caps off and the scene's `Cream` seam material; every vertex of `Mesh.GetFaces()`, placed by the seam's transform in the `Visual` frame, lies at a distance from the felt's centre in [0.25, 0.25 + 0.0005] m; `TopRadius · cos(π / RadialSegments)` is at least the felt's radius (no facet inside the felt). The `tennis` bundle entry has exactly one collider, a sphere, at the default parameters and at both radius bounds | Controls by reading: today's torus fails both (outer 0.253 is 3 mm proud; its inner vertices are buried); a band of radius 0.25 fails the facet check. Boundary: the band's edge vertices, 0.43 mm out, nearest the bound. 0.5 mm is the print bound `FaceMarkingTests.cs:60` uses for the same quantity | planned |
-| T4, AC1 | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt`, case `tennis` (default, 1/16 m and 16 m) | Without the row the package has no case; with the seam left unclassified it fails "art is not classified once"; a seam collider would fail "collider(s) reach beyond the art" | planned |
-| T2, AC2 | The AC2 comparison (command below) | The baseline entry is the control: equal | planned |
-| T3 | `TennisBallTests.ConfiguredRadiusChangesContactSpinAtFixedMass` (existing, both cases unedited): speed and rim speed in [0.68, 0.75] m/s, a solid sphere's sticking roll. The 0.125 m case rolls about 79° in its 30 ticks, so a proud seam collider would meet the bench inside it | Existing bounds | planned |
-| T5, AC3 | Existing, unedited: `TennisArtTests.NativeFeltAndSeamScaleTogetherWithTheConfiguredPhysicalSphere`, `TennisBallTests` (all), `TennisInteractionTests` (3), `FanIntegrationTests`, `FanAdmissionTests`, `FanGuidanceTests`, `WindmillAdmissionTests`, `PackageRuntimeParityTests`, `F32BehaviourIdentityTests`, `BundleRoundTripTests` | Existing | planned |
+| T1, T2 | `TennisArtTests.TheSeamIsPrintedFlushOnTheFeltAndTheBallHasOnlyItsSphereCollider` (new fact). From the part made by `PartRegistry`, at the default radius and in this order: first, every vertex of the seam's `Mesh.GetFaces()`, placed in the scene frame by `VisibleSolidColliderTests.VerticesInRoot`, lies at a distance from the felt's centre in [r, r + 0.0005] m, r the felt's radius read from its `SphereMesh` (the red on the baseline fails here); then `Visual/Seam` is a `CylinderMesh` with both caps off and the scene's `Cream` seam material; then `min(TopRadius, BottomRadius) · cos(π / RadialSegments)`, scaled to the part root, is at least r (no facet inside the felt); then the band's drawn width (`Height` × its scale in the part frame) is the authored 8 mm within the 0.5 mm print bound, and every vertex lies within half that width plus the print bound of the great-circle plane through the felt's centre whose normal is Y turned 45° about X, derived from the angle. The `tennis` ball compiled by `WorkshopPhysicsCompiler` has exactly one collider on its body, a sphere of the ball's radius, at the default radius and at both radius bounds | Controls by reading: today's torus fails both (outer 0.253 is 3 mm proud; its inner vertices are buried); a band of radius 0.25 fails the facet check. Boundary: the band's edge vertices, 0.43 mm out, nearest the bound. 0.5 mm is the print bound `FaceMarkingTests.cs:60` uses for the same quantity | Red on the baseline scene at the vertex assertion; passed in the scoped run and the full round (run log E5); with the width and great-circle assertions, passed in the repair's scoped run (run log E8), and again with both bounded by the print bound (run log E10) |
+| T4, AC1 | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt`, case `tennis` (default, 1/16 m and 16 m) | Without the row the package has no case; with the seam left unclassified it fails "art is not classified once"; a seam collider would fail "collider(s) reach beyond the art" | Passed in the scoped run and the full round, which has one more case (run log E5); passed again after the comment rewording (run log E8) |
+| T2, AC2 | The AC2 comparison (command below) | The baseline entry is the control: equal | `{"sameIds":true,"unequal":[]}`, stated inline as the record (run log E5) |
+| T3 | `TennisBallTests.ConfiguredRadiusChangesContactSpinAtFixedMass` (existing, both cases unedited): speed and rim speed in [0.68, 0.75] m/s, a solid sphere's sticking roll. The 0.125 m case rolls about 79° in its 30 ticks, so a proud seam collider would meet the bench inside it | Existing bounds | Both cases passed in the scoped run and the full round (run log E5) |
+| T5, AC3 | Existing, unedited: `TennisArtTests.NativeFeltAndSeamScaleTogetherWithTheConfiguredPhysicalSphere`, `TennisBallTests` (all), `TennisInteractionTests` (3), `FanIntegrationTests`, `FanAdmissionTests`, `FanGuidanceTests`, `WindmillAdmissionTests`, `PackageRuntimeParityTests`, `F32BehaviourIdentityTests`, `BundleRoundTripTests` | Existing | All passed in the scoped run (`BundleRoundTripTests` in its own trx) and the full round 7417/0/0 (run log E5) |
+| AC4 | The full local round and the registration check | Baseline totals 7415 and 829 | 7417 = 7415 + 2, 0 failed, `Skipped: 0` in every project; registration 829 = baseline + 0 (run log E5) |
+| AC5 | `git diff --name-only 466ff4ca` filtered for `engine/`, `CuriousContraptions.{Simulation,Bundle,Abstractions}/`, `schemas/`, `tools/`; `git diff --quiet 466ff4ca -- elements/TennisBall/TennisBallElementDeclaration.cs` | Any listed path or a declaration diff fails | No path listed; declaration unchanged (run log E5) |
 
 **Commands:**
 
 - The compiler-proof capture in `docs/delivery-workflow.md#reproducible-local-verification`, up to and including the `verify-policy.binlog` build -- expected: five logs, zero warnings and errors; the bundle regenerates.
 - `dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root "$PWD"` -- expected: PASS with both canary `PASS` lines and the `Coupling dependencies:` summary.
 - The registration check in `docs/delivery-workflow.md#new-package-registration-check` -- expected: the baseline's total + 0, 0 failed, 0 skipped.
-- The AC2 comparison of `bundle-baseline.json` with the candidate's bundle, by decoded entry -- expected: every entry equal.
-- `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~VisibleSolidColliderTests|FullyQualifiedName~Tennis|FullyQualifiedName~Fan|FullyQualifiedName~WindmillAdmissionTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~F32BehaviourIdentityTests|FullyQualifiedName~BundleRoundTripTests"` -- expected: 0 failed, 0 skipped; every test in the table appears.
+- The AC2 comparison, decoded per entry (`==` on parsed JSON values, not bytes), from the checkout root: `jq -n --slurpfile a .tools/visible-solid-remainder-b2-evidence/bundle-baseline.json --slurpfile b elements/elements.bundle.json '($a[0].Elements|map({(.Metadata.Id):.})|add) as $A | ($b[0].Elements|map({(.Metadata.Id):.})|add) as $B | {sameIds:(($A|keys)==($B|keys)), unequal:[$A|keys[]|select($A[.]!=$B[.])]}'`, output kept under `.tools/visible-solid-remainder-b2-evidence/` -- expected: `{"sameIds":true,"unequal":[]}`.
+- `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --logger "trx;LogFileName=b2-scoped.trx" --filter "FullyQualifiedName~VisibleSolidColliderTests|FullyQualifiedName~Tennis|FullyQualifiedName~Fan|FullyQualifiedName~WindmillAdmissionTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~F32BehaviourIdentityTests|FullyQualifiedName~BundleRoundTripTests"` -- expected: 0 failed, 0 skipped; every test in the table appears.
 - `git add -N` this contract and its run log if untracked, then `git diff --check <baseline_revision>` -- expected: no output.
 - One full local round under `caffeinate -i` -- expected: baseline total + 2, 0 failed, `Skipped: 0` for every project.
 - At the candidate commit, the unmodified `.githooks/pre-commit` -- expected: pass.
@@ -158,4 +217,12 @@ Environment: the pinned toolchain first on `PATH`: `PATH=$HOME/.local/share/tim-
 
 ### Running beside other work
 
-It runs after parts A and B and before part C, and is serialised with them on `VisibleSolidColliderTests.Specs`: one publisher at a time; the later merges main once and repeats the full local round on the merged candidate. It is also serialised with the Baseball repair, which adds the `baseball` row beside this one: one publisher at a time, in either order. No content depends on the other: the Tennis ball keeps its one sphere collider, so the Baseball repair's Tennis comparisons (R3 to R5) and part A's Tennis probes (the anchor-eye control, the re-authored hub test and the Fan stream theory) see the same ball as on main, and no `BaseballTests` edit follows from this part. It shares `TODO.md` and `docs/planning/invest/delivery-batches.md` with those slices and with S3, S5, S5b and S6–S6g, the other slices allowed before the engine programme (owner decisions 22 and 24h). It does not touch `content/puzzles.json`, the test project file, `deferred-work.md` or any registration table.
+It runs after parts A and B and before part C, and is serialised with them on `VisibleSolidColliderTests.Specs`: one publisher at a time; the later merges main once and repeats the full local round on the merged candidate. It is also serialised with the Baseball repair, which adds the `baseball` row beside this one: one publisher at a time, in either order. No content depends on the other: the Tennis ball keeps its one sphere collider, so the Baseball repair's Tennis comparisons (R3 to R5) and part A's Tennis probes (the anchor-eye control, the re-authored hub test and the Fan stream theory) see the same ball as on main, and no `BaseballTests` edit follows from this part. It shares `TODO.md` and `docs/planning/invest/delivery-batches.md` with those slices and with S3, S5, S5b and S6–S6g, the other slices allowed before the engine programme (owner decisions 22 and 24h). It does not touch `content/puzzles.json`, the test project file or any registration table; in `deferred-work.md` it adds one carry-forward line (run log E4, ruling 1).
+
+## Auto Run Result
+
+- **Summary.** The Tennis ball's seam is an open `CylinderMesh` band (radius 0.2504, height 0.008, caps off) printed flush on the felt, 0.40–0.43 mm proud at the default size, with no collider; the ball keeps its one sphere collider and joins the visible-solid table as felt solid, seam decorative (owner decision 24i). Run log E5, E8, E10.
+- **Files.** 17 paths, all on the owned scope (Final diff scope, E11): `tennis.tscn` (the band), `TennisArtTests.cs` (one fact), `VisibleSolidColliderTests.cs` (the `tennis` row); records `CAT-064-tennis.md`, `EL-189-tennis-ball.md`, `EL-092-toy-rocket.md`, `batch-d.md`, `batch-m.md`, `completion-ledger.md`, `delivery-batches.md`, `spec-engine-art-solidity.md`, `deferred-work.md`, `TODO.md`, audit 5, the deletion slice's run log (E30 receipt), this contract and its run log.
+- **Review.** Engine tier, three passes (E7, E9, E11): pass 1 23 rows (14 low patched, 1 low rejected, 8 false); pass 2 8 rows (7 low patched, 1 false); pass 3 4 rows (1 low patched, 1 low deferred under Re-review scope, 2 false). Patched by verdict: low 22, medium 0, high 0. Forward-Only Pass on every pass; Element-Free Engine Scoped Pass on the final repair. Final diff scope Pass (E11). `followup_review_recommended: false` (no high or medium patched).
+- **Verification.** Final candidate, coordinator as executor (E11): capture builds 0 warnings, 0 errors; maintainability gate PASS (both canaries, coupling violations 0); full local round 7417/0/0, `Skipped: 0` (baseline 7415 + 2); registration 829 (E5, + 0); AC2 decoded comparison `{"sameIds":true,"unequal":[]}` (E5); AC5 no forbidden path, declaration unchanged (E5).
+- **Residual risks.** Browser qualification pending to the post-catalogue E2E phase; remote build, artifact and deployment not verified. Remaining for the approver: the pre-commit hook at the commit and SnapshotApproval of the committed SHA.
