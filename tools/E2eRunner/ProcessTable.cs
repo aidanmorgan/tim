@@ -9,9 +9,10 @@ internal readonly record struct ProcessRow(int Pid, int ParentPid, long RssKilob
 /// <summary>The machine's process table (ps), read at the process-listing boundary.</summary>
 internal static class ProcessTable
 {
-    public static IReadOnlyList<ProcessRow> Snapshot()
+    /// <summary>The process table now; ps is refused as ProcessTimedOut past the limit (Processes.DefaultLimit unless given).</summary>
+    public static IReadOnlyList<ProcessRow> Snapshot(TimeSpan? limit = null)
     {
-        var result = Processes.Run("ps", ["-A", "-ww", "-o", "pid=,ppid=,rss=,command="]);
+        var result = Processes.Run("ps", ["-A", "-ww", "-o", "pid=,ppid=,rss=,command="], limit: limit);
         if (result.ExitCode != 0) throw new InvalidOperationException($"ps exited {result.ExitCode}: {result.Error.Trim()}");
         var rows = new List<ProcessRow>();
         foreach (var line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -75,6 +76,11 @@ internal static class ProcessTable
 /// peak summed resident memory of all registered trees.</summary>
 internal sealed class ProcessSampler : IDisposable
 {
+    // A sample is best effort: a ps that has not answered in this time is skipped, so a hung ps delays Register, Unregister or
+    // the wall-limit kill by at most this long plus Processes.KillGrace, a few sampling intervals (RunEngine samples every 2 s),
+    // not Processes' 10 minutes.
+    private static readonly TimeSpan SnapshotLimit = TimeSpan.FromSeconds(10);
+
     private readonly Lock _gate = new();
     private readonly Dictionary<int, Dictionary<int, string>> _seen = [];
     private readonly Timer _timer;
@@ -104,9 +110,10 @@ internal sealed class ProcessSampler : IDisposable
     public void Sample()
     {
         IReadOnlyList<ProcessRow> rows;
-        try { rows = ProcessTable.Snapshot(); }
+        try { rows = ProcessTable.Snapshot(SnapshotLimit); }
         catch (InvalidOperationException) { return; }
-        catch (Win32Exception) { return; }
+        // ps could not be started, or ran past its limit and was killed: the sample is skipped.
+        catch (RunnerException error) when (error.Error is RunnerError.ToolchainMissing or RunnerError.ProcessTimedOut) { return; }
         lock (_gate)
         {
             long total = 0;

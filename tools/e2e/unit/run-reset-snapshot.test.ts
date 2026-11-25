@@ -2,21 +2,24 @@
 // Run: node --import <tsx loader> --test tools/e2e/unit/run-reset-snapshot.test.ts (not a Chrome suite: tools/e2e/unit/ is
 // outside the runner's tools/e2e/*.test.ts catalogue).
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import * as flatbuffers from 'flatbuffers';
 import {
     ConnectionRecord, ConstructionRecord, InstanceRecord, ParameterRecord, PuzzleRecord, Quat4f, SavedConstruction, Vec3f, Vec3i,
-    decodeWorkshopResponse, encodeWorkshopResponse, type MockResponseParams,
-} from '../workshop-wire.ts';
-import * as generated from '../workshop-wire.ts';
+} from '../.wire/curious-contraptions/wire.ts';
+import * as generated from '../.wire/curious-contraptions/wire.ts';
+import { decodeWorkshopResponse, encodeWorkshopResponse, type MockResponseParams } from '../workshop-wire.ts';
 import {
     SNAPSHOT_SCHEMA, assertLoadRestores, assertRunAdvanced, assertSnapshotEqual, readSnapshot, snapshotFrom, structLayout, tableSlot,
 } from '../run-reset-snapshot.ts';
 
 const SCHEMA_SOURCE = ['workshop_wire', 'workshop_authoring']
     .map(name => readFileSync(new URL(`../../../schemas/${name}.fbs`, import.meta.url), 'utf8')).join('\n');
-const GENERATED_SOURCE = readFileSync(new URL('../workshop-wire.ts', import.meta.url), 'utf8');
+// The build writes one generated file per schema type here (tools/e2e/.wire/, S5b); the entry module only re-exports them.
+const GENERATED_FOLDER = new URL('../.wire/curious-contraptions/wire/', import.meta.url);
+const GENERATED_FILES = readdirSync(GENERATED_FOLDER, { withFileTypes: true }).filter(entry => entry.isFile())
+    .map(entry => readFileSync(new URL(entry.name, GENERATED_FOLDER), 'utf8'));
 
 // ---- fixtures -------------------------------------------------------------------------------------------------------
 
@@ -119,10 +122,9 @@ function parseSchema(source: string): { types: Map<string, { kind: 'struct' | 't
 
 // Offsets the generated TypeScript accessors read: struct fields at `this.bb_pos + N`, table fields at vtable slot N.
 function generatedOffsets(className: string): Map<string, number> {
-    const start = GENERATED_SOURCE.indexOf(`export class ${className} {`);
-    assert.ok(start >= 0, `generated class ${className}`);
-    const end = GENERATED_SOURCE.indexOf('\nexport class ', start + 1);
-    const body = GENERATED_SOURCE.slice(start, end < 0 ? undefined : end);
+    const source = GENERATED_FILES.find(text => text.includes(`export class ${className} {`));
+    assert.ok(source !== undefined, `generated class ${className}`);
+    const body = source.slice(source.indexOf(`export class ${className} {`));
     const offsets = new Map<string, number>();
     for (const match of body.matchAll(/^(\w+)\([^)]*\)[^{\n]*\{\n\s*(?:const offset = this\.bb!\.__offset\(this\.bb_pos, (\d+)\);|return [^\n]*?this\.bb_pos(?: \+ (\d+))?[,)])/gm)) {
         const [, accessor, slot, position] = match;

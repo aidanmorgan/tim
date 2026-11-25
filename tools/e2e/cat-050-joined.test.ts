@@ -17,7 +17,8 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
-import { decodeSavedConstruction, type AssistanceKnotRecord } from './workshop-wire.ts';
+import { decodeSavedConstruction } from './workshop-wire.ts';
+import { type AssistanceKnotRecord } from './.wire/curious-contraptions/wire.ts';
 import { assertLoadRestores, snapshotEntries, snapshotValue } from './run-reset-snapshot.ts';
 import { assertJoined, assertNotJoined, dot, length, mouth, pipeLength, pose, rotate, sub, type Vec3 } from './tube-mouths.ts';
 

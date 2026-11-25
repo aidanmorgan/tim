@@ -140,16 +140,9 @@ internal sealed class PreviewHost : IDisposable
         return executable;
     }
 
-    private static void Stop(Process process)
-    {
-        try
-        {
-            if (process.HasExited) return;
-            process.Kill(entireProcessTree: true);
-            process.WaitForExit();
-        }
-        catch (InvalidOperationException) { return; } // never started
-    }
+    // The one tree-kill rule (it bounds the wait and handles a never-started or exited process); the detail is discarded, since a
+    // stop after a failed start or on Dispose has nothing to report it to.
+    private static void Stop(Process process) => _ = Processes.KillTree(process);
 
     public void Dispose()
     {

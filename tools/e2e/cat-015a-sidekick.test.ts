@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, type WorkshopResponse , storedEnergy } from './workshop-wire.ts';
+import { decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, storedEnergy } from './workshop-wire.ts';
+import { type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 
 type Scenario='paid'|'unpaid'|'miss';
 async function press(driver:WorkshopDriver,x:number,y:number){

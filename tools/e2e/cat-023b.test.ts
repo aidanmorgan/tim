@@ -10,7 +10,8 @@ import { after, before, beforeEach, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type AnimationSampleRecord, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeWorkshopResponse, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse } from './workshop-wire.ts';
+import { type BodyRead, type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 
 function bodyState(b: BodyRead) {
     return {

@@ -16,6 +16,7 @@ import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
+import { ElectricalEnable } from './.wire/curious-contraptions/wire.ts';
 import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
@@ -23,7 +24,6 @@ const { PNG } = requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 
 const ConnectionDomain = { Electrical: 2 } as const;
 const Socket = { Supply: 7, PowerIn: 8 } as const;
-const ElectricalEnable = { Disabled: 0, Enabled: 1 } as const;
 
 type Point = { x: number; y: number };
 // World (x, z) on the bench to its screen pixel (the cat-051 projection).

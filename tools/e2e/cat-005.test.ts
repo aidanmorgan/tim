@@ -5,17 +5,14 @@ import { createRequire } from 'node:module';
 const requireMcp=createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const {PNG}=requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, energyStore, type WorkshopResponse, encodeWorkshopResponse, decodeSavedConstruction, authoredState, contactHits, encodeWorkshopCommand, CommandKind, parameter , storedEnergy, sourceEnergy } from './workshop-wire.ts';
-const ElectricalEnable={Disabled:0,Enabled:1} as const;
-type ElectricalEnable=typeof ElectricalEnable[keyof typeof ElectricalEnable];
-const WorkshopCommand={ConfigureCadence:6} as const;
+import { decodeWorkshopResponse, energyStore, encodeWorkshopResponse, decodeSavedConstruction, authoredState, contactHits, encodeWorkshopCommand, parameter, storedEnergy, sourceEnergy } from './workshop-wire.ts';
+import { CommandKind, CommandOutcome, ElectricalEnable, type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 const ExpectedRevision={Exact:2} as const;
-const CommandOutcome={Applied:0} as const;
 const SimulationCadence={Hz120:2} as const;
 const PhysicalStepProfile={Canonical480Hz:1} as const;
 const AnimationCadence={Hz30:1} as const;
 const PresentationCadence={Hz60:2} as const;
-// Match the driver's closed numeric union boundaries under Node type-strip mode.
+// Match the driver's closed numeric union boundaries.
 const ConnectionDomain = { Electrical: 2 } as const;
 type ConnectionDomain = typeof ConnectionDomain[keyof typeof ConnectionDomain];
 const Socket = { Supply: 7, PowerIn: 8 } as const;
