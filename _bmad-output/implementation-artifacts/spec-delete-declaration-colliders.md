@@ -58,6 +58,8 @@ Coordinator rulings (run-log E5): (1) moving-body split (b), count mismatch as `
 
 Planning verdict: Scoped Pass (planning stage, engine tier), on the second check by the Element-Free Engine Auditor after the E7 amendments (run-log E7, E8).
 
+Coordinator ruling 5 (run-log E20), a bounded addition after the candidate commit `819940be`: delete `KinematicMode.Kinematic = 2` (`CuriousContraptions.Abstractions/MechanicalContractValues.cs:11`), a retained member every path refuses (`RigidBodyMassProperties.Validate` `:25`; the compiler's mode switch `engine/gpu/WorkshopPhysicsCompiler.cs:245–250`), the same class as the declaration `Colliders` member (lane 4's DOC-ENGINE-STATUS). Owned scope: the enum member; the `|| mode == KinematicMode.Kinematic` refusal at `:25` (the `Enum.IsDefined` refusal stays); the compiler switch keeps its `_` arm, which refuses an undefined value and which a closed-enum switch needs; tests that exercise only that refusal (none found by search; `RopeTests` casts `RigidMotionKind` 2, another enum, and stays). The value 2 reaches the system only through the bundle: the JSON reads enums by name with `ExactEnumConverter<KinematicMode>` (`CuriousContraptions.Bundle/BundleSchema.cs:105`), so "Kinematic" becomes an unknown name refused with `JsonException`, and an in-memory entry carrying `(KinematicMode)2` is refused by `BundleValidator`'s `Defined("KinematicMode", …)` (`:602`); no wire or save field carries `KinematicMode` (`schemas/` has none). Planned tests: a `BundleRoundTripTests.MalformedInputIsRejected` row with `"KinematicMode": "Kinematic"`, and a validator case refusing `(KinematicMode)2` with the undefined-enum code, `Static` as the control.
+
 ### Owned scope
 
 - Abstractions: `CuriousContraptions.Abstractions/IPuzzleElementDeclaration.cs` (delete `Colliders` :11; extend `ISceneGeometryElement`); `CuriousContraptions.Abstractions/SceneGeometry.cs:6–7` (the summary states the order: base, then sliders, then hinges) and `:10` (`ISceneGeometryElement` no longer extends `IPuzzleElementDeclaration`, which would be a cycle); `CuriousContraptions.Abstractions/MechanicalContractValues.cs:74–77`, `:122–125` (`SliderBodyDescriptor` and `HingeBodyDescriptor` keep `MassFrame` only; summaries say where the colliders are); `CuriousContraptions.Abstractions/BundleServices.cs` (`MechanicalPayload`: the new required bundle-only list, :37–60; the `SceneColliderOwnership` summary :121–124, which then names only what is still refused; `IBundleServices.Write(IEnumerable<IPuzzleElementDeclaration>)` :140 deleted, no caller).
@@ -120,6 +122,7 @@ Carry-forward entries touched (run-log E7): `deferred-work.md:369` (per-branch e
 - AC3: Given the full local round on the handoff candidate, then zero failures and `Skipped: 0`, with total = 7407 − 4 deleted test results + the added results, each named in the acceptance-to-test table.
 - AC4: Given the registration check, then it passes (test files change), with its total stated.
 - AC5: Given the maintainability gate, then PASS with both canary lines and the coupling summary.
+- AC6 (ruling 5): Given the bundle, when its JSON names `"KinematicMode": "Kinematic"`, then `Read` refuses it with `JsonException`; when an entry carries `(KinematicMode)2`, then the validator refuses it with its typed undefined-value code; `Static` and `Dynamic` are admitted; `rg -n "KinematicMode\.Kinematic\b"` over `*.cs` has zero hits.
 
 ## Spec Change Log
 
@@ -166,6 +169,16 @@ Carry-forward entries touched (run-log E7): `deferred-work.md:369` (per-branch e
 - findings:
   - `[low]` `[defer]` BH4-1, EFE4-1 (one root cause): the moved theory still precedes the file's second class `MotorRotorArtTests`, so `MotorTests.cs:1075` (`TheRotorArtFollowsTheCommittedRotorPoseAndResetsToItsScenePose`) is now `:1111`, and seven element documents cite `:1075` — routed by coordinator ruling 3 (element-folder citation drift caused by this slice goes to the carry-forward; `MotorTests.cs` is on its list), not a third placement repair (the stagnation trigger applies to the same test's placement); the carry-forward's wording "moved by the deletion" corrected to "moved by this slice (the deletion and its test changes)"; `deferred:` item added.
 
+### 2026-11-25 — Review pass 5 (coordinator ruling 5; Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free; identities in run-log E22)
+- verdicts: 4 findings in 2 rows — high 0, medium 0, low 2, false 0, maybe-false 0. Verification Gap and Forward-Only: no findings (no path keeps, aliases or accepts the value 2); Element-Free: Fail on the document row below only; final-candidate evidence for ruling 5 verified (capture builds clean, gate PASS, full round 7415/0/0).
+- findings:
+  - `[low]` `[patch]` BH5-1, ECH5-1, EFE5-1 (one root cause): `docs/shared-clock-cadence.md:60` still says each pose-ring slot holds "all dynamic and kinematic bodies", a body kind that no longer exists (the same claim ruling 5 corrected at `docs/gpu-f32-physics.md:145`) — owner: name only the bodies that exist.
+  - `[low]` `[patch]` EFE5-2: `_bmad-output/planning-artifacts/epics.md:4466` (Story DOC-ENGINE-STATUS, "Present today") lists "kinematic bodies (`:145`)" among what `DOC` states, which ruling 5 removed — owner: drop the item from that list and say once that ruling 5 of this slice removed the word, leaving the story's contract clause unchanged.
+
+### 2026-11-25 — Review pass 6 (document repair; Verification Gap, Forward-Only, Element-Free; identities in run-log E24)
+- verdicts: 1 finding — high 0, medium 0, low 1, false 0, maybe-false 0. Pass-5 findings resolved; Verification Gap and Forward-Only: no findings.
+  - `[low]` `[patch]` EFE6-1: run-log E22 (the pass-5 reviewer identities and the final4 receipts) was cited but missing — coordinator record: E22 written.
+
 ## Implementation Notes
 
 - Probe held at every cited line; no capability returned to planning; no lane 2 or non-C# consumer (run-log E9).
@@ -199,6 +212,7 @@ Executor: the implementation owner for every handoff command below, on the pinne
 | R5 | deleted: `DeclarationDataCollidersAreRefusedOnEveryBodyWhateverTheScene`, `APackageWhoseCollidersAreNotItsScenesIsRefusedAndWritesNoBundle` (2 rows; behaviour removed), `AMovingBodyPortOnADeclarationWithoutSceneBodiesFailsTheBuild` (covered by `APortNamingNoDeclaredSceneBodyFailsTheBuild`); kept: `AnOwnershipThatDoesNotNameTheBaseAndEachMovingBodyOnceIsRefused` | — | — | kept tests passed (E10 item 6) |
 | R6, AC3 | the full local round | — | — | 7410 passed, 0 failed, `Skipped: 0` on HEAD `c3456907` plus the owned diff (7407 − 4 + 7) (E11); the repair adds 3 results, so the next round expects 7413 (E12) |
 | Task 4 | `ParameterizedMassTests.AMaterialBindingOnTheBaseOfAPartWithoutBodiesIsRefused` (`Shapes` keeps its body-0 refusal) | the same entry, colliders kept, with a one-body footprint admitted | the footprint alone at no bodies | passed after the BH2 repair, `repair1-bundle.trx` (E12) |
+| AC6 (ruling 5) | `BundleRoundTripTests.MalformedInputIsRejected` row `"KinematicMode": "Kinematic"` (`Read` throws `JsonException`); `BundleValidatorTests.AKinematicModeOtherThanStaticOrDynamicIsRefusedAsUndefined` (`(KinematicMode)2` refused as `BUNDLE003 … KinematicMode: undefined enum value`) | `Static` and `Dynamic` fixtures admitted | the value 2, the deleted member's | passed, `ruling5-bundle.trx`; `rg` for the member zero hits (E21) |
 
 ## Auto Run Result
 
@@ -210,4 +224,5 @@ Status: as the frontmatter states (25 November 2026).
 - **Final diff scope: Pass** (Element-Free auditor `a5cb21c18688a1ae0`, re-engaged after pass 4; candidate the uncommitted tree on `c3456907`, 126 paths; production, declaration census, all test hunks and word diffs of documents inspected; nothing removed; no justified simplification; BH4-1 routing consistent with ruling 3; run-log E19).
 - **Verification (final candidate).** Capture builds 0 warnings, 0 errors; maintainability gate PASS (`contract=4627, model=4, intrusive=0; violations=0`, metrics 0); full local round 7413 passed, 0 failed, `Skipped: 0`, HEAD and HEAD-AFTER `c3456907` (run-log E18); registration 826 on the handoff candidate (E10); R4 decoded comparison: 45 packages equal (E11, rerun by the Element-Free auditor in pass 1).
 - **Follow-up review recommended: false.** Pass 1 patched one high and two medium entries and pass 2 one high; the mandatory independent re-reviews of passes 2 to 4 covered each (loop protocol, Triage).
+- **Ruling 5 (after the candidate commit `819940be`; run-log E20 to E24).** `KinematicMode.Kinematic = 2` and its refusal are deleted; bundle text naming it is refused as an unknown name and an entry carrying 2 as `BUNDLE003` (AC6, two tests); two current documents corrected. Reviewed in passes 5 and 6 (2 document patches and 1 record row, all applied). Final candidate (`819940be` plus the ruling-5 changes, 127 paths): capture builds 0 warnings, 0 errors; maintainability gate PASS (`violations=0`); full local round 7415 passed, 0 failed, `Skipped: 0` (E22); registration 827 on `819940be` (E20). Final diff scope on the revised candidate: run-log E25.
 - **Residual risks.** Element-document line citations moved by this slice wait for each element slice's dispatch refresh (`deferred-work.md` carry-forward). `CompiledIdentityMap` indexes the baked lists without its own bound; admission refuses a wrong count before any compile. Browser, performance, release and remote build, artifact and deployment qualification unverified.

@@ -4,11 +4,11 @@ using System.Numerics;
 
 namespace CuriousContraptions.Abstractions.Mechanical;
 
+/// <summary>How a declared body moves: a static body never moves; a dynamic body is integrated by the solver.</summary>
 public enum KinematicMode : byte
 {
     Static = 0,
-    Dynamic = 1,
-    Kinematic = 2
+    Dynamic = 1
 }
 
 public readonly record struct RigidBodyMassProperties(
@@ -22,7 +22,7 @@ public readonly record struct RigidBodyMassProperties(
 
     public void Validate(KinematicMode mode)
     {
-        if (!Enum.IsDefined(mode) || mode == KinematicMode.Kinematic)
+        if (!Enum.IsDefined(mode))
             throw new ArgumentException("Unsupported mass-frame motion.");
         ValidateFrame();
         if (mode == KinematicMode.Static)

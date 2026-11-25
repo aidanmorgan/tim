@@ -1153,4 +1153,17 @@ public sealed class BundleValidatorTests
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],
             PackageDiscovery.FromAssembly("FixtureNone", typeof(IPuzzleElementDeclaration).Assembly).Errors.Select(error => error.ToString()));
+
+    /// <summary>AC6: a body moves only as a static or a dynamic body. An entry whose mechanical payload carries the value 2, once
+    /// <c>Kinematic</c> and now no member, is refused with the undefined-enum code. Controls: the same fixture static, and dynamic
+    /// with a dynamic mass frame, are admitted.</summary>
+    [Fact]
+    public void AKinematicModeOtherThanStaticOrDynamicIsRefusedAsUndefined()
+    {
+        Assert.Empty(Errors(("FixtureMode", new Fixture())));
+        Assert.Empty(Errors(("FixtureMode", new Fixture { KinematicMode = KinematicMode.Dynamic, Footprint = new(1, 1, 0, 0),
+            MassFrame = MassFrameDeclaration.Constant(.25f, Vector3.Zero, new(.03f, .06f, .04f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)) })));
+        Assert.Contains("BUNDLE003 FixtureMode.KinematicMode: undefined enum value",
+            Errors(("FixtureMode", new Fixture { KinematicMode = (KinematicMode)2 })));
+    }
 }

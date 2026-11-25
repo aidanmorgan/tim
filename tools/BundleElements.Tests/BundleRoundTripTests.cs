@@ -257,6 +257,7 @@ public sealed class BundleRoundTripTests
     [InlineData("\"Category\": \"Structure\"", "\"Category\": \"structure\"")]
     [InlineData("\"ShapeKind\": \"Box\"", "\"ShapeKind\": \"box\"")]
     [InlineData("\"KinematicMode\": \"Static\"", "\"KinematicMode\": \" Static\"")]
+    [InlineData("\"KinematicMode\": \"Static\"", "\"KinematicMode\": \"Kinematic\"")]
     [InlineData("\"ScenePath\":", "\"Unknown\": 1, \"ScenePath\":")]
     [InlineData("\"HalfExtents\": [\n", "\"HalfExtents\": [\n 1,\n")]
     public void MalformedInputIsRejected(string original, string replacement)
