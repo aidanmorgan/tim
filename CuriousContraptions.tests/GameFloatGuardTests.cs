@@ -36,11 +36,6 @@ public sealed class GameFloatGuardTests
         "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.EncodeDurations",
         "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.DecodeDurations",
         "CuriousContraptions.Gpu.WorkshopWireFlatBuffers.ValidateDurations",
-        "CuriousContraptions.Wire.CaptureObservation.Milliseconds",
-        "CuriousContraptions.Wire.CaptureObservation.GetMillisecondsBytes",
-        "CuriousContraptions.Wire.CaptureObservation.GetMillisecondsArray",
-        "CuriousContraptions.Wire.CaptureObservation.CreateMillisecondsVector",
-        "CuriousContraptions.Wire.CaptureObservation.CreateMillisecondsVectorBlock",
         "CuriousContraptions.Workshop.PrecisionInput", "CuriousContraptions.Workshop.FrameDelta", "CuriousContraptions.Workshop.ChangePrecision", "CuriousContraptions.Workshop._Process", "CuriousContraptions.Workshop._PhysicsProcess",
         "CuriousContraptions.MachineWorld._Process"
     };

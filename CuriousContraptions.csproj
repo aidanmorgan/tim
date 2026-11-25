@@ -64,8 +64,6 @@
     <Import Project="CuriousContraptions.Core/RuntimeSources.props" />
     <ItemGroup>
         <Compile Remove="@(CoreRuntimeSource)" />
-        <Compile Remove="engine/gpu/WorkshopWireGenerated.cs" />
-        <Compile Remove="engine/gpu/WorkshopAuthoringGenerated.cs" />
         <ProjectReference Include="CuriousContraptions.Core/CuriousContraptions.Core.csproj" />
     </ItemGroup>
 </Project>

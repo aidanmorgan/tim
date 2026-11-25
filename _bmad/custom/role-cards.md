@@ -61,7 +61,7 @@ Read: this card, your layer's instruction, the diff you were given, the [reviewe
 - This is a physics puzzle game. Judge outcomes, causal order, stability and lifecycle; do not demand exact ticks, incidental contact sequences or tighter precision. Unjustified precision in a test is itself a finding.
 - Follow your layer's instruction on what you may run. No mutants, no browser gate, no finding quota. Report evidence limits and unreadable inputs.
 - For each finding give the file and line, the concrete defect, and its gameplay or interface consequence, in your layer's own output format. Where you can tell, add whether the fix is a test change or a product change; the coordinator classifies and routes. Intent Alignment stays descriptive and adds no classification.
-- Your diff leaves out generated wire code and binary or imported assets; its header lists the excluded paths that changed. Name one by path if a finding depends on it.
+- Your diff leaves out engine identifier files and binary or imported assets; its header lists the excluded paths that changed. Name one by path if a finding depends on it.
 - On a re-review, your input is the repair diff. Report defects in the repair and in what it directly affects.
 
 ## Informed auditors (Forward-Only, Element-Free Engine, acceptance, planning)

@@ -51,8 +51,6 @@ public sealed class WorkshopFormatTests
             ["CuriousContraptions.Simulation/Program.cs"] = ["Versioning"],
             ["CuriousContraptions.Animation.Worker/Program.cs"] = ["Versioning"],
             ["engine/gpu/BrowserWorkshopObservation.cs"] = ["Versioning"],
-            ["engine/gpu/WorkshopWireGenerated.cs"] = ["ValidateVersion"],
-            ["engine/gpu/WorkshopAuthoringGenerated.cs"] = ["ValidateVersion"],
             ["CuriousContraptions.web/wwwroot/native-clock.ts"] = ["fullVersionList", "version"],
             // A handle's slot generation, so a stale handle cannot address a reused slot.
             ["engine/presentation/AnimationBatch.cs"] = ["Version", "version", "_versions"],

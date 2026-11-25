@@ -392,9 +392,9 @@ public sealed class TypedTransportCommandTests
 
     private static readonly string[] ProductionExtensions = [".cs", ".ts", ".js", ".mjs", ".fbs"];
 
-    /// <summary>The typed command and query definitions: the closed command kind's declaration in the C# enum, the schema and the
-    /// generated schema code. Everywhere else the query is named only through its enum (<c>CommandKind.ObserveMemory</c>).</summary>
-    private static readonly string[] TypedDefinitions = ["CuriousContraptions.Abstractions/WorkshopMessageValues.cs", "schemas/workshop_wire.fbs", "engine/gpu/WorkshopWireGenerated.cs",
+    /// <summary>The typed command and query definitions: the closed command kind's declaration in the C# enum, the schema (its C#
+    /// accessors are build output) and the TypeScript observation enum. Everywhere else the query is named only through its enum (<c>CommandKind.ObserveMemory</c>).</summary>
+    private static readonly string[] TypedDefinitions = ["CuriousContraptions.Abstractions/WorkshopMessageValues.cs", "schemas/workshop_wire.fbs",
         "CuriousContraptions.web/wwwroot/workshop-observation.ts"];
 
     private static bool IsBuildOutput(string path) => path.Split(Path.DirectorySeparatorChar)

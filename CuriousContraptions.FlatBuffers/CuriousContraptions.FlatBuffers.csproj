@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!-- The Google FlatBuffers C# runtime, vendored from google/flatbuffers tag v25.2.10 (net/FlatBuffers,
        Apache-2.0, see LICENSE) so the one wire codec is built trim-annotated: the published Google.FlatBuffers
-       package is not, which made every trimmable consumer report IL2125 (Story 9.4b). The generated wire code
-       asserts this exact runtime version (FLATBUFFERS_25_2_10). Upgrade by replacing every source file from a
-       newer tag together with the regenerated wire code. The bounded vtable offset corrections and
-       their exact integrity pins are documented in THIRD-PARTY-NOTICES.md. -->
+       package is not, which made every trimmable consumer report IL2125 (Story 9.4b). The wire accessors are build
+       output: every build that finds them absent or older than schemas/*.fbs, the list of those files or this file
+       generates them into this project's intermediate directory with the pinned compiler below, whose output asserts this exact runtime version
+       (FLATBUFFERS_25_2_10). Upgrade by replacing every source file from a newer tag together with the compiler version
+       and its digests below. The bounded vtable offset corrections and their exact integrity pins are documented in
+       THIRD-PARTY-NOTICES.md. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>CuriousContraptions.FlatBuffers</AssemblyName>
@@ -13,8 +15,118 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
+
+  <!-- S5: the pinned FlatBuffers compiler, the official google/flatbuffers release binary for the build host. The archive
+       is verified after download and the binary before every use, against these digests (recorded 21 November 2026; the
+       release publishes none). The verified binary is cached per user, outside every checkout; a compiler on PATH is never
+       used. -->
+  <PropertyGroup Label="FlatBuffers compiler">
+    <FlatcVersion>25.2.10</FlatcVersion>
+    <FlatcHostArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</FlatcHostArchitecture>
+    <FlatcCacheRoot>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify))</FlatcCacheRoot>
+  </PropertyGroup>
+  <PropertyGroup Label="FlatBuffers compiler for macOS" Condition="$([MSBuild]::IsOSPlatform('OSX')) And ('$(FlatcHostArchitecture)' == 'Arm64' Or '$(FlatcHostArchitecture)' == 'X64')">
+    <FlatcAsset>Mac.flatc.binary</FlatcAsset>
+    <FlatcArchiveSha256>eabd8e8c4d8b9381b7ea4c6324c629f9200d8bb73f94b6b28ef406efc8c06c62</FlatcArchiveSha256>
+    <FlatcBinarySha256>f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac</FlatcBinarySha256>
+  </PropertyGroup>
+  <PropertyGroup Label="FlatBuffers compiler for Linux" Condition="$([MSBuild]::IsOSPlatform('Linux')) And '$(FlatcHostArchitecture)' == 'X64'">
+    <FlatcAsset>Linux.flatc.binary.g++-13</FlatcAsset>
+    <FlatcArchiveSha256>6f01258d7475806f375d6da66a61df47add8016edd73f1774673f37b80b9a711</FlatcArchiveSha256>
+    <FlatcBinarySha256>79722d4ba7db479fa78dc966cbcf7cc601293d97c2776ab02847b5cad46357f8</FlatcBinarySha256>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FlatcCacheDirectory>$(FlatcCacheRoot)/CuriousContraptions/flatc/$(FlatcVersion)/$(FlatcAsset)/</FlatcCacheDirectory>
+    <FlatcPath>$(FlatcCacheDirectory)flatc</FlatcPath>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../engine/gpu/WorkshopWireGenerated.cs" Link="WorkshopWireGenerated.cs" />
-    <Compile Include="../engine/gpu/WorkshopAuthoringGenerated.cs" Link="WorkshopAuthoringGenerated.cs" />
+    <WireSchema Include="../schemas/*.fbs" />
   </ItemGroup>
+
+  <!-- Makes the verified compiler available at FlatcPath. A cached binary is verified and never replaced; a missing one is
+       downloaded into the intermediate directory, verified, made executable, verified again and renamed into place from a
+       temporary file in the cache directory, so no build ever sees a partial file at FlatcPath. A failure deletes this
+       build's own GUID-named temporary file, never another build's. Runs only from GenerateWireAccessors, so a build that
+       does not generate never needs the network or the cache. -->
+  <Target Name="ProvisionFlatBuffersCompiler">
+    <Error Condition="'$(FlatcAsset)' == ''"
+           Text="The pinned FlatBuffers compiler $(FlatcVersion) has no release asset for this build host ($([System.Runtime.InteropServices.RuntimeInformation]::OSDescription), $(FlatcHostArchitecture)). Supported build hosts: macOS (Arm64, X64) and Linux X64." />
+    <Error Condition="'$(FlatcCacheRoot)' == ''"
+           Text="The FlatBuffers compiler cache has no location: Environment.SpecialFolder.LocalApplicationData evaluated to an empty path (set HOME, or XDG_DATA_HOME on Linux)." />
+    <MakeDir Directories="$(FlatcCacheDirectory)" />
+    <PropertyGroup>
+      <_FlatcCached>$([System.IO.File]::Exists('$(FlatcPath)'))</_FlatcCached>
+      <_FlatcDownloadDirectory>$(IntermediateOutputPath)flatc-download/</_FlatcDownloadDirectory>
+      <_FlatcArchive>$(_FlatcDownloadDirectory)$(FlatcAsset).zip</_FlatcArchive>
+      <_FlatcTemporary>$(FlatcCacheDirectory)flatc.$([System.Guid]::NewGuid().ToString('N')).tmp</_FlatcTemporary>
+    </PropertyGroup>
+
+    <GetFileHash Condition="'$(_FlatcCached)' == 'true'" Files="$(FlatcPath)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcCachedSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' == 'true' And '$(_FlatcCachedSha256)' != '$(FlatcBinarySha256)'"
+           Text="The cached FlatBuffers compiler &quot;$(FlatcPath)&quot; has SHA-256 $(_FlatcCachedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). It was not run or replaced. Delete &quot;$(FlatcPath)&quot; to download the pinned release again." />
+
+    <Message Condition="'$(_FlatcCached)' != 'true'" Importance="high"
+             Text="Downloading the pinned FlatBuffers compiler $(FlatcVersion) ($(FlatcAsset).zip) into &quot;$(FlatcCacheDirectory)&quot;." />
+    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
+    <DownloadFile Condition="'$(_FlatcCached)' != 'true'" ContinueOnError="true"
+                  SourceUrl="https://github.com/google/flatbuffers/releases/download/v$(FlatcVersion)/$(FlatcAsset).zip"
+                  DestinationFolder="$(_FlatcDownloadDirectory)" />
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(MSBuildLastTaskResult)' != 'true'"
+           Text="The pinned FlatBuffers compiler archive $(FlatcAsset).zip (release v$(FlatcVersion), SHA-256 $(FlatcArchiveSha256)) could not be downloaded from github.com, so &quot;$(FlatcPath)&quot; cannot be placed. A first build on each machine needs network access to github.com." />
+    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcArchive)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcArchiveSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcArchiveSha256)' != '$(FlatcArchiveSha256)'"
+           Text="The downloaded FlatBuffers compiler archive &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcArchiveSha256.ToLowerInvariant()), but the pinned digest is $(FlatcArchiveSha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
+    <Unzip Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcArchive)" DestinationFolder="$(_FlatcDownloadDirectory)extracted/" />
+    <Copy Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcDownloadDirectory)extracted/flatc" DestinationFiles="$(_FlatcTemporary)" />
+    <Exec Condition="'$(_FlatcCached)' != 'true'" Command="chmod 755 &quot;$(_FlatcTemporary)&quot; &amp;&amp; test -x &quot;$(_FlatcTemporary)&quot;" />
+    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcTemporary)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcExtractedSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcExtractedSha256)' != '$(FlatcBinarySha256)'"
+           Text="The FlatBuffers compiler extracted from &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcExtractedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
+    <Exec Condition="'$(_FlatcCached)' != 'true'" Command="mv -f &quot;$(_FlatcTemporary)&quot; &quot;$(FlatcPath)&quot;" />
+    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
+    <OnError ExecuteTargets="DeleteFlatcTemporary" />
+  </Target>
+
+  <Target Name="DeleteFlatcTemporary">
+    <Delete Files="$(_FlatcTemporary)" />
+  </Target>
+
+  <!-- Lists the schema files, rewriting the list only when that set changes, so adding or deleting a whole schema file
+       reruns GenerateWireAccessors as editing one does. -->
+  <Target Name="ListWireSchemas">
+    <WriteLinesToFile File="$(IntermediateOutputPath)WireSchemas.list" Lines="@(WireSchema)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+
+  <!-- Generates one C# source per schema type into WireAccessors/ under the intermediate directory, replacing the previous
+       output, whenever the stamp is absent or older than a schema, the schema list or this file (a clean tree or a
+       no-incremental build has no stamp). -->
+  <Target Name="GenerateWireAccessors" DependsOnTargets="ListWireSchemas"
+          Inputs="@(WireSchema);$(IntermediateOutputPath)WireSchemas.list;$(MSBuildProjectFullPath)" Outputs="$(IntermediateOutputPath)WireAccessors/.generated">
+    <CallTarget Targets="ProvisionFlatBuffersCompiler" />
+    <RemoveDir Directories="$(IntermediateOutputPath)WireAccessors/" />
+    <Exec Command="&quot;$(FlatcPath)&quot; --csharp -o &quot;$(IntermediateOutputPath)WireAccessors&quot; @(WireSchema->'&quot;%(FullPath)&quot;', ' ')" />
+    <Touch Files="$(IntermediateOutputPath)WireAccessors/.generated" AlwaysCreate="true" />
+  </Target>
+
+  <!-- The nullable ArraySegment byte accessors are the only wire surface. The generated sources also carry ENABLE_SPAN_T
+       alternatives, so every build refuses that define, wherever it stands in a list separated by ';', ',' or whitespace
+       as the compiler splits it, before anything is generated or compiled. -->
+  <Target Name="RefuseSpanAccessorDefine">
+    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(DefineConstants)', '(^|[;,\s])ENABLE_SPAN_T($|[;,\s])'))"
+           Text="CuriousContraptions.FlatBuffers is built with ENABLE_SPAN_T in DefineConstants ($(DefineConstants)). The nullable ArraySegment accessors are the only wire surface, so the generated Span accessors are never compiled; remove the define." />
+  </Target>
+
+  <!-- Every build compiles the generated sources and records them as its own outputs, so Clean and Rebuild remove them. -->
+  <Target Name="CompileWireAccessors" BeforeTargets="BeforeCompile" DependsOnTargets="RefuseSpanAccessorDefine;GenerateWireAccessors">
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)WireAccessors/**/*.cs" />
+      <FileWrites Include="$(IntermediateOutputPath)WireAccessors/**/*.cs;$(IntermediateOutputPath)WireAccessors/.generated;$(IntermediateOutputPath)WireSchemas.list" />
+    </ItemGroup>
+  </Target>
 </Project>
