@@ -212,3 +212,9 @@ Append-only. Contract: `_bmad-output/implementation-artifacts/spec-s3-remaining-
 
 - E23's parenthetical "(now: published as `5f1c4d4a`, with S3 merged with it as the current candidate)" is superseded. The second SnapshotApproval review found that the added clause naming S3 as the current candidate described this slice's own publication as pending, so commit `bf0e8473` deleted it.
 - `TODO.md:3` now states that part A is published as `37fbd3a4` and that the lane planning records are published as `5f1c4d4a`; S3's outcome is stated only in the lane 2 line and the S3 paragraph. Only this run log changes in this correction, and no test reads it (E15).
+
+## E25 Publication receipt (24 November 2026; recorded by S5's first records edit)
+
+- Published as `3a80c6a8ec230948eeef29594e8b72d9fa3ed5e7` on `main`: SnapshotApproval Pass by an independent subagent on that SHA, a fast-forward from `5f1c4d4a`.
+- Merged-commit round on `2d61fe05`: 7317 passed, 0 failed, 0 skipped (E23).
+- Remote build, artifact and deployment: unverified (owner instruction of 29 October).
