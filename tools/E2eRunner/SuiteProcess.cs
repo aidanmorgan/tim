@@ -40,8 +40,7 @@ internal static class SuiteProcess
     }
 
     /// <summary>Runs one suite file in its own node process; on the wall limit or an abort the whole process tree is killed and every
-    /// process it held is checked gone. The kill is Processes.KillTree's: a root still running after its grace is unregistered from
-    /// the sampler and refused as ProcessTimedOut naming the suite and the kill's detail.</summary>
+    /// process it held is checked gone.</summary>
     public static async Task<SuiteRun> RunAsync(SuiteLaunch launch, ProcessSampler sampler, CancellationToken abort)
     {
         ArgumentNullException.ThrowIfNull(launch);
@@ -71,7 +70,6 @@ internal static class SuiteProcess
         sampler.Register(process.Id);
 
         var timedOut = false;
-        var killed = "";
         using (var limit = CancellationTokenSource.CreateLinkedTokenSource(abort))
         {
             limit.CancelAfter(launch.WallLimit);
@@ -80,12 +78,7 @@ internal static class SuiteProcess
             {
                 timedOut = !abort.IsCancellationRequested;
                 sampler.Sample();
-                killed = Processes.KillTree(process);
-                if (!process.HasExited)
-                {
-                    sampler.Unregister(process.Id);
-                    throw new RunnerException(RunnerError.ProcessTimedOut, $"Suite {launch.Label} could not be stopped: {killed}.");
-                }
+                process.Kill(entireProcessTree: true);
                 await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
             }
         }
@@ -94,7 +87,7 @@ internal static class SuiteProcess
         var seen = sampler.Unregister(process.Id);
         var survivors = ProcessTable.StillRunning(seen);
         foreach (var survivor in survivors) ProcessTable.KillOwned(survivor.Pid);
-        if (timedOut) await log.WriteLineAsync($"E2E_RUNNER wall limit {launch.WallLimit} reached: {killed}.").ConfigureAwait(false);
+        if (timedOut) await log.WriteLineAsync($"E2E_RUNNER wall limit {launch.WallLimit} reached: the process tree was killed.").ConfigureAwait(false);
         foreach (var survivor in survivors) await log.WriteLineAsync($"E2E_RUNNER survivor {survivor.Pid} killed: {survivor.Command}").ConfigureAwait(false);
         return new SuiteRun(launch.Label, process.ExitCode, timedOut, [.. survivors.Select(survivor => $"{survivor.Pid} {survivor.Command}")], started, ended);
     }
