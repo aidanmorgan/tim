@@ -47,7 +47,7 @@ public partial class Workshop
         var presentation = authored ? PuzzleCatalogue.Presentation(id) : null;
         _picker.Select(CurrentPuzzleIndex);
         _inventory = authored ? WorkshopInventoryPolicy.Authored(World.Construction.Puzzle) : World.Registry.Free;
-        _title.Text = presentation?.Title ?? "Free workshop";
+        _title.Text = presentation?.Title ?? FreeWorkshopTitle;
         _task.Text = presentation?.Task ?? "Place parts and connect activation sockets. Run tries the machine; Reset restores its starting arrangement.";
         _hint.Visible = false; _task.Visible = _hintButton.Visible = authored;
         _optionsPanel.Visible = false; _objectivePanel.Visible = authored;

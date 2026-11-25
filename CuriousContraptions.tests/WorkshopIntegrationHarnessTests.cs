@@ -688,15 +688,21 @@ public sealed class WorkshopIntegrationStartupTests(NativeSceneFixture godot)
             var children = first.GetParent().GetChildren();
             var rows = children.Select(node => node is Label label ? label.Text :
                 node is Button button ? button.GetMeta("part_kind").AsString() : throw new InvalidOperationException("Unexpected palette row.")).ToArray();
-            string[] expected =
-            [
-                "Motion", "ball", "bumper", "domino", "bowling", "spring", "pipe", "pipe_bend_45",
-                "pipe_bend_90", "funnel", "powered_gate", "weight", "rope_anchor", "pulley", "impact_lever", "trampoline", "conveyor", "reverse_transmission", "wound_spring", "cannon", "tennis", "balloon", "baseball",
-                "Goals", "basket", "lamp", "Power", "switch", "battery", "motor", "clutch", "linear_pusher", "fan", "windmill",
-                "Control", "delay", "ball_detector", "pressure_plate", "counter", "clock", "latch",
-                "hold_timer", "both_gate", "electrical_nand", "electrical_nor", "electrical_or", "electrical_xor",
-                "Structure", "wall", "ramp"
-            ];
+            // S3 (M6): every declared category in ascending value under the heading the player reads, then its discovered packages
+            // in declared palette order.
+            static string Heading(ElementCategory category) => category switch
+            {
+                ElementCategory.Motion => "Motion",
+                ElementCategory.Goals => "Goals",
+                ElementCategory.Power => "Power",
+                ElementCategory.Control => "Control",
+                ElementCategory.Structure => "Structure",
+                _ => throw new ArgumentOutOfRangeException(nameof(category), category, "No palette heading is expected for this category.")
+            };
+            var expected = TestBundle.Packages.Select(package => package.Declaration.Metadata).GroupBy(metadata => metadata.Category)
+                .OrderBy(group => group.Key)
+                .SelectMany(group => group.OrderBy(metadata => metadata.PaletteOrder).Select(metadata => metadata.Id).Prepend(Heading(group.Key)))
+                .ToArray();
             Assert.Equal(expected, rows);
             var impact = scene.World.Registry.Definitions[new PartId("switch")];
             Assert.Equal("Impact switch", impact.Title);

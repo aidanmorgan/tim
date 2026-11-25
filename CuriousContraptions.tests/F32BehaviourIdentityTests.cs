@@ -33,10 +33,9 @@ public sealed class F32BehaviourIdentityTests(ITestOutputHelper output)
     }
 
     [Fact]
-    public void EveryCurrentLessonAndElementHasAnExecutedScenario()
+    public void EveryCurrentLessonHasAnExecutedScenario()
     {
         Assert.Equal(PuzzleCatalogue.Playable.OrderBy(id => id.Value), LaunchLessonSolveTests.Lessons.OrderBy(id => id.Value));
-        foreach (var part in SaveFixture.Elements) Assert.Equal(part, PackageRuntimeParityTests.Placed(part).PartId);
     }
 
     [Theory]

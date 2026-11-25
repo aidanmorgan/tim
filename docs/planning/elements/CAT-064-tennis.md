@@ -91,7 +91,7 @@ No port exists, so no wrong-kind connection case applies. Chrome recipe: post-ca
 
 ## 7. Integration
 
-Works with Fan, Receiver, Impact switch, Pressure plate, Basketball and Bowling ball (delivered); Bellows (Story 12.4, in flight: its row B1 propels a Tennis ball); Bell (planned). Campaign: first use in levels 1–10 ([campaign reservations](../invest/campaign-reservations.md)); 22 levels in `content/puzzles.json` place it, from 3 `air_mail`. Coverage binding: catalogue key `tennis` in `docs/coverage/catalogue-elements.json`. A level that pre-places it as a locked fixture uses the lesson-fixture story (S8).
+Works with Fan, Receiver, Impact switch, Pressure plate, Basketball and Bowling ball (delivered); Bellows (Story 12.4, in flight: its row B1 propels a Tennis ball); Bell (planned). Campaign: first use in levels 1–10 ([campaign reservations](../invest/campaign-reservations.md)); 5 levels in `content/puzzles.json` place it, from 3 `air_mail` (authored position before decision 24d, paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)). Coverage binding: catalogue key `tennis` in `docs/coverage/catalogue-elements.json`. A level that pre-places it as a locked fixture uses the lesson-fixture story (S8).
 
 ## 8. Delivery
 

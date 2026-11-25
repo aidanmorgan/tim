@@ -14,6 +14,8 @@ namespace CuriousContraptions;
 public partial class Workshop : Node3D
 {
     private static readonly Color Navy = new("#293954"), Muted = new("#48556a"), Cream = new("#25344b"), Mint = new("#326537");
+    /// <summary>The label the picker and the title show for the free workshop, which has no authored puzzle.</summary>
+    internal const string FreeWorkshopTitle = "Free workshop";
     private ICoreServices _core = null!;
     private IBundleServices _bundle = null!;
     public IWorkshopDiagnostics Diagnostics { get; private set; } = null!;
@@ -131,7 +133,7 @@ public partial class Workshop : Node3D
         choices.Insert(Math.Min(1, choices.Count), default);
         _puzzleChoices = choices.ToArray();
         foreach (var choice in _puzzleChoices)
-            _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : "Free workshop");
+            _picker.AddItem(choice.IsAuthored ? PuzzleCatalogue.Presentation(choice).Title : FreeWorkshopTitle);
         PresentMode();
         _picker.Select(Array.IndexOf(_puzzleChoices, default(PuzzleId)));
         try { await World.InitializeWorkshop(ClientFactory); if (_workshopUiRemoved) return; _gpuPending = false; SetBuildUi(); RefreshPalette(); }

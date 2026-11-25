@@ -11,7 +11,7 @@
 | Mapped identities | EL-195 Pinball bumper ([EL-195 spec](EL-195-pinball-bumper.md)) |
 | Disposition | Delivered. Stories 6.2 (radial impulse and finite work store) and 6.3 (multi-angle contacts, `bumper_depth`, `wall_and_bumper`) have terminal scoped Pass; the generic conversion is C-Bumper+Spring; the cap collider is `bumper-cap-solid` (published `057df5ae`) |
 | EL-195 order | EL-195's part check runs in the "Launch parts" closure review after the engine programme (owner decision 3a); the CAT-015 requirement row and the EL-195 ledger row are ticked only after Story 15.0's isolated-assistance control |
-| Levels | placed in `wall_return` (Planned); inventory in `bumper_sidekick`, `bumper_depth`, `wall_and_bumper` (Playable); see [CAT-015-I consumers](../invest/current-consumers.md#cat-015-i) |
+| Levels | inventory in `bumper_sidekick`, `bumper_depth`, `wall_and_bumper` (Playable); no level places it as a fixture since `wall_return` was removed (owner decision 24d); see [CAT-015-I consumers](../invest/current-consumers.md#cat-015-i) |
 
 ## 2. Declaration
 
@@ -163,7 +163,7 @@ Needs the owner: nothing.
 ## 7. Integration
 
 - **Collaborators.** Basketball, Bowling ball, Tennis ball and Baseball (payloads); Wall; Battery (recharge), directly or through an Impact switch; Receiver. All delivered.
-- **Campaign.** `wall_return` (Planned), `bumper_sidekick`, `bumper_depth`, `wall_and_bumper` (Playable) in `content/puzzles.json`; first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
+- **Campaign.** `bumper_sidekick`, `bumper_depth`, `wall_and_bumper` (Playable) in `content/puzzles.json` (`wall_return` was removed under owner decision 24d); first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
 - **Coverage binding.** Catalogue key `bumper` in `docs/coverage/catalogue-elements.json`. A level that offers it from the player's inventory needs no lesson-fixture story; a level that locks it as a fixture adds a `FIX-` row to the catalogue fixture table ([current consumers](../invest/current-consumers.md), read by `tools/Coverage/CurrentCatalogue.cs:100`), and needs [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) only for per-parameter or connection locks.
 
 ## 8. Delivery

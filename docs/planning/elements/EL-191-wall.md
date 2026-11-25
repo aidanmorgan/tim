@@ -98,7 +98,7 @@ Tick order for A9 and A10 follows `docs/gpu-f32-physics.md` (single physics tick
 ### Integration
 
 - **Collaborators.** Delivered: every ball kind, Bumper, Receiver, Fan, Balloon (a wall is its ceiling). Not delivered: Flashlight (CAT-029), Solar panel (CAT-059), Bell (CAT-009), Sound meter (CAT-060); Bellows (12.4) is in flight.
-- **Campaign.** `wall_and_bumper` (Playable); `wall_return`, `solar_shadow` (Planned). First use 1–10. Teaching task [sequence-task-304](../requirements.md#sequence-task-304), [todo-163](../requirements.md#todo-163).
+- **Campaign.** `wall_and_bumper` (Playable); `solar_shadow` (Planned). First use 1–10. Teaching task [sequence-task-304](../requirements.md#sequence-task-304), [todo-163](../requirements.md#todo-163).
 - **Coverage binding.** The catalogue key `wall` in `docs/coverage/catalogue-elements.json`. A refinement has no named-package binding of its own.
 - **Lesson fixture (S8).** Not needed.
 
