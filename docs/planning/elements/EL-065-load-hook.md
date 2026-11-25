@@ -86,7 +86,7 @@ There is no eye ring on the hook: the gold endpoint knot is drawn by the rope pr
 | A moving Torus collider with a real hole | *present* | `ColliderShapeKind.Torus` `PhysicsDeclarationValues.cs:12`; moving-hollow path `CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:161` | `CuriousContraptions.tests/WorkshopPhysicsLawHollowTests.cs:1255`, `:1371` |
 | **A dynamic box bar threaded through the bore of a dynamic ring carries it under gravity** (hook through the Weight's eye) | *present, untested* | the two rows above together | none. The slice's row H1 is its first test; no engine story is expected |
 
-The doc comment at `PhysicsDeclarationValues.cs:10` and the batch notes call the hollow kinds "static only". That is stale: moving hollows are solved (`WorkshopConstraintSolver.cs:161`) and the Weight ships one.
+The doc comment at `PhysicsDeclarationValues.cs:10` places the hollow kinds on static or dynamic bodies (corrected in `dbaacad1`): moving hollows are solved (`WorkshopConstraintSolver.cs:161`) and the Weight ships one.
 
 **Element dependencies.** Delivered: Weight, Rope anchor, Pulley, Wall. Not delivered and not blocking: EL-063 winch, EL-069 bucket, EL-070 cage, EL-067 cable.
 

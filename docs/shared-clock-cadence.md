@@ -55,11 +55,11 @@ The Run limit is 30 seconds of committed world time: 1800/3600/7200 commits at t
 <a id="history-capacity-and-unchanged-ceilings"></a>
 ## SharedArrayBuffer Pose Ring, History Capacity and Ceilings
 
-To eliminate GPU-to-CPU readback stalls (`mapAsync` stalls of 0.5–2 ms) and thread-to-thread copying overhead, the simulation worker publishes committed body poses directly into a lock-free zero-copy multi-buffered ring in `SharedArrayBuffer` (depth derived from tick rate and render delay).
+To avoid GPU-to-CPU readback stalls (`mapAsync` stalls of 0.5–2 ms), the simulation worker publishes committed body poses into a lock-free ring in `SharedArrayBuffer`, today through at least one JavaScript-mediated copy per side; a zero-copy multi-buffered ring (depth derived from tick rate and render delay) is target ([Current status](architecture/element-package-isolation.md#current-status)).
 
 Each buffer slot in the ring stores contiguous SIMD-aligned 32-bit floats for all dynamic and kinematic bodies (position xyz, orientation quaternion xyzw, linear velocity xyz, flags), preceded by a 64-bit atomic sequence counter and a 64-bit committed timestamp.
 
-The atomic sequence protocol ensures torn reads are impossible without mutex locks:
+The atomic sequence protocol ensures torn reads are impossible without mutex locks. The writer runs today, copying the slot with `target.set` between its two sequence stores (`CuriousContraptions.web/wwwroot/pose-ring.ts:95-98`) rather than with SIMD stores; the reader is the `ENGINE-WIRE-ABI` target, because no production code reads the ring ([Current status](architecture/element-package-isolation.md#current-status)):
 1. **Writer Protocol (Simulation Worker):**
    - Atomically increment the sequence counter from $2k$ to $2k + 1$ (odd, indicating write in progress).
    - Write contiguous pose floats using 128-bit SIMD stores.
@@ -69,7 +69,7 @@ The atomic sequence protocol ensures torn reads are impossible without mutex loc
    - Read the pose data.
    - Re-read the sequence counter via `Atomics.load`. If it does not match the initial even value, the read was raced; retry with the alternative buffer.
 
-The presentation adapter samples bracketing committed substep snapshots from the ring and evaluates Slerp interpolation for orientation and linear interpolation for position at the coherent display timestamp. Missing or out-of-order samples retain the prior coherent frame; no extrapolation across missing data is permitted. This ring guarantees sub-millisecond, zero-copy presentation updates at display refresh rates from 30 Hz to 144 Hz.
+The presentation adapter samples bracketing committed substep snapshots (today from the committed read's pose history; from the ring as target) and evaluates Slerp interpolation for orientation and linear interpolation for position at the coherent display timestamp. Missing or out-of-order samples retain the prior coherent frame; no extrapolation across missing data is permitted. Sub-millisecond, zero-copy presentation updates from the ring at display refresh rates from 30 Hz to 144 Hz are target ([Current status](architecture/element-package-isolation.md#current-status)).
 
 ## World time, autonomous UI and lifecycle
 

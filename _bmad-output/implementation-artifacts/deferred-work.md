@@ -229,7 +229,7 @@
 <a id="engine-supply-demand"></a>
 - source_spec: `_bmad-output/implementation-artifacts/spec-engine-revolute-drive.md` (owner decision, 3 November 2026)
   summary: Supply to a drive is binary. A closed PowerIn route enables a prismatic or revolute drive, but the drive's work does not debit the source's finite store, so a Battery never runs down by driving a Motor or a Powered Gate. EL-196 asks that a finite store supply its loads through bounded energy and power.
-  evidence: `engine-revolute-drive` commits each hinge's positive drive work (`PhysicsGpuAbi.ReadRevoluteState`) but debits nothing. `ElectricalSupply.Reserve` debits only bindings to contact-work stores. CAT-042 open question 4 (whether motor work debits a finite battery store) was decided by the owner on 3 November 2026: deferred to its own slice.
+  evidence: `engine-revolute-drive` commits each hinge's positive drive work (`PhysicsGpuAbi.ReadRevoluteState`) but debits nothing. `ElectricalSupply.Reserve` grants only store charging and electrically fed airflow (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Supply.cs:107`), which the source pays through `SourcePayment` (`:114`, `WorkshopPhysicsEngine.ContinuousCommit.cs:61`). CAT-042 open question 4 (whether motor work debits a finite battery store) was decided by the owner on 3 November 2026: deferred to its own slice.
   destination: `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`), order 7 of the engine programme (owner decision 3a): one demand law for every powered part (EL-196), debiting each drive's committed positive work (and any declared standing demand) from its route's sources within their power bounds as a request lane of the existing source reservation, with an exhausted source opening the route. A request above the source's per-tick allowance (power limit × dt) is limited to it (coordinator decisions 27 and 30). It re-qualifies the Powered Gate and Motor supply cases, and EL-199 closes inside it.
 
 <a id="tensile-revolute-drive-creep"></a>
@@ -391,3 +391,51 @@ Each is outside the pass-6 repair and breaks no rule, required-now criterion or 
 Each is outside the pass-2 repair diff and what it directly affects, and breaks no hard rule, required-now criterion or gameplay behaviour (`spec-content-campaign-housekeeping.md`, Review Triage Log, pass 3).
 
 - source: pass 3 finding FO3 borderline 3. summary: the seven invest document names are listed in `tools/Coverage/CurrentOwnerRelations.cs:12–13` independently of `tools/Ownership/CurrentOwnerMembership.cs`, so the two can drift (one rule, two lists; not a second path). evidence: `CurrentOwnerRelations.cs:12–13`; `CurrentOwnerMembership.cs` `EngineDocument`, `ConsumersDocument`, `ScopeDocuments`. owner: the next slice that changes either reader. No slice queued.
+
+### Deferred from DOC-ENGINE-STATUS — 25 November 2026
+
+- source: `spec-doc-engine-status.md`, ruling R5 (its run log, entry E3).
+- summary: three `tools/e2e` comments misdescribe the pose ring: `tools/e2e/workshop-driver.ts:1147` calls it zero-copy, `tools/e2e/workshop-driver.ts:2` says the driver reads the ring, and `tools/e2e/engine-core-2a1.test.ts:2` names a "Triple Pose Ring". DOC-ENGINE-STATUS leaves them unedited.
+- evidence: those lines at `37a259c9`; the current wording is in `docs/gpu-f32-physics.md`, Shared Memory Pipeline.
+- owner: S5c if it touches those lines, otherwise the post-catalogue browser phase that re-enables the `tools/e2e` suites. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 1, VG-1 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E15).
+- summary: automated anchor check in `ArchitectureDocsConsistencyTests`, including `DESIGN.md`, `docs/browser-physics-performance.md`, `docs/shared-clock-cadence.md`, `docs/simulation-presentation-bridge.md` and `docs/planning/invest/current-consumers.md`, with a broken-anchor control. Today the test resolves relative links but not their `#fragment`; DOC-ENGINE-STATUS ran a one-off check instead, because its contract forbids test changes.
+- evidence: `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`; the one-off check in run log E15.
+- owner: the coordinator to assign. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 3 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E17).
+- summary: element documents may still cite the "Phase 1–5" tick diagram that DOC-ENGINE-STATUS replaced. Scope: the 43 files `rg -l 'Phase [1-5]' docs/planning/elements --glob '!**/readiness/audits/**'` lists at the review-pass-4 candidate, each to be checked, since a match may use "Phase" in another sense. Known diagram citations: EL-046 to EL-052 ("Phase 2 acoustic pass"), CAT-009 and CAT-069 (line citations of `docs/gpu-f32-physics.md:165`), and EL-176 item 4 ("`docs/gpu-f32-physics.md` draws optics in Phase 2"). Separately, the 14 files `rg -l 'deferred-work\.md:(209|211|212|221)' docs/planning/elements --glob '!**/readiness/audits/**'` lists cite stale line numbers for the drive-supply entry, whose stable reference is `deferred-work.md#engine-supply-demand`. EL-068, EL-196, EL-199, EL-217, EL-220, EL-221, EL-222, EL-233, EL-234, EL-237, EL-241, `readiness/batch-c.md:79` and `readiness/new-identities.md` cite `deferred-work.md:209`, `:209-213` or `:211` for binary drive supply; those lines have not held that entry since before baseline `37a259c9`. Two cite it for its stray `ElectricalSupply.Allocate` symbol wording (now `ElectricalSupply.Reserve`, PD-43): `readiness/batch-c.md:106` cites `:212`, a blank line at the baseline, and `readiness/completion-ledger.md:288` (PD-43) cites `:221`, which at the baseline belongs to an unrelated entry (P0-034).
+- evidence: the redrawn diagram and its citation paragraph in `docs/gpu-f32-physics.md`, Solver Model; the target slots are in the combined tick order (`docs/planning/elements/EL-176-red-laser-emitter.md#combined-tick-order`).
+- owner: the coordinator to assign, for example each element's own slice or one records sweep. No slice queued.
+
+<a id="restitution-mixed-manifold-rule"></a>
+- source: DOC-ENGINE-STATUS review pass 6 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E20).
+- summary: the restitution mixed-manifold rule (`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:777`: a manifold's supporting points join a restitution group only when that manifold has no bouncing point) needs a decided target and an acceptance case. `_bmad-output/implementation-artifacts/spec-engine-supported-impact-restitution.md:92` treated dropping those points as a defect.
+- evidence: `WorkshopConstraintSolver.cs:767-778` (`hasBounce` set from the manifold's points, then supporting points admitted only when it is false).
+- owner: `ENGINE-ISLANDS-SLEEP` planning. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 6 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E20).
+- summary: `_bmad-output/planning-artifacts/architecture.md:230` names an element and gives a buoyancy formula, $\mathbf{a}_b = (\rho_{\text{ambient}}/\rho_{\text{gas}} - 1)\mathbf{g}$, that the code does not compute.
+- evidence: the code applies a declared acceleration through ambient loads (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.Gas.cs:95-114`).
+- owner: the coordinator to assign. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 6 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E20).
+- summary: `_bmad-output/planning-artifacts/epics.md:5240` (`ENGINE-FIELD-FORCE`, *Present today*) cites `SIM/WorkshopPhysicsCompiler.Gas.cs`, a path that does not exist.
+- evidence: the file is `engine/gpu/WorkshopPhysicsCompiler.Gas.cs`.
+- owner: the coordinator to assign. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 5, EFE5-d1 (`spec-doc-engine-status.md`, Review Triage Log; recorded in its run log, entry E20).
+- summary: `_bmad-output/planning-artifacts/epics.md:4834` (`ENGINE-LIQUID`, *Present today*) says "buoyancy exists only for a gas-filled body in air", but ambient loads apply to any dynamic body.
+- evidence: `CuriousContraptions.Abstractions/GasCouplingValues.cs:19-20` (the fraction is optional), `engine/gpu/WorkshopPhysicsCompiler.Gas.cs:36-39`, `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Gas.cs:95-114`.
+- owner: the coordinator to assign. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 7 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E21).
+- summary: `_bmad-output/planning-artifacts/epics.md:4800` (`ENGINE-GAS-NETWORK`, *Present today*) says "one finite gas store per body", but the code admits several gas stores on one body.
+- evidence: `engine/gpu/GasSceneValidation.cs:39-41` (every store on the body is gathered and their reference masses summed).
+- owner: the coordinator to assign. No slice queued.
+
+- source: DOC-ENGINE-STATUS review pass 7 (`spec-doc-engine-status.md`, Review Triage Log; its run log, entry E21).
+- summary: `ENGINE-ISLANDS-SLEEP`'s acceptance (`_bmad-output/planning-artifacts/epics.md`, the story's *Acceptance* list) has no case that would fail if the one-sided upward-normal support filters of restitution survived, although its *Deletes* line removes them.
+- evidence: the filters at `CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:739` (`ExpandRestitutionSupports`) and `:769` (`GatherRestitutionIsland`); the story's acceptance cases cover sleep, wake, drive confinement, resting stacks and the 8-point cap only.
+- owner: `ENGINE-ISLANDS-SLEEP` planning. No slice queued.

@@ -130,7 +130,7 @@ Consequences elsewhere in `epics.md`: `ENGINE-FRACTURE`'s Unblocks line ("every 
 
 - **New identity for the 45° metal bend.** The number, S owner, requirement anchor and sequence-task are allocated by the cross-batch pass (EL-242 if unclaimed). Proposed entry, in the form of the EL-072 entry:
 
-> ### element-242 · EL-242 · 45° metal ball pipe bend. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces.
+> ### element-242 · EL-242 · 45° metal ball pipe bend. Type: Mechanical. Scope/evidence source: [existing record](../../requirements.md#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces.
 >
 > Owner **Snnn**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
 >
@@ -167,7 +167,7 @@ Consequences elsewhere in `epics.md`: `ENGINE-FRACTURE`'s Unblocks line ("every 
 
 ## 8. Contradictions found
 
-- **Hollow colliders are not static only.** The comment at `CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:9`–`:11` and `CuriousContraptions.Simulation/WorkshopCollisionKernels.cs:1996` says they are; the solver has a dynamic-hollow branch (`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:161`) and the delivered Weight carries Torus colliders. The EL-069 slice corrects both.
+- **Hollow colliders are not static only.** The comment at `CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:9`–`:11` and `CuriousContraptions.Simulation/WorkshopCollisionKernels.cs:1996` said they were until `dbaacad1` corrected both; the solver has a dynamic-hollow branch (`CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:161`) and the delivered Weight carries Torus colliders.
 - **`delivery-batches.md` 2c, EL-064** says its delta is steel-cable admission needing a connector-material enum. Admission reads domain, direction and port role (`engine/gpu/WorkshopConnections.cs:112`–`:114`, `:161`–`:168`), and a material enum in the engine would breach the element-free rule.
 - **Ledger EL-064** says review and publication of 10.2b are pending; `sprint-status.yaml:331` says done.
 - **D13 against the barrier family.** D13 fixes size per kind unless the row names a size parameter; the barriers keep the Wall's three dimensions through retained CAT-066 acceptance.
