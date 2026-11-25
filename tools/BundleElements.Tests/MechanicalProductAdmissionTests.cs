@@ -10,7 +10,7 @@ public sealed class MechanicalProductAdmissionTests
     private static BundleEntry Entry(MechanicalValue power, ParameterUnit forceUnit = ParameterUnit.Newton,
         float minimumForce = 1f, float maximumForce = 100f)
     {
-        var source = BundleSchema.Entry(new Fixture
+        var source = FixtureBake.Entry(new Fixture
         {
             Parameters = [.. Fixture.SpringParameters,
                 new("force", forceUnit, ParameterKind.Real, minimumForce, maximumForce, minimumForce, []),

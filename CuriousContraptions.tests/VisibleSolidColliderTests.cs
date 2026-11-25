@@ -295,10 +295,8 @@ public sealed class VisibleSolidColliderTests
     private static List<ColliderDescriptor>[] MovingPools(PartId element, BundleEntry entry, ArtSpec spec)
     {
         var declaration = TestBundle.Packages.Single(package => package.Declaration.Metadata.Id == element.Value).Declaration;
-        Assert.Equal(Assert.IsAssignableFrom<ISceneGeometryElement>(declaration).SceneBodies.Skip(1).Select(body => body.Root), spec.MovingRoots);
-        return entry.Mechanical is { } mechanical
-            ? [.. mechanical.Sliders.Select(s => s.MovingBody.Colliders.ToList()), .. mechanical.Hinges.Select(h => h.MovingBody.Colliders.ToList())]
-            : [];
+        Assert.Equal(declaration.SceneBodies.Skip(1).Select(body => body.Root), spec.MovingRoots);
+        return entry.Mechanical is { } mechanical ? [.. mechanical.MovingBodyColliders.Select(body => body.ToList())] : [];
     }
 
     /// <summary>The pool of the body that owns an art path: the moving body whose root lies above it (scene body roots do not nest),

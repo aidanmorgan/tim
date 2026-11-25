@@ -41,9 +41,6 @@ public sealed class SystemClockElementDeclaration : ISignalElement, ISupplyEleme
         new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(.78f, 0f, 0f), Vector3.UnitX)
     ];
 
-    /// <summary>The housing and its foot.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

@@ -113,7 +113,7 @@ Colours (`DESIGN.md:80`, `:239`): deck Cream `#fff8e9` (part-body cream, owner d
 | Obstruction stops the body and reports Blocked | *present* | `PrismaticDrivePhase.Blocked` `MechanicalContractValues.cs:87` | `LinearPusherTests.cs:125` |
 | Limit and target bound to a parameter | *present* up to 3 m | `MechanicalValue.FromParameter` `MechanicalContractValues.cs:171`; travel rule `CuriousContraptions.Bundle/MechanicalValueDomain.cs:62` (no upper cap) | `LinearPusherTests.cs:228` (0.25 and 3 m) |
 | The same over 3–6 m of travel | *present, untested* | as above | none; first exercised by row F10 |
-| Moving slider body with several box colliders | *present* | `SliderBodyDescriptor` `MechanicalContractValues.cs:75` | `CuriousContraptions.tests/DirectionalCompositionTests.cs:122` (two-box moving bodies) |
+| Moving slider body with several box colliders | *present* | `MechanicalPayload.MovingBodyColliders` (`BundleServices.cs:75`), baked from the slider body's scene root | `CuriousContraptions.tests/DirectionalCompositionTests.cs:122` (two-box moving bodies) |
 | A moving body pushes cargo, and lifts cargo resting on it | *present* | generic contact | `LinearPusherTests.cs:307`, `:322` |
 | Cargo resting or rolling on top of a body that moves sideways beneath it (support and friction from a moving deck) | *present, untested* | generic contact | none found (searched test names for carry, ride, deck, platform); first exercised by rows F1 and F8. If it fails, an engine repair slice owns it |
 | Parameter-bound colliders on the static base of a slider package | *present, untested* | `ColliderParameterBinding` `SceneGeometry.cs:27`; delivered only on packages without joints (Wall, Pipe, Ramp, Weight) | none; first exercised by row F13 |

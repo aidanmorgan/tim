@@ -377,8 +377,8 @@ public sealed class BundlePortLocatorTests(NativeSceneFixture godot)
     private static string LocatorPath(BundlePackage package, PortDescriptor port)
     {
         if (port.Body.Value == 0) return $"Loc_Port_{port.Id}";
-        var geometry = Assert.IsAssignableFrom<ISceneGeometryElement>(package.Declaration);
-        Assert.InRange(port.Body.Value, 1, geometry.SceneBodies.Count - 1);
-        return $"{geometry.SceneBodies[port.Body.Value].Root}/Loc_Port_{port.Id}";
+        var bodies = package.Declaration.SceneBodies;
+        Assert.InRange(port.Body.Value, 1, bodies.Count - 1);
+        return $"{bodies[port.Body.Value].Root}/Loc_Port_{port.Id}";
     }
 }

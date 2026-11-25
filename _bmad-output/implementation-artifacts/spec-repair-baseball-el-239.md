@@ -67,7 +67,7 @@ Shape: **single element repair** on a published package. Baseline: the published
 
 ### What is wrong on main (read at `25df3cd5`)
 
-- Mass 0.65 kg, inertia 0.01625 (`elements/Baseball/BaseballElementDeclaration.cs:22`–`:23`); description "A medium-light seamed ball with moderate bounce." (`:11`); pick radius 0.35 (`:13`).
+- Mass 0.65 kg, inertia 0.01625 (`elements/Baseball/BaseballElementDeclaration.cs:21`–`:22`); description "A medium-light seamed ball with moderate bounce." (`:11`); pick radius 0.35 (`:13`).
 - Sphere and collider radius 0.25 m (`elements/Baseball/baseball.tscn:13`, `:26`); `Visual/SeamLeft` and `Visual/SeamRight` share a torus of inner radius 0.213 and outer 0.219 at x = ±0.125 (`:18`–`:23`, `:35`–`:43`), which reaches 0.2526 m from the centre, 2.6 mm outside the only collider `col_sphere` (`:45`–`:47`).
 - `CuriousContraptions.tests/VisibleSolidColliderTests.cs` has no `baseball` row (its table ends the ball rows at `:109`–`:110`), so the art was never compared with the collider.
 
@@ -83,7 +83,7 @@ Counts: 13 present, 0 present-untested, 0 narrower, 0 missing.
 | 4 | Collider material shared by a body's colliders | present | `CuriousContraptions.Abstractions/ColliderDescriptor.cs:21` | `PackageRuntimeParityTests.EveryPayloadPackageCompilesItsDeclaredMaterial` |
 | 5 | Airflow force on a receiver, falling linearly to zero at the flow speed | present | `CuriousContraptions.Abstractions/ConicalAirflow.cs:19`–`:26`; `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Airflow.cs:126` | `ConicalAirflowTests` (`ConicalAirflowTests.cs:23`–`:28`, the linear-slip law); `FanGuidanceTests.ExistingPayloadsReceivePaidLateralGuidanceOnlyWithEnabledFlow` (its Baseball rows) |
 | 6 | Contact-load threshold on summed declared mass, inclusive | present | `engine/gpu/ContactLoadSensorDeclaration.cs:27` | `PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate`; `TennisInteractionTests.TwoDefaultTennisBallsLoadThePlateWhileOneStaysBelowThreshold` |
-| 7 | Chamber seating by declared width window over every collider of the payload | present | `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Chambers.cs:131`; `elements/Cannon/CannonElementDeclaration.cs:31` | `ChamberOccupancyTests.WidthAndRelativeArrivalAdmissionIncludeTheirDeclaredBoundaries`; `ChamberOccupancyTests.CurrentMaterialDeterminesOccupancyAndSeatingThroughTransport` (every collider) |
+| 7 | Chamber seating by declared width window over every collider of the payload | present | `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Chambers.cs:131`; `elements/Cannon/CannonElementDeclaration.cs:30` | `ChamberOccupancyTests.WidthAndRelativeArrivalAdmissionIncludeTheirDeclaredBoundaries`; `ChamberOccupancyTests.CurrentMaterialDeterminesOccupancyAndSeatingThroughTransport` (every collider) |
 | 8 | Visible solid equals collider, including a torus | present | `CuriousContraptions.tests/VisibleSolidColliderTests.cs:63` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (its `ball` row) |
 | 9 | Zero-parameter instance; forged parameter refused in edit and save | present | `elements/Baseball/BaseballElementDeclaration.cs:12` | `BaseballTests.FixedPresetCompilesCanonicalMassAndMaterialAndRejectsForeignParameters` |
 | 10 | Run, Pause, Step, Reset, Save, Load of a payload | present | `engine/gpu/WorkshopSaveCodec.cs:48` | `BaseballTests.RunPauseStepResetSaveLoadRestoresAuthoredBaseball` |

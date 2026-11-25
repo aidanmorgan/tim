@@ -21,8 +21,8 @@ public sealed class CoordinateTravelGeneralityTests
     {
         var entry = TestBundle.Entry(new("windmill"));
         var template = entry.Mechanical!.Hinges[0];
-        template = template with { MovingBody = template.MovingBody with
-            { Colliders = [new(CuriousContraptions.Abstractions.ColliderShapeKind.Sphere, new(.05f), Vector3.Zero, Quaternion.Identity, new(0, .3f, 0, .1f), 0)] } };
+        IReadOnlyList<ColliderDescriptor> sphere =
+            [new(CuriousContraptions.Abstractions.ColliderShapeKind.Sphere, new(.05f), Vector3.Zero, Quaternion.Identity, new(0, .3f, 0, .1f), 0)];
         var hinges = new[] {
             template with { BaseFrame = template.BaseFrame with { Position = new(-.12f, 0, 2) } },
             template with { BaseFrame = template.BaseFrame with { Position = new(-.12f, -.25f, 0) } },
@@ -51,7 +51,7 @@ public sealed class CoordinateTravelGeneralityTests
             Presentation = entry.Presentation with { Bindings = [], Bodies = [
                 new("Visual/Unrelated", new(1), Vector3.Zero), new("Visual/First", new(2), Vector3.Zero),
                 new("Visual/Second", new(3), Vector3.Zero)] },
-            Mechanical = entry.Mechanical with { Hinges = hinges,
+            Mechanical = entry.Mechanical with { Hinges = hinges, MovingBodyColliders = [sphere, sphere, sphere],
                 RotaryAirflowCaptures = reverse ? [second, first] : [first, second],
                 CoordinateTravelObservers = reverse ? [new(new(81), new(CoordinateKind.Revolute, 0), .75f),
                     new(new(53), new(CoordinateKind.Revolute, secondIndex), 1.25f), new(new(17), new(CoordinateKind.Revolute, firstIndex), .5f)] :

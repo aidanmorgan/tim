@@ -28,12 +28,13 @@ internal static class ClippedExtrusionValidation
                 continue;
             }
             var slider = mechanical.Sliders[extrusion.Coordinate.Index];
-            if (extrusion.Collider.Value < 0 || extrusion.Collider.Value >= slider.MovingBody.Colliders.Count)
+            var colliders = PackageBodyGeometry.Colliders(entry, extrusion.MaterialBody) ?? [];
+            if (extrusion.Collider.Value < 0 || extrusion.Collider.Value >= colliders.Count)
             {
                 yield return new(BundleErrorCode.UnresolvedReference, path + ".Collider");
                 continue;
             }
-            var collider = slider.MovingBody.Colliders[extrusion.Collider.Value];
+            var collider = colliders[extrusion.Collider.Value];
             if (!Domain(extrusion, slider, entry.Metadata.Parameters) || !Aligned(extrusion, slider, collider))
                 yield return new(BundleErrorCode.OutOfRange, path + ".Geometry");
             if (mechanical.DrivenSurfaces.Any(surface => surface.Carrier == extrusion.MaterialBody && surface.Collider == extrusion.Collider))

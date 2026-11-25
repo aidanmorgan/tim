@@ -21,17 +21,11 @@ public static class BundleGenerator
         foreach (var package in discovered.Packages)
         {
             var declaration = package.Declaration;
-            if (declaration is not ISceneGeometryElement geometry)
-            {
-                errors.Add(new(BundleErrorCode.SceneColliderOwnership, package.Package +
-                    ": the declaration names no scene bodies (ISceneGeometryElement), so its colliders have no owner in its scene."));
-                continue;
-            }
             var scene = File.ReadAllText(Path.Combine(root, declaration.Metadata.ScenePath["res://".Length..]));
             var entry = services.Entry(declaration);
             try
             {
-                entries.Add(new(package.Package, SceneGeometryExtractor.Bake(scene, entry, geometry.SceneBodies)));
+                entries.Add(new(package.Package, SceneGeometryExtractor.Bake(scene, entry, declaration.SceneBodies)));
             }
             catch (SceneGeometryRefusalException refusal)
             {

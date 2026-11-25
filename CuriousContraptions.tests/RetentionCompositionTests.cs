@@ -38,6 +38,8 @@ public sealed class RetentionCompositionTests
             Footprint = new(5, 4, 2, 2), Colliders = [new(CuriousContraptions.Abstractions.ColliderShapeKind.Sphere, new(.1f), Vector3.Zero, Quaternion.Identity, new(0f, .3f, 0f, .1f), 0f)], ColliderBindings = [],
             Ports = [input with { Id = PortId.FirstIn }, input with { Id = PortId.SecondIn }],
             Mechanical = mechanical with { Sliders = sliders, Hinges = hinges,
+                MovingBodyColliders = [mechanical.MovingBodyColliders[0], mechanical.MovingBodyColliders[0],
+                    mechanical.MovingBodyColliders[1], mechanical.MovingBodyColliders[1]],
                 Transmissions = reorder ? relations.Reverse().ToArray() : relations,
                 Retentions = reorder ? retentions.Reverse().ToArray() : retentions },
             Signal = new(reorder ? signals.Reverse().ToArray() : signals, [],

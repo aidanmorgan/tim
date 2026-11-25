@@ -3,11 +3,11 @@ using System.Numerics;
 
 namespace CuriousContraptions.Abstractions;
 
-/// <summary>Geometry ownership in the authored scene. Entry zero owns the base body; subsequent entries own slider bodies.
-/// The base root is "."; moving roots are disjoint subtrees excluded from the base.</summary>
+/// <summary>Geometry ownership in the authored scene, in package body order: entry zero owns the base body, then one entry per slider
+/// body, then one per hinge body. The base root is "."; moving roots are disjoint subtrees excluded from the base.</summary>
 public readonly record struct SceneBodyGeometry(string Root, MaterialProperties Material);
 
-public interface ISceneGeometryElement : IPuzzleElementDeclaration
+public interface ISceneGeometryElement
 {
     IReadOnlyList<SceneBodyGeometry> SceneBodies { get; }
 }

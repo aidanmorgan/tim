@@ -19,7 +19,7 @@ public static class BundleSchema
     {
         ArgumentNullException.ThrowIfNull(declaration);
         return new(declaration.Metadata, Domains(declaration.SupportedDomains), declaration.Footprint, declaration.Ports,
-            declaration.Colliders, declaration.Events,
+            [], declaration.Events,
             declaration is IMechanicalElement mechanical ? Mechanical(mechanical) : null,
             declaration is IElectricalElement electrical ? new ElectricalPayload(electrical.ElectricalNodes, electrical is ISupplyElement supply ? supply.SupplyGraph : null) : null,
             declaration is ISignalElement signal ? new SignalPayload(signal.SignalNodes, signal.SignalEdges, signal.SignalPorts) : null,
@@ -53,20 +53,14 @@ public static class BundleSchema
                     CoordinateTravelObservers = mechanical is ICoordinateTravelElement travel ? travel.CoordinateTravelObservers : [],
                     FiniteWorkActuators = mechanical is IFiniteWorkActuatorElement actuator ? actuator.FiniteWorkActuators : [] };
 
-    /// <summary>The bundle text for these declarations, ordered by ordinal element id.</summary>
-    public static string Write(IEnumerable<IPuzzleElementDeclaration> declarations)
-    {
-        ArgumentNullException.ThrowIfNull(declarations);
-        var entries = declarations.Select(Entry).OrderBy(entry => entry.Metadata.Id, StringComparer.Ordinal).ToArray();
-        return WriteEntries(entries);
-    }
-
-    /// <summary>The bundle these bytes hold. Malformed input throws <see cref="JsonException"/>, including a null where a list holds
-    /// references (an element, or a parameter option), which the nullable annotations cannot reject inside a list.</summary>
+    /// <summary>The bundle text for these entries, ordered by ordinal element id.</summary>
     public static string WriteEntries(IEnumerable<BundleEntry> entries) =>
         JsonSerializer.Serialize(new BundleDocument(entries.OrderBy(entry => entry.Metadata.Id, StringComparer.Ordinal).ToArray()),
             BundleJsonContext.Default.BundleDocument) + "\n";
 
+    /// <summary>The bundle these bytes hold. Malformed input throws <see cref="JsonException"/>, including a null where a list holds
+    /// references (an element, a parameter option or a moving body's collider list), which the nullable annotations cannot reject
+    /// inside a list.</summary>
     public static BundleDocument Read(string json)
     {
         var document = JsonSerializer.Deserialize(json, BundleJsonContext.Default.BundleDocument) ?? throw new JsonException("The bundle is null.");
@@ -78,6 +72,9 @@ public static class BundleSchema
                 for (var o = 0; o < parameters[p].Options.Count; o++)
                     if (parameters[p].Options[o] is null)
                         throw new JsonException($"Elements[{i}].Metadata.Parameters[{p}].Options[{o}] is null.");
+            var moving = entry.Mechanical?.MovingBodyColliders ?? [];
+            for (var b = 0; b < moving.Count; b++)
+                if (moving[b] is null) throw new JsonException($"Elements[{i}].Mechanical.MovingBodyColliders[{b}] is null.");
         }
         return document;
     }

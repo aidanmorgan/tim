@@ -61,8 +61,6 @@ public sealed class TrampolineElementDeclaration : ICompliantSurfaceElement, ISc
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0f, 0.3f, 0f, 0.1f))

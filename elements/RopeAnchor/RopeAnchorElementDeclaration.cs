@@ -17,7 +17,6 @@ public sealed class RopeAnchorElementDeclaration : IMechanicalElement, ISceneGeo
         new(PortId.Tie, SimulationDomain.Rope, PortDirection.Bidirectional, PortRole.Tie, new("Tie", SocketGlyph.Text), null,
             new(0f, 0f, .18f), Vector3.UnitZ, RopeAttachmentRole.Anchor)
     ];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f, .3f, 0f, .1f))];
     public IReadOnlyList<EventDescriptor> Events => [];
     public SimulationDomain SupportedDomains => SimulationDomain.Mechanical | SimulationDomain.Rope;

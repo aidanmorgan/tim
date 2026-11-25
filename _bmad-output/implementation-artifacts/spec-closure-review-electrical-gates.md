@@ -60,7 +60,7 @@ Rows G4 and G5 state the behaviour after the prerequisite, the self-edge row sli
 
 **Status: blocked on the engine programme (owner decision 22) and on the self-edge row of `ENGINE-SIGNAL-NODES`.** Baseline: captured at dispatch (coordinator decision 38, 23 November 2026): `baseline_revision` is the published main that contains the planning work, and every scope guard and `git diff` here compares against it; `25df3cd5` is the drafting revision only, not a baseline. Closure reviews wait for the programme (orders 1–10, owner decisions 3a and 22); the self-edge row's slice text, formerly the separate contract `spec-engine-supply-self-edge-cycle-rule.md` (retired 23 November 2026), is in [epics.md, ENGINE-SIGNAL-NODES, "Slice: self-edge row"](../planning-artifacts/epics.md#slice-self-edge-row-a-supply-self-edge-is-a-one-node-cycle). Owner: coordinator. Retry condition: that slice is published on main. Shape: **closure review** (Duplicates of delivered parts; one record, one candidate commit, one approval). All five identities stay in this one closure. `baseline_revision` is the drafting revision, published main `25df3cd5` (the cited code is unchanged from `8d1d68aa`); the contract is replanned from the published main that holds the self-edge slice, and the coordinator re-captures `baseline_revision` then, before first implementation. The Coverage admission gap does not affect it, because it adds no package.
 
-Why it is blocked: each gate has one supply node (`elements/BothGate/BothGateElementDeclaration.cs:34`–`:41`), so `Supply` to its own `FirstIn` resolves to a self-edge (`engine/gpu/WorkshopSupplyCompiler.cs:37`–`:38`) that `SupplyTopology.ValidateEdges` refuses as `InvalidConnection` (`engine/gpu/SupplyRoute.cs:50`–`:54`) before the cycle check at `:60`. EL-135, EL-136 and EL-137 require the loop refusal for that wire, and the requirement admits And/Or cycles (`requirements.md:6689`), so rows G4 and G5 are unmet through the delivered parts today.
+Why it is blocked: each gate has one supply node (`elements/BothGate/BothGateElementDeclaration.cs:33`–`:40`), so `Supply` to its own `FirstIn` resolves to a self-edge (`engine/gpu/WorkshopSupplyCompiler.cs:37`–`:38`) that `SupplyTopology.ValidateEdges` refuses as `InvalidConnection` (`engine/gpu/SupplyRoute.cs:50`–`:54`) before the cycle check at `:60`. EL-135, EL-136 and EL-137 require the loop refusal for that wire, and the requirement admits And/Or cycles (`requirements.md:6689`), so rows G4 and G5 are unmet through the delivered parts today.
 
 **Why the self-edge slice stays the prerequisite** (coordinator's decision, 21 November 2026): EL-135's own acceptance requires an own-input wire to be refused with the loop message; a save or a command can carry such a wire even though the Workbench connect tool refuses a same-part target (`ui/WorkshopConnections.cs:106`, "Choose another part with a matching input socket."); and one rule for one-node and many-node cycles is the forward-only state. The connect tool is left unchanged.
 
@@ -79,7 +79,7 @@ Each EL spec was read in full against its CAT spec and package (21 November 2026
 
 | Identity | Satisfying part (package, id) | Operation | Delta found | Decision |
 |---|---|---|---|---|
-| EL-133 Electrical AND gate | CAT-013, `elements/BothGate`, `both_gate` | And (`BothGateElementDeclaration.cs:35`) | None in bodies, material, ports, parameters, lamps, art or acceptance. The spec's legacy description text is longer than the package's; wording only. | True duplicate |
+| EL-133 Electrical AND gate | CAT-013, `elements/BothGate`, `both_gate` | And (`BothGateElementDeclaration.cs:34`) | None in bodies, material, ports, parameters, lamps, art or acceptance. The spec's legacy description text is longer than the package's; wording only. | True duplicate |
 | EL-134 Electrical OR gate | CAT-026, `elements/ElectricalOr`, `electrical_or` | Or | None | True duplicate |
 | EL-135 Electrical XOR gate | CAT-027, `elements/ElectricalXor`, `electrical_xor` | Xor | None | True duplicate |
 | EL-136 Electrical NOR gate | CAT-025, `elements/ElectricalNor`, `electrical_nor` | Nor | None | True duplicate |
@@ -95,13 +95,13 @@ Counts on `25df3cd5` (every cited symbol unchanged from `8d1d68aa`): 7 present, 
 
 | # | Capability | Mark | Symbol | Exercising test |
 |---|---|---|---|---|
-| 1 | Supplied logic node with a declared operation | present | `elements/BothGate/BothGateElementDeclaration.cs:34` | `BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer` |
+| 1 | Supplied logic node with a declared operation | present | `elements/BothGate/BothGateElementDeclaration.cs:33` | `BothGateTests.SeparateConditionsAndEnergyDriveActualConsumer` |
 | 2 | Energy provenance from `PowerIn` only | present | `engine/gpu/SupplyRoute.cs:77` | `BothGateTests.EnergyProvenanceIgnoresBothConditionSourcesAndUndefinedRulesReject` |
-| 3 | Finite source debit through a gate | present | `ComposableSupplyRoutingTests.cs:286` construction over `elements/Battery/BatteryElementDeclaration.cs:71` | `ComposableSupplyRoutingTests.LogicProvenanceFundsNoWorkWhilePowerSourceFundsWork` |
+| 3 | Finite source debit through a gate | present | `ComposableSupplyRoutingTests.cs:286` construction over `elements/Battery/BatteryElementDeclaration.cs:70` | `ComposableSupplyRoutingTests.LogicProvenanceFundsNoWorkWhilePowerSourceFundsWork` |
 | 4 | Monotone cycle settles from unpowered each tick | present | `engine/gpu/SupplyRoute.cs:60` | `ElectricalOrTests.OrLoopIsAdmittedAndSettlesAtItsLeastFixedPointEveryTick` |
 | 5 | Nonmonotone cycle refused atomically, in edit and save | present | `engine/gpu/SupplyRoute.cs:69` | `ElectricalXorTests.ZeroDelayFeedbackThroughTheGateIsRefusedAtomicallyBeforeAnySolve` |
 | 6 | A gate wired to its own input is judged by the cycle rule | **narrower**: refused first as `InvalidConnection` | `engine/gpu/SupplyRoute.cs:50`; the one-node branch at `CuriousContraptions.Abstractions/SupplyCycles.cs:67` is unreachable for a single-node part | none. Delivered and tested by the self-edge row slice of `ENGINE-SIGNAL-NODES` (planned class `SupplySelfEdgeTests`); this slice adds the per-identity cases (G4, G5) |
-| 7 | Committed socket lamps | present | `BothGateElementDeclaration.cs:44` | `BothGatePresentationTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset` (`BothGateTests.cs:252`) |
+| 7 | Committed socket lamps | present | `BothGateElementDeclaration.cs:43` | `BothGatePresentationTests.ThreeNativeLampsFollowCommittedInputsAndSupplyThroughHideAndReset` (`BothGateTests.cs:252`) |
 | 8 | Save and Load of electrical wiring; Reset | present | `engine/gpu/WorkshopSaveCodec.cs:19`, `:48` | `ElectricalNorTests.ClosingOneSwitchRetractsTheOutputAndSaveLoadAndResetAreExact` |
 
 ### Review tier

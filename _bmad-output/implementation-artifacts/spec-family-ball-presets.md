@@ -107,10 +107,10 @@ Performed on `8d1d68aa` and rechecked against `fa86969f`. Counts: 16 present, 0 
 | 7 | Payload capture policy | present | `engine/gpu/DeclaredPhysics.cs:144` | `PayloadInstanceTests.AReceiverCapturesEitherKindAndAShiftedMissNever` |
 | 8 | Zero-parameter instance; forged parameter refused in edit and save | present | `elements/BowlingBall/BowlingBallElementDeclaration.cs:26` | `PayloadInstanceTests.ABareGenericPayloadRecordLoadsAndAnyParameterIsRefused` |
 | 9 | Run, Reset, Save, Load of a payload | present | `engine/gpu/WorkshopSaveCodec.cs:19`, `:48` | `PayloadInstanceTests.BothKindsFallAgainAfterExactResetAndReload` |
-| 10 | Chamber seating by declared width window (cannon 0.6–0.84 m) | present | `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Chambers.cs:131`; `elements/Cannon/CannonElementDeclaration.cs:31` | `ChamberOccupancyTests.WidthAndRelativeArrivalAdmissionIncludeTheirDeclaredBoundaries` |
+| 10 | Chamber seating by declared width window (cannon 0.6–0.84 m) | present | `CuriousContraptions.Simulation/WorkshopPhysicsEngine.Chambers.cs:131`; `elements/Cannon/CannonElementDeclaration.cs:30` | `ChamberOccupancyTests.WidthAndRelativeArrivalAdmissionIncludeTheirDeclaredBoundaries` |
 | 11 | Finite-work launch of a seated payload | present | `CuriousContraptions.Abstractions/FiniteWorkActuatorValues.cs:26` | `CannonIntegrationTests.PhysicalLoadChargesAndFiresOnlyWithItsSeparateSupply` |
 | 12 | Store-limited contact work (Bumper) | present | `elements/Bumper/BumperElementDeclaration.cs:39` | `WorkshopBumperTests.FiniteBudgetCapsTheNormalBoostAndNeverPaysPastTarget` |
-| 13 | Contact-load threshold (Pressure plate) | present | `elements/PressurePlate/PressurePlateElementDeclaration.cs:93` | `PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate` |
+| 13 | Contact-load threshold (Pressure plate) | present | `elements/PressurePlate/PressurePlateElementDeclaration.cs:92` | `PressurePlateTests.TheInstanceMinimumMassDecidesItsOwnGate` |
 | 14 | Visible solid equals collider | present | `VisibleSolidColliderTests.cs:63` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` |
 | 15 | Registry, palette, save and worker admission derived from declarations | present | `tools/BundleElements/PackageDiscovery.cs:16` | `PartRegistryTests.AValidNewPackageIdentityNeedsNoEngineAdmissionChange` |
 | 16 | Coverage admits a named-identity package through its spec's binding section | **narrower**: only for an identity with a decision block and a todo co-anchored with its task | `tools/Coverage/NamedPackageSources.cs:55`–`:61`, `:110`–`:143` | `CurrentCatalogueTests.NamedPackageUsesItsExistingTaskAcceptanceWithoutCatalogueAlias` (the admitted case); `NamedPackageRejectsMissingDuplicateAndUnknownSourceBindings` (the refusals these two identities would hit) |
@@ -138,8 +138,8 @@ Lists a new package still edits by hand on main (each is one added line or list 
 - No test-project edit: `CuriousContraptions.tests.csproj:77` compiles every top-level `*.cs` (S2, `25df3cd5`).
 - No `CSharpStaticGateTests` list edit: S3, which runs before the programme, derives `TrimAnalyzedProjects` and the other lists it owns; any list S3 leaves hand-maintained (the solution file, S3 decision D1) is re-checked at replanning.
 - `CuriousContraptions.tests/PackageRuntimeParityTests.cs:149` -- expected payload ids become `ball, balloon, baseball, bowling, cannonball, soccer, tennis`.
-- `CuriousContraptions.tests/PackageRuntimeParityTests.cs:653` -- the two ids join the existing generic-placement `or` list.
-- `CuriousContraptions.tests/PackageRuntimeParityTests.cs:596` needs no edit: its parameter table falls through to `_ => []` for a package with no parameters.
+- `CuriousContraptions.tests/PackageRuntimeParityTests.cs:656` -- the two ids join the existing generic-placement `or` list.
+- `CuriousContraptions.tests/PackageRuntimeParityTests.cs:599` needs no edit: its parameter table falls through to `_ => []` for a package with no parameters.
 - `CuriousContraptions.tests/BasketballResourceTests.cs:34` -- the two ids join the expected registry keys.
 - `CuriousContraptions.tests/WorkshopIntegrationHarnessTests.cs:694` -- `"soccer", "cannonball"` follow `"baseball"` in the Motion rows.
 - `CuriousContraptions.tests/VisibleSolidColliderTests.cs:110` -- one `Specs` row per package.

@@ -44,8 +44,6 @@ public sealed class WeightElementDeclaration : IMechanicalElement, ISceneGeometr
             TieBinding.Evaluate(4f), Vector3.UnitY, RopeAttachmentRole.Load, TieBinding)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>One material: bounce 0.08, friction 0.3, rolling resistance 0.03, bounce threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [

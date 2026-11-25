@@ -33,7 +33,6 @@ public sealed class BowlingBallElementDeclaration : IMechanicalElement, ISceneGe
         [new(new(1), new(new(0), new(0)), AirflowSampling.ColliderNormalized,
             [new(new(0, .5f, 0), .25f), new(new(0, -.5f, 0), .25f),
              new(new(0, 0, .5f), .25f), new(new(0, 0, -.5f), .25f)])];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
 
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [

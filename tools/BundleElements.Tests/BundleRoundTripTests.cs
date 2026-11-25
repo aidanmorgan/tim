@@ -2,6 +2,7 @@ using System.Collections;
 using System.Numerics;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Abstractions.Fluid;
@@ -23,12 +24,15 @@ public sealed class BundleRoundTripTests
         return discovered.Packages.Single(entry => entry.Package == package).Declaration;
     }
 
+    /// <summary>The bundle text of the declaration's entry before the scene bake, which only adds colliders and tube mouths.</summary>
+    private static string Write(IPuzzleElementDeclaration declaration) => BundleSchema.WriteEntries([BundleSchema.Entry(declaration)]);
+
     [Theory]
     [MemberData(nameof(Packages))]
     public void EveryPackageEqualsItsDeserialisedEntry(string package)
     {
         var declaration = Declaration(package);
-        var entry = Assert.Single(BundleSchema.Read(BundleSchema.Write([declaration])).Elements);
+        var entry = Assert.Single(BundleSchema.Read(Write(declaration)).Elements);
         AssertEntry(declaration, entry);
     }
 
@@ -37,7 +41,7 @@ public sealed class BundleRoundTripTests
     [Fact]
     public void AHingeTravelIsWrittenByNameAndItsNumberIsRefused()
     {
-        var json = BundleSchema.Write([Declaration("ImpactLever")]);
+        var json = Write(Declaration("ImpactLever"));
 
         Assert.Contains("\"Travel\": \"Limited\"", json, StringComparison.Ordinal);
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Travel\": \"Limited\"", "\"Travel\": 0", StringComparison.Ordinal)));
@@ -48,7 +52,7 @@ public sealed class BundleRoundTripTests
     [InlineData("Request", "Release")]
     public void RetentionEnumsUseExactNamesAndRefuseNumericOrUnknownValues(string field, string name)
     {
-        var json = BundleSchema.Write([Declaration("WoundSpring")]);
+        var json = Write(Declaration("WoundSpring"));
         var canonical = System.Text.Json.JsonSerializer.Serialize(field) + ": " + System.Text.Json.JsonSerializer.Serialize(name);
         Assert.Contains(canonical, json, StringComparison.Ordinal);
         var decoded = Assert.Single(BundleSchema.Read(json).Elements);
@@ -62,7 +66,7 @@ public sealed class BundleRoundTripTests
     [Fact]
     public void LocalPrismaticRetentionIdSerializesAsScalarAndRefusesZeroOrObjects()
     {
-        var json = BundleSchema.Write([Declaration("WoundSpring")]);
+        var json = Write(Declaration("WoundSpring"));
         using var document = JsonDocument.Parse(json);
         var element = document.RootElement.GetProperty("Elements")[0];
         var retention = element.GetProperty("Mechanical").GetProperty("Retentions")[0];
@@ -80,7 +84,7 @@ public sealed class BundleRoundTripTests
     [InlineData("Cannon", CuriousContraptions.Gpu.PhysicalRequestTargetKind.FiniteWorkActuator)]
     public void PhysicalRequestUnionOwnsRequiredZeroInactiveLanes(string package, CuriousContraptions.Gpu.PhysicalRequestTargetKind expected)
     {
-        var json = BundleSchema.Write([Declaration(package)]);
+        var json = Write(Declaration(package));
         var target = Assert.IsType<SignalPhysicalRequestDescriptor>(Assert.Single(BundleSchema.Read(json).Elements[0].Signal!.Nodes)).Target;
         Assert.Equal(expected, target.Kind);
         Assert.True(target.IsValid);
@@ -145,28 +149,30 @@ public sealed class BundleRoundTripTests
         var subnormal = BitConverter.Int32BitsToSingle(1);
         var fixture = new Fixture
         {
-            Colliders = [new(ColliderShapeKind.Box, new(-0f, subnormal, .1f), new(float.MaxValue, -subnormal, float.Epsilon),
-                new(-0f, 0f, 0f, 1f), new(-0f, subnormal, 0f, 1e-7f), 0f)],
             MassFrame = MassFrameDeclaration.Constant(-0f, new(subnormal, -0f, 3.4028235e38f), new(1f / 3f, 0.1f, 16777217f), Quaternion.Identity, -subnormal, new(0, -9.81f, 0))
         };
-        var json = BundleSchema.Write([fixture]);
+        var written = FixtureBake.Entry(fixture, [new(ColliderShapeKind.Box, new(-0f, subnormal, .1f), new(float.MaxValue, -subnormal, float.Epsilon),
+            new(-0f, 0f, 0f, 1f), new(-0f, subnormal, 0f, 1e-7f), 0f)], []);
+        var json = BundleSchema.WriteEntries([written]);
         Assert.Contains("-0", json, StringComparison.Ordinal);
         Assert.Contains("1E-45", json, StringComparison.Ordinal);
-        AssertEntry(fixture, Assert.Single(BundleSchema.Read(json).Elements));
+        var read = Assert.Single(BundleSchema.Read(json).Elements);
+        AssertEntry(fixture, read);
+        AssertSame(written.Colliders, read.Colliders, "Colliders");
     }
 
     [Fact]
     public void ACylinderColliderRoundTripsByItsEnumName()
     {
         // Story 10.1: the bundle's closed shape set carries Cylinder (r, h, r) by name, bit for bit.
-        var fixture = new Fixture
-        {
-            Colliders = [new(ColliderShapeKind.Cylinder, new(.4f, .085f, .4f), new(0f, .5f, 0f), Quaternion.Identity, new(.1f, .3f, .02f, .1f), 0f)]
-        };
-        var json = BundleSchema.Write([fixture]);
+        var fixture = new Fixture();
+        var written = FixtureBake.Entry(fixture,
+            [new(ColliderShapeKind.Cylinder, new(.4f, .085f, .4f), new(0f, .5f, 0f), Quaternion.Identity, new(.1f, .3f, .02f, .1f), 0f)], []);
+        var json = BundleSchema.WriteEntries([written]);
         Assert.Contains("\"ShapeKind\": \"Cylinder\"", json, StringComparison.Ordinal);
         var entry = Assert.Single(BundleSchema.Read(json).Elements);
         AssertEntry(fixture, entry);
+        AssertSame(written.Colliders, entry.Colliders, "Colliders");
         Assert.Equal(ColliderShapeKind.Cylinder, Assert.Single(entry.Colliders).ShapeKind);
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace("\"Cylinder\"", "\"cylinder\"", StringComparison.Ordinal)));
     }
@@ -175,16 +181,43 @@ public sealed class BundleRoundTripTests
     public void ASliderRoundTripsBitForBit()
     {
         var fixture = new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider() with { BodiesCollide = true }] };
-        var entry = Assert.Single(BundleSchema.Read(BundleSchema.Write([fixture])).Elements);
+        var written = FixtureBake.Entry(fixture);
+        var entry = Assert.Single(BundleSchema.Read(BundleSchema.WriteEntries([written])).Elements);
         AssertEntry(fixture, entry);
         Assert.Single(entry.Mechanical!.Sliders);
+        AssertSame(written.Mechanical!.MovingBodyColliders, entry.Mechanical.MovingBodyColliders, "MovingBodyColliders");
+    }
+
+    /// <summary>The baked moving-body collider lists, one per moving body in package body order (sliders, then hinges), are a required
+    /// list of lists that reads back in order, bit for bit: a slider's plate and a hinge's sphere keep their bodies. A null inner list,
+    /// which the nullable annotations cannot refuse inside a list, and a payload without the key are refused on read. Control: the
+    /// same entry reads back equal.</summary>
+    [Fact]
+    public void MovingBodyColliderListsRoundTripInBodyOrderAndANullListIsRefused()
+    {
+        var hinge = ((IHingeElement)Declaration("ImpactLever")).Hinges[0];
+        var sphere = new ColliderDescriptor(ColliderShapeKind.Sphere, new(.2f), new(.3f, 0f, 0f), Quaternion.Identity, new(.5f, .2f, .01f, .1f), 0f);
+        var fixture = new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider()] };
+        var written = FixtureBake.Entry(fixture, FixtureBake.Block, [FixtureBake.Plate, [sphere, sphere with { Offset = -sphere.Offset }]]);
+        written = written with { Mechanical = written.Mechanical! with { Hinges = [hinge] } };
+        var json = BundleSchema.WriteEntries([written]);
+        var read = Assert.Single(BundleSchema.Read(json).Elements).Mechanical!.MovingBodyColliders;
+        AssertSame(written.Mechanical.MovingBodyColliders, read, "MovingBodyColliders");
+        Assert.Equal([ColliderShapeKind.Box, ColliderShapeKind.Sphere], read.Select(body => body[0].ShapeKind));
+        Assert.Equal([1, 2], read.Select(body => body.Count));
+        var nullList = JsonNode.Parse(json)!;
+        nullList["Elements"]![0]!["Mechanical"]!["MovingBodyColliders"]![1] = null;
+        Assert.Throws<JsonException>(() => BundleSchema.Read(nullList.ToJsonString()));
+        var missing = JsonNode.Parse(json)!;
+        Assert.True(missing["Elements"]![0]!["Mechanical"]!.AsObject().Remove("MovingBodyColliders"));
+        Assert.Throws<JsonException>(() => BundleSchema.Read(missing.ToJsonString()));
     }
 
     [Fact]
     public void ACompliantSurfaceRoundTripsBitForBit()
     {
         var fixture = new CompliantFixture();
-        var json = BundleSchema.Write([fixture]);
+        var json = Write(fixture);
         Assert.Contains("\"CompliantSurface\":", json, StringComparison.Ordinal);
         var entry = Assert.Single(BundleSchema.Read(json).Elements);
         AssertEntry(fixture, entry);
@@ -206,7 +239,7 @@ public sealed class BundleRoundTripTests
     [Fact]
     public void VectorsAndQuaternionsAreArraysAndEnumsAreNames()
     {
-        var json = BundleSchema.Write([new Fixture { Colliders = [Fixture.Box(new(1.5f, .25f, 3f))] }]);
+        var json = BundleSchema.WriteEntries([FixtureBake.Entry(new Fixture(), [Fixture.Box(new(1.5f, .25f, 3f))], [])]);
         using var document = JsonDocument.Parse(json);
         var element = document.RootElement.GetProperty("Elements")[0];
         var collider = element.GetProperty("Colliders")[0];
@@ -228,7 +261,7 @@ public sealed class BundleRoundTripTests
     [InlineData("\"HalfExtents\": [\n", "\"HalfExtents\": [\n 1,\n")]
     public void MalformedInputIsRejected(string original, string replacement)
     {
-        var json = BundleSchema.Write([new Fixture()]);
+        var json = BundleSchema.WriteEntries([FixtureBake.Entry(new Fixture())]);
         Assert.Contains(original, json, StringComparison.Ordinal);
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
     }
@@ -244,7 +277,7 @@ public sealed class BundleRoundTripTests
     [InlineData("\"Kind\": \"Impact\"", "\"Kind\": \"Impact\", \"PayloadLayout\": \"Impulse:f32\"")]
     public void AnEventKindIsItsCapabilityNameAndRetiredNamesAreRefused(string original, string replacement)
     {
-        var json = BundleSchema.Write([new Fixture { Events = [new(SimulationEventKind.Impact)] }]);
+        var json = Write(new Fixture { Events = [new(SimulationEventKind.Impact)] });
         Assert.Contains(original, json, StringComparison.Ordinal);
         Assert.Equal([new EventDescriptor(SimulationEventKind.Impact)], Assert.Single(BundleSchema.Read(json).Elements).Events);
         Assert.Throws<JsonException>(() => BundleSchema.Read(json.Replace(original, replacement, StringComparison.Ordinal)));
@@ -254,12 +287,12 @@ public sealed class BundleRoundTripTests
     [Fact]
     public void ImpulsePeakRoundTripsExplicitlyAndRefusesMalformedOrInactiveLanes()
     {
-        var json = BundleSchema.Write([Declaration("Cannon")]);
+        var json = Write(Declaration("Cannon"));
         var entry = Assert.Single(BundleSchema.Read(json).Elements);
         var pulse = Assert.Single(entry.Presentation.Bindings, binding => binding.Curve == PresentationCurve.SmoothRiseFall);
         Assert.Equal(.08f / .53f, pulse.ImpulsePeak!.Value.Value);
         entry = SceneGeometryExtractor.Bake(File.ReadAllText(Path.Combine(TestRepository.Root, "elements/Cannon/cannon.tscn")),
-            entry, Assert.IsAssignableFrom<ISceneGeometryElement>(Declaration("Cannon")).SceneBodies);
+            entry, Declaration("Cannon").SceneBodies);
         Assert.Empty(BundleValidator.Validate([new("Cannon", entry)]));
         using var document = JsonDocument.Parse(json);
         var encoded = document.RootElement.GetProperty("Elements")[0].GetProperty("Presentation").GetProperty("Bindings")
@@ -276,13 +309,14 @@ public sealed class BundleRoundTripTests
         }
     }
 
+    /// <summary>The entry's declared fields equal the declaration's. Colliders are not declared: the scene bake writes them, and the
+    /// tests above compare them with the entry that was written.</summary>
     private static void AssertEntry(IPuzzleElementDeclaration declaration, BundleEntry entry)
     {
         AssertSame(declaration.Metadata, entry.Metadata, "Metadata");
         Assert.Equal(declaration.SupportedDomains, entry.Domains.Aggregate(SimulationDomain.None, (all, domain) => all | domain));
         AssertSame(declaration.Footprint, entry.Footprint, "Footprint");
         AssertSame(declaration.Ports, entry.Ports, "Ports");
-        AssertSame(declaration.Colliders, entry.Colliders, "Colliders");
         AssertSame(declaration.Events, entry.Events, "Events");
         AssertSame(declaration.Presentation, entry.Presentation, "Presentation");
         Assert.Equal(declaration is IMechanicalElement, entry.Mechanical is not null);

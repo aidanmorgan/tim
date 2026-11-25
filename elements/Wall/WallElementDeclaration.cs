@@ -44,8 +44,6 @@ public sealed class WallElementDeclaration : IMechanicalElement, ISceneGeometryE
         new(0, GeometryComponent.HalfExtentZ, "thickness", .5f, 0f)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

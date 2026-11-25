@@ -208,9 +208,10 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 Assert.True(moving.Cell == new CellOrigin(x.Cell, y.Cell, z.Cell) && moving.Local == new LocalPosition(x.Local, y.Local, z.Local),
                     $"{where}.CompressionParameter: the moving body starts at {moving.Cell} {moving.Local}.");
                 var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == joint.BodyB).ToArray();
-                AssertColliders(where + ".MovingBody", slider.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
+                var baked = TestBundle.Entry(id).Mechanical!.MovingBodyColliders[i];
+                AssertColliders(where + ".MovingBody", baked, colliders.Select(collider => (collider.Shape, collider.Pose,
                     collider.Radius.Value, collider.HalfExtents)).ToArray());
-                AssertMaterials(where + ".MovingBody", slider.MovingBody.Colliders, colliders, scene.Materials.ToArray());
+                AssertMaterials(where + ".MovingBody", baked, colliders, scene.Materials.ToArray());
             }
         }
     }
@@ -251,9 +252,11 @@ public sealed class PackageRuntimeParityTests(NativeSceneFixture godot)
                 AssertBody(where + ".MovingBody", KinematicMode.Dynamic, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Mass, MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).LinearDrag,
                     MassFixtures.Evaluate(hinge.MovingBody.MassFrame, element.Metadata.Parameters).Gravity, moving);
                 var colliders = scene.Colliders.ToArray().Where(collider => collider.Body == joint.BodyB).ToArray();
-                AssertColliders(where + ".MovingBody", hinge.MovingBody.Colliders, colliders.Select(collider => (collider.Shape, collider.Pose,
+                var mechanical = TestBundle.Entry(id).Mechanical!;
+                var baked = mechanical.MovingBodyColliders[mechanical.Sliders.Count + i];
+                AssertColliders(where + ".MovingBody", baked, colliders.Select(collider => (collider.Shape, collider.Pose,
                     collider.Radius.Value, collider.HalfExtents)).ToArray());
-                AssertMaterials(where + ".MovingBody", hinge.MovingBody.Colliders, colliders, scene.Materials.ToArray());
+                AssertMaterials(where + ".MovingBody", baked, colliders, scene.Materials.ToArray());
             }
         }
     }

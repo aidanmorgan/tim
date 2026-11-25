@@ -128,11 +128,6 @@ public sealed class PortLocatorTests
             Errors(BeamBody + Locator("TieA", TieAnchor, "Visual/Beam"), new SceneBodyFixture { Ports = [BodyTie(body)] }));
 
     [Fact]
-    public void AMovingBodyPortOnADeclarationWithoutSceneBodiesFailsTheBuild() =>
-        Assert.Equal(["BUNDLE006 Fixture.Ports[0].Body: body 1 is not a declared scene body"],
-            Errors(Locator("TieA", TieAnchor), BodyTie(1)));
-
-    [Fact]
     public void ADuplicateLocatorFailsTheBuild() =>
         Assert.Equal(["BUNDLE011 Fixture.Metadata.ScenePath: Loc_Port_PowerIn appears more than once"],
             Errors(Locator("PowerIn") + Locator("PowerIn"), PowerIn(new(-.93f, 0f, 0f))));
@@ -141,39 +136,36 @@ public sealed class PortLocatorTests
     public void EveryRealPackageSceneAgreesWithItsDeclaredPorts() =>
         Assert.Empty(PackageValidator.Locators(TestRepository.Root, PackageDiscovery.Discover(TestRepository.Root).Packages));
 
-    /// <summary>The bundle entry validator's errors for one declaration's entry.</summary>
-    private static IEnumerable<string> EntryErrors(string package, IPuzzleElementDeclaration declaration)
-    {
-        var services = new CuriousContraptions.Bundle.BundleServices();
-        return services.Validate([new NamedEntry(package, services.Entry(declaration))]).Select(error => error.ToString());
-    }
+    /// <summary>The bundle entry validator's errors for one fixture's baked entry.</summary>
+    private static IEnumerable<string> EntryErrors(string package, BundleEntry entry) =>
+        new CuriousContraptions.Bundle.BundleServices().Validate([new NamedEntry(package, entry)]).Select(error => error.ToString());
 
     [Fact]
     public void ADuplicatePortIdIsRefused() =>
         Assert.Equal(["BUNDLE014 FixturePorts.Ports[1].Id: PowerIn is declared more than once", "BUNDLE006 fixture.SupplyGraph.Missing"],
-            EntryErrors("FixturePorts", new Fixture { Ports = [PowerIn(Vector3.Zero), PowerIn(Vector3.UnitX)] }));
+            EntryErrors("FixturePorts", FixtureBake.Entry(new Fixture { Ports = [PowerIn(Vector3.Zero), PowerIn(Vector3.UnitX)] })));
 
     [Fact]
     public void ASignalKindIsDeclaredExactlyOnSignalPorts()
     {
         PortDescriptor Port(SimulationDomain domain, PortSignalKind? signal) =>
             new(PortId.ActivationOut, domain, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), signal, Vector3.Zero, Vector3.UnitY);
-        Assert.Empty(EntryErrors("Fixture", new SignalFixture
+        Assert.Empty(EntryErrors("Fixture", FixtureBake.Entry(new SignalFixture
         {
             Ports = [Port(SimulationDomain.Signal, PortSignalKind.Level)],
             SignalNodes = [new SignalMemoryDescriptor(new("memory"))],
             SignalPorts = [new(PortId.ActivationOut, new(new("memory"), SignalTerminal.Output))]
-        }));
+        }, FixtureBake.Lamp, [])));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does",
             "BUNDLE006 fixture.Signal.Missing"],
-            EntryErrors("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Signal, null)] }));
+            EntryErrors("FixtureSignal", FixtureBake.Entry(new Fixture { Ports = [Port(SimulationDomain.Signal, null)] })));
         Assert.Equal(["BUNDLE015 FixtureSignal.Ports[0].Signal: a Signal port declares its signal kind and no other port does",
             "BUNDLE006 fixture.SupplyGraph.Missing"],
-            EntryErrors("FixtureSignal", new Fixture { Ports = [Port(SimulationDomain.Electrical, PortSignalKind.Level)] }));
+            EntryErrors("FixtureSignal", FixtureBake.Entry(new Fixture { Ports = [Port(SimulationDomain.Electrical, PortSignalKind.Level)] })));
     }
 
     [Fact]
     public void AnUndefinedRoleIsRefused() =>
         Assert.Equal(["BUNDLE003 FixtureSocket.Ports[0].Role: undefined enum value", "BUNDLE006 fixture.SupplyGraph.Missing"],
-            EntryErrors("FixtureSocket", new Fixture { Ports = [PowerIn(Vector3.Zero) with { Role = (PortRole)99 }] }));
+            EntryErrors("FixtureSocket", FixtureBake.Entry(new Fixture { Ports = [PowerIn(Vector3.Zero) with { Role = (PortRole)99 }] })));
 }

@@ -37,8 +37,6 @@ public sealed class SignalLampElementDeclaration : IElectricalElement, ISignalEl
         new(PortId.ActivationIn, SimulationDomain.Signal, PortDirection.Input, PortRole.ActivationIn, new("ActivationIn", SocketGlyph.Text), PortSignalKind.Level, Vector3.Zero, -Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

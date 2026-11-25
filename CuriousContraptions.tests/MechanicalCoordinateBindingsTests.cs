@@ -54,7 +54,12 @@ public sealed class MechanicalCoordinateBindingsTests
             [],
             [slider],
             [hinge0, hinge1],
-            null, [], []);
+            null, [], [])
+        {
+            // Sliders' bodies first, then the hinges'.
+            MovingBodyColliders = [springEntry.Mechanical.MovingBodyColliders[0], motorEntry.Mechanical.MovingBodyColliders[0],
+                motorEntry.Mechanical.MovingBodyColliders[0]]
+        };
 
         var mixedEntry = motorEntry with
         {
@@ -111,7 +116,8 @@ public sealed class MechanicalCoordinateBindingsTests
             [],
             [],
             [unpoweredHinge],
-            null, [], []);
+            null, [], [])
+        { MovingBodyColliders = motorEntry.Mechanical.MovingBodyColliders };
 
         var drivenEntry = motorEntry with
         {
@@ -248,7 +254,8 @@ public sealed class MechanicalCoordinateBindingsTests
         // Under deleted legacy arithmetic (Body.Value - 1 - Sliders.Length), this would have broken the index!
         var reorderedMechanical = mixedDriver.Mechanical! with
         {
-            Sliders = [mixedDriver.Mechanical!.Sliders[0], secondSlider]
+            Sliders = [mixedDriver.Mechanical!.Sliders[0], secondSlider],
+            MovingBodyColliders = [mixedDriver.Mechanical.MovingBodyColliders[0], .. mixedDriver.Mechanical.MovingBodyColliders]
         };
 
         var reorderedDriver = mixedDriver with
@@ -758,7 +765,8 @@ public sealed class MechanicalCoordinateBindingsTests
             {
                 Mechanical = driver.Mechanical with
                 {
-                    Sliders = [slider with { BaseFrame = new(new Vector3(0, 0, -3), Quaternion.Identity) }, slider]
+                    Sliders = [slider with { BaseFrame = new(new Vector3(0, 0, -3), Quaternion.Identity) }, slider],
+                    MovingBodyColliders = [driver.Mechanical.MovingBodyColliders[0], .. driver.Mechanical.MovingBodyColliders]
                 },
                 Footprint = new(Bodies: 5, MovingBodies: 4, PrismaticConstraints: 2, RevoluteConstraints: 2),
                 Ports = [driver.Ports[1] with { Body = new PackageBodyIndex(4) }, driver.Ports[0]]

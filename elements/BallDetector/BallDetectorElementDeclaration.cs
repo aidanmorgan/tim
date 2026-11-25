@@ -38,8 +38,6 @@ public sealed class BallDetectorElementDeclaration : IMechanicalElement, ISignal
         new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(0f, 1.12f, 0f), Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>The detector's documented contact material (CAT-002 §2): restitution 0.15, friction 0.3, threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [

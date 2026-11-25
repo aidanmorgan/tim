@@ -18,7 +18,7 @@ public sealed class SceneGeometryExtractorTests
         shape = SubResource("Box")
         """;
     private static readonly MaterialProperties Surface = new(.1f, .3f, 0f, .1f);
-    private static BundleEntry Empty => BundleSchema.Entry(new Fixture { Colliders = [] });
+    private static BundleEntry Empty => BundleSchema.Entry(new Fixture());
     private static BundleEntry Bake(string text) => SceneGeometryExtractor.Bake(text, Empty, [new(".", Surface)]);
 
     [Fact]
@@ -185,29 +185,6 @@ public sealed class SceneGeometryExtractorTests
         Assert.Equal(ColliderShapeKind.Box, Assert.Single(Bake(scene).Colliders).ShapeKind);
     }
 
-    /// <summary>Decision 4: a package's colliders are its scene's proxies. A declaration that states data colliders is refused as
-    /// <see cref="BundleErrorCode.SceneColliderOwnership"/>: on the base, whether its scene has a proxy or is art only (which an older
-    /// rule baked from the data), and on a slider's or a hinge's moving body. Controls: the box scene with no data colliders bakes its
-    /// one proxy, and the art-only scene with no data colliders is refused as a body without a collider, not as an ownership
-    /// refusal.</summary>
-    [Fact]
-    public void DeclarationDataCollidersAreRefusedOnEveryBodyWhateverTheScene()
-    {
-        const string artOnly = "[node name=\"Root\" type=\"Node3D\"]";
-        Assert.Single(Bake(BoxScene).Colliders);
-        Assert.Equal(BundleErrorCode.BodyWithoutCollider, RefusalCode(() => Bake(artOnly)));
-        var data = Empty with { Colliders = [Fixture.Box(new(.5f, .5f, .5f))] };
-        Assert.Equal(BundleErrorCode.SceneColliderOwnership, RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, data, [new(".", Surface)])));
-        Assert.Equal(BundleErrorCode.SceneColliderOwnership, RefusalCode(() => SceneGeometryExtractor.Bake(artOnly, data, [new(".", Surface)])));
-        var movingData = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()] } };
-        Assert.Equal(BundleErrorCode.SceneColliderOwnership, RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, movingData,
-            [new(".", Surface), new("Visual", Surface)])));
-        var hinge = default(RevoluteHingeDescriptor) with { MovingBody = new(Fixture.Slider().MovingBody.MassFrame, [Fixture.Box(new(.5f, .5f, .5f))]) };
-        var hingeData = Empty with { Mechanical = Empty.Mechanical! with { Hinges = [hinge] } };
-        Assert.Equal(BundleErrorCode.SceneColliderOwnership, RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, hingeData,
-            [new(".", Surface), new("Visual", Surface)])));
-    }
-
     /// <summary>The scene ownership names the base at the scene root, then each moving body once, at disjoint roots; otherwise the bake
     /// is refused as <see cref="BundleErrorCode.SceneColliderOwnership"/>: a list of the wrong count (two bodies for a part with no
     /// moving body), a first root other than ".", or a moving root nested under another. Control:
@@ -218,7 +195,7 @@ public sealed class SceneGeometryExtractorTests
     [InlineData(2, ".", "Visual", "Visual/col_box")]
     public void AnOwnershipThatDoesNotNameTheBaseAndEachMovingBodyOnceIsRefused(int sliders, params string[] roots)
     {
-        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = Enumerable.Repeat(Fixture.Slider(moving: []), sliders).ToArray() } };
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = Enumerable.Repeat(Fixture.Slider(), sliders).ToArray() } };
         Assert.Equal(BundleErrorCode.SceneColliderOwnership,
             RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, entry, roots.Select(root => new SceneBodyGeometry(root, Surface)).ToArray())));
     }
@@ -231,10 +208,10 @@ public sealed class SceneGeometryExtractorTests
             [node name="BaseCollider" type="CollisionShape3D" parent="."]
             shape = SubResource("Box")
             """;
-        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider(moving: [])] } };
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()] } };
         var baked = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Visual", Surface)]);
         Assert.Single(baked.Colliders);
-        var moving = Assert.Single(Assert.Single(baked.Mechanical!.Sliders).MovingBody.Colliders);
+        var moving = Assert.Single(Assert.Single(baked.Mechanical!.MovingBodyColliders));
         Assert.Equal(new Vector3(0, 2, 0), moving.Offset);
         Assert.Equal(BundleErrorCode.SceneColliderOwnership,
             RefusalCode(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new(".", Surface)])));
@@ -242,6 +219,46 @@ public sealed class SceneGeometryExtractorTests
             RefusalCode(() => SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("missing", Surface)])));
         Assert.Equal(BundleErrorCode.BodyWithoutCollider,
             RefusalCode(() => SceneGeometryExtractor.Bake(BoxScene, entry, [new(".", Surface), new("Visual", Surface)])));
+    }
+
+    /// <summary>R2: a slider's and a hinge's colliders are baked from their own scene roots into the payload's moving-body collider
+    /// lists, one list per moving body in the order of the ownership (sliders, then hinges), and the base keeps only the proxy outside
+    /// every moving root. Naming the hinge's root before the slider's swaps the two lists, so a list belongs to its position in the
+    /// ownership, not to its shape. Control: the base's one box.</summary>
+    [Fact]
+    public void ASliderAndAHingeBakeTheirOwnRootsIntoTheirListsInBodyOrder()
+    {
+        const string scene = """
+            [gd_scene format=3]
+            [sub_resource type="BoxShape3D" id="Box"]
+            size = Vector3(2, 4, 6)
+            [sub_resource type="SphereShape3D" id="Ball"]
+            radius = 0.25
+            [node name="Root" type="Node3D"]
+            [node name="Base" type="CollisionShape3D" parent="."]
+            shape = SubResource("Box")
+            [node name="Slide" type="Node3D" parent="."]
+            [node name="col_box" type="CollisionShape3D" parent="Slide"]
+            position = Vector3(0, 2, 0)
+            shape = SubResource("Box")
+            [node name="Arm" type="Node3D" parent="."]
+            [node name="col_ball" type="CollisionShape3D" parent="Arm"]
+            shape = SubResource("Ball")
+            """;
+        var hinge = default(RevoluteHingeDescriptor) with { MovingBody = new(Fixture.Slider().MovingBody.MassFrame) };
+        var entry = Empty with { Mechanical = Empty.Mechanical! with { Sliders = [Fixture.Slider()], Hinges = [hinge] } };
+        var baked = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Slide", Surface), new("Arm", Surface)]);
+        var block = Assert.Single(baked.Colliders);
+        Assert.Equal((ColliderShapeKind.Box, Vector3.Zero), (block.ShapeKind, block.Offset));
+        var lists = baked.Mechanical!.MovingBodyColliders;
+        Assert.Equal(2, lists.Count);
+        var slider = Assert.Single(lists[0]);
+        Assert.Equal((ColliderShapeKind.Box, new Vector3(0, 2, 0)), (slider.ShapeKind, slider.Offset));
+        var arm = Assert.Single(lists[1]);
+        Assert.Equal((ColliderShapeKind.Sphere, new Vector3(.25f)), (arm.ShapeKind, arm.HalfExtents));
+        var swapped = SceneGeometryExtractor.Bake(scene, entry, [new(".", Surface), new("Arm", Surface), new("Slide", Surface)]);
+        Assert.Equal([ColliderShapeKind.Sphere, ColliderShapeKind.Box],
+            swapped.Mechanical!.MovingBodyColliders.Select(body => Assert.Single(body).ShapeKind));
     }
 
     [Theory]
@@ -321,7 +338,7 @@ public sealed class SceneGeometryExtractorTests
     [Fact]
     public void GeometryBindingsRejectUnknownOutOfRangeAndDuplicateTargets()
     {
-        var entry = BundleSchema.Entry(new Fixture()) with
+        var entry = FixtureBake.Entry(new Fixture()) with
         {
             ColliderBindings = [new(0, GeometryComponent.HalfExtentX, "missing", .5f, 0f)]
         };
@@ -329,7 +346,7 @@ public sealed class SceneGeometryExtractorTests
         entry = entry with { ColliderBindings = [new(50, (GeometryComponent)255, "missing", float.NaN, 0f)] };
         Assert.NotEmpty(BundleValidator.Validate([new("Fixture", entry)]));
         var binding = new ColliderParameterBinding(0, GeometryComponent.OffsetX, "stiffness", 0f, 0f);
-        entry = BundleSchema.Entry(new Fixture { Parameters = Fixture.SpringParameters }) with { ColliderBindings = [binding, binding] };
+        entry = FixtureBake.Entry(new Fixture { Parameters = Fixture.SpringParameters }) with { ColliderBindings = [binding, binding] };
         Assert.NotEmpty(BundleValidator.Validate([new("Fixture", entry)]));
     }
 
@@ -339,7 +356,7 @@ public sealed class SceneGeometryExtractorTests
     [InlineData(1f, true)]
     public void BundleMouthOrientationMustBeUnitLength(float w, bool accepted)
     {
-        var entry = BundleSchema.Entry(new Fixture()) with
+        var entry = FixtureBake.Entry(new Fixture()) with
         { TubeMouths = [new(TubeEnd.End, Vector3.UnitX, new Quaternion(0, 0, 0, w), .65f)] };
         Assert.Equal(accepted, BundleValidator.Validate([new("Fixture", entry)]).Count == 0);
     }
@@ -479,27 +496,5 @@ public sealed class SceneGeometryExtractorTests
         Assert.Equal(code, error.Code);
         Assert.StartsWith("Fixture: ", error.Detail, StringComparison.Ordinal);
         if (names is not null) Assert.Contains(names, error.Detail, StringComparison.Ordinal);
-    }
-
-    /// <summary>Decision 4: the build takes a package's colliders from its scene only. A scene-owned declaration that also states a
-    /// data collider, or a declaration that names no scene bodies (not <see cref="ISceneGeometryElement"/>), is refused with exactly
-    /// <see cref="BundleErrorCode.SceneColliderOwnership"/> reported against the package, and no bundle is written. Control: the same
-    /// scene with the scene-owned fixture and no data collider generates.</summary>
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void APackageWhoseCollidersAreNotItsScenesIsRefusedAndWritesNoBundle(bool statesDataColliders)
-    {
-        var control = Generate(new SceneOwnedFixture(), BoxScene);
-        Assert.Empty(control.Errors);
-        Assert.NotNull(control.Json);
-        IPuzzleElementDeclaration declaration = statesDataColliders
-            ? new SceneOwnedFixture { Colliders = [Fixture.Box(new(.5f, .5f, .5f))] }
-            : new Fixture { Colliders = [] };
-        var refused = Generate(declaration, BoxScene);
-        Assert.Null(refused.Json);
-        var error = Assert.Single(refused.Errors);
-        Assert.Equal(BundleErrorCode.SceneColliderOwnership, error.Code);
-        Assert.StartsWith("Fixture: ", error.Detail, StringComparison.Ordinal);
     }
 }

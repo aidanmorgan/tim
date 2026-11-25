@@ -49,8 +49,6 @@ public sealed class RampElementDeclaration : IMechanicalElement, ISceneGeometryE
         new(2, GeometryComponent.OffsetZ, "width", .598f / 1.3f, 0f)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

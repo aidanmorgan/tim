@@ -20,7 +20,7 @@ Delivered declaration: `elements/Wall/WallElementDeclaration.cs`; scene `element
 | Item | Value and source |
 | --- | --- |
 | Body | One static body (`KinematicMode.Static`, `:58`; footprint 1 body, 0 moving, no constraints, `:33`), at any full 3D pose. Mass frame zero (`:62`–`68`). |
-| Collider | One box baked from the scene (`Colliders => []`, `:47`; `wall.tscn:18`–`19`, node `col_0_0`, `:36`), half extents (width/2, height/2, thickness/2) m at the origin, sized by three `ColliderBindings` (`:40`–`45`). |
+| Collider | One box baked from the scene (the declaration states none; `wall.tscn:18`–`19`, node `col_0_0`, `:36`), half extents (width/2, height/2, thickness/2) m at the origin, sized by three `ColliderBindings` (`:40`–`45`). |
 | Material (f32) | restitution 1, friction 0.3, rolling resistance 0, bounce threshold 0.1 m/s (`:51`). Restitution 1 is neutral under the product pair law. |
 | Parameters | `width`: Real, metres, default 3, minimum 0.4, maximum 8 (`:28`). `height`: Real, metres, default 2, minimum 0.4, maximum 6 (`:29`). `thickness`: Real, metres, default 0.25, minimum 0.12, maximum 2 (`:30`). All three take the descriptor defaults `ParameterEditorPolicy.Reject` and `ParameterRunEdit.BuildOnly` (`CuriousContraptions.Abstractions/ParameterDescriptor.cs:60`–`61`). |
 | Ports, events, stores, sensors, signal/supply/electrical nodes, anchors | none (`Ports`, `:35`; `Events`, `:54`; `AnchorPoints`, `:70`; `TubeMouthBindings`, `:38`; `SupportedDomains` is Mechanical only, `:56`). `PayloadPolicy.None` (`:60`). It declares nothing optical or acoustic. |

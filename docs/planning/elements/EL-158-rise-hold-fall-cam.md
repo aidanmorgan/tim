@@ -71,7 +71,7 @@ The capability probe below is the whole engine probe (baseline `a6c914e` lists a
 
 | Capability | Status | Symbol | Exercising test |
 | --- | --- | --- | --- |
-| Several colliders on one moving body, each keeping its own contact | present | `HingeBodyDescriptor.Colliders`, `CuriousContraptions.Abstractions/MechanicalContractValues.cs:123` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`) |
+| Several colliders on one moving body, each keeping its own contact | present | `MechanicalPayload.MovingBodyColliders`, `CuriousContraptions.Abstractions/BundleServices.cs:75` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`) |
 | A flat follower crossing from one small cylinder to the next without chatter (fourteen colliders on a turning body) | present, untested | same | none at this count on a hinge-carried body |
 | The visible-solid check accepting an art arc matched by cylinders within a fit tolerance | not needed | — | `Visual/Cam` is fourteen cylinder meshes matched one to one with the fourteen cam colliders (Art and solidity above), so no fit tolerance is relied on |
 | A sector or convex-prism collider on a moving body | not used; missing if the crossing row above fails | none | ENGINE-PROFILE-COLLIDER (owner decision 3a; before its first consumer, this part) |

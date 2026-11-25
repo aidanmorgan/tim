@@ -55,15 +55,15 @@ The element bundle is the only declaration source the game loads ([invariant 2](
 
 ### Element Bundle Schema Contract
 
-Every bundle entry is typed, and every field is written bit-exactly and read back bit-exactly (a round-trip test proves each package's declaration equals its deserialised entry, f32 bit for bit):
+Every bundle entry is typed, and every field is written bit-exactly and read back bit-exactly (round-trip tests prove each package's declared fields equal its deserialised entry, and baked colliders read back as written, f32 bit for bit):
 
 1. **Encodings:** f32 game values are IEEE-754 single precision, written in shortest round-trip form. Vectors are `[x, y, z]`; quaternions are `[x, y, z, w]`. Enums are written by name; an unknown name, or a number in place of a name, is rejected. Integers and ids keep their integer types.
 2. **Metadata:** a unique canonical element id, an enum category (the palette's Motion, Goals, Power, Control or Structure), a display-name key, the icon path (null until the element ships its icon) and the element's `.tscn` scene path.
 3. **Typed parameter schema:** each parameter declares its key, its unit enum, an enum kind (Real, WholeNumber, Boolean or Choice), and an f32 minimum, maximum and default; a Choice also lists its option names, and its bounds and default are option indices. Instance values are validated against this schema; there is no property bag.
 4. **Footprint:** the bodies, moving bodies and prismatic constraints one placed instance adds to the compiled scene.
 5. **Ports:** typed socket id (the socket's name), domain, direction, the signal kind of a signal port (Pulse or Level), owning body (`Body`, 0 for the base), local position in that body's frame, normal and the `Loc_Port_<Id>` locator node.
-6. **Colliders:** shape kind enum, half-extents (a sphere's radius on every axis), local offset, local rotation and material (restitution, friction, rolling resistance $C_{rr}$, bounce threshold).
-7. **Mechanical payload:** body motion kind, mass, principal inertia, material, and joint and prismatic anchors.
+6. **Colliders:** the base body's colliders, baked from the package scene's collider proxies (a declaration states none): shape kind enum, half-extents (a sphere's radius on every axis), local offset, local rotation and material (restitution, friction, rolling resistance $C_{rr}$, bounce threshold).
+7. **Mechanical payload:** body motion kind, mass, principal inertia, material, joint and prismatic anchors, and one baked collider list per moving body in package body order (sliders, then hinges); a list count other than the moving bodies' is refused.
 8. **Electrical payload:** source, consumer and switch nodes and their supply parameters.
 9. **Signal payload:** typed local nodes, internal edges and exact public-port bindings for contact/passage/orientation/load sensing, latches, counters, timers, memory and oscillators.
 10. **Events and bindings:** the capability-named event kinds the element can produce, and its presentation bindings (target node, property, from/to, curve and driving source: a committed level state or a one-shot ring occurrence).

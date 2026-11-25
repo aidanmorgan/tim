@@ -87,7 +87,7 @@ All capabilities exist; nothing in a solver law, the worker ABI, the wire schema
 - **Present:** `CommittedRevoluteAngle` -- `ClutchTests.DifferentHingeSupportsPreserveProvenanceAndReadTheSelectedChildCoordinate` (`ClutchGeneralityTests.cs:214-215`; the sample equals the selected child coordinate and differs from the first) and `FanIntegrationTests.MotorLinkUsesDeclaredInputSenseAndActualShaftTravel` (`:575-577`).
 - **Present:** `CommittedFlowSpeed` -- `FanIntegrationTests.CommittedFlowPhaseHoldsOnPauseStepsOnceAndResetsWithoutUnexposedDebit` (`:591-594`).
 - **Present:** `CommittedGasRadius` -- `BalloonTests.RupturePrecedesTimedPartialLossAndPauseStepResumeResetOwnTheOpenStore` (`:221-224`).
-- **Present:** `CommittedTransmissionClosure` -- `ClutchArtTests.ClutchScene_AnimatesPlatesLampAndShaftSpokesAcrossLifecycleAndResetsCleanly` (`ClutchTests.cs:1448`; plate positions across the lifecycle).
+- **Present:** `CommittedTransmissionClosure` -- `ClutchArtTests.ClutchScene_AnimatesPlatesLampAndShaftSpokesAcrossLifecycleAndResetsCleanly` (`ClutchTests.cs:1450`; plate positions across the lifecycle).
 - **Present:** `CommittedRetentionReleased` -- `WoundSpringLifecycleTests.LatchTracksEightRadiansPerSimulationSecondAcrossSkippedFramesAndReversal` (`:56-88`).
 - **Present:** missing-source refusal -- `ComposableAnimationMappingTests.WorkshopDeclaredPresentation_Query_ThrowsOnMissingSource` (`:605`).
 - **Present:** the six discrete drivers through `MapDiscreteState` (`engine/gpu/WorkshopDeclaredPresentation.cs:588-600`) -- `WorkshopDeclaredPresentation_Discrete3State_AllThreeStatesAndTransitions`, `WorkshopDeclaredPresentation_UnifiedStateValues_AcrossActuatorContactAndTimer`. Unchanged by this slice.

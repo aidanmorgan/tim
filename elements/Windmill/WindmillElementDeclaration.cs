@@ -21,7 +21,6 @@ public sealed class WindmillElementDeclaration : IHingeElement, IRotaryAirflowCa
     public PayloadPolicy Payload => PayloadPolicy.None;
     public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0, Vector3.Zero);
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
         [new(".", new(0, .3f, 0, .1f)), new("Visual/Rotor", new(0, .3f, 0, .1f))];
     public IReadOnlyList<RevoluteHingeDescriptor> Hinges =>
@@ -30,7 +29,7 @@ public sealed class WindmillElementDeclaration : IHingeElement, IRotaryAirflowCa
             MechanicalValue.Fixed(0), MechanicalValue.Fixed(0), MechanicalValue.Fixed(0),
             MechanicalValue.Fixed(0), false,
             new(MassFrameDeclaration.Constant(1, Vector3.Zero, new(.245f, TransverseInertia, TransverseInertia),
-                Quaternion.Identity, 0, Vector3.Zero), []), null)];
+                Quaternion.Identity, 0, Vector3.Zero)), null)];
     public IReadOnlyList<RotaryAirflowCaptureDescriptor> RotaryAirflowCaptures =>
         [new(new(1), new(0), new(CoordinateKind.Revolute, 0),
             [new(new(-.12f, .42f, 0), .25f), new(new(-.12f, -.42f, 0), .25f),

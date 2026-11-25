@@ -617,10 +617,28 @@ public static class BundleValidator
             try { _ = HingeSupportOrder.Resolve(mechanical.Sliders.Count, mechanical.Hinges); }
             catch (ArgumentException) { OutOfRange("Hinges.Support"); }
             for (var i = 0; i < mechanical.Hinges.Count; i++) Hinge($"Hinges[{i}]", mechanical.Hinges[i], parameters, new(1 + mechanical.Sliders.Count + i), mechanical.GasStores);
+            MovingBodyColliders(mechanical);
             MechanicalResidenceSensor(mechanical, parameters);
             MechanicalPlanarGuide(mechanical, parameters);
             MechanicalContactWork(mechanical, parameters);
             MechanicalSurface(mechanical, parameters);
+        }
+
+        /// <summary>The baked moving-body colliders: exactly one list per moving body (sliders, then hinges), each with a collider, and
+        /// every collider valid.</summary>
+        private void MovingBodyColliders(MechanicalPayload mechanical)
+        {
+            var lists = mechanical.MovingBodyColliders;
+            var moving = mechanical.Sliders.Count + mechanical.Hinges.Count;
+            if (lists.Count != moving)
+                errors.Add(new(BundleErrorCode.SceneColliderOwnership,
+                    $"{source}.Mechanical.MovingBodyColliders: {lists.Count} collider lists for {moving} moving bodies"));
+            for (var b = 0; b < lists.Count; b++)
+            {
+                for (var i = 0; i < lists[b].Count; i++) Collider($"Mechanical.MovingBodyColliders[{b}][{i}]", lists[b][i]);
+                if (lists[b].Count == 0)
+                    errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.Mechanical.MovingBodyColliders[{b}]: a body declares no collider"));
+            }
         }
 
         private void MechanicalResidenceSensor(MechanicalPayload mechanical, IReadOnlyList<ParameterDescriptor> parameters)
@@ -766,9 +784,6 @@ public static class BundleValidator
             Value(path + ".Compression", slider.Compression, parameters);
             var body = slider.MovingBody;
             MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters, bodyIndex, stores);
-            for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
-            if (body.Colliders.Count == 0)
-                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
             if (slider.Drive is { } drive)
             {
                 // The target lies within the travel; every bound is a finite positive f32 (a zero bound is a drive that cannot move).
@@ -808,9 +823,6 @@ public static class BundleValidator
             }
             var body = hinge.MovingBody;
             MassFrame(path + ".MovingBody.MassFrame", body.MassFrame, KinematicMode.Dynamic, parameters, bodyIndex, stores);
-            for (var i = 0; i < body.Colliders.Count; i++) Collider($"{path}.MovingBody.Colliders[{i}]", body.Colliders[i]);
-            if (body.Colliders.Count == 0)
-                errors.Add(new(BundleErrorCode.BodyWithoutCollider, $"{source}.{path}.MovingBody.Colliders: a body declares no collider"));
             Defined(path + ".Travel", hinge.Travel);
             // Continuous travel turns without end: its limits are exactly the full turn [−π, π] and it carries no axial spring, whose
             // pull toward a wrapped angle would reverse at ±π.

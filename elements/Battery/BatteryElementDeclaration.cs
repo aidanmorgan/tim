@@ -56,8 +56,6 @@ public sealed class BatteryElementDeclaration : ISupplyElement, ISceneGeometryEl
         new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(0f, .62f, 0f), Vector3.UnitY)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))
