@@ -915,3 +915,7 @@ Executor: fresh implementation owner on `7ba5dc1979668e8656f13d752ab8c7cc001cb9e
 - Commit `61d3a0cbd049e410a429b82bfcbaea09f2620352` (on `7ba5dc19`): the narrowing revert and its records; hooks passed (`commit-narrow.log`); the seven runner files equal `77e2b6aa` in the staged tree.
 - Full local round r18 on that commit (`~/.local/share/tim-toolchain/logs/slice-s5b/final-round-r18.log`, `binlogs-r18/`): HEAD and HEAD-AFTER `61d3a0cb…`, clean status before and after; builds 0 warnings, 0 errors; 17 + 287 + 132 + 260 + 6,681 = 7,377 passed, 0 failed, `Skipped: 0` (AC2); registration 17 + 195 + 83 + 97 + 429 = 821; maintainability gate PASS with both canaries; VerifyPolicy 78/0/0; `--bmad-check --self-test` 37/0/0; `--bmad-check --route Auto` structural findings 0; exit 0.
 - This entry and the AC2 cell are written after the round, in a records-only commit on top of `61d3a0cb`. Next: the publish token (after lane 1), one merge of `origin/main`, the round on the merged SHA, a fresh SnapshotApproval, push.
+
+## E34 Coordinator confirmation of E32 (25 November 2026, coordinator)
+
+- The coordinator confirmed E32's F1 wording as the record of coordinator decision B, 25 November 2026, with one added clause, which completes that record: this is a sequenced repair owned by the named lane 3 slice, dispatched by the coordinator straight after S5b publishes, not an open deferral.
