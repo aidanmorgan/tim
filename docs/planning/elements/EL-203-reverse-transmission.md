@@ -40,7 +40,7 @@ Delivered declaration, read from `elements/ReverseTransmission/ReverseTransmissi
 
 ### Art and solidity
 
-Classified in `VisibleSolidColliderTests.cs:102`: solid with colliders are `Visual/Base`, `Visual/Housing`, `Visual/InputWheel/Disc` and `Visual/OutputWheel/Disc`; listed decorative are each wheel's `Index` and `Mark`.
+Classified in `VisibleSolidColliderTests.cs:120`: solid with colliders are `Visual/Base`, `Visual/Housing`, `Visual/InputWheel/Disc` and `Visual/OutputWheel/Disc`; listed decorative are each wheel's `Index` and `Mark`.
 
 **Possible visible-solid defect, not in either contract.** Each wheel's `Index` is a box 0.48 × 0.065 × 0.04 m centred 0.09 m in front of the wheel centre, and each `Mark` is a sphere of radius 0.07 m centred at z 0.10 (`elements/ReverseTransmission/reverse_transmission.tscn:31`–`:37`, `:87`–`:93`). The disc's front face is at z 0.07, so the bar stands 0.04 m and the sphere 0.10 m proud of it. Both ride the wheel's hinge body; no presentation binding turns them. Under the owner's rule that is a proud visible solid on a body, the same case as the Conveyor's input pulley. `spec-engine-art-solidity.md` lists findings only for the eleven packages outside the hand table, so it does not record this. It is raised in the batch summary for the visible-solid owner (flush redraw, as the Motor's index was). It does not block the closure, whose subject is shaft behaviour.
 

@@ -63,7 +63,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | --- | --- | --- | --- | --- |
 | `Visual/Visual_Sphere` (`:19`) | sphere, radius 0.28 m | solid | `col_0_0`, sphere 0.28 m | body 0 pose |
 
-No presentation binding exists, so nothing is animated. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:110`).
+No presentation binding exists, so nothing is animated. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:128`).
 
 **Generic laws.**
 

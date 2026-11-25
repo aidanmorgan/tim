@@ -40,7 +40,7 @@ definition the narrowphase and placement both read):
 - **Admission** (`ColliderDeclaration.Validate`) refuses, atomically at compile, before any state is stepped: a tube or frustum
   without a bore of at least 1/64 m, a wall thinner than 1/1024 m, a frustum with equal end radii (a tube), a torus whose tube reaches
   its axis (R ≤ r_o: self-intersecting), a sweep outside (0, π] that is not the full turn, and any non-finite or out-of-range lane.
-  Hollow colliders are static only: a dynamic body still admits one homogeneous sphere, box or cylinder.
+  Hollow colliders are admitted on static and dynamic bodies alike (since `engine-multi-collider-dynamic`, published `28a2d302`).
 - The bore and both end openings are physically open; no filled convex hull is used.
 
 The scene-independent `HollowContactQuery` owns sphere, box and cylinder feature measurements for simulation, placement and compile admission. Simulation alone applies impulses. Candidate scratch holds at most 152 geometric features: 8 box vertices, 12 edge minima, and 6 faces times 22 crest/rim/generator candidates; cylinder and sphere maxima are 75 and 17 respectively. The sphere maximum is one closest surface plus four points on each of at most four segment-end rims. An intersecting independent dynamic payload is refused as `InvalidConstruction` without replacing the prior construction/world. The shared placement slop is 0.1 mm; constrained mechanism children retain their declared own-parent contacts.
@@ -56,10 +56,10 @@ The scene-independent `HollowContactQuery` owns sphere, box and cylinder feature
 | Powered gate | Sleeve Tube (0.65–0.7, half-length 0.4) and two collar Tubes (0.65–0.78, half-length 0.09, reaching the mouths at ±0.49) |
 | Bumper | Its upper ring: the drawn full solid torus (centreline 0.49, tube 0.018) |
 
-The torus parts on dynamic bodies (the Basketball's seam, the Weight's bands and lifting eye) and the pressure plate's ring (a sixth
-collider would take its contact-load row's identity) stay uncollided: both wait for
-[`engine-multi-collider-dynamic`](../_bmad-output/planning-artifacts/epics.md), which owns multi-collider and dynamic hollow bodies
-and the identity layout.
+Hollow colliders on moving bodies are delivered. Since [`engine-multi-collider-dynamic`](../_bmad-output/planning-artifacts/epics.md)
+(published `28a2d302`), which owns multi-collider and dynamic hollow bodies and the identity layout, the torus parts on dynamic bodies
+(the Basketball's seam, the Weight's bands and lifting eye) and the pressure plate's ring collide as drawn. Visible-solid remainder
+part B adds one on a slider's moving body: the Linear pusher's head ring, a full solid torus (centreline 0.245, tube 0.01).
 
 ## Pair rules
 
@@ -85,7 +85,8 @@ inside the wall the nearest of the profile and the end faces' half-spaces):
   Every count is fixed. Tilted torus crest directions are projected into the sampled meridian before constructing a surface point. A fully represented cylinder cap omits its redundant moving rim minimum; partial rims and side generators retain their minimum.
 - Shared normal-block translation couples rows by inverse mass times the dot product of their normals; nonparallel hollow rim normals obey the same impulse rule as parallel face contacts.
 - Placement volume bounds use signed directional support distances, preserving the unoccupied side of a partial torus instead of reflecting its arc about the revolution origin.
-- A plane or another hollow collider never pairs with a hollow collider (both static).
+- A plane or another hollow collider pairs with a hollow collider only when one of the two bodies moves (two static bodies never
+  pair), through the same `HollowContactQuery`.
 
 ## Seams and joints
 

@@ -38,7 +38,7 @@ Delivered declaration, read from `elements/Domino/DominoElementDeclaration.cs`. 
 
 ### Art and solidity
 
-Classified in `VisibleSolidColliderTests.cs:115`: `Visual/Visual_Body` (box, solid, its own collider) and the two pips `Visual/Visual_Pip1`, `Visual/Visual_Pip2` (listed solid with the body). Tile colour `#e8d4a6`, pips `#384757` ([DESIGN colour system](../../../DESIGN.md#colour-system)). No visible-solid defect is listed for this package in `spec-engine-art-solidity.md` or `spec-elements-visible-solid-remainder.md`. The tile is told from the Wall by its two pips and upright slab proportion, not by colour.
+Classified in `VisibleSolidColliderTests.cs:133`: `Visual/Visual_Body` (box, solid, its own collider) and the two pips `Visual/Visual_Pip1`, `Visual/Visual_Pip2` (listed solid with the body). Tile colour `#e8d4a6`, pips `#384757` ([DESIGN colour system](../../../DESIGN.md#colour-system)). No visible-solid defect is listed for this package in `spec-engine-art-solidity.md` or `spec-elements-visible-solid-remainder.md`. The tile is told from the Wall by its two pips and upright slab proportion, not by colour.
 
 CAT-023c must keep the art on the collider: the body origin stays at the box centre and only the mass centre moves, so no mesh moves in the scene.
 

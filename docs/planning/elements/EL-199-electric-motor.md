@@ -52,7 +52,7 @@ Delivered declaration, read from `elements/Motor/MotorElementDeclaration.cs`. No
 
 ### Art and solidity
 
-Classified in `VisibleSolidColliderTests.cs:84`: solid with colliders are `Visual_Base`, `Visual_Body`, `Visual_Housing`, `Visual_Stud`, `Lamp` and `Rotor/Visual_Rotor`; decorative is `Rotor/Visual_Index` (printed flush on the rotor face). No visible-solid defect is listed for this package in `spec-engine-art-solidity.md` or `spec-elements-visible-solid-remainder.md`. Colours: motor `#66b8c9`, navy `#293954` base ([DESIGN colour system](../../../DESIGN.md#colour-system)). It is told from the Fan by its side-facing disc rotor and supply lamp.
+Classified in `VisibleSolidColliderTests.cs:99`: solid with colliders are `Visual_Base`, `Visual_Body`, `Visual_Housing`, `Visual_Stud`, `Lamp` and `Rotor/Visual_Rotor`; decorative is `Rotor/Visual_Index` (printed flush on the rotor face). No visible-solid defect is listed for this package in `spec-engine-art-solidity.md` or `spec-elements-visible-solid-remainder.md`. Colours: motor `#66b8c9`, navy `#293954` base ([DESIGN colour system](../../../DESIGN.md#colour-system)). It is told from the Fan by its side-facing disc rotor and supply lamp.
 
 ## 3. Engine capabilities
 

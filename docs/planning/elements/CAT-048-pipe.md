@@ -43,7 +43,7 @@ The package is declaration data, a scene and bindings. It has no script, callbac
 
 | Art node | Classification | Moved by |
 | --- | --- | --- |
-| `Visual/Visual_Shell` | Hollow; matches `col_shell` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:135`) | Nothing during Run. Its length is set at Build by the `length` parameter binding, and `col_shell` takes the same parameter through `ColliderBindings`, so art and collider agree at every length. |
+| `Visual/Visual_Shell` | Hollow; matches `col_shell` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:153`) | Nothing during Run. Its length is set at Build by the `length` parameter binding, and `col_shell` takes the same parameter through `ColliderBindings`, so art and collider agree at every length. |
 | `Visual/Visual_Collar_Start`, `_End` | Hollow; match the collar tori | Nothing during Run; placed at Build by `length`, as their colliders are. |
 
 No art is moved by an animation binding, and nothing in physics reads art.

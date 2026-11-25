@@ -99,7 +99,7 @@ Left for other owners:
 - `EL-187-basketball.md` still names the retired scene-environment slice for the pressure row; the owner is the uniform-field law under `ENGINE-FIELD-FORCE` (coordinator decision 16).
 - `EL-192`'s spec says multi-Receiver-with-balls remains open; it is delivered.
 - `content/puzzles.json` `burst_of_motion` places a `bowling`, while `WorkshopBowlingTests.cs:180` is named `AuthoredPuzzlesRequireTheBasketballKindAndNeverOfferTheBowlingBall`.
-- Stale comments: `VisibleSolidColliderTests.cs:108` (Basketball seam "open"), `BallDetectorElementDeclaration.cs:10-13` (16-box ring).
+- Stale comments: `VisibleSolidColliderTests.cs:126` (Basketball seam "open"), `BallDetectorElementDeclaration.cs:10-13` (16-box ring).
 - `docs/coverage/catalogue-elements.json` records `parts/catalog/ball.tres`, which no longer exists.
 - The generic level refusal has one wording, "A level output connects only to an input that admits a level.", made by `ENGINE-CAPABILITY-INSTANCES` (audit E4), the first slice to edit `engine/gpu/WorkshopConnections.cs:150`; CAT-035, CAT-037 and CAT-052 cite it.
 - Audit corrections found during repair: the planned Fan rows for the Bowling ball and the Wall already exist (`FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls`, controls `Heavy` and `SolidWall`); bend-to-bend passage is already tested (`TubeMouthSnapTests.ABallCrossesASnappedJointWithoutSnagging`, row `Bend45ToBend45`); the audit's Ball and Bumper counts omitted the airflow receiver, ambient load and supply nodes.

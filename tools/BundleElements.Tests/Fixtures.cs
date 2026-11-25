@@ -135,3 +135,22 @@ internal static class TestRepository
 
     public static string Read(string relative) => File.ReadAllText(Path.Combine(Root, relative));
 }
+
+/// <summary>A static fixture whose one body takes its colliders from its scene (the base at the scene root), so a scene's proxies reach
+/// the extractor through the generator. Its identity and paths are <see cref="Fixture"/>'s. Internal, so the assembly-as-package
+/// discovery count above stays two.</summary>
+internal sealed class SceneOwnedFixture : IMechanicalElement, ISceneGeometryElement
+{
+    public ElementPresentation Presentation => new(1f, PresentationAxes.None, [], [], [], []);
+    public ElementMetadata Metadata => new Fixture().Metadata;
+    public ElementFootprint Footprint => new(1, 0, 0, 0);
+    public IReadOnlyList<PortDescriptor> Ports { get; init; } = [];
+    public IReadOnlyList<ColliderDescriptor> Colliders { get; init; } = [];
+    public IReadOnlyList<EventDescriptor> Events => [];
+    public SimulationDomain SupportedDomains => SimulationDomain.Mechanical;
+    public KinematicMode KinematicMode => KinematicMode.Static;
+    public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0f, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0f, Vector3.Zero);
+    public PayloadPolicy Payload => PayloadPolicy.None;
+    public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
+    public IReadOnlyList<SceneBodyGeometry> SceneBodies => [new(".", new(1f, .3f, 0f, .1f))];
+}

@@ -121,7 +121,7 @@ Capability probe, 22 November 2026, with EL-198's rows added on 23 November 2026
 | `Visual/Visual_Terminal1`, `Visual_Terminal2` | spheres r 0.08 at x ∓0.58, drawn gold by a material override (`tscn:16-19`, `:53-61`) | solid, colliders `col_0_2`, `col_0_3` | nothing |
 | `Visual/Visual_Socket` | sphere r 0.09 at (0.45, 0, 0.4), gold (`tscn:31-34`, `:72-74`) | solid, collider `col_0_4` | nothing |
 
-The solid list agrees with `VisibleSolidColliderTests.cs:66-67`.
+The solid list agrees with `VisibleSolidColliderTests.cs:81-82`.
 
 **Conformance repair (coordinator decision, 22 November 2026; reason: art moved by a binding must be decorative, and anything that blocks must stay with its collider).** The latch is shown by colour only. The `LocalY` binding (`elements/ImpactSwitch/ImpactSwitchElementDeclaration.cs:16`) is deleted, so the collider and the visible button stay together; the three colour bindings stay. One element-tier slice edits: that declaration line; `DESIGN.md:335` (the switch row becomes "a latched contact changes the button to pale green `#bff5b0`; the button does not move") and `DESIGN.md:319` ("depressed/green button" becomes "green button"; its "two navy supply terminals" is corrected to gold, which is what the scene draws and what the activation socket uses); the binding expectations in `PresentationBindingGoldenTests` and `BasketballResourceTests.BumperAndSwitchArtworkFollowOneDeclaredBlendAndHoldOnInvalidSamples`; and the two planned tests of section 5. The author-set modes add no travel in any mode (section 2). A button that really presses would be a prismatic body with its own collider and is not planned.
 

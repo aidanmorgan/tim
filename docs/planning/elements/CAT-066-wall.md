@@ -58,7 +58,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | `Visual/Visual_Body` (`:25`) | unit box 1 × 1 × 0.998, scaled to the dimensions | solid | `col_0_0`, the full box | nothing during Run |
 | `Visual/Visual_StripeLeft` (`:28`), `Visual/Visual_StripeRight` (`:32`) | boxes 0.035 × 0.94 × 1 at x ∓0.46 of the unit box, cream (0.976, 0.91, 0.788) | decorative: printed flat | flush with the collider's faces and inside it; nothing stands proud of the collider | nothing during Run |
 
-The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the collider takes the full thickness, so it is 0.001 × thickness thicker per face than the drawn body, at most 2 mm at the 2 m maximum. The hand table records this as a stated fit (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:118`, `Fit: .002f`). The three presentation bindings size the `Visual` node from the three `BuildOnly` parameters and the three collider bindings size the box from the same parameters: static sizing in Build, not animation.
+The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the collider takes the full thickness, so it is 0.001 × thickness thicker per face than the drawn body, at most 2 mm at the 2 m maximum. The hand table records this as a stated fit (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:136`, `Fit: .002f`). The three presentation bindings size the `Visual` node from the three `BuildOnly` parameters and the three collider bindings size the box from the same parameters: static sizing in Build, not animation.
 
 **Generic laws.**
 

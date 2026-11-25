@@ -38,7 +38,7 @@ public sealed class WoundSpringArtTests(NativeSceneFixture godot)
             var coil = part.GetNode<Node3D>("Visual/Coil");
             var index = part.GetNode<Node3D>("Visual/Head/ChargeIndex");
             var mark4 = part.GetNode<Node3D>("Visual/Mark4");
-            var sleeve = Assert.IsType<CylinderMesh>(part.GetNode<MeshInstance3D>("Visual/col_Sleeve").Mesh);
+            var sleeve = Assert.IsType<CylinderMesh>(part.GetNode<MeshInstance3D>("Visual/Sleeve").Mesh);
             Assert.False(sleeve.CapTop); Assert.False(sleeve.CapBottom);
             Assert.Equal(new Color(.4f, .72f, .79f, .18f),
                 Assert.IsType<StandardMaterial3D>(sleeve.SurfaceGetMaterial(0)).AlbedoColor);
@@ -55,7 +55,7 @@ public sealed class WoundSpringArtTests(NativeSceneFixture godot)
                 physical.Apply([part], root.GlobalTransform, new PresentedBodySet(poses));
                 Assert.InRange((coil.Transform * new Vector3(0, -.69f, 0)).DistanceTo(new(0, -.8f, 0)), 0f, .001f);
                 Assert.InRange((coil.Transform * new Vector3(0, .69f, 0)).DistanceTo(head.Position + new Vector3(0, -.32f, 0)), 0f, .001f);
-                Assert.Equal(new Vector3(.6f, -.1f, .14f), index.Position);
+                Assert.Equal(new Vector3(.6f, -.1f, .1004f), index.Position);
             }
             Observe();
             Assert.Equal(Quaternion.Identity, shaft.Quaternion);
@@ -76,5 +76,35 @@ public sealed class WoundSpringArtTests(NativeSceneFixture godot)
             part.GetParent()?.RemoveChild(part); part.Free();
             root.GetParent()?.RemoveChild(root); root.Free();
         }
+    }
+
+    /// <summary>The five stroke marks and the charge index are printed flat on the right rail's front face, and the shaft's spoke on
+    /// the winding wheel's face, not raised (owner decision, 21 November 2026; the old boxes stood 7.5 to 57.5 mm proud and overhung
+    /// the 0.13 m rail): each a quad of its authored size facing out of its face, between 0 and 0.5 mm in front of it (the face plane
+    /// read from the face's own mesh), inside the face, and in the colour the scene authored for the raised box: navy (0.161, 0.224,
+    /// 0.329) for the marks, gold (0.969, 0.796, 0.322) for the index and the spoke. The index, which slides over the marks, lies in
+    /// front of them.</summary>
+    [Fact]
+    public void TheMarksIndexAndSpokeArePrintedFlatOnTheirFaces()
+    {
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(new("wound_spring")).Metadata.ScenePath).Instantiate<Node3D>();
+        try
+        {
+            var (navy, gold) = (new Color(.161f, .224f, .329f), new Color(.969f, .796f, .322f));
+            var rail = VisibleSolidColliderTests.VerticesInRoot(root, root.GetNode<MeshInstance3D>("Visual/RightRail"));
+            var marks = Enumerable.Range(0, 5).Select(i => VisibleSolidColliderTests.AssertPrintedFlat(root,
+                root.GetNode<MeshInstance3D>($"Visual/Mark{i}"), rail.Max(v => v.Z), new(.1f, .018f), navy)).ToArray();
+            var index = VisibleSolidColliderTests.AssertPrintedFlat(root, root.GetNode<MeshInstance3D>("Visual/Head/ChargeIndex"),
+                rail.Max(v => v.Z), new(.12f, .045f), gold);
+            foreach (var (print, i) in marks.Append(index).Select((print, i) => (print, i)))
+                VisibleSolidColliderTests.AssertInsideRectangle(print, rail, i < marks.Length ? $"Mark{i}" : "ChargeIndex");
+            Assert.All(marks, mark => Assert.True(index.Min(v => v.Z) > mark.Max(v => v.Z), "the charge index lies under a stroke mark"));
+            var wheel = root.GetNode<MeshInstance3D>("Visual/Shaft/Wheel");
+            var rim = VisibleSolidColliderTests.VerticesInRoot(root, wheel);
+            var spoke = VisibleSolidColliderTests.AssertPrintedFlat(root, root.GetNode<MeshInstance3D>("Visual/Shaft/Spoke"),
+                rim.Max(v => v.Z), new(.42f, .035f), gold);
+            VisibleSolidColliderTests.AssertInsideDisc(spoke, rim, Assert.IsType<CylinderMesh>(wheel.Mesh).TopRadius, "Shaft/Spoke");
+        }
+        finally { root.Free(); }
     }
 }

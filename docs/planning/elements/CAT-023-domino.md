@@ -56,7 +56,7 @@ Capability probe, 22 November 2026. Counts: 7 present, 1 present but untested, 2
 | Declared orientation threshold on a dynamic body, firing a pulse output once | present | `SignalOrientationDescriptor` (`CuriousContraptions.Abstractions/SignalContractValues.cs:56`), `OrientationThreshold` (4° to 179°, `CuriousContraptions.Abstractions/OrientationSensorDeclarationValues.cs:9-21`), compiled at `engine/gpu/WorkshopPhysicsCompiler.cs:369-378`, evaluated at `CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1345-1362` | `DominoGuardTests.ATileTenDegreesOffUprightRocksBackSilentlyAndThirtyDegreesTopplesAndFires`, `.AnUprightWiredTileStandsAndNeverFires`, `.AnUnwiredEndObservesItsFallButTheLampStaysDark`; `DeclaredOrientationTests.TheCompilerUsesEachDeclaredOrientationThreshold`, `.EveryDeclaredTileCompilesItsOwnSensorIncludingAnUnwiredTile` |
 | A connection into a part with no input port is refused; placement bounds | present | port typing in `engine/gpu/WorkshopConnections.cs` | `DominoGuardTests.AnActivationInputIntoADominoIsRefusedAtTheEditAndSaveBoundaries`, `.TheHighestAndLowestPlacementsAreAdmittedAndOneBeyondIsRefused` |
 | Reset, save and load | present | generic instance and sensor rearm on admission | `DominoGuardTests.ResetRestoresUprightTilesAndRearmsTheSensorSoTheSecondRunReplaysTheFirst`, `.SaveAndLoadPreserveTheWiredCascade` |
-| Several colliders on one dynamic body (the pips) | present | scene colliders `col_visual_pip1`, `col_visual_pip2` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (row `domino`, `VisibleSolidColliderTests.cs:115`) |
+| Several colliders on one dynamic body (the pips) | present | scene colliders `col_visual_pip1`, `col_visual_pip2` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (row `domino`, `VisibleSolidColliderTests.cs:133`) |
 | `domino_effect` solved, unsolved without its cause | present | lesson content in `content/puzzles.json` | `LaunchLessonSolveTests.AuthoredLessonSolvesAndOneMissingCausePreventsTheGoal` (the authored precision, at 60, 120 and 240 Hz); the cascade test above runs precision 0, 0.45 and 1 |
 | A centre of mass off the body origin, in free flight | present | `MassFrameDeclaration.CentreOfMass`, read by the solver at `WorkshopPhysicsEngine.cs:457` | `WorkshopPhysicsLawTests.ABodyWhoseCentreOfMassSitsOffItsOriginSpinsAboutThatCentreInFreeFlight` |
 | A centre of mass off the body origin, in resting and tipping contact | present, untested | the same symbols; no delivered package declares a non-zero centre | CAT-023c |
@@ -75,7 +75,7 @@ Capability probe, 22 November 2026. Counts: 7 present, 1 present but untested, 2
 | `Visual/Visual_Pip1` | sphere r 0.045 at (0.14, −0.25, 0), navy (`tscn:14-17`, `:29-31`) | solid, collider `col_visual_pip1` | body pose |
 | `Visual/Visual_Pip2` | sphere r 0.045 at (0.14, 0.25, 0), navy (`tscn:33-35`) | solid, collider `col_visual_pip2` | body pose |
 
-The table agrees with `VisibleSolidColliderTests.cs:115`. No open visible-solid finding.
+The table agrees with `VisibleSolidColliderTests.cs:133`. No open visible-solid finding.
 
 **Generic laws.**
 

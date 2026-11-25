@@ -82,13 +82,14 @@ All 3D puzzle elements, fixtures, and tools are delivered in open-source, indust
    - Simplified proxy geometry co-located in the same `.glb` container alongside visual meshes.
    - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual meshes are dedicated exclusively to presentation rendering; collider meshes are dedicated physics proxies (`col_box`, `col_sphere`, etc.) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
    - **Analytic Shape Naming Conventions:**
-     - `col_box` (or `*-col_box`, `-col` box): Box volume mapped to half-extents.
-     - `col_sphere` (or `*-col_sphere`): Sphere volume mapped to radius.
-     - `col_capsule` (or `*-col_capsule`): Capsule volume mapped to radius and half-height.
-     - `col_cylinder` (or `*-col_cylinder`): Cylinder volume mapped to radius and height.
+     - `col_box`: Box volume mapped to half-extents.
+     - `col_sphere`: Sphere volume mapped to radius.
+     - `col_capsule`: Capsule volume mapped to radius and half-height.
+     - `col_cylinder`: Cylinder volume mapped to radius and height.
+     - A proxy is a `CollisionShape3D` node or a node named with the `col_` prefix; a name that carries `-col_` without that prefix is refused at bake.
    - **Convex Hull Naming Convention:**
-     - `col_hull` (or `-convcol`): Convex polyhedral hull for irregular rigid bodies.
-   - **Khronos Physics Extension:** The official Khronos `KHR_physics_rigid_bodies` glTF extension is fully supported for authoring rigid body properties and colliders directly from compliant DCC export tools.
+     - `col_hull`: Convex polyhedral hull for irregular rigid bodies.
+   - **Khronos Physics Extension:** Authoring rigid body properties and colliders through the Khronos `KHR_physics_rigid_bodies` glTF extension is a planned capability, not admitted today: nothing reads it, and a package's colliders come only from the scene proxies baked into the bundle.
    - Collision nodes are flagged as non-rendering or filtered by the presentation loader; they exist purely to supply physical bounds to the compiler.
 4. **Socket Locator Empties (`Loc_Port_<Id>`):**
    - Plain Empty axes placed at exact contact/pin vertices for electrical, activation, and mechanical connections.
@@ -101,7 +102,7 @@ All 3D puzzle elements, fixtures, and tools are delivered in open-source, indust
 
 All 14 existing puzzle elements (Basketball, Bowling Ball, Tennis Ball, Floating Balloon, Receiver, Ramp, Wall, Pinball Bumper, Domino, Springboard, Impact Switch, Signal Lamp, Delay Box, Battery) must be converted forward from legacy procedural C# primitives (`PartArt.cs`) and hardcoded shape tables to self-contained glTF 2.0 (`.glb`) assets in `parts/models/`.
 - Visual meshes must conform to the sculptural, matte ceramic/plaster aesthetic and canonical palette defined above.
-- Physical collision shapes must be authored directly as co-located proxy nodes (`col_box`, `col_sphere`, etc.) or via `KHR_physics_rigid_bodies`.
+- Physical collision shapes must be authored directly as co-located proxy nodes (`col_box`, `col_sphere`, etc.); `KHR_physics_rigid_bodies` is a planned capability, not admitted today.
 - Connection points must be authored as named locator empties (`Loc_Port_<Id>`).
 - Bespoke per-part C# scripts (`parts/*Part.cs`), procedural mesh generation in `engine/PartArt.cs`, hardcoded dimension resources, and closed part enums (`WorkshopPartKind`) must be completely deleted upon conversion. Strictly zero backwards compatibility shims, dual loaders, or fallback paths are permitted.
 

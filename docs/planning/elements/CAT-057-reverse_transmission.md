@@ -47,7 +47,7 @@ Read from `elements/ReverseTransmission/ReverseTransmissionElementDeclaration.cs
 
 ### Art
 - Palette token: Reverse transmission (0.84, 0.61, 0.28) `#d69c47`; cream housing, navy base and two ochre wheels with navy and gold index marks turning oppositely. Icon `elements/ReverseTransmission/icon.svg`.
-- **Art and solidity as shipped (`elements/ReverseTransmission/reverse_transmission.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:102`–`:105`).**
+- **Art and solidity as shipped (`elements/ReverseTransmission/reverse_transmission.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:120`–`:123`).**
 
   | Node | Mesh | Class | Note |
   | --- | --- | --- | --- |
@@ -75,7 +75,7 @@ The capability families are in the [general-engine map row](../general-engine-el
 | 3 | Mechanical ports with signed coordinate scale; one link per role; typed refusals | present | `WorkshopConnections.ValidateMechanical` (`engine/gpu/WorkshopConnections.cs:170`) | `ReverseTransmissionTests.ConflictingSourcesAndWrongDirectionAreRefused` (`:192`); `ReverseTransmissionTests.UnsupportedMechanicalConnectionsRefuseAtAuthoringAndSaveBoundaries` (`ReverseTransmissionLifecycleTests.cs:104`) |
 | 4 | Link artwork from declared rims and committed travel | present | `MechanicalRimDescriptor` (`CuriousContraptions.Abstractions/MechanicalLinkPresentationValues.cs:10`) | `ReverseTransmissionArtTests.NativeSceneAppliesWheelPosesConveyorWitnessAndEvaluatedLinkArtwork` (`:17`); `MechanicalLinkPresentationTests.DeclaredRimsProduceClosedTangentRoutesAndCommittedMarkers` (`:29`) |
 | 5 | Reset; save and load of a rotated construction | present | n/a (generic lifecycle) | `ReverseTransmissionTests.SaveLoadAndResetPreserveRotatedTwoReverserParity` (`ReverseTransmissionLifecycleTests.cs:68`) |
-| 6 | Scene colliders match the drawn solids; wheels are ordinary contacts | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:206`, row `:102`), which lists the index bars and marks as decorative (the defects under Art); `ReverseTransmissionTests.ExposedWheelHasPhysicalContactAndSignedSurfaceMotion` (`ReverseTransmissionLifecycleTests.cs:42`) |
+| 6 | Scene colliders match the drawn solids; wheels are ordinary contacts | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:237`, row `:120`), which lists the index bars and marks as decorative (the defects under Art); `ReverseTransmissionTests.ExposedWheelHasPhysicalContactAndSignedSurfaceMotion` (`ReverseTransmissionLifecycleTests.cs:42`) |
 
 Counts: 6 present, 0 untested, 0 narrower, 0 missing.
 
@@ -194,7 +194,7 @@ Delivered as recorded in section 1. Every residual slice is blocked on the engin
 
 | Residual | Owner | Tier | Prerequisite |
 | --- | --- | --- | --- |
-| Two index bars and two marks reprinted flat | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:102` and one art test) | the engine programme (owner decision 3a); a contract for part D |
+| Two index bars and two marks reprinted flat | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:120` and one art test) | the engine programme (owner decision 3a); a contract for part D |
 | Pairing rows for Wound spring, Fan and Windmill | The next slice that touches the package; a missing test is a patch | Data-only | the engine programme (owner decision 3a) |
 | Browser qualification | Post-catalogue E2E phase | n/a | n/a |
 

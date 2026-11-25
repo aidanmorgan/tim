@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3]
+[gd_scene load_steps=20 format=3]
 
 
 [sub_resource type="StandardMaterial3D" id="Cream"]
@@ -29,9 +29,9 @@ height = 0.5
 material = SubResource("Cyan")
 inner_radius = 0.235
 outer_radius = 0.255
-[sub_resource type="BoxMesh" id="Mark"]
+[sub_resource type="QuadMesh" id="Mark"]
 material = SubResource("Gold")
-size = Vector3(0.022, 0.1, 0.012)
+size = Vector2(0.022, 0.1)
 [sub_resource type="SphereMesh" id="Indicator"]
 material = SubResource("Lamp")
 radius = 0.065
@@ -44,14 +44,27 @@ height = 0.14
 radius = 0.25
 [sub_resource type="BoxShape3D" id="RodShape"]
 size = Vector3(0.12, 0.25, 0.12)
+[sub_resource type="BoxShape3D" id="FootShape"]
+size = Vector3(1.6, 0.2, 1)
+[sub_resource type="BoxShape3D" id="BarrelShape"]
+size = Vector3(1.2, 0.65, 0.65)
+[sub_resource type="SphereShape3D" id="IndicatorShape"]
+radius = 0.065
+[sub_resource type="SphereShape3D" id="SocketShape"]
+radius = 0.07
 
 [node name="linear_pusher" type="Node3D"]
 [node name="Visual" type="Node3D" parent="."]
-[node name="col_Foot" type="MeshInstance3D" parent="Visual"]
+[node name="Foot" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 mesh = SubResource("Foot")
-[node name="col_Barrel" type="MeshInstance3D" parent="Visual"]
+[node name="col_Foot" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("FootShape")
+[node name="Barrel" type="MeshInstance3D" parent="Visual"]
 mesh = SubResource("Barrel")
+[node name="col_Barrel" type="CollisionShape3D" parent="Visual"]
+shape = SubResource("BarrelShape")
 [node name="Rod" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0.725, 0, 0)
 mesh = SubResource("Rod")
@@ -68,28 +81,32 @@ shape = SubResource("HeadShape")
 position = Vector3(-0.125, 0, 0)
 quaternion = Quaternion(0, 0, -0.70710677, 0.70710677)
 shape = SubResource("RodShape")
+[node name="col_visual_ring" type="MeshInstance3D" parent="Visual/Head"]
+transform = Transform3D(0, -1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0)
+visible = false
+mesh = SubResource("Ring")
 [node name="Indicator" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.2, 0.34)
 mesh = SubResource("Indicator")
 
 [node name="TravelMark0" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0, 0.333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2, 0, 0.3252)
 mesh = SubResource("Mark")
 
 [node name="TravelMark1" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05000000000000002, 0, 0.333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05000000000000002, 0, 0.3252)
 mesh = SubResource("Mark")
 
 [node name="TravelMark2" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09999999999999998, 0, 0.333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.09999999999999998, 0, 0.3252)
 mesh = SubResource("Mark")
 
 [node name="TravelMark3" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24999999999999994, 0, 0.333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24999999999999994, 0, 0.3252)
 mesh = SubResource("Mark")
 
 [node name="TravelMark4" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.39999999999999997, 0, 0.333)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.39999999999999997, 0, 0.3252)
 mesh = SubResource("Mark")
 
 [node name="Loc_Port_PowerIn" type="Node3D" parent="."]
@@ -121,3 +138,22 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.4, 0.45)
 [node name="Socket_ExtendedOut" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.4, 0.45)
 mesh = SubResource("Socket")
+
+[node name="col_Indicator" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.4, 0.2, 0.34)
+shape = SubResource("IndicatorShape")
+[node name="col_Socket_PowerIn" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, -0.4, 0.5)
+shape = SubResource("SocketShape")
+[node name="col_Socket_ExtendIn" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.4, 0.5)
+shape = SubResource("SocketShape")
+[node name="col_Socket_RetractIn" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.55, -0.4, 0.5)
+shape = SubResource("SocketShape")
+[node name="col_Socket_RetractedOut" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.4, 0.45)
+shape = SubResource("SocketShape")
+[node name="col_Socket_ExtendedOut" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.4, 0.45)
+shape = SubResource("SocketShape")

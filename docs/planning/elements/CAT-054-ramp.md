@@ -58,7 +58,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | `Visual/Visual_RailA` (`:34`) | box 3 × 0.055 × 0.055 m at (0, 0.11, −0.598), cream (0.976, 0.91, 0.788) | solid, 0.0475 m proud of the slab | `col_0_1` | nothing during Run |
 | `Visual/Visual_RailB` (`:38`) | the same at z +0.598 | solid, 0.0475 m proud | `col_0_2` | nothing during Run |
 
-The two presentation bindings size the parent `Visual` node from `length` and `width`, which are `BuildOnly`; the eight collider bindings size the three boxes from the same two parameters by the same factors. This is static sizing in Build, not animation: no art moves relative to its collider, and nothing is driven during Run. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:71`).
+The two presentation bindings size the parent `Visual` node from `length` and `width`, which are `BuildOnly`; the eight collider bindings size the three boxes from the same two parameters by the same factors. This is static sizing in Build, not animation: no art moves relative to its collider, and nothing is driven during Run. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:86`).
 
 **Generic laws.**
 

@@ -58,7 +58,7 @@ Authority: the owner's engine-conformance instruction of 22 November 2026, `AGEN
 
 **Why seven colliders.** Visible = solid: the base, housing and face are drawn solids, and the hub pip, the indicator and the two sockets each stand proud of the housing and collide as drawn (coordinator decision, 25 October 2026). The four small spheres are the cost of drawing them proud; none exists for a cosmetic purpose alone, and all seven are primitives on one static body.
 
-**Art layers** (`delay.tscn:75`–`108`; classification as `VisibleSolidColliderTests.cs:68`–`70`).
+**Art layers** (`delay.tscn:75`–`108`; classification as `VisibleSolidColliderTests.cs:83`–`85`).
 
 | Art node | Mesh | Class | Collider | Moved by |
 | --- | --- | --- | --- | --- |

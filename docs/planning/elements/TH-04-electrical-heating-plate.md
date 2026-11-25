@@ -65,7 +65,7 @@ Rows R1 to R14 are the shared thermal probe; other thermal specs cite them by nu
 
 | # | Capability | State | Symbol | Exercising test (body read unless marked) |
 | --- | --- | --- | --- | --- |
-| R1 | Static box and cylinder colliders from package art, visible = solid | present | `ISceneGeometryElement`, `CuriousContraptions.Abstractions/SceneGeometry.cs:10` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:206`) |
+| R1 | Static box and cylinder colliders from package art, visible = solid | present | `ISceneGeometryElement`, `CuriousContraptions.Abstractions/SceneGeometry.cs:10` | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:237`) |
 | R2 | A supply consumer granted power from a finite source over a wire; the source is debited by at least the work done and by nothing when unwired | present | `SupplyConsumerDescriptor`, `CuriousContraptions.Abstractions/SupplyContractValues.cs:42` | `FanIntegrationTests.ElectricalModePaysOnlyExposedWorkAndNeverUsesSelfContainedEnergy` (`CuriousContraptions.tests/FanIntegrationTests.cs:540`) |
 | R3 | Several consumers share one source in proportion to demand | present | `ElectricalSupply.Reserve` (called at `CuriousContraptions.tests/ElectricalSupplyTests.cs:210`) | `ElectricalSupplyTests.UnequalDemandSharesProportionallyAndFullLoadReceivesNothing` (`:207`) |
 | R4 | A finite energy balance that an unavailable source cannot credit | present | `FiniteEnergyBalance`, `CuriousContraptions.Abstractions/FiniteEnergyBalance.cs:8` | `ElectricalSupplyTests.UnavailableSourcePreservesBothStores` (`:109`) |

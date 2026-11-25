@@ -40,7 +40,7 @@ The package is declaration data and a scene. It has no script, callback or updat
 
 | Art node | Classification | Moved by |
 | --- | --- | --- |
-| `Visual/Visual_Shell` | Hollow; matches `col_shell` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:140-141`) | Nothing |
+| `Visual/Visual_Shell` | Hollow; matches `col_shell` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:158-159`) | Nothing |
 | `Visual/Visual_Stub_Start`, `_End` | Hollow; match the stub Tubes | Nothing |
 | `Visual/Visual_Collar_Start`, `_End` | Hollow; match the collar tori | Nothing |
 

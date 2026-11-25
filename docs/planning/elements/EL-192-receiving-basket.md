@@ -33,7 +33,7 @@ Delivered and unchanged by this identity; every value and line is in [CAT-004 §
 
 ### Art and solidity
 
-Five wall and floor meshes, each with its own box collider; `Visual/Visual_Halo`, a pale ring 2.5 cm above the rim, is decorative (a glow, scaled and recoloured by presentation bindings) and a ball passes through it. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:125`); `spec-engine-art-solidity.md` lists no finding. One repair is open on the package, owned by CAT-004: the halo's scale should follow `capture_margin` (one parameter binding replaces a constant event binding; data-only). Pick radius and render meshes are never capture authority. At a glance: the only open-topped green box (`#4aab94`) with a lower front lip and a pale ring above its rim.
+Five wall and floor meshes, each with its own box collider; `Visual/Visual_Halo`, a pale ring 2.5 cm above the rim, is decorative (a glow, scaled and recoloured by presentation bindings) and a ball passes through it. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:143`); `spec-engine-art-solidity.md` lists no finding. One repair is open on the package, owned by CAT-004: the halo's scale should follow `capture_margin` (one parameter binding replaces a constant event binding; data-only). Pick radius and render meshes are never capture authority. At a glance: the only open-topped green box (`#4aab94`) with a lower front lip and a pale ring above its rim.
 
 ## 3. Engine capabilities
 
