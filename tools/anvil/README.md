@@ -9,7 +9,8 @@ The hook reads added, copied, modified, renamed and type-changed source files
 **from Git's index**. It checks their full staged contents. Unstaged changes
 cannot hide a staged skip. Deleted files and an empty index need no skip
 check. A staged path whose content git cannot show, such as a gitlink at a
-source file's name, refuses the commit and is named.
+source file's name, refuses the commit by one line that names the path and
+carries git's own error.
 
 ## Staged-source rule
 
@@ -111,42 +112,84 @@ Anvil executable, Git index, and a real rejected commit. Fixtures are serialized
 test inputs in `fixtures.json`; their Source and Expected fields deserialize
 into enums with unknown names and numeric values rejected.
 
-Whenever a file under `tools/anvil/` changes, run `dotnet run --file tools/anvil/VerifyPolicy.cs` with no arguments and require every check to pass. The hook and CI build that harness but do not run it. This applies from the publication of the S2 slice (`spec-s2-test-compile-glob.md`).
+The harness must pass whenever a file under `tools/anvil/` changes; the rule
+is stated once, in the
+[delivery workflow](../../docs/delivery-workflow.md#policy-tool-harness).
 
-Verified on Anvil 0.14.3-alpha.6, git 2.56.1 and .NET SDK 10.0.403: 67 checks
-passed. Twenty-one are the skip-rule checks: ordinary tests, xUnit skip
-settings, conditional/runtime skips, Playwright skip/fixme/focus, attempted
-inline suppression, rejected fixture enums, an empty index and a rejected
-commit. Forty-six concern staged source, all against real git:
+Verified on Anvil 0.14.3-alpha.6, git 2.56.1 and .NET SDK 10.0.403: 78 checks
+passed. The harness counts one check per `PASS` line, a check passing once
+together with its controls, and prints the total only after it has removed
+every directory it made.
 
-- twenty-four written cases. Eighteen are refusals, each listing exactly the
-  expected files: an untracked, an intent-to-add (with and without other
-  staged source), a nested and an upper-case-extension C# file; a C# file
-  ignored by name, alone in an untracked directory, beside another ignored
-  file there, two directories down, and ignored by a glob pattern; an
-  untracked C# file beside a staged deletion, a rename to a non-source name,
-  a type change, and a staged `.csproj`, `.props`, `.slnx`, `.json` or `.ts`
-  file. Five are passes whose output carries the rule's self-check line: an
-  ignored directory, a fully staged new file, a staged non-ASCII name, a
-  staged source deletion alone, and an untracked C# file when only documents
-  are staged. One is a real git failure (an unreadable index), refused with
-  the failing query and git's error text;
-- one comparison and sixteen refusals for the source-commit set: the set the
-  tool prints must equal the sixteen extensions the harness holds as its own
-  list, and each member, as the staged file's whole name, refuses an untracked
-  C# file;
-- three skip scans: a staged skip in a `.CS` file and in a regular file that
-  replaced a symbolic link (a staged type change) are blocked, and a staged
-  gitlink at a source file's name is refused by name;
-- two refusals when git is unusable: outside any repository (a fresh
-  directory, with git kept from looking above it), and with no git on the
-  child's `PATH` (a harness-made directory holding only a link to `dotnet`;
-  if git starts all the same, the case fails for want of the refusal text).
+- One is the harness's own isolation, described below.
+- Twenty-six are the skip-rule checks: ordinary tests, xUnit skip settings,
+  conditional/runtime skips, Playwright skip/fixme/focus, a Playwright skip
+  in each of a `.js`, `.mjs`, `.cjs`, `.jsx` and `.tsx` file, attempted
+  inline suppression, rejected fixture enums, an empty index and a rejected
+  commit. A fixture that passes must show its scan: its `Anvil snapshot` line
+  and the scanner's JSON report. The empty index passes with the rule's
+  self-check line and no snapshot line.
+- Fifty concern staged source, all against real git:
+  - twenty-six written cases. Twenty are refusals, each listing exactly the
+    expected files: an untracked, an intent-to-add (with and without other
+    staged source), a nested and an upper-case-extension C# file; a C# file
+    ignored by name, alone in an untracked directory, beside another ignored
+    file there, two directories down, and ignored by a glob pattern; an
+    untracked C# file beside a staged deletion, a rename to a non-source
+    name, a type change, and a staged `.csproj`, `APP.CSPROJ`, `.props`,
+    `.slnx`, `.json` or `.ts` file; and an untracked C# file when the hook
+    runs from a subdirectory, listed relative to the top level. Five are
+    passes whose output carries the rule's self-check line: an ignored
+    directory, a fully staged new file, a staged non-ASCII name, a staged
+    source deletion alone, and an untracked C# file when only documents are
+    staged. One is a real git failure (an unreadable index), refused with the
+    failing query and git's error text;
+  - one refusal through a real `git commit`: with a source staged and a new
+    C# file untracked, the commit is refused, lists the file and creates no
+    commit;
+  - one comparison and sixteen refusals for the source-commit set: the set
+    the tool prints must equal the sixteen extensions the harness holds as
+    its own list, and each member, as the staged file's whole name, refuses
+    an untracked C# file;
+  - four skip scans: a staged skip in a `.CS` file, in a regular file that
+    replaced a symbolic link (a staged type change), and in a file named
+    `0:Foo.cs` beside a clean staged `Foo.cs` is blocked, the tool reading
+    each staged path as `git show :0:<path> --`. Its control, the same pair
+    without the skip beside a committed file literally named `:0:Foo.cs`,
+    run with `GIT_TRACE=1`, passes with both paths scanned and shows the
+    trace line of git's successful read. A staged gitlink at a source file's
+    name is refused by one line naming the path and carrying the error real
+    git gives for `git show :0:<path> --`, which occurs once in the output; with
+    `GIT_TRACE=1` the same refusal is still one line, carrying git's trace
+    line and its error joined by `; `, and no other line holds either;
+  - two refusals when git is unusable: outside any repository (a fresh
+    directory, with git kept from looking above it), and with no git on the
+    child's `PATH`. The hook runs under `/bin/sh`, and `PATH` holds only a
+    harness-made directory with a link to the `dotnet` at the root of the
+    runtime the harness runs on; if git starts all the same, the case fails
+    for want of the refusal text.
+- One is the harness's own cleanup: of two temporary directories, the first
+  holding a subdirectory it cannot write, removal attempts both, removes the
+  second, reports the first and returns false; with the mode restored, the
+  first is removed. The mode is restored in a `finally` that never throws;
+  the check's own cleanup removes only directories no removal was yet
+  attempted on, so it never retries a failed removal.
 
-Every child the harness starts has `GIT_DIR`, `GIT_WORK_TREE` and
-`GIT_INDEX_FILE` cleared and `LC_ALL=C`. The run was made twice, with the
-pinned toolchain directory first on `PATH` and with a directory that holds
-both `dotnet` and `git` first.
+Every child the harness starts has every `GIT_*` variable removed,
+`GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null` and `LC_ALL=C`, then
+the case's own variables. The disposable repository sets `core.excludesFile`
+and `core.attributesFile` to `/dev/null`, because git reads its default
+ignore and attributes files whatever `GIT_CONFIG_GLOBAL` names. The isolation
+check sets `GIT_DIR`, `GIT_CONFIG_PARAMETERS`, `GIT_CONFIG_COUNT` with its key
+and value, `GIT_CONFIG_GLOBAL` and `XDG_CONFIG_HOME` (configuration, ignore
+and attributes files) in the harness's own environment and requires that a
+child's git sees none of them; its controls pass a seed through a child's own
+environment and see it. A configuration file passed to a child as
+`GIT_CONFIG_SYSTEM` is not read either, and its control, the same file with
+`GIT_CONFIG_NOSYSTEM=0`, is. The run was made five times: with the pinned
+toolchain directory first on `PATH`; with a directory that holds both
+`dotnet` and `git` first; with a wrapper script named `dotnet` first; with
+`DOTNET_ROOT` unset; and with `DOTNET_ROOT` naming an empty directory.
 
 The tool runs from outside the disposable repository, as the hook runs it
 from its snapshot. Each source case also replaces the worktree copy

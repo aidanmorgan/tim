@@ -88,5 +88,35 @@
     "Source": "CSharp",
     "Content": "// @anvil-ignore TEST-001: bypass\n[Fact(Skip = \"disabled\")]",
     "Expected": "Block"
+  },
+  {
+    "Label": "Playwright skip in a .js file",
+    "Source": "JavaScript",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "Playwright skip in a .mjs file",
+    "Source": "JavaScriptModule",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "Playwright skip in a .cjs file",
+    "Source": "JavaScriptCommon",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "Playwright skip in a .jsx file",
+    "Source": "JavaScriptReact",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
+  },
+  {
+    "Label": "Playwright skip in a .tsx file",
+    "Source": "TypeScriptReact",
+    "Content": "test.skip(\"disabled\", async () => {});",
+    "Expected": "Block"
   }
 ]

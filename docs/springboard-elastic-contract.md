@@ -26,7 +26,7 @@ Units are SI (m, kg, s, N, J). Authored damping is the coefficient $c$, not damp
 
 ## Chrome-observable acceptance (CAT-062)
 
-- `spring_forward` is solved through the UI; campaign teaching and reference content, including all fifteen composite springboard lane instances, use this mechanism.
+- `spring_forward` is solved through the UI; campaign teaching and reference content, including the springboard lessons `spring_forward` (plan level 2), `ready_to_rebound` (3a) and `spring_signal` (11c), and the surviving composite springboard instance (`double_cold_start` lane 2, plan level 19b, until its conversion, completion-ledger OS-08; decision 24d closed the other 14, OS-10), use this mechanism.
 - Controls: an unloaded board does not launch; a missed ball receives no launch; a tilted frame still works along its local axis.
 - Every supported parameter endpoint is editable through the UI; invalid parameters and the removed strength field reject visibly.
 - Exact Reset (including authored precompression) and Save/Load after every Run; same construction and inputs give the same outcome.

@@ -11,7 +11,7 @@
 | Mapped identities | EL-188 Bowling ball (refines this part; §8). Related: EL-091 Cannonball (separate heavy sphere, own spec). |
 | Disposition | **Delivered.** Package id `bowling`, directory `elements/BowlingBall/`. Slice records: [Story 6.1](../../../_bmad-output/implementation-artifacts/spec-6-1-bowling-ball-dynamic-sphere.md), [9A-PKG-1](../../../_bmad-output/implementation-artifacts/review-9a-pkg-1.md), [C-Balls](../../../_bmad-output/implementation-artifacts/review-c-balls.md). |
 | Roadmap | Stories 6.1, 6.1b (drag and rolling resistance), 6.1c (f32 velocity); Story 9A.31 |
-| Levels | one Playable lesson places it, `burst_of_motion`; `power_trip` and `cold_start` are Planned (`content/puzzles.json`). See [CAT-014-I consumers](../invest/current-consumers.md#cat-014-i). |
+| Levels | one Playable lesson offers it in inventory, `burst_of_motion`; five Planned levels place it, `power_trip`, `cold_start`, `switched_motor`, `double_cold_start` and `grand_contraption` (`content/puzzles.json`). See [CAT-014-I consumers](../invest/current-consumers.md#cat-014-i). |
 
 ## 2. Declaration
 
@@ -137,7 +137,7 @@ Resolved:
 ## 7. Integration
 
 - **Collaborators, all delivered.** Domino, Receiver, Impact lever, Impact switch, Pressure plate, Basketball (control), Bumper, Fan (heavy control), pipe family.
-- **Campaign.** `burst_of_motion` (Playable); first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row). `power_trip` and `cold_start` are Planned.
+- **Campaign.** `burst_of_motion` (Playable; inventory); first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row). `power_trip`, `cold_start`, `switched_motor`, `double_cold_start` and `grand_contraption` (Planned) place it.
 - **Coverage binding.** Catalogue key `bowling` in `docs/coverage/catalogue-elements.json`.
 - **Lesson fixture.** None needed (S8 not required).
 

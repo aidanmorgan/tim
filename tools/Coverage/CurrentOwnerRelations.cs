@@ -11,6 +11,8 @@ public sealed record CurrentOwnerRelations(
 {
     private static readonly string[] InvestDocuments =
         ["engine", "gpu-physics", "refinements", "decisions", "scope-corrections", "current-consumers", "campaign"];
+    private const string GrantPhrase = "Original owner, all criteria and technical stage: ";
+    private const string GrantPattern = GrantPhrase + "(" + WorkOrderId.Grammar + @")\.";
 
     public static CurrentOwnerRelations Read(DirectoryInfo root)
     {
@@ -40,7 +42,12 @@ public sealed record CurrentOwnerRelations(
                 if (owner is null) throw new InvalidDataException("Exact source clause has no declared current owner heading.");
                 var clauses = Regex.Matches(line, @"\[sequence-task-([0-9]{3})\]\(\.\./requirements\.md#sequence-task-\1\)");
                 if (clauses.Count == 0 || Regex.Count(line, Regex.Escape("../requirements.md#sequence-task-")) != clauses.Count) throw new InvalidDataException("Malformed exact source clauses.");
-                var role = Regex.Match(line, @"Original owner, all criteria and technical stage: ([A-Z0-9-]+)\.");
+                // The owner grammar of WorkOrderId, so a suffixed owner (ENGINE-CORE-2d, LEVEL-069c) can be granted.
+                var role = Regex.Match(line, GrantPattern);
+                // Every grant phrase on a clause line must be the one parsed grant, so a malformed grant cannot hide
+                // behind a later well-formed one.
+                if (Regex.Count(line, Regex.Escape(GrantPhrase)) != (role.Success ? 1 : 0))
+                    throw new InvalidDataException("Malformed grouped role owner.");
                 if (role.Success && role.Groups[1].Value != owner.Value.Value)
                     throw new InvalidDataException("Grouped role owner differs from its current heading.");
                 foreach (Match clause in clauses)

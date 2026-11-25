@@ -1,0 +1,131 @@
+# Run log: lettered level ids (lane 3)
+
+Append-only run log of [the contract](../spec-tool-lettered-level-ids.md). Nobody reads it fully; a prompt cites the entry it needs.
+
+## Handled owner messages
+
+None.
+
+## Entry 1 — dispatch (24 November 2026, coordinator)
+
+- Checkout `/Users/aidan/dev/personal/tim/.claude/worktrees/slice-lettered-level-ids`, branch `slice-lettered-level-ids`, baseline `5f1c4d4a170f5eceedf16b68378b2befa096651d` (origin/main at dispatch; owner decision 24m published at `docs/planning/elements/readiness/owner-decisions-2026-11-22.md:67`). Lane 3 of 24m.
+- Session environment check: `node --version` v26.12.1; `dotnet --version` 10.0.403, equal to `global.json`; `dotnet workload list` shows `wasm-tools` 10.0.114/10.0.100; `dotnet restore CuriousContraptions.slnx --nologo --disable-parallel -noAutoResponse` exit 0. Raw: `~/.local/share/tim-toolchain/logs/slice-lettered-level-ids/session-env.log`.
+- `dotnet run --file tools/anvil/VerifyPolicy.cs -- --bmad-check --project-root <checkout> --route Auto`: structural findings 0. Its three semantic conditions (blind-hunter, edge-case-hunter, intent-alignment) resolve active for this slice: engine tier, first review pass.
+- Drift since drafting: `git diff --stat 0959e883 5f1c4d4a -- tools/Ownership tools/Coverage tools/Coverage.Tests docs/planning/invest` lists only `delivery-batches.md`, `named-elements.md` and `vertical-delivery.md`, none of which the contract cites or `CurrentOwnerRelations` reads.
+- Anchors re-read on the baseline, all matching the contract: `CurrentOwnerMembership.cs:9–13,26,105–112`; `CurrentOwnerMembershipOracles.cs:28,30,53–70`; `CurrentOwnerRelations.cs:12–21,43,76`; `CapabilityInventory.cs:34–45`; `CurrentCapabilityInputsTests.cs:9–14,28–32,88–109,188–230`; `Coverage.Tests.csproj` (no Compile list); `OwnershipOracles.cs:47,133–135`; `Program.cs:12,17`; `campaign-coverage.md:38,564`; `campaign.md:9`, with `<a id="level-069"></a>` at `:885` and `<a id="level-070"></a>` at `:896`; `completion-ledger.md:296,393`. The capability probe and the audit-2 planning Scoped Pass carry over.
+- Baseline full round: 7309/0/0 on `37fbd3a4` (TODO.md); `git diff --stat 37fbd3a4 5f1c4d4a -- '*.cs' '*.csproj' '*.slnx' '*.ts' '*.json' '*.props' '*.targets'` is empty, so 7309 is the baseline measurement.
+- Policy inputs: this checkout's `_bmad/custom/` at the baseline; no owned uncommitted policy delta. Review tier: engine (contract Code Map); capability probe at contract Code Map, Capability probe.
+- Contract at dispatch: 3,364 words (`wc -w`), inside the 6,000-word planning budget.
+
+## Entry 2 — implementation and handoff checks (24 November 2026, implementation owner)
+
+Environment for every command: the pinned toolchain first on `PATH` and `DOTNET_ROOT` set, as in the contract's Verification section; `node --version` v26.12.1, `dotnet --version` 10.0.403. Candidate: the baseline `5f1c4d4a` plus the uncommitted owned delta (no commit made). Logs below `L=~/.local/share/tim-toolchain/logs/slice-lettered-level-ids/` (binlogs and the full round); the capture, gate, registration and focused logs are also copied, unchanged, to `.tools/lettered-level-evidence/` under the same names. Each log starts with `git rev-parse HEAD`. The baseline-behaviour claims in the acceptance table (M1's inserted copy throwing, M5 reporting `UnresolvedProofRole`) are reasoned from the baseline code, not executed; no mutant was run. The registration count 767 was not measured on the baseline: the new class matches no filter term, and the full round's delta is exactly +11, all in Coverage.Tests.
+
+- Task 0, before the first edit: `dotnet run --project tools/Ownership -- --oracles` exit 0; `CurrentOwners` `{"ActualHeadingCount":0,"Positive":true,"RepeatedDeclarationsCoalesced":true,"NegativeCount":15,...}`. Raw: `.tools/lettered-level-evidence/oracles-baseline.log`.
+- Capability probe re-checked against the code before the first edit: `CurrentOwnerMembership.cs:109` admits `LEVEL-[0-9]{3}` only (narrower, owned); `:26` selects `## LEVEL-…`/`### LEVEL-…` headings (present); `CurrentOwnerRelations.cs:43` `([A-Z0-9-]+)` cannot match a suffixed owner (narrower, owned); `CapabilityInventory.cs:41` `WorkOrderId` admits a lowercase letter after a digit (present). No missing capability.
+- Edits: `CurrentOwnerMembership.cs` grammar arm `LEVEL-[0-9]{3}[a-z]?` and comment; `CurrentOwnerRelations.cs` grouped-role group = the `WorkOrderId` pattern; `CurrentOwnerMembershipOracles.cs` positive scope `## LEVEL-069c`, expected `LEVEL-069c`, census comment (literal 545 now at `:70`); new `tools/Coverage.Tests/CurrentOwnerMembershipTests.cs` (4 tests, 11 cases); `campaign-coverage.md:38,564`; `campaign.md:9`; `completion-ledger.md` CA-01 state and OS-02 item; `deferred-work.md` D5 entry; `TODO.md` lane 3 line; this contract's Implementation Notes and Verification.
+- One failed attempt: the first build of the new test refused `Assert.Empty(numbered.Where(level => !unmodified.Contains(level)))` with xUnit2029 (warnings are errors); replaced by `Assert.All(numbered, level => Assert.Contains(level, unmodified))`. The next build was clean, and a non-evidence run of the class passed 11/11.
+- Compiler-proof capture, from `docs/delivery-workflow.md#reproducible-local-verification` with `local_gate_logs=$L/binlogs-c1`: exit 0, `CAPTURE_OK`, 0 warnings and 0 errors in each build, five binlogs (`playtest`, `solution`, `web`, `check-staged-tests`, `verify-policy`). Raw: `$L/capture-c1.log`.
+- Maintainability gate: `dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root "$PWD"` exit 0. Both canary `PASS` lines, five test projects `EXCLUDED`, `Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0`, `violations=0 (metrics=0, coupling=0). PASS`. Raw: `$L/maintainability-1.log`.
+- Registration check, with `CSHARP_STATIC_GATE_BINLOGS=$L/binlogs-c1`: 17 + 67 + 192 + 97 + 394 = 767 passed, 0 failed, 0 skipped, exit 0. The new class name matches no filter term, so the count does not move with it. Raw: `$L/registration-1.log`.
+- Focused tests, the contract's `CurrentOwnerMembershipTests|CurrentCapabilityInputsTests|CurrentCatalogueTests` filter: 86 passed, 0 failed, 0 skipped, exit 0. All 11 new cases are listed by name. Raw: `$L/focused-1.log`.
+- Candidate oracles: exit 0, `CurrentOwners` Positive true, NegativeCount 15, `Rejected` 0–14, identical to task 0. Raw: `.tools/lettered-level-evidence/oracles-candidate.log`.
+- AC3: `git diff --stat 5f1c4d4a` plus the untracked files shows only Final diff scope paths. `git diff --quiet 5f1c4d4a -- content/puzzles.json` exit 0. The heading grep printed 0. AC4: both `git grep` commands are empty (exit 1).
+- `git add -N` on the new test file and this run log, then `git diff --check 5f1c4d4a`: no output, exit 0.
+- Full local round: `caffeinate -i dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "$local_deferred_filter" -- RunConfiguration.TreatNoTestsAsError=true`, with the matching binlogs. Results: WorkerAotGuard 17, BundleElements 287, Coverage 126 (115 + 11), E2eRunner 256, CuriousContraptions.tests 6634. Total 7320, 0 failed, `Skipped: 0`, exit 0. This equals the baseline 7309 + 11 (AC1). Raw: `$L/full-round-1.log`.
+- Self-inspection of the full owned diff: two one-pattern code changes, the oracle fixture lines, one test file and document lines. No needless branch, duplicate rule, abstraction or unrelated churn, so no simplification was applied. After the round, only this run log and the contract's Implementation Notes and Verification lines changed; no test reads them.
+- Not run, by contract: the `.githooks/pre-commit` hook belongs to whoever stages the candidate commit, and the `--oracles .` root census needs Release rebuilds (D5).
+
+## Entry 3 — review pass 1 (24 November 2026, coordinator)
+
+- Tier confirmed engine from `git diff --stat 5f1c4d4a` (tool code and a tool test file are outside the data-only allow-list); no list-line hunk needed opening. All six layers launched in one wave as general-purpose agents without conversation history, inherited model: Blind Hunter `a5f635d0b8de35e77`, Edge Case Hunter `a205a2e4e3360d409`, Verification Gap `a223ba9f456089e62`, Intent Alignment `a84931e824bbe90ee`, Forward-Only `ae003b87e5fe1bf5d`, Element-Free Engine `a6542fbeb2dddd58d`.
+- Inputs: blind diff (tools plus `campaign.md` and `campaign-coverage.md`; contract, run log, `TODO.md`, ledger and deferred-work left out as narrative and status) and full owned diff, both from `git diff 5f1c4d4a`, in the session scratchpad `review-p1/`. No generated or asset path changed. Edge Case Hunter alone received the contract as claims file; Intent Alignment received the intent contract verbatim; the two auditors received the informed header (phase, baseline, candidate, contract sections, run log entry 2 and the raw log locations).
+- Verification of findings, at the cited lines: `campaign.md:7` states (real level count)×3×4 = 2,928 cells at 244 levels while `:9` keeps "and450 level×profile groups" (150×3), so BH1 holds; `campaign.md:885–892` shows each slot's anchor and `MATRIX-NNN-…` groups, and no code reads either form (`git grep` over `*.cs`, `*.ts`, `*.json`), so BH2 is a documentation gap; `CurrentOwnerRelations.cs:44` and `CapabilityInventory.cs:41` carry the same grammar text twice (BH3 and its group); a grant `LEVEL-069aa.` fails the role regex, so the grant is dropped and `ResolveProof` reports `UnresolvedProofRole` (ECH1, true for the baseline pattern too); `CurrentOwnerMembershipTests.cs:111–115` creates the directory before an unguarded copy loop (ECH3); `campaign-coverage.md:564` ends "No build or test was run." after the slice's result (EFE-F1). ECH2 rejected by the intent's Never clause (no base-slot rule; D4). IA1, IA3–IA5 refuted as recorded in the triage rows.
+- Patches sent to the implementation owner `a7b84f34f7e0c9863`: P1 shared `WorkOrderId` grammar constant (G1), P2 `campaign.md:9` derived forms and profile-group count (BH1, BH2), P3 parse-time refusal of an unparsable grant owner with a test case (G2), P4 temporary-directory cleanup on copy failure (ECH3), P5 `campaign-coverage.md:564` closing sentence (EFE-F1).
+
+## Entry 4 — review repair P1–P5 (24 November 2026, implementation owner)
+
+Patches from the coordinator's pass-1 message (entry 3), each the smallest change; Anvil validated every write first. Environment as in entry 2. Candidate: the baseline `5f1c4d4a` plus the uncommitted owned delta.
+
+- P1 (BH3, IA2, FO1, EFE-S): `tools/Coverage/CapabilityInventory.cs` `WorkOrderId` gains `internal const string Grammar` (unanchored; the comment moved onto it and names `LEVEL-069c`); its constructor matches `@"\A" + Grammar + @"\z"`. In `tools/Coverage/CurrentOwnerRelations.cs`, the private constants `GrantPhrase` and `GrantPattern = GrantPhrase + "(" + WorkOrderId.Grammar + @")\."` replace the hand-copied pattern. The regex text is identical to before, so behaviour does not change.
+- P3 (ECH1, ECH4, FO2): `CurrentOwnerRelations.Parse` throws `InvalidDataException("Malformed grouped role owner.")` when a clause line contains `GrantPhrase` but `GrantPattern` does not match. It is checked only on clause lines, where a grant is read. Before the edit, all 190 clause lines with a grant in the seven invest documents matched the grammar. M5 gains the case `[InlineData("LEVEL-069aa", "Malformed grouped role owner.")]`; the new class now has 12 cases, and AC1 expects 7321 on the unmerged candidate.
+- P4 (ECH3): `CopyInvestDocuments` wraps the copy loop in `try`; `catch` deletes the root and rethrows, as `CopyCurrentInputs` does.
+- P2 (BH1, BH2): `campaign.md:9` now says the lettered entry `LEVEL-069c` has anchor `level-069c` and profile groups `MATRIX-069c-BALANCED`, `MATRIX-069c-FORGIVING` and `MATRIX-069c-PRECISE`. "and450 level×profile groups" becomes "and 450 level×profile groups for the 150 slots, plus three for each lettered level when its entry is authored (732 at 244 levels)". 732 × 4 = 2,928 agrees with `:7`. No heading was added.
+- P5 (EFE-F1): `campaign-coverage.md:564` "No build or test was run." becomes "The planning pass that wrote this section ran no build or test."
+- Build: `dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore -noAutoResponse` (incremental) exit 0, 0 warnings, 0 errors. Raw: `.tools/lettered-level-evidence/repair-p1-build.log`.
+- Covering tests: `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~CurrentOwnerMembershipTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~CurrentCatalogueTests"` exit 0: 87 passed, 0 failed, 0 skipped. All 12 `CurrentOwnerMembershipTests` cases pass, including `LEVEL-069aa`, and the real-tree `CurrentCapabilityInputsTests` pass, so the real grants parse. Raw: `.tools/lettered-level-evidence/focused-2.log`.
+- AC3: `puzzles.json` is unchanged and the heading grep prints 0. AC4: both greps are empty. `git diff --check 5f1c4d4a`: clean.
+- Not run, by instruction ("only the tests that cover the files you edit"): the compiler-proof capture, the maintainability gate, the registration check and the full round. The coordinator runs full verification on the repaired candidate. The entry 2 results for those checks apply to the first candidate only.
+
+## Entry 5 — review pass 2 (24 November 2026, coordinator)
+
+- Repair diff: pass-1 candidate tree `1c1a716799c944ec51f3403cfe5c10e2dc3a9a5b` (baseline plus the pass-1 full diff, written through a temporary index outside the checkout; the checkout's index was not touched) to the working tree, in the session scratchpad `review-p2/` (blind: tools plus the two campaign documents; full: every owned path), with the full owned diff from the baseline beside it.
+- Layers (general-purpose, no conversation history, inherited model): Blind Hunter `a080b35b6aad3acd9`, Edge Case Hunter `a0d6a6a7fea70fbc3`, Verification Gap `a2a5286c742282feb`, Forward-Only `ae7ad6a6ad0d9461d`, Element-Free Engine `a69895eaacdb4335b`. Intent Alignment does not run after the first pass.
+- Verified at the cited lines: `CurrentOwnerRelations.cs:46` uses `Regex.Match`, which scans past a failing first grant to a later well-formed one, so ECH-R2a holds; `CapabilityInventory.cs:36` reads "The one owner grammar" (VG-R2); the contract's read-not-changed list, owned-scope bullet and probe citation are stale after P1 (EFE-R2-1). ECH-R2b refuted as in the triage row.
+- Patches sent to the implementation owner: P6 one grant per clause line (ECH-R2a), P7 the `Grammar` comment (VG-R2), P8 the three contract records (EFE-R2-1) and the two missing spaces in `campaign.md:9`.
+
+## Entry 6 — review repair P6–P8 (24 November 2026, implementation owner)
+
+These are the patches from the coordinator's pass-2 message (entry 5), each made as the smallest change. Anvil validated every write first. Environment as in entry 2. Candidate: the baseline `5f1c4d4a` plus the uncommitted owned delta.
+
+- Before the edit: every line that holds both `Exact source clauses:` and the grant phrase was counted across the seven invest documents. All 190 such lines carry exactly one phrase.
+- P6 (ECH-R2a): in `tools/Coverage/CurrentOwnerRelations.cs`, `if (!role.Success && line.Contains(GrantPhrase, …))` is replaced by `if (Regex.Count(line, Regex.Escape(GrantPhrase)) != (role.Success ? 1 : 0)) throw new InvalidDataException("Malformed grouped role owner.")`, with a two-line comment. A clause line may carry at most one grant phrase, and that phrase must be the parsed grant. M5 gains the case `[InlineData("LEVEL-069aa. Original owner, all criteria and technical stage: LEVEL-069c", "Malformed grouped role owner.")]`. The new class now has 13 cases, and AC1 expects 7322 on the unmerged candidate.
+- P7 (VG-R2): the comment on `WorkOrderId.Grammar` (`CapabilityInventory.cs:36–38`) now calls it the owner-identity shape that `CurrentOwnerMembership.Identity` narrows per family. Only the comment changed, and it is still three lines, so `Grammar` stays at `:39` and the constructor check at `:43`.
+- P8 (EFE-R2-1), contract records:
+  - The `CurrentOwnerRelations.cs` owned-scope bullet now says the pattern is built from `WorkOrderId.Grammar`.
+  - The `CapabilityInventory.cs` bullet notes P7.
+  - `CapabilityInventory.cs:34–45` is removed from the "Read, not changed" list.
+  - The probe's `WorkOrderId` entry says `:41` is the drafting revision and cites `Grammar` `:39` and the constructor `:43`.
+  - Counts: the test-file bullet now gives 13 cases, AC1 +13, the Verification environment 7322, the focused command "thirteen", the S3 line "+ 13", the M5 row 4 cases and the AC1 row 7322.
+  - The status line and frontmatter status were not touched.
+- `campaign.md:9`: "reservations.15" becomes "reservations. 15" and "slot.136–150" becomes "slot. 136–150".
+- Build: `dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore -noAutoResponse` (incremental), exit 0, 0 warnings, 0 errors. Raw: `.tools/lettered-level-evidence/repair-p6-build.log`.
+- Covering tests: `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~CurrentOwnerMembershipTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~CurrentCatalogueTests"`, exit 0: 88 passed, 0 failed, 0 skipped. All 13 `CurrentOwnerMembershipTests` cases pass, including the second-grant case. The real-tree `CurrentCapabilityInputsTests` also pass, so the real grants still parse. Raw: `.tools/lettered-level-evidence/focused-3.log`.
+- AC3: `puzzles.json` is unchanged and the heading grep prints 0. AC4: both greps are empty. `git diff --check 5f1c4d4a` is clean.
+- Not run, by instruction: the compiler-proof capture, the maintainability gate, the registration check and the full round. They belong to the coordinator on the repaired candidate.
+
+## Entry 7 — review pass 3 (24 November 2026, coordinator)
+
+- Repair diff: pass-2 candidate tree `74f6cd429df8957e8c6d5619a0f5cfc348ec6ccd` to the working tree, built the same way as entry 5, in the session scratchpad `review-p3/`.
+- Layers (general-purpose, no conversation history, inherited model): Blind Hunter `a31e25316fdd65804`, Edge Case Hunter `ad092cc5f180ed33c`, Verification Gap `acc2bb715a2be6eea`, Forward-Only `a9934003160c32d71`, Element-Free Engine `af1603326f176fd21`.
+- One finding, BH-R3, a test gap inside the repair diff (Re-review scope: repaired). Verified at `CurrentOwnerMembershipTests.cs:84–90`: the four M5 cases contain no grant line whose malformed or second grant follows a well-formed one. Patch P9 sent to the implementation owner.
+- Tests read none of `TODO.md`, `deferred-work.md`, the completion ledger or the run logs (`git grep` over `*.cs` and `*.ts` finds no reference), so record edits after the final round do not invalidate it.
+
+## Entry 8 — review repair P9 (24 November 2026, implementation owner)
+
+This is the patch from the coordinator's pass-3 message (entry 7). Anvil validated every write first. Environment as in entry 2. Candidate: the baseline `5f1c4d4a` plus the uncommitted owned delta.
+
+- P9 (BH-R3): M5 (`AGroupedRoleUnderALetteredLevelResolvesToThatLevel`) gains two cases, `[InlineData("LEVEL-069c. Original owner, all criteria and technical stage: LEVEL-069aa", "Malformed grouped role owner.")]` and `[InlineData("LEVEL-069c. Original owner, all criteria and technical stage: LEVEL-069c", "Malformed grouped role owner.")]`. In both, the first grant parses and matches the heading, so only the phrase-count rule refuses the line. A regression that anchors or takes the first grant and drops the count fails both. No product code changed.
+- Counts in the contract were moved to +15: the class has 15 cases, M5 has 6, and AC1 is 7324 on the unmerged candidate. The test-file bullet, AC1, the Verification environment line, the focused command ("fifteen"), the S3 line, the M5 row (run: focused-4) and the AC1 row (expected 7324) were all updated. Neither status field was touched.
+- Build: `dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore -noAutoResponse` (incremental) exited 0 with 0 warnings and 0 errors. Raw: `.tools/lettered-level-evidence/repair-p9-build.log`.
+- Covering tests: `dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~CurrentOwnerMembershipTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~CurrentCatalogueTests"` exited 0 with 90 passed, 0 failed, 0 skipped; all 15 `CurrentOwnerMembershipTests` cases are listed as passed. Raw: `.tools/lettered-level-evidence/focused-4.log`.
+
+## Entry 9 — review pass 4, Final diff scope and final verification (24 November 2026, coordinator)
+
+- Repair diff: pass-3 candidate tree `7bf6bce3a39e6e29032114a23ebfd180e12fc98d` to the working tree (test file, contract, run log), in the session scratchpad `review-p4/`. Layers (general-purpose, no conversation history, inherited model): Blind Hunter `a3508382995c110e1`, Verification Gap `a8cf03ee206969a6b`, Forward-Only `a55b4812d6bce9033`, Element-Free Engine `a07e075d745242ebd`. Edge Case Hunter not launched: the repair adds test cases only, no branching code. No findings.
+- Final diff scope and simplification analysis: the pass-4 Element-Free Engine auditor, re-engaged by message, read-only on the full owned diff (`review-p4/full.diff`). Pass; no justified simplification; two stale records named and corrected by the coordinator (`TODO.md` lane-3 line; contract census citation `:69` → `:70`).
+- Final verification, executor the coordinator, one background chain on the unchanged final tree (the tools and docs diff from the baseline was the same before and after the chain): compiler-proof capture with `CSHARP_STATIC_GATE_BINLOGS=$L/binlogs-c2` (`capture-c2.log`, `CAPTURE_OK`); maintainability gate (`maintainability-2.log`, both canaries, `Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0`, PASS); registration check (`registration-2.log`, 17 + 67 + 192 + 97 + 394 = 767, 0 failed, 0 skipped); full round under `caffeinate -i` with the deferred filter (`full-round-2.log`: 17, 287, 130, 256, 6634 = 7324 passed, 0 failed, `Skipped: 0`, exit 0). `$L` = `~/.local/share/tim-toolchain/logs/slice-lettered-level-ids`; each log starts with `git rev-parse HEAD` (the baseline, as the candidate is uncommitted). AC3: `git diff --quiet 5f1c4d4a -- content/puzzles.json` exit 0, heading grep 0. AC4: both greps exit 1 (no match). `git diff --check 5f1c4d4a` clean.
+
+## Close note
+
+- Recurring finding class: two hand-kept copies of one rule drifting apart. The slice exists because the grouped-role pattern fell behind the owner grammar; review then found the new pattern was itself a hand copy (P1). The repair shares one constant.
+- Unresolved or cause-unknown defects: none. Every confirmed finding (P1–P9) was repaired and independently re-reviewed; nothing was deferred under Re-review scope.
+- Capabilities found missing late: none; the probe held.
+- Not a finding, recorded for whoever next edits the test: the M5 theory `AGroupedRoleUnderALetteredLevelResolvesToThatLevel` now holds one positive case and five refusals, three of them for the one-grant-per-clause-line rule, so its name understates it (pass-4 Element-Free Engine observation).
+- Role-card candidate (one line, for the next policy change): when a new pattern must accept what an existing typed identity accepts, build it from that identity's grammar constant instead of copying the text.
+- Remaining for the approver: the normal pre-commit hook at the candidate commit, SnapshotApproval of the committed SHA and the lane-3 publication under owner decision 24m (merge `origin/main` once, rerun the full round, fresh SnapshotApproval, push).
+
+## Entry 10 — merge-back under the 24m publish token (24 November 2026, coordinator)
+
+- Handled owner/coordinator message: the coordinator granted lane 3 the publish token, with origin/main at `3a80c6a8` (S3 published), and asked for the merge-back protocol (merge once, keep both sides in shared documents, rerun the full round on the merged commit, fresh SnapshotApproval on the merged SHA, plain push).
+- Pre-merge candidate: `f60849bdab33bf21d3548339ec89cd77eff454e6` (pre-commit hook scoped selection 134/0/0, `commit-hook.log`). `git fetch origin`; `git merge --no-ff origin/main` (`3a80c6a8ec230948eeef29594e8b72d9fa3ed5e7`), once.
+- Main brought S3: seven `CuriousContraptions.tests` files, `TODO.md`, `deferred-work.md`, the S3 contract and run log, `docs/delivery-workflow.md` and `delivery-batches.md`. None touches this lane's code (`tools/Ownership`, `tools/Coverage`, `tools/Coverage.Tests`) or the seven invest documents.
+- Conflicts under 24m rule (2): `TODO.md` only, resolved as one brief naming every lane's state (lane 2: S3 published as `3a80c6a8`, S5 in progress; lane 3: this slice merged, the merged round and SnapshotApproval of the merged SHA remaining). `deferred-work.md` merged automatically with both slices' entries kept. The "committed SHA" wording in `TODO.md` and the contract's status line now names the merged SHA.
+- The merged commit's full round (expected S3's 7317 + 15 = 7332), its SnapshotApproval and the push receipt are recorded after the merge commit, in the next lane-3 slice's candidate, as the protocol's Terminal completion requires.
+
+## Entry 11 — merged-commit receipts, carried by the content housekeeping slice (25 November 2026)
+
+- Recorded under the protocol's Terminal completion by the next lane-3 slice (`spec-content-campaign-housekeeping.md`, task 0b), from the coordinator's receipts of 24 November 2026.
+- Merged commit `2ce73eedcc151dc1b513013c74284ac798e14e00` (the merge of `3a80c6a8` into `f60849bd`): full local round 7332 passed, 0 failed, `Skipped: 0` (Coverage.Tests 130); registration check 775 passed, 0 failed, 0 skipped.
+- SnapshotApproval Pass on `2ce73eed` by a fresh independent reviewer, no findings; pushed to `main` as a fast-forward from `3a80c6a8`.
+- Remote build, artifact and deployment unverified (owner instruction of 29 October 2026).

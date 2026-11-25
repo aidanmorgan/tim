@@ -6,14 +6,44 @@ namespace Ownership;
 /// <summary>Current declared ID membership only; never source-owner selection or evidence approval.</summary>
 public static class CurrentOwnerMembership
 {
+    // The seven invest documents, read by both the membership and the census: the engine and consumers documents
+    // each have their own role in Parse, and the five scope documents share one.
+    private const string EngineDocument = "engine";
+    private const string ConsumersDocument = "current-consumers";
+    private static readonly string[] ScopeDocuments = ["gpu-physics", "refinements", "decisions", "scope-corrections", "campaign"];
+
     public static IReadOnlySet<WorkId> Read(string root) => Parse(
-        ReadDocument(root, "engine.md"), ReadDocument(root, "current-consumers.md"),
-        [ReadDocument(root, "gpu-physics.md"), ReadDocument(root, "refinements.md"),
-         ReadDocument(root, "decisions.md"), ReadDocument(root, "scope-corrections.md"),
-         ReadDocument(root, "campaign.md")]);
+        ReadDocument(root, EngineDocument), ReadDocument(root, ConsumersDocument),
+        ScopeDocuments.Select(name => ReadDocument(root, name)).ToArray());
 
     private static string ReadDocument(string root, string name) =>
-        File.ReadAllText(Path.Combine(root, "docs/planning/invest", name));
+        File.ReadAllText(Path.Combine(root, "docs/planning/invest", name + ".md"));
+
+    // 545 since 8f682f8 added the ENGINE-CORE-2d and LEGACY-0 owner headings to engine.md (543 at 9107148);
+    // the census also counts lowercase sub-slice owners, which an earlier pattern skipped.
+    // 566 since the content housekeeping slice added the 21 lettered LEVEL- headings of the placed authored levels
+    // (LEVEL-003a to LEVEL-051c) to campaign.md. Each LEVEL- heading a later slice adds raises 566 by one.
+    /// <summary>The number of owner headings the seven invest documents declare.</summary>
+    public const int DeclaredHeadingCount = 566;
+
+    /// <summary>Counts the owner headings of the seven invest documents under <paramref name="root"/>: a level-2 or level-3
+    /// heading whose identity contains a digit or a hyphen. Each counted heading must be a declared current owner.</summary>
+    public static int CountDeclaredHeadings(string root)
+    {
+        var owners = Read(root);
+        var count = 0;
+        foreach (var name in new[] { EngineDocument, ConsumersDocument }.Concat(ScopeDocuments))
+        {
+            foreach (Match match in Regex.Matches(ReadDocument(root, name), @"(?m)^#{2,3} ([A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*(?:[a-z][0-9]*)?)(?=\s|$)"))
+            {
+                var heading = match.Groups[1].Value;
+                if (!heading.Any(char.IsDigit) && !heading.Contains('-')) continue;
+                if (!owners.Contains(new(heading))) throw new InvalidOperationException("Actual declared heading owner omitted: " + heading);
+                count++;
+            }
+        }
+        return count;
+    }
 
     public static IReadOnlySet<WorkId> Parse(string engine, string consumers, IReadOnlyList<string> scopes)
     {
@@ -106,7 +136,9 @@ public static class CurrentOwnerMembership
     {
         // Roadmap slice owners (ENGINE, ANIM, LEGACY) may carry one lowercase sub-slice letter with an optional
         // ordinal, exactly as the ordered roadmap names them (ENGINE-CORE-2d, ENGINE-CORE-2a1, ANIM-1a, LEGACY-0a).
-        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+(?:[a-z][0-9]*)?|LEGACY-[0-9]+(?:[a-z][0-9]*)?|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}|FIX-[0-9]{3}-[0-9]{3})\z"))
+        // A campaign level placed after a numbered slot is that slot's three digits plus one lowercase letter
+        // (LEVEL-069c), so the ordinal order of the canonical spelling is the campaign order.
+        if (!Regex.IsMatch(value, @"\A(?:P0-[0-9]{3}|S[0-9]{3}(?:-[A-Z]+)?|CAT-[0-9]{3}-[A-Z]+|LAW-[A-Z]+-[A-Z]+|ENGINE-[A-Z0-9]+(?:-[A-Z0-9]+)*(?:(?<=[0-9])[a-z][0-9]*)?|OPT-[A-Z]+(?:-[A-Z]+)*|ANIM-[0-9]+(?:[a-z][0-9]*)?|LEGACY-[0-9]+(?:[a-z][0-9]*)?|MOBILE-[0-9]{2}|LEVEL-[0-9]{3}[a-z]?|FIX-[0-9]{3}-[0-9]{3})\z"))
             throw new InvalidDataException($"Invalid current owner identity '{value}'.");
         return new(value);
     }

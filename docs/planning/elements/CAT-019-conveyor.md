@@ -64,7 +64,7 @@ Read from `elements/Conveyor/ConveyorElementDeclaration.cs` and `elements/Convey
 
 ### Catalogue and inventory entry
 - Id `conveyor`, title "Conveyor belt", category Motion, order 37 (`elements/Conveyor/ConveyorElementDeclaration.cs:25`–`:30`).
-- It is in inventory in 9 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
+- It is in inventory in 4 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
 
 ## 3. Engine capabilities
 
@@ -144,7 +144,7 @@ Counts: 5 present, 0 untested, 2 narrower, 0 missing.
 - `CuriousContraptions.tests/SurfaceMotorBudgetTests.cs`
 - `CuriousContraptions.tests/MechanicalTests.cs`
 - `CuriousContraptions.tests/MechanicalWorkTests.cs`
-- `content/puzzles.json` (levels `conveyor_courier`, `belt_relay`, `reverse_belt`, `double_cold_start`, `depth_delivery`)
+- `content/puzzles.json` (levels `conveyor_courier`, `belt_relay`, `reverse_belt`, `double_cold_start`)
 - `tools/Campaign/Program.cs`
 - `ui/WorkshopIcons.cs` (pictogram)
 - `engine/physics/ContactSlipPath.cs` (checked, CPU slip integration of driven surfaces, no element values)
@@ -157,7 +157,7 @@ Follow the [CAT-019 row](../requirements.md#current-cat-019) and Story 11.1; do 
 - **Chrome UI recipe.** Open `conveyor_courier`. Drag the conveyor from the toolbox under the ball with the real placement controls. Connect battery `Supply` → motor `PowerIn` and motor `Drive` → conveyor `DriveIn` with the contextual wiring UI. Run, then record the captured goal, roller and payload poses, and bundle identity.
 - **Positive.** The payload is carried along local +X into the receiver; treads, pulleys and arrow follow committed travel (facts 14, 17, 27).
 - **Negative/control.** An unpowered motor or missing Mechanical link gives no motion; a wire from the activation domain is rejected; a ball outside the belt width is untouched (facts 16, 18, 19).
-- **Boundaries.** Stalled or loaded belt, coasting after supply loss, reversed ratio, downstream chained conveyor (`belt_relay`), rotated belt (`depth_delivery`), side and underside contacts (facts 15, 20–22, 30, 33).
+- **Boundaries.** Stalled or loaded belt, coasting after supply loss, reversed ratio, downstream chained conveyor (`belt_relay`), rotated belt, side and underside contacts (facts 15, 20–22, 30, 33).
 - **Run/Reset.** Roller angle, speed, tread phase and payload return exactly (fact 20).
 - **Save/Load.** `length`, `width`, `surface_per_radian`, pose and typed mechanical links round-trip; retired properties are rejected (fact 13).
 - **Integrations.** Motor (CAT-042), Reverse transmission and Clutch (Story 11.2), Basketball/Receiver capture.
@@ -205,7 +205,7 @@ The questions were: 1 parameter bounds; 2 mechanical loop policy; 3 idle roller 
 
 - **Drive sources (delivered).** Motor (`Drive`, Mechanical output, +1), Windmill (`elements/Windmill/WindmillElementDeclaration.cs:47`), another Conveyor's `Drive`, and a Clutch or Reverse gear between them. Supply reaches the Motor from the Battery, Impact switch, Hold timer or a gate.
 - **Cargo and goals (delivered).** Basketball, Tennis ball, Bowling ball, Receiver.
-- **Campaign (`content/puzzles.json`), all Planned.** 16 `conveyor_courier`, 17 `belt_relay` and 18 `reverse_belt` have one `captured` goal and are provable from delivered parts after the engine programme (owner decision 3a) ([delivery batches section 4](../invest/delivery-batches.md#4-early-level-proof)); 31, 37, 46, 49, 53, 55 and 58 wait for goal evaluation. Every authored Conveyor uses the default 3 × 1.2 m size.
+- **Campaign (`content/puzzles.json`), all Planned; numbers are authored positions before decision 24d, each paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d).** 16 `conveyor_courier`, 17 `belt_relay` and 18 `reverse_belt` have one `captured` goal and are provable from delivered parts after the engine programme (owner decision 3a) ([delivery batches section 4](../invest/delivery-batches.md#4-early-level-proof)); 49 `double_cold_start` and 58 `grand_contraption` wait for goal evaluation and their conversion (completion-ledger OS-08). Every authored Conveyor uses the default 3 × 1.2 m size.
 - **Coverage binding.** Catalogue key `conveyor` (CAT-019) in `docs/coverage/catalogue-elements.json`. EL-202 has none of its own.
 - **Lesson fixtures.** A level that offers it from the player's inventory needs no lesson-fixture story; a level that locks it as a fixture adds a `FIX-` row to the catalogue fixture table ([current consumers](../invest/current-consumers.md), read by `tools/Coverage/CurrentCatalogue.cs:100`), and needs [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) only for per-parameter or connection locks. Each level is authored by its Early level proof slice.
 

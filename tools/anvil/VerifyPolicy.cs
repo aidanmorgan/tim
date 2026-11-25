@@ -23,7 +23,7 @@ var temporary = Directory.CreateTempSubdirectory("anvil-policy-verification-");
 // The tool runs from outside the repository it checks, as the real hook runs it from its snapshot: inside, its own
 // source would be a new unstaged C# file, which the staged-source rule refuses.
 var toolDirectory = Directory.CreateTempSubdirectory("anvil-policy-tool-");
-var cleaned = false;
+bool cleaned;
 try
 {
     var root = temporary.FullName;
@@ -43,51 +43,15 @@ try
     Harness.Execute(root, "git", ["config", "user.name", "Policy verification"]);
     Harness.Execute(root, "git", ["config", "user.email", "policy@example.invalid"]);
     Harness.Execute(root, "git", ["config", "core.hooksPath", ".git-hooks"]);
-    var options = new System.Text.Json.JsonSerializerOptions
-    {
-        RespectRequiredConstructorParameters = true,
-        UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow
-    };
-    options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Source>(allowIntegerValues: false));
-    options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Outcome>(allowIntegerValues: false));
-    var fixtureContext = new FixtureContext(options);
-    var cases = System.Text.Json.JsonSerializer.Deserialize<Case[]>(
-        File.ReadAllText(Path.Combine(sourceRoot, "tools/anvil/fixtures.json")), fixtureContext.CaseArray)
-        ?? throw new InvalidOperationException("Missing policy fixtures.");
-    foreach (var invalid in new[]
-    {
-        """[{"Label":"invalid","Source":"Unsupported","Content":"","Expected":"Allow"}]""",
-        """[{"Label":"invalid","Source":0,"Content":"","Expected":"Allow"}]""",
-        """[{"Label":"invalid","Source":"CSharp","Content":"","Expected":"Unsupported"}]""",
-        """[{"Label":"invalid","Source":"CSharp","Content":"","Expected":0}]"""
-    })
-    {
-        try
-        {
-            System.Text.Json.JsonSerializer.Deserialize(invalid, fixtureContext.CaseArray);
-            throw new InvalidOperationException("Unsupported fixture enum was accepted.");
-        }
-        catch (System.Text.Json.JsonException) { Console.WriteLine("PASS unsupported fixture enum rejected"); }
-    }
-    foreach (var test in cases)
-    {
-        Harness.EmptyRepository(root);
-        var path = test.Source switch { Source.CSharp => "SampleTests.cs", Source.TypeScript => "sample.spec.ts", _ => throw new InvalidOperationException("Unsupported fixture source.") };
-        File.WriteAllText(Path.Combine(root, path), test.Content);
-        Harness.Execute(root, "git", ["add", "--", path]);
-        // Check staged bytes, even when the worktree looks clean.
-        File.WriteAllText(Path.Combine(root, path), "// unstaged clean control");
-        var result = Harness.Execute(root, "sh", [".git-hooks/pre-commit"], requireSuccess: false);
-        var actual = result.ExitCode == 0 ? Outcome.Allow : Outcome.Block;
-        if (actual != test.Expected || actual == Outcome.Block && !result.Output.Contains("TEST-001", StringComparison.Ordinal))
-            throw new InvalidOperationException($"FAIL {test.Label}: {result.ExitCode}\n{result.Output}");
-        Console.WriteLine($"PASS {test.Label}");
-    }
-    Harness.EmptyRepository(root);
-    var empty = Harness.Execute(root, "sh", [".git-hooks/pre-commit"]);
-    Console.WriteLine("PASS empty index");
+    // Git reads the user's default ignore and attributes files whatever GIT_CONFIG_GLOBAL names, so this repository
+    // names none.
+    Harness.Execute(root, "git", ["config", "core.excludesFile", "/dev/null"]);
+    Harness.Execute(root, "git", ["config", "core.attributesFile", "/dev/null"]);
+    ChildIsolation.Verify(root);
+    var cases = Fixtures.Load(sourceRoot);
+    Fixtures.Verify(root, cases);
     // The staged-source rule against real git, and the skip scan of an upper-case extension.
-    var stagedSourceChecks = StagedSourceHarness.Verify(root,
+    StagedSourceHarness.Verify(root,
         cases.First(test => test.Expected == Outcome.Block && test.Source == Source.CSharp).Content);
     Harness.EmptyRepository(root);
     File.WriteAllText(Path.Combine(root, "SampleTests.cs"), cases.First(test => test.Expected == Outcome.Block).Content);
@@ -95,27 +59,257 @@ try
     var commit = Harness.Execute(root, "git", ["commit", "-m", "Must be blocked"], requireSuccess: false);
     if (commit.ExitCode == 0 || !commit.Output.Contains("TEST-001", StringComparison.Ordinal))
         throw new InvalidOperationException("Git commit was not rejected by TEST-001.");
-    Console.WriteLine("PASS real git commit rejected");
-    Console.WriteLine($"Policy fixtures: Passed: {cases.Length + 6 + stagedSourceChecks}, Failed: 0, Skipped: 0. Isolated staged-test hook only; full production hook unqualified.");
+    Harness.Pass("real git commit rejected");
+    StagedSourceHarness.RealCommitRefusal(root);
+    Harness.VerifyCleanupFailure();
 }
 finally
 {
-    var removedRepository = Harness.Remove(temporary);
-    cleaned = Harness.Remove(toolDirectory) && removedRepository;
+    cleaned = Harness.RemoveAll(temporary, toolDirectory);
 }
-return cleaned ? 0 : 1;
+// The total counts the checks that printed a PASS line, and is printed only once every directory was removed.
+if (!cleaned) return 1;
+Console.WriteLine($"Policy fixtures: Passed: {Harness.Passed}, Failed: 0, Skipped: 0. Isolated staged-test hook only; full production hook unqualified.");
+return 0;
 
-enum Source { CSharp, TypeScript }
+enum Source { CSharp, TypeScript, JavaScript, JavaScriptModule, JavaScriptCommon, JavaScriptReact, TypeScriptReact }
 enum Outcome { Allow, Block }
 sealed record Case(string Label, Source Source, string Content, Outcome Expected);
 sealed record Result(int ExitCode, string Output);
 
-/// <summary>What the no-argument verification harness shares: its process runner, its per-case reset and its
-/// cleanup.</summary>
+/// <summary>The skip rule's serialized fixtures (fixtures.json): unknown enum names and numbers are rejected, each
+/// fixture is staged and checked through the isolated hook, and an empty index is checked last.</summary>
+static class Fixtures
+{
+    public static Case[] Load(string sourceRoot)
+    {
+        var options = new System.Text.Json.JsonSerializerOptions
+        {
+            RespectRequiredConstructorParameters = true,
+            UnmappedMemberHandling = System.Text.Json.Serialization.JsonUnmappedMemberHandling.Disallow
+        };
+        options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Source>(allowIntegerValues: false));
+        options.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter<Outcome>(allowIntegerValues: false));
+        var fixtureContext = new FixtureContext(options);
+        var cases = System.Text.Json.JsonSerializer.Deserialize<Case[]>(
+            File.ReadAllText(Path.Combine(sourceRoot, "tools/anvil/fixtures.json")), fixtureContext.CaseArray)
+            ?? throw new InvalidOperationException("Missing policy fixtures.");
+        foreach (var invalid in new[]
+        {
+            """[{"Label":"invalid","Source":"Unsupported","Content":"","Expected":"Allow"}]""",
+            """[{"Label":"invalid","Source":0,"Content":"","Expected":"Allow"}]""",
+            """[{"Label":"invalid","Source":"CSharp","Content":"","Expected":"Unsupported"}]""",
+            """[{"Label":"invalid","Source":"CSharp","Content":"","Expected":0}]"""
+        })
+        {
+            try
+            {
+                System.Text.Json.JsonSerializer.Deserialize(invalid, fixtureContext.CaseArray);
+                throw new InvalidOperationException("Unsupported fixture enum was accepted.");
+            }
+            catch (System.Text.Json.JsonException) { Harness.Pass("unsupported fixture enum rejected"); }
+        }
+        return cases;
+    }
+
+    public static void Verify(string root, Case[] cases)
+    {
+        foreach (var test in cases)
+        {
+            Harness.EmptyRepository(root);
+            var path = PathOf(test.Source);
+            File.WriteAllText(Path.Combine(root, path), test.Content);
+            Harness.Execute(root, "git", ["add", "--", path]);
+            // Check staged bytes, even when the worktree looks clean.
+            File.WriteAllText(Path.Combine(root, path), "// unstaged clean control");
+            var result = Harness.Execute(root, Harness.Shell, [Harness.Hook], requireSuccess: false);
+            if (!Holds(test, path, result))
+                throw new InvalidOperationException($"FAIL {test.Label}: {result.ExitCode}\n{result.Output}");
+            Harness.Pass(test.Label);
+        }
+        // An empty index passes after the rule's self-check, with nothing scanned.
+        Harness.EmptyRepository(root);
+        var empty = Harness.Execute(root, Harness.Shell, [Harness.Hook]);
+        if (!empty.Output.Contains("the staged-source rule held its", StringComparison.Ordinal) ||
+            empty.Output.Contains("Anvil snapshot", StringComparison.Ordinal))
+            throw new InvalidOperationException($"FAIL empty index:\n{empty.Output}");
+        Harness.Pass("empty index");
+    }
+
+    // A block names the skip rule. A pass shows that the staged path was scanned: its snapshot line and the scanner's
+    // JSON report.
+    static bool Holds(Case test, string path, Result result) => test.Expected == Outcome.Block
+        ? result.ExitCode != 0 && result.Output.Contains("TEST-001", StringComparison.Ordinal)
+        : result.ExitCode == 0 && result.Output.Contains($"Anvil snapshot 0.ts: {path}", StringComparison.Ordinal) &&
+          result.Output.Contains("\"summary\"", StringComparison.Ordinal);
+
+    static string PathOf(Source source) => source switch
+    {
+        Source.CSharp => "SampleTests.cs",
+        Source.TypeScript => "sample.spec.ts",
+        Source.JavaScript => "sample.spec.js",
+        Source.JavaScriptModule => "sample.spec.mjs",
+        Source.JavaScriptCommon => "sample.spec.cjs",
+        Source.JavaScriptReact => "sample.spec.jsx",
+        Source.TypeScriptReact => "sample.spec.tsx",
+        _ => throw new InvalidOperationException("Unsupported fixture source."),
+    };
+}
+
+/// <summary>No harness child sees the caller's git variables or the user's, XDG or system git configuration. Each
+/// seed is set in this process's own environment; a child's git still reads only the disposable repository's
+/// configuration, ignores no file by the seeded rules and gives it no seeded attribute.</summary>
+static class ChildIsolation
+{
+    const string Label = "an inherited git variable or configuration does not reach a child";
+    const string Leaked = "Leaked.cs";
+
+    sealed record Seeds(string GlobalFile, string IgnoreFile, string AttributesFile, IReadOnlyDictionary<string, string> Variables);
+
+    public static void Verify(string root)
+    {
+        Harness.EmptyRepository(root);
+        File.WriteAllText(Path.Combine(root, Leaked), "// untracked");
+        var directory = Directory.CreateTempSubdirectory("anvil-policy-seeds-");
+        // A failed cleanup is reported and fails the run without replacing the check's own failure.
+        try
+        {
+            var seeds = Seed(directory.FullName);
+            Controls(root, seeds);
+            SystemConfiguration(root, seeds);
+            WithInherited(seeds.Variables, () => Isolated(root));
+        }
+        catch
+        {
+            Harness.RemoveAll(directory);
+            throw;
+        }
+        Require(Harness.RemoveAll(directory), $"its seed directory {directory.FullName} could not be removed");
+        Harness.Pass(Label);
+    }
+
+    // Every seed sets core.hooksPath to /nonexistent; GIT_DIR names a decoy repository whose configuration does.
+    static Seeds Seed(string directory)
+    {
+        const string hooksPath = "[core]\n\thooksPath = /nonexistent\n";
+        var decoy = Directory.CreateDirectory(Path.Combine(directory, "decoy")).FullName;
+        Harness.Execute(decoy, "git", ["init", "-q"]);
+        Harness.Execute(decoy, "git", ["config", "core.hooksPath", "/nonexistent"]);
+        var global = Path.Combine(directory, "global.config");
+        File.WriteAllText(global, hooksPath);
+        var xdg = Directory.CreateDirectory(Path.Combine(directory, "xdg", "git")).FullName;
+        File.WriteAllText(Path.Combine(xdg, "config"), hooksPath);
+        File.WriteAllText(Path.Combine(xdg, "ignore"), Leaked + "\n");
+        File.WriteAllText(Path.Combine(xdg, "attributes"), Leaked + " foo=bar\n");
+        return new(global, Path.Combine(xdg, "ignore"), Path.Combine(xdg, "attributes"), new Dictionary<string, string>
+        {
+            ["GIT_DIR"] = Path.Combine(decoy, ".git"),
+            ["GIT_CONFIG_PARAMETERS"] = "'core.hooksPath'='/nonexistent'",
+            ["GIT_CONFIG_COUNT"] = "1",
+            ["GIT_CONFIG_KEY_0"] = "core.hooksPath",
+            ["GIT_CONFIG_VALUE_0"] = "/nonexistent",
+            ["GIT_CONFIG_GLOBAL"] = global,
+            ["XDG_CONFIG_HOME"] = Path.Combine(directory, "xdg"),
+        });
+    }
+
+    // Each control passes one seed through the child's own environment, so the check can fail.
+    static void Controls(string root, Seeds seeds)
+    {
+        var global = HooksPath(root, new Dictionary<string, string> { ["GIT_CONFIG_GLOBAL"] = seeds.GlobalFile });
+        Require(global.Contains("/nonexistent", StringComparison.Ordinal), $"control: a global file passed to the child gave [{global}]");
+        var untracked = Untracked(root, Override("core.excludesFile", seeds.IgnoreFile));
+        Require(!Lines(untracked).Contains(Leaked, StringComparer.Ordinal), $"control: the seeded ignore file passed to the child gave [{untracked}]");
+        var attributes = Attributes(root, Override("core.attributesFile", seeds.AttributesFile));
+        Require(attributes == "Leaked.cs: foo: bar", $"control: the seeded attributes file passed to the child gave [{attributes}]");
+    }
+
+    // A system file passed to the child is not read, because every child runs with the system configuration off; the
+    // seeded file (it sets core.hooksPath to /nonexistent) serves as that system file. Control: the same file with
+    // GIT_CONFIG_NOSYSTEM=0 is read, so the check can fail.
+    static void SystemConfiguration(string root, Seeds seeds)
+    {
+        var system = new Dictionary<string, string> { ["GIT_CONFIG_SYSTEM"] = seeds.GlobalFile };
+        var isolated = HooksPath(root, system);
+        Require(isolated == "file:.git/config\t.git-hooks", $"a system file passed to the child gave [{isolated}]");
+        system["GIT_CONFIG_NOSYSTEM"] = "0";
+        var control = HooksPath(root, system);
+        Require(control.Contains("/nonexistent", StringComparison.Ordinal),
+            $"control: a system file passed to the child with GIT_CONFIG_NOSYSTEM=0 gave [{control}]");
+    }
+
+    static void Isolated(string root)
+    {
+        var hooksPath = HooksPath(root, null);
+        Require(hooksPath == "file:.git/config\t.git-hooks", $"core.hooksPath is [{hooksPath}]");
+        var untracked = Untracked(root, null);
+        Require(Lines(untracked).Contains(Leaked, StringComparer.Ordinal), $"the untracked files are [{untracked}]");
+        var attributes = Attributes(root, null);
+        Require(attributes.Length == 0, $"the attributes of {Leaked} are [{attributes}]");
+    }
+
+    static Dictionary<string, string> Override(string key, string value) => new()
+    {
+        ["GIT_CONFIG_COUNT"] = "1", ["GIT_CONFIG_KEY_0"] = key, ["GIT_CONFIG_VALUE_0"] = value,
+    };
+
+    static string HooksPath(string root, IReadOnlyDictionary<string, string>? environment) =>
+        Git(root, environment, ["config", "--show-origin", "--get-all", "core.hooksPath"]);
+
+    static string Untracked(string root, IReadOnlyDictionary<string, string>? environment) =>
+        Git(root, environment, ["ls-files", "--others", "--exclude-standard"]);
+
+    static string Attributes(string root, IReadOnlyDictionary<string, string>? environment) =>
+        Git(root, environment, ["check-attr", "-a", Leaked]);
+
+    // Git's whole output, so that a leaked repository or configuration shows in the failure.
+    static string Git(string root, IReadOnlyDictionary<string, string>? environment, string[] arguments) =>
+        Harness.Execute(root, "git", arguments, requireSuccess: false, environment).Output.TrimEnd('\n');
+
+    static string[] Lines(string output) => output.Split('\n');
+
+    // Sets each variable in this process's own environment for the action, then restores the earlier values.
+    static void WithInherited(IReadOnlyDictionary<string, string> variables, Action action)
+    {
+        var earlier = variables.Keys.ToDictionary(name => name, name => Environment.GetEnvironmentVariable(name));
+        try
+        {
+            foreach (var (name, value) in variables) Environment.SetEnvironmentVariable(name, value);
+            action();
+        }
+        finally
+        {
+            foreach (var (name, value) in earlier) Environment.SetEnvironmentVariable(name, value);
+        }
+    }
+
+    static void Require(bool holds, string detail)
+    {
+        if (!holds) throw new InvalidOperationException($"FAIL {Label}: {detail}");
+    }
+}
+
+/// <summary>What the no-argument verification harness shares: its process runner, its per-case reset, its pass count
+/// and its cleanup.</summary>
 static class Harness
 {
-    /// <summary>Runs a command in a directory. No child inherits the caller's git context (GIT_DIR, GIT_WORK_TREE,
-    /// GIT_INDEX_FILE), and git's messages are in the C locale; environment adds or replaces variables.</summary>
+    /// <summary>Every hook invocation runs the hook with this shell, so no child needs a shell on its PATH.</summary>
+    public const string Shell = "/bin/sh";
+    public const string Hook = ".git-hooks/pre-commit";
+
+    /// <summary>The number of checks that have printed their PASS line.</summary>
+    public static int Passed { get; private set; }
+
+    /// <summary>Prints one check's PASS line and counts it; a check passes once, together with its controls.</summary>
+    public static void Pass(string label)
+    {
+        Console.WriteLine($"PASS {label}");
+        Passed++;
+    }
+
+    /// <summary>Runs a command in a directory. No child inherits a git variable (any GIT_* name) or the system, user
+    /// or XDG git configuration, and git's messages are in the C locale; environment then adds or replaces
+    /// variables.</summary>
     public static Result Execute(string root, string executable, string[] arguments, bool requireSuccess = true,
         IReadOnlyDictionary<string, string>? environment = null)
     {
@@ -124,7 +318,10 @@ static class Harness
             WorkingDirectory = root, RedirectStandardOutput = true,
             RedirectStandardError = true, UseShellExecute = false
         };
-        foreach (var inherited in new[] { "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE" }) start.Environment.Remove(inherited);
+        foreach (var inherited in start.Environment.Keys.Where(name => name.StartsWith("GIT_", StringComparison.Ordinal)).ToList())
+            start.Environment.Remove(inherited);
+        start.Environment["GIT_CONFIG_NOSYSTEM"] = "1";
+        start.Environment["GIT_CONFIG_GLOBAL"] = "/dev/null";
         start.Environment["LC_ALL"] = "C";
         if (environment is not null)
             foreach (var (name, value) in environment) start.Environment[name] = value;
@@ -158,9 +355,73 @@ static class Harness
     /// <summary>A temporary path may contain a single quote; close the quoted string around each one.</summary>
     public static string ShellQuote(string value) => "'" + value.Replace("'", "'\\''", StringComparison.Ordinal) + "'";
 
-    /// <summary>A cleanup failure is reported and fails the run, but it neither replaces the failure that came first
-    /// nor stops the other directory being removed.</summary>
-    public static bool Remove(DirectoryInfo directory)
+    /// <summary>Attempts to remove every directory and returns whether all were removed. A cleanup failure is reported
+    /// and fails the run, but it neither replaces the failure that came first nor stops another directory being
+    /// removed.</summary>
+    public static bool RemoveAll(params DirectoryInfo[] directories) =>
+        directories.Select(Remove).ToArray().All(removed => removed);
+
+    /// <summary>A directory the harness cannot delete is reported and fails the cleanup, and the other directory is
+    /// still removed. Both are fresh temporary directories outside the disposable repository.</summary>
+    public static void VerifyCleanupFailure()
+    {
+        const string label = "a directory the harness cannot delete is reported and fails the run";
+        DirectoryInfo? undeletable = null, deletable = null;
+        // Set when removal is first attempted. From then on a directory still present had a failed removal and is
+        // never removed again; before it, each directory made so far is removed once in the finally.
+        var attempted = false;
+        try
+        {
+            undeletable = Directory.CreateTempSubdirectory("anvil-policy-undeletable-");
+            deletable = Directory.CreateTempSubdirectory("anvil-policy-deletable-");
+            var locked = Directory.CreateDirectory(Path.Combine(undeletable.FullName, "locked")).FullName;
+            File.WriteAllText(Path.Combine(locked, "kept.txt"), "kept");
+            using var report = new StringWriter();
+            var standardError = Console.Error;
+            bool removed;
+            try
+            {
+                Execute(undeletable.FullName, "chmod", ["0500", locked]);
+                Console.SetError(report);
+                attempted = true;
+                removed = RemoveAll(undeletable, deletable);
+            }
+            finally
+            {
+                Console.SetError(standardError);
+                RestoreMode(locked);
+            }
+            if (removed || !Directory.Exists(undeletable.FullName) || Directory.Exists(deletable.FullName) ||
+                !report.ToString().Contains($"Cleanup failed for {undeletable.FullName}", StringComparison.Ordinal))
+                throw new InvalidOperationException($"FAIL {label}: removed {removed}\n{report}");
+            // Control: with its mode restored, the same directory is removed.
+            if (!RemoveAll(undeletable))
+                throw new InvalidOperationException($"FAIL {label}: {undeletable.FullName} was not removed after its mode was restored.");
+        }
+        finally
+        {
+            if (!attempted) RemoveAll([.. new[] { undeletable, deletable }.OfType<DirectoryInfo>()]);
+        }
+        Pass(label);
+    }
+
+    // Never throws, so it cannot replace the check's own failure. Where the mode is not honoured (as root, or on a file
+    // system that ignores it) the directory is already gone and there is nothing to restore. A failed restore is
+    // reported; the control's removal then fails the check. Runs from the temporary directory, which always exists.
+    static void RestoreMode(string locked)
+    {
+        if (!Directory.Exists(locked)) return;
+        try
+        {
+            Execute(Path.GetTempPath(), "chmod", ["0700", locked]);
+        }
+        catch (Exception error) when (error is InvalidOperationException or System.ComponentModel.Win32Exception)
+        {
+            Console.Error.WriteLine($"Mode restore failed for {locked}: {error.Message}");
+        }
+    }
+
+    static bool Remove(DirectoryInfo directory)
     {
         try
         {
@@ -182,10 +443,11 @@ enum Placement { Staged, IntentToAdd, OnDisk, DeletedFromHead, RenamedFromHead, 
 /// repository ignores the directory ignored-dir/, the file name IgnoredByName.cs and the patterns *.log and Scratch*.cs.</summary>
 static class StagedSourceHarness
 {
-    sealed record RealCase(string Label, (string Path, Placement Placement)[] Files, string[] Refused, string[]? FailureSays = null);
+    /// <summary>From: the subdirectory of the disposable repository the hook runs from (its top level when omitted).</summary>
+    sealed record RealCase(string Label, (string Path, Placement Placement)[] Files, string[] Refused,
+        string[]? FailureSays = null, string? From = null);
 
     const string Kept = "Kept.cs";
-    const string Hook = ".git-hooks/pre-commit";
 
     static readonly RealCase[] Cases =
     [
@@ -214,6 +476,10 @@ static class StagedSourceHarness
             [("Removed.cs", Placement.DeletedFromHead), ("NewTests.cs", Placement.OnDisk)], ["NewTests.cs"]),
         new("an untracked C# file beside a staged build input is refused",
             [("App.csproj", Placement.Staged), ("NewTests.cs", Placement.OnDisk)], ["NewTests.cs"]),
+        new("an untracked C# file beside a staged APP.CSPROJ is refused",
+            [("APP.CSPROJ", Placement.Staged), ("NewTests.cs", Placement.OnDisk)], ["NewTests.cs"]),
+        new("a new C# file is refused when the hook runs from a subdirectory",
+            [(Kept, Placement.Staged), ("NewTests.cs", Placement.OnDisk)], ["NewTests.cs"], From: "nested"),
         new("a C# file ignored by name, alone in an untracked directory, is refused",
             [(Kept, Placement.Staged), ("fresh-dir/IgnoredByName.cs", Placement.OnDisk)], ["fresh-dir/IgnoredByName.cs"]),
         new("a C# file ignored by name beside another ignored file in an untracked directory is refused",
@@ -243,21 +509,42 @@ static class StagedSourceHarness
             ["a git query failed", "git diff-files -z --name-only --diff-filter=A", "index file smaller than expected"]),
     ];
 
-    /// <summary>Runs every case; returns the number of checks passed.</summary>
-    public static int Verify(string root, string skippedTest)
+    /// <summary>Runs every case.</summary>
+    public static void Verify(string root, string skippedTest)
     {
         foreach (var test in Cases) Check(root, test);
-        return Cases.Length + SourceCommitRows(root) + SkipScans(root, skippedTest) + UnusableGit(root);
+        SourceCommitRows(root);
+        SkipScans(root, skippedTest);
+        UnusableGit(root);
+    }
+
+    /// <summary>The staged-source rule through a real git commit: the hook refuses it, listing the file, and no commit
+    /// is made.</summary>
+    public static void RealCommitRefusal(string root)
+    {
+        const string label = "a real git commit with an unstaged new C# file is refused";
+        Harness.EmptyRepository(root);
+        Place(root, Kept, Placement.Staged, "// ordinary source");
+        Place(root, "NewTests.cs", Placement.OnDisk, "// ordinary source");
+        var commit = Harness.Execute(root, "git", ["commit", "-m", "Must be refused"], requireSuccess: false);
+        var head = Harness.Execute(root, "git", ["rev-parse", "-q", "--verify", "HEAD"], requireSuccess: false);
+        if (commit.ExitCode == 0 || head.ExitCode == 0 ||
+            !Listed(commit.Output).SequenceEqual(["NewTests.cs"], StringComparer.Ordinal))
+            throw new InvalidOperationException($"FAIL staged-source: {label}: {commit.ExitCode}\n{commit.Output}\nHEAD: {head.Output}");
+        Harness.Pass($"staged-source: {label}");
     }
 
     static void Check(string root, RealCase test)
     {
         Harness.EmptyRepository(root);
         foreach (var file in test.Files) Place(root, file.Path, file.Placement, "// ordinary source");
-        var result = Harness.Execute(root, "sh", [Hook], requireSuccess: false);
+        // The hook runs from the case's directory, by a path relative to it.
+        var directory = Directory.CreateDirectory(Path.Combine(root, test.From ?? "")).FullName;
+        var hook = Path.GetRelativePath(directory, Path.Combine(root, Harness.Hook));
+        var result = Harness.Execute(directory, Harness.Shell, [hook], requireSuccess: false);
         if (!Holds(test, result))
             throw new InvalidOperationException($"FAIL staged-source: {test.Label}: {result.ExitCode}\n{result.Output}");
-        Console.WriteLine($"PASS staged-source: {test.Label}");
+        Harness.Pass($"staged-source: {test.Label}");
     }
 
     // The documented source-commit set, held here independently of the tool: a member dropped from the tool, or
@@ -270,27 +557,26 @@ static class StagedSourceHarness
 
     // The set the tool prints on each run must equal the documented set; then one refusal row per member. The bare
     // extension is the whole file name, as .editorconfig is in practice.
-    static int SourceCommitRows(string root)
+    static void SourceCommitRows(string root)
     {
         const string marker = "stages a path ending in one of: ";
         Harness.EmptyRepository(root);
-        var line = Harness.Execute(root, "sh", [Hook]).Output.Split('\n')
+        var line = Harness.Execute(root, Harness.Shell, [Harness.Hook]).Output.Split('\n')
             .Single(line => line.Contains(marker, StringComparison.Ordinal));
         var printed = line[(line.IndexOf(marker, StringComparison.Ordinal) + marker.Length)..]
             .Split(' ', StringSplitOptions.RemoveEmptyEntries);
         if (!printed.Order(StringComparer.Ordinal).SequenceEqual(DocumentedSourceCommitExtensions.Order(StringComparer.Ordinal), StringComparer.Ordinal))
             throw new InvalidOperationException("FAIL staged-source: the tool's source-commit set is " +
                 $"[{string.Join(' ', printed)}], the documented set is [{string.Join(' ', DocumentedSourceCommitExtensions)}].");
-        Console.WriteLine("PASS staged-source: the tool's source-commit set equals the documented set");
+        Harness.Pass("staged-source: the tool's source-commit set equals the documented set");
         foreach (var extension in DocumentedSourceCommitExtensions)
             Check(root, new($"an untracked C# file beside a staged file named {extension} is refused",
                 [(extension, Placement.Staged), ("NewTests.cs", Placement.OnDisk)], ["NewTests.cs"]));
-        return DocumentedSourceCommitExtensions.Length + 1;
     }
 
     // Staged content with a skip marker is blocked by the skip rule whatever the extension's case, and when the path
     // was a symbolic link in the base commit and is now a regular file (a staged type change).
-    static int SkipScans(string root, string skippedTest)
+    static void SkipScans(string root, string skippedTest)
     {
         Harness.EmptyRepository(root);
         Place(root, "SKIPPED.CS", Placement.Staged, skippedTest);
@@ -301,63 +587,126 @@ static class StagedSourceHarness
         File.Delete(Path.Combine(root, "Linked.cs"));
         Place(root, "Linked.cs", Placement.Staged, skippedTest);
         RequireOutput(root, "a staged skip in a file that replaced a symbolic link is rejected", null, ["TEST-001"]);
-        // A gitlink at a scanned path has no content git can show: a refusal naming the path, not an exception.
+        StageNamedPath(root, skippedTest);
+        GitlinkRefusal(root);
+    }
+
+    // A staged path named like a stage of another path is read as itself, not as stage 0 of Foo.cs. Control, with no
+    // PASS line of its own: the same pair without the skip passes and both paths are scanned, so the block comes from
+    // the skip in 0:Foo.cs and not from a read that failed. The control also holds a committed file literally named
+    // :0:Foo.cs, which would make the read ambiguous without its closing "--", and runs with GIT_TRACE=1, so the trace
+    // line of a successful read shows that git's standard error reaches the output.
+    static void StageNamedPath(string root, string skippedTest)
+    {
+        const string label = "a staged skip in a file named 0:Foo.cs beside a clean Foo.cs is rejected";
+        Harness.EmptyRepository(root);
+        File.WriteAllText(Path.Combine(root, ":0:Foo.cs"), "// ordinary source");
+        // A leading colon is pathspec magic, so the literal name is staged as :(literal):0:Foo.cs.
+        CommitToHead(root, ":(literal):0:Foo.cs");
+        Place(root, "Foo.cs", Placement.Staged, "// ordinary source");
+        Place(root, "0:Foo.cs", Placement.Staged, "// ordinary source");
+        var clean = Harness.Execute(root, Harness.Shell, [Harness.Hook], requireSuccess: false,
+            new Dictionary<string, string> { ["GIT_TRACE"] = "1" });
+        if (clean.ExitCode != 0 || !clean.Output.Contains("Anvil snapshot 0.ts: 0:Foo.cs\n", StringComparison.Ordinal) ||
+            !clean.Output.Contains("Anvil snapshot 1.ts: Foo.cs\n", StringComparison.Ordinal) ||
+            !clean.Output.Contains("\"summary\"", StringComparison.Ordinal) ||
+            !clean.Output.Contains("trace: built-in: git show :0:Foo.cs --", StringComparison.Ordinal))
+            throw new InvalidOperationException($"FAIL staged-source: {label}: control: {clean.ExitCode}\n{clean.Output}");
+        Harness.EmptyRepository(root);
+        Place(root, "Foo.cs", Placement.Staged, "// ordinary source");
+        Place(root, "0:Foo.cs", Placement.Staged, skippedTest);
+        RequireOutput(root, label, null, ["TEST-001"]);
+    }
+
+    // A gitlink at a scanned path has no content git can show: one refusal line names the path and carries git's own
+    // error, taken from real git in the same repository. The error occurs once in the output, so the tool captured it
+    // rather than passing git's message through.
+    static void GitlinkRefusal(string root)
+    {
+        const string label = "a staged gitlink at a scanned path is a refusal naming the path and git's error";
+        const string refusal = "CheckStagedTests: the staged content of Module.cs could not be read";
         Harness.EmptyRepository(root);
         Harness.Execute(root, "git", ["update-index", "--add", "--cacheinfo", "160000,1234567890123456789012345678901234567890,Module.cs"]);
-        RequireOutput(root, "a staged gitlink at a scanned path is a refusal naming the path", null,
-            ["the staged content of Module.cs could not be read"], never: "Unhandled exception");
-        return 3;
+        var shown = Harness.Execute(root, "git", ["show", ":0:Module.cs", "--"], requireSuccess: false);
+        var gitLine = shown.Output.Split('\n').Select(line => line.Trim()).FirstOrDefault(line => line.Length > 0) ?? "";
+        var result = Harness.Execute(root, Harness.Shell, [Harness.Hook], requireSuccess: false);
+        var refusalLine = result.Output.Split('\n').FirstOrDefault(line => line.StartsWith(refusal, StringComparison.Ordinal)) ?? "";
+        if (shown.ExitCode == 0 || gitLine.Length == 0 || result.ExitCode == 0 ||
+            !refusalLine.Contains(gitLine, StringComparison.Ordinal) || Occurrences(result.Output, gitLine) != 1 ||
+            result.Output.Contains("Unhandled exception", StringComparison.Ordinal))
+            throw new InvalidOperationException($"FAIL staged-source: {label}: {result.ExitCode}\ngit show: {shown.Output}\n{result.Output}");
+        TracedGitlinkRefusal(root, label, refusal, gitLine);
+        Harness.Pass($"staged-source: {label}");
     }
+
+    // With GIT_TRACE=1 the failing read writes a trace line before git's error. The refusal is still one line, carrying
+    // both joined by "; ", and no other line holds either.
+    static void TracedGitlinkRefusal(string root, string label, string refusal, string gitLine)
+    {
+        const string carries = "so the commit is refused: ";
+        var result = Harness.Execute(root, Harness.Shell, [Harness.Hook], requireSuccess: false,
+            new Dictionary<string, string> { ["GIT_TRACE"] = "1" });
+        var lines = result.Output.Split('\n');
+        var refusals = lines.Where(line => line.StartsWith(refusal, StringComparison.Ordinal)).ToArray();
+        var start = refusals.Length == 1 ? refusals[0].IndexOf(carries, StringComparison.Ordinal) : -1;
+        string[] carried = start < 0 ? [] : refusals[0][(start + carries.Length)..].Split("; ");
+        if (result.ExitCode == 0 || carried.Length != 2 || carried[1] != gitLine ||
+            !carried[0].Contains("trace: built-in: git show :0:Module.cs --", StringComparison.Ordinal) ||
+            lines.Count(line => line.Contains(carried[0], StringComparison.Ordinal) ||
+                line.Contains(gitLine, StringComparison.Ordinal)) != 1)
+            throw new InvalidOperationException($"FAIL staged-source: {label}: with GIT_TRACE=1: {result.ExitCode}\n{result.Output}");
+    }
+
+    static int Occurrences(string text, string fragment) =>
+        (text.Length - text.Replace(fragment, "", StringComparison.Ordinal).Length) / fragment.Length;
 
     // Outside any repository, and with no git on the child's PATH, the tool refuses with the query and the error. Both
     // cases build their own conditions, so neither depends on where this harness or the toolchain is installed.
-    static int UnusableGit(string root)
+    static void UnusableGit(string root)
     {
         Harness.EmptyRepository(root);
         var outside = Directory.CreateTempSubdirectory("anvil-policy-outside-");
         var withoutGit = Directory.CreateTempSubdirectory("anvil-policy-no-git-");
-        var removed = new List<bool>();
+        // Both are attempted; a failed cleanup is reported and fails the run without replacing the case's own failure.
         try
         {
             RequireOutput(outside.FullName, "outside any repository the tool refuses, naming the query",
                 new Dictionary<string, string> { ["GIT_CEILING_DIRECTORIES"] = outside.Parent!.FullName },
-                ["a git query failed", "git rev-parse --show-toplevel", "not a git repository"], Path.Combine(root, Hook));
+                ["a git query failed", "git rev-parse --show-toplevel", "not a git repository"], Path.Combine(root, Harness.Hook));
             RequireOutput(root, "a git that cannot be started is a refusal, naming the query",
                 new Dictionary<string, string> { ["PATH"] = PathWithoutGit(withoutGit.FullName) },
                 ["a git query failed", "git rev-parse --show-toplevel", "git could not be started"]);
         }
-        finally
+        catch
         {
-            // Both are attempted; a failed cleanup is reported and fails the run without replacing the case's own failure.
-            removed.Add(Harness.Remove(outside));
-            removed.Add(Harness.Remove(withoutGit));
+            Harness.RemoveAll(outside, withoutGit);
+            throw;
         }
-        if (removed.Contains(false)) throw new InvalidOperationException("FAIL staged-source: a temporary directory of the unusable-git cases could not be removed.");
-        return 2;
+        if (!Harness.RemoveAll(outside, withoutGit))
+            throw new InvalidOperationException("FAIL staged-source: a temporary directory of the unusable-git cases could not be removed.");
     }
 
-    // A PATH for the child that finds dotnet and no git wherever they are installed: the given directory, holding
-    // only a link to the resolved dotnet executable, and /bin (for the shell) when /bin has no git. An inherited
-    // DOTNET_ROOT still reaches the child. If git were to start all the same, the case fails for want of the refusal text.
+    // The child's whole PATH: the given directory, holding only a link to the dotnet at the root of the runtime this
+    // harness runs on (<root>/shared/Microsoft.NETCore.App/<version>/). The hook runs under /bin/sh by its full path,
+    // so the child needs nothing else. If git were to start all the same, the case fails for want of the refusal text.
     static string PathWithoutGit(string directory)
     {
-        var found = (Environment.GetEnvironmentVariable("PATH") ?? "").Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
-            .Select(entry => Path.Combine(entry, "dotnet")).FirstOrDefault(File.Exists)
-            ?? throw new InvalidOperationException("FAIL staged-source: the no-git case cannot be built: dotnet is not on PATH.");
-        var resolved = Path.GetFullPath(File.ResolveLinkTarget(found, returnFinalTarget: true)?.FullName ?? found);
-        File.CreateSymbolicLink(Path.Combine(directory, "dotnet"), resolved);
-        return string.Join(Path.PathSeparator, File.Exists("/bin/git") ? [directory] : [directory, "/bin"]);
+        var runtime = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
+        var host = Path.Combine(Path.GetFullPath(Path.Combine(runtime, "..", "..", "..")), "dotnet");
+        if (!File.Exists(host))
+            throw new InvalidOperationException($"FAIL staged-source: the no-git case cannot be built: {host} does not exist.");
+        File.CreateSymbolicLink(Path.Combine(directory, "dotnet"), host);
+        return directory;
     }
 
-    // Runs the hook and requires a non-zero exit with every fragment in its output, and without the never text.
+    // Runs the hook and requires a non-zero exit with every fragment in its output.
     static void RequireOutput(string directory, string label, IReadOnlyDictionary<string, string>? environment, string[] fragments,
-        string hook = Hook, string? never = null)
+        string hook = Harness.Hook)
     {
-        var result = Harness.Execute(directory, "sh", [hook], requireSuccess: false, environment);
-        if (result.ExitCode == 0 || !fragments.All(fragment => result.Output.Contains(fragment, StringComparison.Ordinal)) ||
-            never is not null && result.Output.Contains(never, StringComparison.Ordinal))
+        var result = Harness.Execute(directory, Harness.Shell, [hook], requireSuccess: false, environment);
+        if (result.ExitCode == 0 || !fragments.All(fragment => result.Output.Contains(fragment, StringComparison.Ordinal)))
             throw new InvalidOperationException($"FAIL staged-source: {label}: {result.ExitCode}\n{result.Output}");
-        Console.WriteLine($"PASS staged-source: {label}");
+        Harness.Pass($"staged-source: {label}");
     }
 
     static void Place(string root, string path, Placement placement, string content)
