@@ -491,9 +491,13 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
     }
     private sealed record CustomDescriptor(Abstractions.Electrical.LocalSupplyNodeId Id) : Abstractions.Electrical.SupplyNodeDescriptor(Id);
-    private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages) =>
-        PackageValidator.Validate(new CuriousContraptions.Bundle.BundleServices(), packages.Select(package => new BundlePackage(package.Package, package.Declaration)).ToArray())
+    /// <summary>The bundle entry validator's errors for the entries the declarations build.</summary>
+    private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages)
+    {
+        var services = new CuriousContraptions.Bundle.BundleServices();
+        return services.Validate(packages.Select(package => new NamedEntry(package.Package, services.Entry(package.Declaration))).ToArray())
             .Select(error => error.ToString()).ToArray();
+    }
 
     // Story 9A.39: a Source declares its finite store by four of its own parameters, inside the electrical source envelope.
     private static readonly ParameterDescriptor[] StoreParameters =

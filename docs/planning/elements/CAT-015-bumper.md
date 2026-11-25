@@ -91,7 +91,7 @@ The element map lists SignalPropagation and JointConstraint for this part; no de
 | `Visual/Visual_Base` | cylinder r 0.3, h 0.12 at y −0.46, slate (`tscn:21-25`, `:54-56`) | decorative, enclosed: at its lowest face (y −0.52) the head's radius is 0.39 m against the base's 0.3 m | nothing |
 | `Visual/ImpactRing` | torus, inner 0.625, outer 0.695 at the equator, cream (`tscn:33-36`, `:62-64`) | decorative, moved by a binding (scale and colour) | presentation bindings |
 
-The table agrees with `VisibleSolidColliderTests.cs:113`. No open visible-solid finding.
+The table agrees with `VisibleSolidColliderTests.cs:131`. No open visible-solid finding.
 
 **Generic laws.**
 

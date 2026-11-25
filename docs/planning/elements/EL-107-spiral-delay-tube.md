@@ -35,7 +35,7 @@ One static body. The spiral is **four half-turn torus arcs**, not a helix: the e
 | `col_stub_start`, `col_stub_end` | Tube | inner 0.65, outer 0.70, length 0.09, from each end arc to its mouth |
 | `col_collar_start`, `col_collar_end` | Torus ring, the bend's `Mesh_Collar` (`elements/PipeBend90/pipe_bend_90.tscn:36`–`:39`) | inner radius 0.65, outer radius 0.78 |
 
-Scene encoding is the bend's: hidden `col_*` meshes with sweep and wall metadata (`elements/PipeBend90/pipe_bend_90.tscn:136`–`:142`, read by `tools/BundleElements/SceneGeometryExtractor.cs:215`), and two mouth locators `Loc_Port_mouth_start` / `Loc_Port_mouth_end` with `metadata/bore_radius = 0.65` (`pipe_bend_90.tscn:128`).
+Scene encoding is the bend's: hidden `col_*` meshes with sweep and wall metadata (`elements/PipeBend90/pipe_bend_90.tscn:136`–`:142`, read by `tools/BundleElements/SceneGeometryExtractor.cs:229`), and two mouth locators `Loc_Port_mouth_start` / `Loc_Port_mouth_end` with `metadata/bore_radius = 0.65` (`pipe_bend_90.tscn:128`).
 
 Resulting part: two full turns, 3.2 m total drop, 1.6 m between coils (wall-to-wall gap 0.20 m; the 0.78 m collars sit only at the mouths and clear the neighbouring coil by 0.12 m), footprint 4.6 × 4.6 m, centreline path 20.1 m. `Inlet` is at the top and `Outlet` 3.2 m directly below it; both are horizontal and face opposite ways, so each joins a level pipe.
 

@@ -40,10 +40,21 @@ public sealed class ReverseTransmissionArtTests(NativeSceneFixture godot)
             var output = reverse.GetNode<Node3D>("Visual/OutputWheel");
             var pulley = conveyor.GetNode<Node3D>("Visual/PulleyOut");
             var authored = new[] { input.Transform, output.Transform, pulley.Transform };
+            var wheel = conveyor.GetNode<Node3D>("Visual/PulleyOut/Wheel");
+            var spoke = conveyor.GetNode<Node3D>("Visual/PulleyOut/Spoke");
+            var (wheelCentre, wheelAxis, spokeAxis) = (wheel.GlobalPosition, wheel.GlobalBasis.Y.Normalized(), spoke.GlobalBasis.X.Normalized());
             await scene.World.RunWorkshop(); await h.Advance(45); Frame();
             Assert.False(input.Transform.IsEqualApprox(authored[0]));
             Assert.False(output.Transform.IsEqualApprox(authored[1]));
             Assert.False(pulley.Transform.IsEqualApprox(authored[2]));
+            // The output wheel's collider is static at its authored pose (coordinator decision 1, 25 November 2026), so the binding that
+            // turns it must keep the drawn wheel on that collider. A ball stops within 5 mm of a drawn face (the visible-solid drop
+            // bound); a drawn wheel whose centre, or whose 0.22 m rim through a tilted axis, wandered further would show the ball resting
+            // in its art or on empty air. The spoke shows the wheel did turn, by more than that tilt.
+            const float clearance = .005f, rim = .22f;
+            Assert.InRange(wheel.GlobalPosition.DistanceTo(wheelCentre), 0f, clearance);
+            Assert.InRange(wheel.GlobalBasis.Y.Normalized().DistanceTo(wheelAxis), 0f, clearance / rim);
+            Assert.True(spoke.GlobalBasis.X.Normalized().DistanceTo(spokeAxis) > clearance / rim, "the output wheel's spoke has not turned");
             var ids = construction.Instances.Identities[new(4)];
             foreach (var pair in new[] { (Node: input, Id: ids.Hinges[0].Body, Port: PortId.DriveIn), (Node: output, Id: ids.Hinges[1].Body, Port: PortId.Drive) })
             {

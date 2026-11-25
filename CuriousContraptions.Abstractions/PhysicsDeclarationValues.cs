@@ -7,7 +7,7 @@ namespace CuriousContraptions.Gpu;
 
 public enum RigidMotionKind : uint { Static, Dynamic }
 /// <summary>The closed collider set. A cylinder's axis is its local +Y; it is declared by radius and half-width (Story 10.1). Tube,
-/// Torus and Frustum are the true hollow kinds (engine-hollow-shapes), static only, their lanes named on
+/// Torus and Frustum are the true hollow kinds (engine-hollow-shapes), on static or dynamic bodies, their lanes named on
 /// <see cref="ColliderDeclaration"/>.</summary>
 public enum ColliderShapeKind : uint { Sphere, Box, Plane, Cylinder, Tube, Torus, Frustum }
 public enum SensorParticipation : uint { Disabled, Enabled }

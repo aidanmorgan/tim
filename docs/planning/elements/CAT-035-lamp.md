@@ -56,7 +56,7 @@ Authority: the owner's engine-conformance instruction of 22 November 2026, `AGEN
 
 **Why three colliders.** Visible = solid: the base, the stem and the bulb are each drawn proud and collide with their true shape (`elements-visible-solid`). None exists for a cosmetic purpose alone.
 
-**Art layers** (`lamp.tscn:44`–`55`; classification as `VisibleSolidColliderTests.cs:65`).
+**Art layers** (`lamp.tscn:44`–`55`; classification as `VisibleSolidColliderTests.cs:80`).
 
 | Art node | Mesh | Class | Collider | Moved by |
 | --- | --- | --- | --- | --- |

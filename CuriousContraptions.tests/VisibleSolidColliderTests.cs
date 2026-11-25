@@ -13,13 +13,17 @@ namespace CuriousContraptions.Tests;
 /// shape. Two kinds of proof:
 /// <list type="bullet">
 /// <item>Collider against art, one case per element package: the scene's art is read through Godot (independent of the bundle's
-/// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions, and every collider
-/// must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes) match their true Tube,
-/// Frustum and Torus colliders, and a bend's drawn chords its torus segment. Every art node is classified (<see cref="ArtSpec"/>).</item>
+/// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions on the body that
+/// owns it (the base, or the moving body whose root lies above it, each body's colliders matched only against its own art), and every
+/// collider must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes) match their true Tube,
+/// Frustum and Torus colliders on the body that carries them, and a bend's drawn chords its torus segment; art that a span binding
+/// draws between a moving body and the base matches that body's clipped extrusion collider at the authored pose. Every art node is
+/// classified (<see cref="ArtSpec"/>), and no collider proxy (a <c>col_</c> mesh) is drawn or targeted by a presentation binding.</item>
 /// <item>Ball drops and rolls on the production simulation (<see cref="WorkshopIntegrationHarness"/>), on the features named in
 /// <see cref="Feature"/>, a switch terminal, the delay housing's face, the ramp's rail and a Wall: each stops the ball at its drawn
-/// surface, and the drops return the product restitution of the documented materials. A ball that passes where the old switch box
-/// reached beyond the button touches nothing and fires nothing, and a fast ball goes over a rail, never through it.</item>
+/// surface, and the drops return the product restitution of the documented materials where it can be told from zero. A ball that
+/// passes where the old switch box reached beyond the button touches nothing and fires nothing, and a fast ball goes over a rail,
+/// never through it.</item>
 /// </list>
 /// </summary>
 [Collection<NativeSceneCollectionDefinition>]
@@ -39,26 +43,37 @@ public sealed class VisibleSolidColliderTests
     /// <summary>One element's art, every mesh classified (an entry ending "/*" names a node's whole subtree):
     /// <list type="bullet">
     /// <item><paramref name="Solid"/>: matched one to one with the colliders of the body that owns it;</item>
-    /// <item><paramref name="Hollow"/>: a round hollow part (engine-hollow-shapes) matched one to one with its true hollow collider: an
-    /// open <c>CylinderMesh</c> (both caps off) with the Tube (equal radii) or Frustum (tapered) whose outer radii, half-length, centre
-    /// and axis are the drawn ones and whose inner radii are the element's mouth bores; a <c>TorusMesh</c> with the full solid Torus of
-    /// its drawn centreline and tube;</item>
+    /// <item><paramref name="Hollow"/>: a round hollow part (engine-hollow-shapes) matched one to one with its true hollow collider, on
+    /// the body that owns it: an open <c>CylinderMesh</c> (both caps off) with the Tube (equal radii) or Frustum (tapered) whose outer
+    /// radii, half-length, centre and axis are the drawn ones and whose inner radii are the element's mouth bores, a tube's inner radius
+    /// also the bore its art node declares when that node states its wall (<see cref="Solid.Inner"/>); a <c>TorusMesh</c> with the full
+    /// solid Torus of its drawn centreline and tube;</item>
     /// <item><paramref name="Arc"/>: the straight open cylinders a bend's curved shell is drawn with (Godot has no torus-segment mesh),
     /// matched together with the one partial Torus collider they draw: each chord's radius is the torus's outer radius, its centre lies
     /// in the torus's plane within the chord's sagitta inside the centreline, its axis is tangent there, and the chords together span
     /// the sweep;</item>
     /// <item><paramref name="Decorative"/>: printing flat on a face, a glow, a part inside another solid, or a part a presentation
     /// binding moves, which a static collider cannot follow;</item>
+    /// <item><paramref name="MovingRoots"/>: the roots of the moving bodies, in the package's scene ownership order (the sliders' bodies,
+    /// then the hinges'); the art beneath each root is matched against that body's colliders only, and every other art against the
+    /// base's;</item>
+    /// <item><paramref name="Spanned"/>: art a presentation span binding draws between a moving body and the base (a pusher's rod),
+    /// matched with that body's clipped extrusion collider at the authored pose (<see cref="SpannedCollider"/>);</item>
     /// </list></summary>
     /// <remarks><paramref name="Fit"/> widens the dimension agreement for a stated drawing reason (m).</remarks>
     private sealed record ArtSpec(string[] Solid, string[]? Hollow, string[] Arc, string[] Decorative, string[] MovingRoots,
-        float Fit = 0f);
+        float Fit = 0f, string[]? Spanned = null);
 
     /// <summary>One drawn primitive in its body's frame. Extents: a box's half sizes, a sphere's radius, a cylinder's (r, h, r); an open
     /// cylinder's (top radius, half-height, bottom radius) as <see cref="ColliderShapeKind.Tube"/> or
     /// <see cref="ColliderShapeKind.Frustum"/>; a torus mesh's (centreline radius, tube radius, 0) as
-    /// <see cref="ColliderShapeKind.Torus"/>.</summary>
-    private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents, float MeshError);
+    /// <see cref="ColliderShapeKind.Torus"/>. <paramref name="Inner"/> is the bore an open cylinder of equal radii declares, (radius − wall)
+    /// × scale, when its own art node states its <c>wall_thickness</c>; otherwise null. The tube is drawn as one open surface (the
+    /// delivered convention of the pipe, the powered gate and the ball detector), so its bore is declared data, not drawn: matching it
+    /// with the proxy's bore is a consistency check of the two declarations, like the mouth rule, and the bore's behaviour is proven by
+    /// <c>WoundSpringContactTests.RealHeadContactLaunchesLoadsAndGuideRimStopsOversizeEntry</c>.</summary>
+    private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents, float MeshError,
+        float? Inner);
 
     private static readonly Dictionary<PartId, ArtSpec> Specs = new()
     {
@@ -84,11 +99,14 @@ public sealed class VisibleSolidColliderTests
         [new PartId("motor")] = new(["Visual/Visual_Base", "Visual/Visual_Body", "Visual/Visual_Housing", "Visual/Visual_Stud", "Visual/Lamp",
             "Visual/Rotor/Visual_Rotor"], null, [], ["Visual/Rotor/Visual_Index"], ["Visual/Rotor"]),
 
-        // CAT-019: the driven roller turns on its hinge; carrier box and idle roller are static.
+        // CAT-019: the driven roller turns on its hinge; carrier box and idle roller are static. Both pulley wheels are solid: the input
+        // rides the roller, and the output turns on a binding about its own axis, which a static cylinder follows exactly. Both spokes
+        // are printed flat on their wheels (the output one also turned by the binding).
         [new PartId("conveyor")] = new(
             ["Visual/Visual_Carrier", "Visual/Visual_RailA", "Visual/Visual_RailB", "Visual/Visual_IdleRoller",
-             "Visual/Visual_SupportA", "Visual/Visual_SupportB", "Visual/Roller/Visual_Roller"],
-            null, [], ["Visual/Roller/PulleyIn/*", "Visual/PulleyOut/*"], ["Visual/Roller"]),
+             "Visual/Visual_SupportA", "Visual/Visual_SupportB", "Visual/Roller/Visual_Roller", "Visual/Roller/PulleyIn/Wheel",
+             "Visual/PulleyOut/Wheel"],
+            null, [], ["Visual/Roller/PulleyIn/Spoke", "Visual/PulleyOut/Spoke"], ["Visual/Roller"]),
 
         // CAT-018: two dynamic cylinder shafts rotate on hinges; enclosed axle rod, plates and spokes are decorative.
         [new PartId("clutch")] = new(
@@ -179,6 +197,19 @@ public sealed class VisibleSolidColliderTests
         [new PartId("trampoline")] = new(["Visual/Visual_BackPlate", "Visual/Visual_SideLeft", "Visual/Visual_SideRight", "Visual/Visual_EndFront",
             "Visual/Visual_EndBack", .. Enumerable.Range(0, 4).Select(i => $"Visual/Visual_Post{i}"),
             .. Enumerable.Range(0, 4).Select(i => $"Visual/Visual_Foot{i}")], null, [], ["Visual/Visual_Bed"], []),
+
+        // Visible-solid remainder, part B. The head slides on its own body, carrying its sphere and the full torus of its ring; the rod is
+        // drawn by the head's span binding and is the head's clipped extrusion collider; the travel marks are printed on the barrel.
+        [new PartId("linear_pusher")] = new(["Visual/Foot", "Visual/Barrel", "Visual/Head/Sphere", "Visual/Indicator", "Visual/Socket_PowerIn",
+            "Visual/Socket_ExtendIn", "Visual/Socket_RetractIn", "Visual/Socket_RetractedOut", "Visual/Socket_ExtendedOut"], ["Visual/Head/Ring"], [],
+            [.. Enumerable.Range(0, 5).Select(i => $"Visual/TravelMark{i}")], ["Visual/Head"], Spanned: ["Visual/Rod"]),
+        // The plunger slides and the winding shaft turns, each on its own body; the sleeve is a tube whose art node declares its bore. The
+        // stroke marks, the charge index and the shaft's spoke are printed; the latch lever is turned by the retention binding, the coil
+        // drawn by compression.
+        [new PartId("wound_spring")] = new(["Visual/Base", "Visual/LeftRail", "Visual/RightRail", "Visual/Head/Sphere", "Visual/Shaft/Wheel",
+            "Visual/ActivationSocket"], ["Visual/Sleeve"], [],
+            ["Visual/Head/ChargeIndex", "Visual/Shaft/Spoke", .. Enumerable.Range(0, 5).Select(i => $"Visual/Mark{i}"), "Visual/Latch/Lever",
+             "Visual/Coil/*"], ["Visual/Head", "Visual/Shaft"]),
     };
 
     private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
@@ -210,25 +241,27 @@ public sealed class VisibleSolidColliderTests
         foreach (var parameters in ParameterSets(entry))
         {
             var art = Art(entry, spec.MovingRoots, parameters);
-            string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative];
-            Assert.All(art.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
-            Assert.All(entries, e => Assert.True(art.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
+            string[] entries = [.. spec.Solid, .. spec.Hollow ?? [], .. spec.Arc, .. spec.Decorative, .. spec.Spanned ?? []];
+            Assert.All(art.Meshes.Keys, path => Assert.True(entries.Count(e => Names(e, path)) == 1, $"{element}: art '{path}' is not classified once"));
+            Assert.All(entries, e => Assert.True(art.Meshes.Keys.Any(path => Names(e, path)), $"{element}: '{e}' names no art"));
 
             var colliders = BundleGeometry.Colliders(entry, parameters).ToList();
-            var moving = entry.Mechanical is { } mechanical
-                ? mechanical.Sliders.SelectMany(s => s.MovingBody.Colliders).Concat(mechanical.Hinges.SelectMany(h => h.MovingBody.Colliders)).ToList()
-                : [];
+            var moving = MovingPools(element, entry, spec);
+            var extrusions = new HashSet<ClippedExtrusionDescriptor>();
+            // H3 runs first: it takes each extrusion collider out of its body's pool by its declared index, before another match shifts it.
+            foreach (var path in spec.Spanned ?? []) SpannedCollider(element, entry, spec, art, path, moving, extrusions);
             var bores = entry.TubeMouths.Select(m => m.BoreRadius).Distinct().ToArray();
             var unmatched = new List<string>();
-            foreach (var path in art.Keys.Where(path => (spec.Hollow ?? []).Any(e => Names(e, path))))
+            foreach (var path in art.Meshes.Keys.Where(path => (spec.Hollow ?? []).Any(e => Names(e, path))))
             {
-                var hollow = art[path] ?? throw new InvalidOperationException($"{element}: hollow art '{path}' is not an open cylinder or a torus.");
+                var hollow = art.Meshes[path] ?? throw new InvalidOperationException($"{element}: hollow art '{path}' is not an open cylinder or a torus.");
                 Assert.InRange(hollow.MeshError, 0f, .005f);
-                var match = colliders.FindIndex(collider => MatchesHollow(hollow, collider, bores, Tol + spec.Fit));
+                var pool = Pool(spec, path, colliders, moving);
+                var match = pool.FindIndex(collider => MatchesHollow(hollow, collider, bores, Tol + spec.Fit));
                 if (match < 0) unmatched.Add($"'{path}' ({hollow.Kind}, centre {hollow.Centre}, extents {hollow.Extents})");
-                else colliders.RemoveAt(match);
+                else pool.RemoveAt(match);
             }
-            var chords = art.Keys.Where(path => spec.Arc.Any(e => Names(e, path))).Select(path => art[path]!).ToArray();
+            var chords = art.Meshes.Keys.Where(path => spec.Arc.Any(e => Names(e, path))).Select(path => art.Meshes[path]!).ToArray();
             if (chords.Length != 0)
             {
                 var arc = colliders.FindIndex(collider => collider.ShapeKind == ColliderShapeKind.Torus && collider.HalfExtents.Z != ColliderDeclaration.FullSweep);
@@ -238,99 +271,186 @@ public sealed class VisibleSolidColliderTests
             }
             foreach (var path in spec.Solid)
             {
-                var solid = art[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
-                var onMoving = spec.MovingRoots.Any(root => path.StartsWith(root + "/", StringComparison.Ordinal));
-                var pool = onMoving ? moving : colliders;
+                var solid = art.Meshes[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
+                var pool = Pool(spec, path, colliders, moving);
                 var match = pool.FindIndex(collider => Matches(solid, collider, Tol + spec.Fit));
                 if (match < 0) unmatched.Add($"'{path}' ({solid.Kind}, centre {solid.Centre}, half {solid.Extents})");
                 else pool.RemoveAt(match);
             }
+            var left = colliders.Concat(moving.SelectMany(body => body)).ToList();
             Assert.True(unmatched.Count == 0, $"{element} at {Describe(parameters)}: solid art without a matching collider: " +
                 string.Join("; ", unmatched) + "; colliders left: " +
-                string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
-            Assert.True(colliders.Count == 0 && moving.Count == 0, $"{element} at {Describe(parameters)}: collider(s) reach beyond the art: " +
-                string.Join("; ", colliders.Concat(moving).Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
+                string.Join("; ", left.Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
+            Assert.True(left.Count == 0, $"{element} at {Describe(parameters)}: collider(s) reach beyond the art: " +
+                string.Join("; ", left.Select(c => $"{c.ShapeKind} at {c.Offset} half {c.HalfExtents}")));
         }
     }
 
     private static string Describe(IReadOnlyDictionary<string, float> parameters) =>
         parameters.Count == 0 ? "no parameters" : string.Join(", ", parameters.Select(p => $"{p.Key} {p.Value}"));
 
-    /// <summary>Every mesh of the element's scene in the frame of the body that owns it, with the declared presentation parameter
-    /// scales and offsets applied to their nodes (for example the Ramp's Visual node scales X by length / 3 and Z by width / 1.3). A
-    /// mesh that is not a box, a full sphere or a straight cylinder has no primitive shape (null).</summary>
-    private static Dictionary<string, Solid?> Art(BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
+    /// <summary>One collider pool per moving body, in the package's scene ownership order (the sliders' bodies, then the hinges'). The
+    /// spec's moving roots must be those bodies' roots in that order, so the pool at index i belongs to the body whose root is
+    /// <c>MovingRoots[i]</c>, and a reordered or missing root fails here instead of matching art against another body.</summary>
+    private static List<ColliderDescriptor>[] MovingPools(PartId element, BundleEntry entry, ArtSpec spec)
+    {
+        var declaration = TestBundle.Packages.Single(package => package.Declaration.Metadata.Id == element.Value).Declaration;
+        Assert.Equal(Assert.IsAssignableFrom<ISceneGeometryElement>(declaration).SceneBodies.Skip(1).Select(body => body.Root), spec.MovingRoots);
+        return entry.Mechanical is { } mechanical
+            ? [.. mechanical.Sliders.Select(s => s.MovingBody.Colliders.ToList()), .. mechanical.Hinges.Select(h => h.MovingBody.Colliders.ToList())]
+            : [];
+    }
+
+    /// <summary>The pool of the body that owns an art path: the moving body whose root lies above it (scene body roots do not nest),
+    /// or the base.</summary>
+    private static List<ColliderDescriptor> Pool(ArtSpec spec, string path, List<ColliderDescriptor> colliders, List<ColliderDescriptor>[] moving)
+    {
+        var body = Array.FindIndex(spec.MovingRoots, root => path.StartsWith(root + "/", StringComparison.Ordinal));
+        return body < 0 ? colliders : moving[body];
+    }
+
+    /// <summary>H3. Art that a presentation span binding draws between a moving body and the base (the Linear pusher's rod) is that
+    /// body's clipped extrusion collider: exactly one declared span draws the path; the entry has exactly one clipped extrusion, which no
+    /// other spanned path has used, whose material body b is the body whose root is the span's moving node (the spec's moving roots are
+    /// the scene ownership's moving bodies in order, <see cref="MovingPools"/>); that body's collider at the extrusion's index, posed by
+    /// the moving root's scene transform, matches the drawn mesh, and is taken out of that body's pool. Only the authored pose is
+    /// checked; extension is <c>ClippedExtrusionTests</c>' subject.</summary>
+    private static void SpannedCollider(PartId element, BundleEntry entry, ArtSpec spec, ArtScene art, string path,
+        List<ColliderDescriptor>[] moving, HashSet<ClippedExtrusionDescriptor> used)
+    {
+        var drawn = art.Meshes[path] ?? throw new InvalidOperationException($"{element}: spanned art '{path}' is not a box, full sphere or straight cylinder.");
+        var span = Assert.Single(entry.Presentation.Spans, s => s.SpanNode == path);
+        var mechanical = entry.Mechanical ?? throw new InvalidOperationException($"{element}: spanned art '{path}' has no moving body.");
+        var extrusion = Assert.Single(mechanical.Extrusions);
+        // Each extrusion's collider is taken out at most once, so a second spanned path cannot remove a shifted index.
+        Assert.True(used.Add(extrusion), $"{element}: spanned art '{path}' reuses a clipped extrusion another spanned path matched");
+        var body = extrusion.MaterialBody.Value;
+        Assert.InRange(body, 1, spec.MovingRoots.Length);
+        Assert.Equal(span.MovingNode, spec.MovingRoots[body - 1]);
+        var pool = moving[body - 1];
+        var collider = pool[extrusion.Collider.Value];
+        var pose = art.Roots[span.MovingNode];
+        var centre = pose * new Godot.Vector3(collider.Offset.X, collider.Offset.Y, collider.Offset.Z);
+        var turn = pose.Basis.GetRotationQuaternion();
+        var posed = collider with
+        {
+            Offset = new(centre.X, centre.Y, centre.Z),
+            Rotation = new NumQuaternion(turn.X, turn.Y, turn.Z, turn.W) * collider.Rotation
+        };
+        Assert.True(Matches(drawn, posed, Tol + spec.Fit), $"{element}: the clipped extrusion collider ({posed.ShapeKind} at {posed.Offset} " +
+            $"half {posed.HalfExtents}) is not the drawn '{path}' ({drawn.Kind} at {drawn.Centre} half {drawn.Extents})");
+        pool.RemoveAt(extrusion.Collider.Value);
+    }
+
+    /// <summary>The drawn scene <see cref="Art"/> reads: each mesh's primitive by path, and each moving root's pose in the base
+    /// frame.</summary>
+    private sealed record ArtScene(Dictionary<string, Solid?> Meshes, Dictionary<string, Transform3D> Roots);
+
+    /// <summary>Every mesh of the element's scene in the frame of the body that owns it, and each moving root's own pose in the base
+    /// frame, with the declared presentation parameter scales and offsets applied to their nodes (for example the Ramp's Visual node
+    /// scales X by length / 3 and Z by width / 1.3). A mesh that is not a box, a full sphere, a straight cylinder, an open cylinder or a
+    /// torus has no primitive shape (null). A collider proxy (a <c>col_</c> mesh: engine-hollow-shapes' hollow proxies are mesh
+    /// instances) is no art, and it must not be drawn: the scene contract's proxy is a separate node that is not rendered, so its own
+    /// node is hidden and no presentation binding targets it.</summary>
+    private static ArtScene Art(BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
     {
         var root = WorkshopResources.LoadScene(entry.Metadata.ScenePath).Instantiate<Node3D>();
         try
         {
-            var result = new Dictionary<string, Solid?>(StringComparer.Ordinal);
-            // A collider proxy (a col_ node: engine-hollow-shapes' hollow proxies are hidden mesh instances) is no art.
-            foreach (var mesh in Descendants(root).OfType<MeshInstance3D>().Where(mesh => !mesh.Name.ToString().StartsWith("col_", StringComparison.OrdinalIgnoreCase)))
+            var meshes = new Dictionary<string, Solid?>(StringComparer.Ordinal);
+            foreach (var mesh in Descendants(root).OfType<MeshInstance3D>())
             {
                 var path = root.GetPathTo(mesh).ToString();
-                var transform = Transform3D.Identity;
-                for (Node node = mesh; node != root; node = node.GetParent())
+                if (mesh.Name.ToString().StartsWith("col_", StringComparison.OrdinalIgnoreCase))
                 {
-                    var nodePath = root.GetPathTo(node).ToString();
-                    if (movingRoots.Contains(nodePath, StringComparer.Ordinal)) break;
-                    var local = ((Node3D)node).Transform;
-                    var (scale, origin) = (new Godot.Vector3(1, 1, 1), local.Origin);
-                    foreach (var binding in entry.Presentation.Parameters.Where(b => b.Node == nodePath))
-                    {
-                        var value = binding.Multiplier * parameters[binding.Parameter] + binding.Offset;
-                        (scale, origin) = binding.Property switch
-                        {
-                            PresentationProperty.UniformScale => (new Godot.Vector3(value, value, value), origin),
-                            PresentationProperty.ScaleX => (scale with { X = value }, origin),
-                            PresentationProperty.ScaleY => (scale with { Y = value }, origin),
-                            PresentationProperty.ScaleZ => (scale with { Z = value }, origin),
-                            PresentationProperty.LocalX => (scale, origin with { X = value }),
-                            PresentationProperty.LocalY => (scale, origin with { Y = value }),
-                            PresentationProperty.LocalZ => (scale, origin with { Z = value }),
-                            _ => throw new InvalidOperationException($"Unexpected presentation parameter {binding.Property} on {nodePath}.")
-                        };
-                    }
-                    local = new Transform3D(local.Basis * Basis.FromScale(scale), origin);
-                    transform = local * transform;
+                    Assert.False(mesh.Visible, $"{entry.Metadata.Id}: the collider proxy '{path}' is drawn");
+                    continue;
                 }
-                var s = transform.Basis.Scale;
-                var q = transform.Basis.GetRotationQuaternion();
-                (ColliderShapeKind Kind, NumVector3 Extents)? shape = mesh.Mesh switch
-                {
-                    BoxMesh box => (ColliderShapeKind.Box, new NumVector3(box.Size.X * s.X, box.Size.Y * s.Y, box.Size.Z * s.Z) * .5f),
-                    SphereMesh sphere when sphere.Height == 2 * sphere.Radius && s.X == s.Y && s.Y == s.Z =>
-                        (ColliderShapeKind.Sphere, new NumVector3(sphere.Radius * s.X)),
-                    // engine-hollow-shapes: an open cylinder (both caps off) is a tube or frustum wall; a torus mesh a full torus.
-                    CylinderMesh open when !open.CapTop && !open.CapBottom =>
-                        (open.TopRadius == open.BottomRadius ? ColliderShapeKind.Tube : ColliderShapeKind.Frustum,
-                            new NumVector3(open.TopRadius * s.X, open.Height * .5f * s.Y, open.BottomRadius * s.X)),
-                    TorusMesh torus when MathF.Abs(s.X - s.Y) <= Tol && MathF.Abs(s.Y - s.Z) <= Tol =>
-                        (ColliderShapeKind.Torus, new NumVector3((torus.InnerRadius + torus.OuterRadius) * .5f * s.X,
-                            (torus.OuterRadius - torus.InnerRadius) * .5f * s.X, 0f)),
-                    CylinderMesh cylinder when cylinder.TopRadius == cylinder.BottomRadius =>
-                        (ColliderShapeKind.Cylinder, new NumVector3(cylinder.TopRadius * s.X, cylinder.Height * .5f * s.Y, cylinder.TopRadius * s.Z)),
-                    _ => null
-                };
-                // Errors from both circular tessellation directions add: using their
-                // maximum alone misses points between both sets of mesh vertices.
-                var meshError = mesh.Mesh switch
-                {
-                    CylinderMesh cylinder => MathF.Max(cylinder.TopRadius, cylinder.BottomRadius) * s.X *
-                        (1f - MathF.Cos(MathF.PI / cylinder.RadialSegments)),
-                    TorusMesh torus => s.X * (torus.OuterRadius * (1f - MathF.Cos(MathF.PI / torus.Rings)) +
-                        (torus.OuterRadius - torus.InnerRadius) * .5f * (1f - MathF.Cos(MathF.PI / torus.RingSegments))),
-                    _ => 0f
-                };
-                result.Add(path, shape is { } primitive ? new(path, primitive.Kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z),
-                    new(q.X, q.Y, q.Z, q.W), primitive.Extents, meshError) : null);
+                meshes.Add(path, Primitive(path, mesh, BodyPose(root, mesh, entry, movingRoots, parameters)));
             }
-            return result;
+            // Nor may a presentation binding target a proxy: a Visible binding would draw it at Run whatever its own scene flag says.
+            var presentation = entry.Presentation;
+            string[] bound = [.. presentation.Bindings.Select(b => b.Node), .. presentation.Bodies.Select(b => b.Node),
+                .. presentation.Spans.SelectMany(s => new[] { s.SpanNode, s.MovingNode }), .. presentation.Parameters.Select(b => b.Node)];
+            Assert.DoesNotContain(bound, node => node.Split('/')[^1].StartsWith("col_", StringComparison.OrdinalIgnoreCase));
+            return new(meshes, movingRoots.ToDictionary(path => path, path => BodyPose(root, root.GetNode(path), entry, movingRoots, parameters),
+                StringComparer.Ordinal));
         }
         finally
         {
             root.Free();
         }
+    }
+
+    /// <summary>A node's pose in the frame of the body that owns it: its transform and its ancestors', up to the scene root or to the
+    /// moving root above it (so a moving root's own pose is in the base frame), each with its declared presentation parameter bindings
+    /// applied.</summary>
+    private static Transform3D BodyPose(Node3D root, Node start, BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
+    {
+        var transform = Transform3D.Identity;
+        for (var node = start; node != root; node = node.GetParent())
+        {
+            var nodePath = root.GetPathTo(node).ToString();
+            if (node != start && movingRoots.Contains(nodePath, StringComparer.Ordinal)) break;
+            var local = ((Node3D)node).Transform;
+            var (scale, origin) = (new Godot.Vector3(1, 1, 1), local.Origin);
+            foreach (var binding in entry.Presentation.Parameters.Where(b => b.Node == nodePath))
+            {
+                var value = binding.Multiplier * parameters[binding.Parameter] + binding.Offset;
+                (scale, origin) = binding.Property switch
+                {
+                    PresentationProperty.UniformScale => (new Godot.Vector3(value, value, value), origin),
+                    PresentationProperty.ScaleX => (scale with { X = value }, origin),
+                    PresentationProperty.ScaleY => (scale with { Y = value }, origin),
+                    PresentationProperty.ScaleZ => (scale with { Z = value }, origin),
+                    PresentationProperty.LocalX => (scale, origin with { X = value }),
+                    PresentationProperty.LocalY => (scale, origin with { Y = value }),
+                    PresentationProperty.LocalZ => (scale, origin with { Z = value }),
+                    _ => throw new InvalidOperationException($"Unexpected presentation parameter {binding.Property} on {nodePath}.")
+                };
+            }
+            local = new Transform3D(local.Basis * Basis.FromScale(scale), origin);
+            transform = local * transform;
+        }
+        return transform;
+    }
+
+    /// <summary>A mesh's primitive (<see cref="Solid"/>) at its pose in its body's frame, or null when it has none.</summary>
+    private static Solid? Primitive(string path, MeshInstance3D mesh, Transform3D transform)
+    {
+        var s = transform.Basis.Scale;
+        var q = transform.Basis.GetRotationQuaternion();
+        (ColliderShapeKind Kind, NumVector3 Extents)? shape = mesh.Mesh switch
+        {
+            BoxMesh box => (ColliderShapeKind.Box, new NumVector3(box.Size.X * s.X, box.Size.Y * s.Y, box.Size.Z * s.Z) * .5f),
+            SphereMesh sphere when sphere.Height == 2 * sphere.Radius && s.X == s.Y && s.Y == s.Z =>
+                (ColliderShapeKind.Sphere, new NumVector3(sphere.Radius * s.X)),
+            // engine-hollow-shapes: an open cylinder (both caps off) is a tube or frustum wall; a torus mesh a full torus.
+            CylinderMesh open when !open.CapTop && !open.CapBottom =>
+                (open.TopRadius == open.BottomRadius ? ColliderShapeKind.Tube : ColliderShapeKind.Frustum,
+                    new NumVector3(open.TopRadius * s.X, open.Height * .5f * s.Y, open.BottomRadius * s.X)),
+            TorusMesh torus when MathF.Abs(s.X - s.Y) <= Tol && MathF.Abs(s.Y - s.Z) <= Tol =>
+                (ColliderShapeKind.Torus, new NumVector3((torus.InnerRadius + torus.OuterRadius) * .5f * s.X,
+                    (torus.OuterRadius - torus.InnerRadius) * .5f * s.X, 0f)),
+            CylinderMesh cylinder when cylinder.TopRadius == cylinder.BottomRadius =>
+                (ColliderShapeKind.Cylinder, new NumVector3(cylinder.TopRadius * s.X, cylinder.Height * .5f * s.Y, cylinder.TopRadius * s.Z)),
+            _ => null
+        };
+        // Errors from both circular tessellation directions add: using their
+        // maximum alone misses points between both sets of mesh vertices.
+        var meshError = mesh.Mesh switch
+        {
+            CylinderMesh cylinder => MathF.Max(cylinder.TopRadius, cylinder.BottomRadius) * s.X *
+                (1f - MathF.Cos(MathF.PI / cylinder.RadialSegments)),
+            TorusMesh torus => s.X * (torus.OuterRadius * (1f - MathF.Cos(MathF.PI / torus.Rings)) +
+                (torus.OuterRadius - torus.InnerRadius) * .5f * (1f - MathF.Cos(MathF.PI / torus.RingSegments))),
+            _ => 0f
+        };
+        // H2: an open cylinder of equal radii whose own art node states its wall declares its bore (the tube is drawn as one surface).
+        float? inner = mesh.Mesh is CylinderMesh { CapTop: false, CapBottom: false } tube && tube.TopRadius == tube.BottomRadius &&
+            mesh.HasMeta("wall_thickness") ? (tube.TopRadius - mesh.GetMeta("wall_thickness").AsSingle()) * s.X : null;
+        return shape is { } primitive ? new(path, primitive.Kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z),
+            new(q.X, q.Y, q.Z, q.W), primitive.Extents, meshError, inner) : null;
     }
 
     private static IEnumerable<Node> Descendants(Node node)
@@ -364,7 +484,8 @@ public sealed class VisibleSolidColliderTests
 
     /// <summary>A drawn hollow part's true collider (engine-hollow-shapes): the same kind, centre and axis; for an open cylinder its
     /// drawn outer radii and half-length (a frustum turned the drawn way: its −Y end the drawn bottom) with inner radii that are the
-    /// element's mouth bores; for a torus mesh its drawn centreline and tube, solid, over the full turn.</summary>
+    /// element's mouth bores, and a tube's inner radius also the bore its art node declares when that node states its wall (a tube with
+    /// neither has no bore to match); for a torus mesh its drawn centreline and tube, solid, over the full turn.</summary>
     private static bool MatchesHollow(Solid art, ColliderDescriptor collider, float[] bores, float tolerance)
     {
         if (collider.ShapeKind != art.Kind || !Near(collider.Offset, art.Centre, tolerance)) return false;
@@ -376,7 +497,8 @@ public sealed class VisibleSolidColliderTests
         var h = collider.HalfExtents;
         return art.Kind switch
         {
-            ColliderShapeKind.Tube => Same(collider.Radius, art.Extents.X) && Same(h.Y, art.Extents.Y) && Bore(h.X) && h.Z == 0f,
+            ColliderShapeKind.Tube => Same(collider.Radius, art.Extents.X) && Same(h.Y, art.Extents.Y) && h.Z == 0f &&
+                (art.Inner is { } inner ? Same(h.X, inner) : bores.Length != 0) && (bores.Length == 0 || Bore(h.X)),
             ColliderShapeKind.Frustum => NumVector3.Dot(axis, drawn) > 0f && Same(collider.Radius, art.Extents.Z) && Same(h.Z, art.Extents.X) &&
                 Same(h.Y, art.Extents.Y) && Bore(collider.Radius - h.X) && Bore(h.Z - h.X),
             ColliderShapeKind.Torus => Same(collider.Radius, art.Extents.X) && Same(h.Y, art.Extents.Y) && h.X == 0f &&
@@ -465,7 +587,8 @@ public sealed class VisibleSolidColliderTests
     {
         LampBulb, SwitchButton, DelayHousing, DelayFace, RampSlab, BatteryTerminal, DetectorCollar, GateHousing, LogicFace, LogicLamp,
         CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace, PipeShell, PipeCollar,
-        GateCollar, Bend45Collar, Bend90Collar, FunnelCollar, AnchorEye, PulleyPost, PulleyRim, FanRing
+        GateCollar, Bend45Collar, Bend90Collar, FunnelCollar, AnchorEye, PulleyPost, PulleyRim, FanRing, ConveyorOutputPulley,
+        ConveyorInputPulley, PusherSocket
     }
 
     /// <summary>On its back: −90° about X, the face up; a part-local point (x, y, z) is then at (x, z, −y) from the origin.</summary>
@@ -544,6 +667,18 @@ public sealed class VisibleSolidColliderTests
         // CAT-028: the upright Fan: the top of the ring's tube (centreline radius 0.56, tube 0.07) at the origin's x and z; the
         // hub's top is 0.49 m lower. The ball is outside the Fan's stream: its cone has no radius at the source plane.
         Feature.FanRing => (new PartId("fan"), NumQuaternion.Identity, .56 + .07, 0, 0, 1),
+        // CAT-019: the Conveyor on its back, onto the outer face of its output pulley wheel (r 0.22, faces at local z 0.78 ± 0.05,
+        // centre (1.35, −0.07)) on the static body. Resting there (centre 1.17) the ball is 0.53 above the rail's top (z 0.64) and the
+        // roller's end (0.65), so the face is its only contact; without the wheel's collider it would stop on the idle roller's end,
+        // 0.18 m lower. Restitution 0.05 (CAT-019).
+        Feature.ConveyorOutputPulley => (new PartId("conveyor"), Back, .78 + .05, 1.35f, .07f, .05),
+        // CAT-019: the same on the input pulley, which rides the roller's hinged body: the ball loads it along the hinge axis.
+        Feature.ConveyorInputPulley => (new PartId("conveyor"), Back, .78 + .05, -1.35f, .07f, .05),
+        // CAT-039: the upright Linear pusher, onto its RetractedOut socket (r 0.07 at (−0.45, 0.4, 0.45)). Resting there (centre 0.81)
+        // the ball is √(0.125² + 0.485²) = 0.50 from the barrel's top front edge (y 0.325, z 0.325) and 0.62 from the indicator
+        // (r 0.065 at (−0.4, 0.2, 0.34)), beyond its 0.34 radius; without the socket's collider it would stop on that edge, at
+        // 0.325 + √(0.34² − 0.125²), 0.169 m lower. Restitution 0 (CAT-039).
+        Feature.PusherSocket => (new PartId("linear_pusher"), NumQuaternion.Identity, .4 + .07, -.45f, .45f, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
@@ -598,6 +733,47 @@ public sealed class VisibleSolidColliderTests
             OnSphereApex(part, rotation, x, z, top) || feature is Feature.PipeCollar or Feature.Bend45Collar or Feature.Bend90Collar or Feature.FunnelCollar
                 or Feature.AnchorEye or Feature.PulleyRim or Feature.FanRing, feature == Feature.PlateSocket ? PlateFall : .5);
     }
+
+    /// <summary>The Basketball dropped 0.5 m onto a newly solid feature of a part whose static restitution is 0.05 (Conveyor) or 0
+    /// (Linear pusher). The product with the ball's 0.55 is at most 0.0275. At the 3.13 m/s arrival and T = 1/120 s the rebound bracket's
+    /// slack g·T·(1 + e)/v_in is 0.0268, so its low bound for e = 0.0275 is near zero (about 0.0006) and the bracket cannot tell 0.0275
+    /// from zero; only the stop is asserted: the first landed read (landing detected as
+    /// <see cref="AssertDropOnto"/> detects it) lies in [rest − the envelope's temporary penetration (17 mm), rest + 5 mm], the drop
+    /// theory's two bounds. After the stop the ball rises at most e·v_in·T = 0.7 mm in a commit, so that read is the stop, on a flat
+    /// face or a sphere's apex alike. Without each collider the ball would first stop at least 0.169 m lower (see <see cref="Drop"/>).</summary>
+    [Theory]
+    [InlineData(Feature.ConveyorOutputPulley)]
+    [InlineData(Feature.ConveyorInputPulley)]
+    [InlineData(Feature.PusherSocket)]
+    public async Task ABallDroppedOntoEachLowRestitutionFeatureStopsAtItsDrawnSurface(Feature feature)
+    {
+        var (part, rotation, top, x, z, _) = Drop(feature);
+        await AssertStopOnto(Place(part, Element, new(0, (float)Y, 0), rotation), x, z, top, feature.ToString());
+    }
+
+    private static async Task AssertStopOnto(IWorkshopInstance element, float x, float z, double top, string feature)
+    {
+        var rest = Y + top + BallRadius;
+        await using var ring = await WorkshopIntegrationHarness.Running(Bench([element, BallAt(new(x, (float)(rest + .5), z))]));
+        await ring.Advance(180);
+        double vIn = 0;
+        foreach (var read in ring.Reads)
+        {
+            var (y, vy) = (Position(read).Y, Velocity(read).Y);
+            if (Landed(vIn, y - rest, vy))
+            {
+                Assert.True(y >= rest - Penetration && y <= rest + .005,
+                    $"the ball first stopped at {y:F4} m, not on the {feature}'s drawn surface at {rest:F4} m");
+                return;
+            }
+            if (vy < 0) vIn = -vy;
+        }
+        Assert.Fail($"the ball never landed on the {feature}");
+    }
+
+    /// <summary>Whether a commit is the ball's landing: after falling faster than 1 m/s it is within 5 cm of its rest height and has
+    /// lost more than half its arrival speed.</summary>
+    private static bool Landed(double vIn, double height, double vy) => vIn > 1 && height < .05 && vy > -.5 * vIn;
 
     // At the rim the cap is 5 cm proud of the sphere; at x=.3 the rim's first contact
     // is .65+sqrt(.34²-.05²). A 5 mm visual clearance allowance is one tenth of that
@@ -714,7 +890,7 @@ public sealed class VisibleSolidColliderTests
                 var mesh = root.GetNode<MeshInstance3D>("Visual/Beam/" + name);
                 Assert.IsType<QuadMesh>(mesh.Mesh);
                 var vertices = VerticesInRoot(root, mesh);
-                AssertFacesUp(vertices, name);
+                AssertFaces(vertices, Godot.Vector3.Up, name);
                 // The height above the face is the print stand-off, 0.5 mm as in FaceMarkingTests; it also keeps the quad flat to it.
                 Assert.All(vertices, v => Assert.InRange(v.Y - top, 0f, standoff));
                 // The lateral bound is sized to the mark, not to the stand-off: 5 mm against a 35 mm wide, 0.3 m long mark excludes a
@@ -738,9 +914,9 @@ public sealed class VisibleSolidColliderTests
         return mesh.Mesh!.GetFaces().Select(v => transform * v).ToArray();
     }
 
-    /// <summary>Every triangle faces world up and the surface has a readable area (FaceMarkingTests' 1 cm²). Godot's front faces wind
-    /// clockwise, so the cross product of a front face points against its facing.</summary>
-    internal static void AssertFacesUp(Godot.Vector3[] triangles, string name)
+    /// <summary>Every triangle faces <paramref name="facing"/> and the surface has a readable area (FaceMarkingTests' 1 cm²). Godot's
+    /// front faces wind clockwise, so the cross product of a front face points against its facing.</summary>
+    internal static void AssertFaces(Godot.Vector3[] triangles, Godot.Vector3 facing, string name)
     {
         Assert.NotEmpty(triangles);
         var area = 0f;
@@ -748,9 +924,38 @@ public sealed class VisibleSolidColliderTests
         {
             var cross = (triangles[i + 1] - triangles[i]).Cross(triangles[i + 2] - triangles[i]);
             area += cross.Length() / 2;
-            Assert.True(cross.Normalized().Dot(Godot.Vector3.Up) < -.99f, name + " does not face up");
+            Assert.True(cross.Normalized().Dot(facing) < -.99f, $"{name} does not face {facing}");
         }
         Assert.True(area > .0001f, name + " has no readable surface area");
+    }
+
+    /// <summary>A marking printed flat on a face whose outward normal is the scene root's +Z, the face plane at <paramref name="face"/>
+    /// (read by the caller from the face's own mesh): a <c>QuadMesh</c> of the authored size, every triangle facing +Z with a readable
+    /// area, lying between 0 and 0.5 mm in front of the face (the bound FaceMarkingTests uses for print; the thinnest raised box these
+    /// replace, 12 mm deep, fails it), drawn in the colour the scene authors for it (<paramref name="albedo"/>, its drawn material's).
+    /// Returns its vertices in the scene root's frame.</summary>
+    internal static Godot.Vector3[] AssertPrintedFlat(Node3D root, MeshInstance3D mesh, float face, Godot.Vector2 size, Godot.Color albedo)
+    {
+        var name = mesh.Name.ToString();
+        Assert.Equal(size, Assert.IsType<QuadMesh>(mesh.Mesh).Size);
+        Assert.Equal(albedo, Assert.IsType<StandardMaterial3D>(mesh.GetActiveMaterial(0)).AlbedoColor);
+        var vertices = VerticesInRoot(root, mesh);
+        AssertFaces(vertices, Godot.Vector3.Back, name);
+        Assert.All(vertices, v => Assert.InRange(v.Z - face, 0f, .0005f));
+        return vertices;
+    }
+
+    /// <summary>Every vertex of a print lies within the X and Y extent of a rectangular face's own vertices.</summary>
+    internal static void AssertInsideRectangle(Godot.Vector3[] print, Godot.Vector3[] face, string name) =>
+        Assert.All(print, v => Assert.True(v.X >= face.Min(f => f.X) && v.X <= face.Max(f => f.X) && v.Y >= face.Min(f => f.Y) &&
+            v.Y <= face.Max(f => f.Y), $"{name} reaches off its face at {v}"));
+
+    /// <summary>Every vertex of a print lies within <paramref name="radius"/>, in X and Y, of the centre of a round face's own
+    /// vertices.</summary>
+    internal static void AssertInsideDisc(Godot.Vector3[] print, Godot.Vector3[] face, float radius, string name)
+    {
+        var centre = new Godot.Vector2((face.Min(f => f.X) + face.Max(f => f.X)) / 2, (face.Min(f => f.Y) + face.Max(f => f.Y)) / 2);
+        Assert.All(print, v => Assert.True(new Godot.Vector2(v.X, v.Y).DistanceTo(centre) <= radius, $"{name} reaches off its face at {v}"));
     }
 
     /// <summary>A ball the drop theory drops: its radius, its own restitution, its linear drag (1/s) and how it is placed. The
@@ -777,7 +982,7 @@ public sealed class VisibleSolidColliderTests
         foreach (var read in ring.Reads)
         {
             var (y, vy) = (Position(read).Y, Velocity(read).Y);
-            if (!landed && vIn > 1 && y - rest < .05 && vy > -.5 * vIn) landed = true;
+            if (!landed && Landed(vIn, y - rest, vy)) landed = true;
             if (!landed && vy < 0) vIn = -vy;
             if (landed) lowest = Math.Min(lowest, y);
             if (landed && vOut is null && vy > 0)

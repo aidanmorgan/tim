@@ -41,7 +41,7 @@ The package is declaration data and a scene. It has no script, callback or updat
 
 | Art node | Classification | Moved by |
 | --- | --- | --- |
-| `Visual/Visual_Shell/Visual_Shell_Seg_*` | Arc chords of `col_arc` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:136-137`) | Nothing |
+| `Visual/Visual_Shell/Visual_Shell_Seg_*` | Arc chords of `col_arc` (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:154-155`) | Nothing |
 | `Visual/Visual_Shell/Visual_Stub_*` | Hollow; match the stub Tubes | Nothing |
 | `Visual/Visual_Collar_Start`, `_End` | Hollow; match the collar tori | Nothing |
 

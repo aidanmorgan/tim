@@ -66,7 +66,7 @@ The package is declaration data and art. It has no script, callback, update loop
 | `Visual/Visual_Sphere` (`:27`) | sphere, radius 0.34 m | solid | `col_0_0`, sphere 0.34 m | body 0 pose |
 | `Visual/Visual_Stripe` (`:30`) | torus, inner 0.322, outer 0.35 m, darker orange (0.576, 0.294, 0.132) | hollow (torus), 1 cm proud | `col_visual_stripe`, the same mesh and pose | body 0 pose |
 
-No presentation binding exists, so nothing is animated; the art only follows the committed body pose. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:109`).
+No presentation binding exists, so nothing is animated; the art only follows the committed body pose. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:127`).
 
 **Generic laws.**
 

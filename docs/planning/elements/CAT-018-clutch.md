@@ -45,7 +45,7 @@ Read from `elements/Clutch/ClutchElementDeclaration.cs` and `elements/Clutch/clu
 
 ### Art
 - Catalogue colour (0.4, 0.72, 0.79); navy base and axle, cream blocks and shafts, gold plates, spokes and stud, cyan coil. Form follows [DESIGN.md clutch](../../../DESIGN.md#electrically-controlled-clutch). Icon `elements/Clutch/icon.svg`.
-- **Art and solidity as shipped (`elements/Clutch/clutch.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:94`–`:99`).**
+- **Art and solidity as shipped (`elements/Clutch/clutch.tscn`; table row `CuriousContraptions.tests/VisibleSolidColliderTests.cs:112`–`:117`).**
 
   | Node | Mesh | Class | Note |
   | --- | --- | --- | --- |
@@ -74,7 +74,7 @@ The capability families are in the [general-engine map row](../general-engine-el
 | 4 | Mechanical input and output ports on separate coordinates; one link per role | present | `WorkshopConnections.ValidateMechanical` (`engine/gpu/WorkshopConnections.cs:170`) | `ClutchTests.RotatedMounts_PreserveDomainsAndSign_ClosedLoopStaysAtRest_AndDuplicateDriveInRejected` (`:807`); `ClutchTests.OccupiedMechanicalInputIsRefusedWhenLoadingSavedConstruction` (`ClutchGeneralityTests.cs:632`) |
 | 5 | Presentation from committed closure, phase and hinge angle | present | `PresentationDriver.CommittedTransmissionClosure`, `CommittedTransmissionPhase`, `CommittedRevoluteAngle` (`CuriousContraptions.Abstractions/ElementPresentation.cs:28`–`:30`) | `ClutchArtTests.ClutchScene_AnimatesPlatesLampAndShaftSpokesAcrossLifecycleAndResetsCleanly` (`ClutchTests.cs:1448`); `ClutchTests.FourPhasesAreIndependentlyMappedAndCosmeticsDoNotControlCoupling` (`ClutchGeneralityTests.cs:54`) |
 | 6 | Parameter bounds; Reset; save and load | present | `ParameterDescriptor` (`ClutchElementDeclaration.cs:64`) | `ClutchTests.CloseSeconds_RefusesInvalidValuesAcrossParametersInputAndSaveDecode` (`:791`), `CloseSeconds_AdmitsExactEndpoints` (`:775`), `RunResetAndSaveLoad_RestoreAuthoredStateAndReproduceCoupling` (`:886`) |
-| 7 | Scene colliders match the drawn solids | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:206`, `clutch` row `:94`), which lists the spokes and axle as decorative (the defects under Art) |
+| 7 | Scene colliders match the drawn solids | present | `ColliderShapeKind.Cylinder` (`CuriousContraptions.Abstractions/PhysicsDeclarationValues.cs:12`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (`:237`, `clutch` row `:112`), which lists the spokes and axle as decorative (the defects under Art) |
 | 8 | The coil's supply debiting its source (drain) | **missing** | supply is binary (section 6, decision 7) | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`; owner decision 3a, 22 November 2026) |
 
 Counts: 7 present, 0 untested, 0 narrower, 1 missing.
@@ -192,7 +192,7 @@ Delivered as recorded in section 1. Every residual slice is blocked on the engin
 
 | Residual | Owner | Tier | Prerequisite |
 | --- | --- | --- | --- |
-| Spokes reprinted flat; axle given a collider | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:94` and tests) | the engine programme (owner decision 3a); a contract for part D |
+| Spokes reprinted flat; axle given a collider | Repair part D of ELEMENTS-VISIBLE-SOLID-REMAINDER (coordinator decision 33), after the engine programme; it covers the Clutch, the Reverse gear, the Motor's index bar and the Counter's sockets, foot and face panel | Data-only (scene, the table row at `VisibleSolidColliderTests.cs:112` and tests) | the engine programme (owner decision 3a); a contract for part D |
 | Coil drain | `ENGINE-SUPPLY-DEMAND` (sprint key `engine-supply-drive-demand`) | Engine | the engine programme (owner decision 3a), of which it is a story |
 | Browser qualification | Post-catalogue E2E phase | n/a | n/a |
 

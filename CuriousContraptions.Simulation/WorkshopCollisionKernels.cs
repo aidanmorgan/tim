@@ -1993,8 +1993,8 @@ internal static partial class WorkshopCollisionKernels
         contact.Feature = feature;
     }
 
-    /// <summary>The narrowphase is total over the admitted shapes (ingest rejects any other). Planes and hollow colliders are static,
-    /// so neither meets a plane or another hollow collider in a candidate pair. One rule per pair: a hollow collider meets a sphere,
+    /// <summary>The narrowphase is total over the admitted shapes (ingest rejects any other). A hollow collider, on a static or a dynamic
+    /// body, meets every partner through the shared hollow contact query. One rule per pair: a hollow collider meets a sphere,
     /// box or cylinder through its exact signed distance (engine-hollow-shapes).</summary>
     public static void GenerateManifold(SimCollider colA, SimCollider colB, float margin, List<ContactPoint> outList)
     {

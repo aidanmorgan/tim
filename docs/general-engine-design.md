@@ -95,10 +95,11 @@ All 3D puzzle elements, fixtures, and tools are authored as the element's own Go
    Every puzzle element scene follows a standardized declarative node hierarchy:
    - `Visual/` (or visual mesh nodes): Contains the renderable geometry with standard PBR metallic-roughness materials adhering to the project palette and sculptural style defined in [DESIGN.md](../DESIGN.md).
    - `Collision/` (or collision nodes): Contains non-rendered analytic proxy primitives and convex hulls used for physics:
-     - `col_box` (or `*-col_box`, `-col` box): Analytic box half-extents.
-     - `col_sphere` (or `*-col_sphere`): Analytic sphere radius.
-     - `col_capsule` (or `*-col_capsule`): Analytic capsule radius and half-height.
-     - `col_cylinder` (or `*-col_cylinder`): Analytic cylinder radius and height.
+     - `col_box`: Analytic box half-extents.
+     - `col_sphere`: Analytic sphere radius.
+     - `col_capsule`: Analytic capsule radius and half-height.
+     - `col_cylinder`: Analytic cylinder radius and height.
+     - A proxy is a `CollisionShape3D` node or a node named with the `col_` prefix; a name that carries `-col_` without that prefix is refused at bake.
      - `col_hull`: Convex polyhedral hull meshes.
    - `Locators/` (or locator nodes): Empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points for electrical, activation, and mechanical connections.
    - **Secondary Body Sub-Trees:** For composite or articulated parts (e.g. rotating motor shafts, springboard moving plates, lever arms), moving sub-components are organized under dedicated child node branches. Each secondary body branch contains its respective visual geometry, collision nodes (`col_*`), and locators, sharing local transforms dynamically during simulation.

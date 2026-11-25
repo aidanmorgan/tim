@@ -77,4 +77,25 @@ public sealed class LinearPusherArtTests(NativeSceneFixture godot)
             root.GetParent()?.RemoveChild(root); root.Free();
         }
     }
+
+    /// <summary>The five travel marks are printed flat on the barrel's front face, not raised (owner decision, 21 November 2026; the
+    /// old boxes stood 2 to 14 mm proud): each a 0.022 × 0.1 m quad facing out of the face, between 0 and 0.5 mm in front of it (the
+    /// face plane read from the barrel's own mesh), inside the face, and in the gold (0.969, 0.796, 0.322) the scene authored for the
+    /// raised marks.</summary>
+    [Fact]
+    public void TheTravelMarksArePrintedFlatOnTheBarrelFace()
+    {
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(new("linear_pusher")).Metadata.ScenePath).Instantiate<Node3D>();
+        try
+        {
+            var barrel = VisibleSolidColliderTests.VerticesInRoot(root, root.GetNode<MeshInstance3D>("Visual/Barrel"));
+            for (var i = 0; i < 5; i++)
+            {
+                var mark = VisibleSolidColliderTests.AssertPrintedFlat(root, root.GetNode<MeshInstance3D>($"Visual/TravelMark{i}"),
+                    barrel.Max(v => v.Z), new(.022f, .1f), new Color(.969f, .796f, .322f));
+                VisibleSolidColliderTests.AssertInsideRectangle(mark, barrel, $"TravelMark{i}");
+            }
+        }
+        finally { root.Free(); }
+    }
 }

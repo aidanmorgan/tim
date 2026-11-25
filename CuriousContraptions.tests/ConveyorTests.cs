@@ -593,6 +593,28 @@ public sealed class ConveyorTests
         var errors = BundleValidator.Validate([new("conveyor", leakEntry)]);
         Assert.Contains(errors, e => e.Code == BundleErrorCode.OutOfRange && e.Detail.Contains("Metadata.Parameters[2].RunEdit"));
     }
+
+    /// <summary>Both pulley spokes are printed flat on their wheels' outer faces, not raised (owner decision, 21 November 2026; the
+    /// old boxes stood 27.5 mm proud): each a 0.33 × 0.045 m quad facing out of the face, between 0 and 0.5 mm in front of it (the
+    /// face plane read from the wheel's own mesh), inside the wheel's drawn disc, and in the gold (0.969, 0.796, 0.322) the scene
+    /// authored for the raised spokes.</summary>
+    [Fact]
+    public void BothPulleySpokesArePrintedFlatOnTheirWheels()
+    {
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(Conveyor).Metadata.ScenePath).Instantiate<Godot.Node3D>();
+        try
+        {
+            foreach (var pulley in new[] { "Visual/Roller/PulleyIn", "Visual/PulleyOut" })
+            {
+                var wheel = root.GetNode<Godot.MeshInstance3D>(pulley + "/Wheel");
+                var rim = VisibleSolidColliderTests.VerticesInRoot(root, wheel);
+                var spoke = VisibleSolidColliderTests.AssertPrintedFlat(root, root.GetNode<Godot.MeshInstance3D>(pulley + "/Spoke"),
+                    rim.Max(v => v.Z), new(.33f, .045f), new Godot.Color(.969f, .796f, .322f));
+                VisibleSolidColliderTests.AssertInsideDisc(spoke, rim, Assert.IsType<Godot.CylinderMesh>(wheel.Mesh).TopRadius, pulley + "/Spoke");
+            }
+        }
+        finally { root.Free(); }
+    }
 }
 
 /// <summary>

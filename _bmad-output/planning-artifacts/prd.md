@@ -188,11 +188,11 @@ Every puzzle element is implemented purely as declarative capability data withou
 All 72 puzzle elements, fixtures, and tools are defined purely as declarative data without bespoke engine code or procedural mesh builders:
 1. **Universal glTF 2.0 (`.glb`) Visual & Collision Asset Container:**
    - Both visual meshes and physical collision meshes are co-located in a single self-contained `.glb` binary asset per part.
-   - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual mesh nodes are dedicated exclusively to presentation rendering (PBR materials); collider nodes are dedicated physics proxies (`col_*`, `-convcol`, `CollisionShape3D`) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
+   - **Strict Entity Separation:** The visual mesh and the collider mesh must be separate entities. Visual mesh nodes are dedicated exclusively to presentation rendering (PBR materials); collider nodes are dedicated physics proxies (`col_*`, `CollisionShape3D`) whose visual rendering is suppressed (`Visible = false`). Physics colliders are never extracted directly from visual mesh entities, and visual meshes are never evaluated as colliders.
    - **Visual Meshes:** Rendered with standard PBR metallic-roughness materials conforming to the project color palette and sculptural aesthetic defined in `DESIGN.md`.
    - **Collision Proxy Nodes:** Authored directly in the `.glb` transform hierarchy using standardized proxy prefixes:
      - Analytic shapes: `col_box`, `col_sphere`, `col_capsule`, `col_cylinder`.
-     - Convex hull geometry: `col_hull`, `-convcol`.
+     - Convex hull geometry: `col_hull`.
      - Or the Khronos `KHR_physics_rigid_bodies` standard extension.
      - Extracted generically by `WorkshopPhysicsCompiler` at compile-to-state time with zero element-specific branching or hardcoded coordinate/dimension tables.
    - **Socket Locators (`Loc_Port_<Id>`):** Authored as empty locator nodes in the `.glb` scene graph matching declared `PortDefinition.Id` values (e.g. `Loc_Port_power_in`, `Loc_Port_activation_out`). Cables and wires resolve 3D socket anchor points dynamically from these locators.

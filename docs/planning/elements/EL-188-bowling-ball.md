@@ -36,7 +36,7 @@ Delivered and unchanged by this identity; every value and line is in [CAT-014 §
 
 ### Art and solidity
 
-One art node, `Visual/Visual_Sphere`, a 0.28 m sphere equal to its collider `col_0_0`, moved only by the body's pose. No presentation binding. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:110`); `spec-engine-art-solidity.md` lists no finding. At a glance: the only delivered ball with no seam or band, plain blue (`#45639c`), and smaller than the Basketball.
+One art node, `Visual/Visual_Sphere`, a 0.28 m sphere equal to its collider `col_0_0`, moved only by the body's pose. No presentation binding. The hand table agrees (`CuriousContraptions.tests/VisibleSolidColliderTests.cs:128`); `spec-engine-art-solidity.md` lists no finding. At a glance: the only delivered ball with no seam or band, plain blue (`#45639c`), and smaller than the Basketball.
 
 ## 3. Engine capabilities
 

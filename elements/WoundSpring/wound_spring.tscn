@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=22 format=3]
 
 
 [sub_resource type="StandardMaterial3D" id="Navy"]
@@ -26,21 +26,21 @@ size = Vector3(1.55, 0.2, 1.35)
 material = SubResource("Cream")
 size = Vector3(0.13, 1.8, 0.2)
 
-[sub_resource type="BoxMesh" id="Mark"]
+[sub_resource type="QuadMesh" id="Mark"]
 material = SubResource("Navy")
-size = Vector3(0.18, 0.018, 0.025)
+size = Vector2(0.1, 0.018)
 
-[sub_resource type="BoxMesh" id="Index"]
+[sub_resource type="QuadMesh" id="Index"]
 material = SubResource("Gold")
-size = Vector3(0.19, 0.045, 0.035)
+size = Vector2(0.12, 0.045)
 
 [sub_resource type="BoxMesh" id="Latch"]
 material = SubResource("Gold")
 size = Vector3(0.22, 0.1, 0.1)
 
-[sub_resource type="BoxMesh" id="Spoke"]
+[sub_resource type="QuadMesh" id="Spoke"]
 material = SubResource("Gold")
-size = Vector3(0.42, 0.035, 0.025)
+size = Vector2(0.42, 0.035)
 
 [sub_resource type="SphereMesh" id="Head"]
 material = SubResource("Cream")
@@ -75,6 +75,22 @@ bottom_radius = 0.025
 height = 0.08850651234388351
 radial_segments = 8
 
+[sub_resource type="BoxShape3D" id="BaseShape"]
+size = Vector3(1.55, 0.2, 1.35)
+
+[sub_resource type="BoxShape3D" id="RailShape"]
+size = Vector3(0.13, 1.8, 0.2)
+
+[sub_resource type="SphereShape3D" id="HeadShape"]
+radius = 0.32
+
+[sub_resource type="CylinderShape3D" id="WheelShape"]
+radius = 0.26
+height = 0.1
+
+[sub_resource type="SphereShape3D" id="SocketShape"]
+radius = 0.065
+
 [node name="wound_spring" type="Node3D"]
 
 
@@ -82,23 +98,41 @@ radial_segments = 8
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 
 
-[node name="col_Base" type="MeshInstance3D" parent="Visual"]
+[node name="Base" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 mesh = SubResource("Base")
 
+[node name="col_Base" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+shape = SubResource("BaseShape")
 
-[node name="col_LeftRail" type="MeshInstance3D" parent="Visual"]
+
+[node name="LeftRail" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6000000238418579, -0.05000000074505806, 0)
 mesh = SubResource("Rail")
 
+[node name="col_LeftRail" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6000000238418579, -0.05000000074505806, 0)
+shape = SubResource("RailShape")
 
-[node name="col_RightRail" type="MeshInstance3D" parent="Visual"]
+
+[node name="RightRail" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, -0.05000000074505806, 0)
 mesh = SubResource("Rail")
 
+[node name="col_RightRail" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, -0.05000000074505806, 0)
+shape = SubResource("RailShape")
 
-[node name="col_Sleeve" type="MeshInstance3D" parent="Visual"]
+
+[node name="Sleeve" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+mesh = SubResource("Sleeve")
+metadata/wall_thickness = 0.08
+
+[node name="col_visual_sleeve" type="MeshInstance3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+visible = false
 mesh = SubResource("Sleeve")
 metadata/wall_thickness = 0.08
 
@@ -107,13 +141,17 @@ metadata/wall_thickness = 0.08
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8999999761581421, 0)
 
 
-[node name="col_Head" type="MeshInstance3D" parent="Visual/Head"]
+[node name="Sphere" type="MeshInstance3D" parent="Visual/Head"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
 mesh = SubResource("Head")
 
+[node name="col_Head" type="CollisionShape3D" parent="Visual/Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)
+shape = SubResource("HeadShape")
+
 
 [node name="ChargeIndex" type="MeshInstance3D" parent="Visual/Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, -0.10000000149011612, 0.14000000059604645)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, -0.10000000149011612, 0.10040000081062317)
 mesh = SubResource("Index")
 
 
@@ -121,12 +159,16 @@ mesh = SubResource("Index")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6200000047683716, -0.550000011920929, 0.5)
 
 
-[node name="col_Wheel" type="MeshInstance3D" parent="Visual/Shaft"]
+[node name="Wheel" type="MeshInstance3D" parent="Visual/Shaft"]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
 mesh = SubResource("Wheel")
 
+[node name="col_Wheel" type="CollisionShape3D" parent="Visual/Shaft"]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
+shape = SubResource("WheelShape")
+
 [node name="Spoke" type="MeshInstance3D" parent="Visual/Shaft"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.054999999701976776)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.050200000405311584)
 mesh = SubResource("Spoke")
 
 
@@ -400,33 +442,37 @@ transform = Transform3D(0.7897838950157166, -0.6133852005004883, 0, 0.1892120987
 mesh = SubResource("CoilSegment")
 
 [node name="Mark0" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.800000011920929, 0.11999999731779099)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.800000011920929, 0.10019999742507935)
 mesh = SubResource("Mark")
 
 
 [node name="Mark1" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.6000000238418579, 0.11999999731779099)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.6000000238418579, 0.10019999742507935)
 mesh = SubResource("Mark")
 
 
 [node name="Mark2" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.4000000059604645, 0.11999999731779099)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.4000000059604645, 0.10019999742507935)
 mesh = SubResource("Mark")
 
 
 [node name="Mark3" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.20000000298023224, 0.11999999731779099)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0.20000000298023224, 0.10019999742507935)
 mesh = SubResource("Mark")
 
 
 [node name="Mark4" type="MeshInstance3D" parent="Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0, 0.11999999731779099)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6000000238418579, 0, 0.10019999742507935)
 mesh = SubResource("Mark")
 
 
 [node name="ActivationSocket" type="MeshInstance3D" parent="Visual"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6200000047683716, -0.550000011920929, 0.550000011920929)
 mesh = SubResource("Socket")
+
+[node name="col_ActivationSocket" type="CollisionShape3D" parent="Visual"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6200000047683716, -0.550000011920929, 0.550000011920929)
+shape = SubResource("SocketShape")
 
 
 [node name="Loc_Port_DriveIn" type="Node3D" parent="."]

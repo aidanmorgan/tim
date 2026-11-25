@@ -137,7 +137,7 @@ Earlier prototypes explored constructing puzzle element 3D geometry and physical
 ### Decision
 Adopt open-source, industry-standard **glTF 2.0 binary (`.glb`)** as the universal format for defining BOTH visual meshes and physical collision meshes across all puzzle elements, fixtures, and tools:
 - **Visual Meshes:** Authored in the `.glb` scene with standard PBR metallic-roughness materials conforming to the project color palette and sculptural aesthetic in [DESIGN.md](../../../DESIGN.md).
-- **Co-Located Collision Geometry:** Authored directly within the same `.glb` container alongside visual meshes using standardized analytic shape proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hull proxies (`col_hull`, `-convcol`), or the official Khronos `KHR_physics_rigid_bodies` extension.
+- **Co-Located Collision Geometry:** Authored directly within the same `.glb` container alongside visual meshes using standardized analytic shape proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hull proxies (`col_hull`), or the official Khronos `KHR_physics_rigid_bodies` extension.
 - **Socket Anchors:** Authored as empty locator nodes `Loc_Port_<Id>` inside the `.glb` transform hierarchy, matching declared `PortDefinition.Id` entries.
 - **Articulated & Secondary Sub-Assemblies:** Secondary dynamic components (e.g., motor shafts, springboard moving plates, lever arms) group their visual, collision, and locator nodes under dedicated child branches in the `.glb`.
 - **Zero Code-Defined Geometry:** Imperative C# procedural mesh generation (`engine/PartArt.cs`) is deprecated and scheduled for complete deletion at `LEGACY-0`.

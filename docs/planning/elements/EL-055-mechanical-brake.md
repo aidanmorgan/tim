@@ -99,7 +99,7 @@ Colours: Cream `#fff8e9` (part-body cream, owner decision 4), Navy `#1c2836`, Go
 | Two ports (`DriveIn`, `Drive`) on one revolute coordinate relaying rotation | present | `PortDescriptor.Coordinate` `CuriousContraptions.Abstractions/PortDescriptor.cs:67` | `CuriousContraptions.tests/ConveyorTests.cs:417` |
 | A hinge that has a supplied drive and also takes a Mechanical link on `DriveIn` | present | port admission `BundleValidator.cs:373` | `CuriousContraptions.tests/ReverseTransmissionLoadTests.cs:114` |
 | Supply consumer targeting a drive; switched through a logic gate | present | `SupplyDriveTarget` `CuriousContraptions.Abstractions/SupplyContractValues.cs:52` | `CuriousContraptions.tests/MotorTests.cs:990`, `:497` |
-| Art bound to the committed supplied state and hinge angle | present | `PresentationDriver.CommittedActuatorDrive` `CuriousContraptions.Abstractions/ElementPresentation.cs:23` | `CuriousContraptions.tests/MotorTests.cs:265`; `CuriousContraptions.tests/ConveyorTests.cs:608` |
+| Art bound to the committed supplied state and hinge angle | present | `PresentationDriver.CommittedActuatorDrive` `CuriousContraptions.Abstractions/ElementPresentation.cs:23` | `CuriousContraptions.tests/MotorTests.cs:265`; `CuriousContraptions.tests/ConveyorTests.cs:630` |
 | Reset zeroes drive state and restores the pose | present | `RevoluteStateRead` `RevoluteConstraintValues.cs:40` | `CuriousContraptions.tests/RevoluteDriveTests.cs:543` |
 | Heat from dissipated brake work (TH-05 only) | missing | none | `ENGINE-THERMAL`; not required by EL-055 |
 
