@@ -13,7 +13,9 @@ namespace CuriousContraptions.Tests;
 /// Each case copies the vendored project, the schemas and the shared build files into its own temporary directory outside
 /// the checkout, drives real <c>dotnet build</c> child processes there and reads the built assembly's metadata. The cases
 /// need the pinned compiler already in the per-user cache and check that before any build; none touches the network or
-/// writes the cache.
+/// places anything in that cache. Like any generating build, each deletes temporary files there older than 60 minutes. The
+/// leftover-file case builds against a cache of its own, inside its temporary directory, holding a copy of the cached
+/// compiler.
 /// </summary>
 public sealed class WorkshopWireBuildTests
 {
@@ -225,6 +227,100 @@ public sealed class WorkshopWireBuildTests
         Assert.False(File.Exists(copy.PathOf(Assembly)));
     }
 
+    // ECH3-1: a build killed between copying the compiler to flatc.<guid>.tmp and renaming it leaves that file in the cache.
+    // FlatcCacheRoot, the production property the cache path derives from, points this case at a cache of its own (with a
+    // space in its path, as on macOS) holding a copy of the verified compiler, a truncated temporary file 90 minutes old and
+    // a garbage one ten minutes old, which a concurrent build could still be placing. The build sweeps only temporary files
+    // older than 60 minutes and runs the verified compiler. The two ages pin that threshold between 10 and 90 minutes. On a
+    // host one hour or more from UTC, reading local times as UTC fails the case: ahead of UTC the stale file reads at most
+    // 30 minutes old and is kept (30 minutes' margin over the build's duration); behind it the fresh file reads at least 70
+    // minutes old and is swept. A host less than an hour from UTC cannot show that slip. The compiler's old write time shows
+    // that the sweep selects by name, not age alone. Of the shared cache, only what this case controls is checked.
+    [Fact]
+    public void ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun()
+    {
+        using var copy = WireBuildCopy.Create();
+        var sharedCache = Path.GetDirectoryName(copy.CachedCompiler)!;
+        var sharedEntries = Directory.GetFileSystemEntries(sharedCache);
+        var sharedWriteTime = File.GetLastWriteTimeUtc(copy.CachedCompiler);
+        var cacheRoot = copy.PathOf("flatc cache");
+        var redirect = "-p:FlatcCacheRoot=" + cacheRoot;
+        var properties = copy.Properties(["FlatcCacheDirectory", "FlatcPath"], redirect);
+        var directory = properties["FlatcCacheDirectory"];
+        var compiler = properties["FlatcPath"];
+        Assert.StartsWith(cacheRoot + "/", compiler, StringComparison.Ordinal);
+        Directory.CreateDirectory(directory);
+        File.Copy(copy.CachedCompiler, compiler);
+        var now = DateTime.UtcNow;
+        File.SetLastWriteTimeUtc(compiler, now.AddDays(-2));
+        var stale = Path.Combine(directory, $"flatc.{Guid.NewGuid():N}.tmp");
+        File.WriteAllBytes(stale, File.ReadAllBytes(copy.CachedCompiler)[..4096]);
+        File.SetLastWriteTimeUtc(stale, now.AddMinutes(-90));
+        var fresh = Path.Combine(directory, $"flatc.{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(fresh, "not a compiler\n");
+        File.SetLastWriteTimeUtc(fresh, now.AddMinutes(-10));
+        var compilerWriteTime = File.GetLastWriteTimeUtc(compiler);
+        var freshWriteTime = File.GetLastWriteTimeUtc(fresh);
+
+        copy.Build(redirect);
+
+        Assert.Equal(copy.SchemaTypes().Order(StringComparer.Ordinal), copy.GeneratedTypeNames().Order(StringComparer.Ordinal));
+        Assert.Equal(new[] { compiler, fresh }.Order(StringComparer.Ordinal), Directory.GetFiles(directory).Order(StringComparer.Ordinal));
+        Assert.Equal(compilerWriteTime, File.GetLastWriteTimeUtc(compiler));
+        Assert.Equal(freshWriteTime, File.GetLastWriteTimeUtc(fresh));
+        Assert.Empty(Directory.GetFileSystemEntries(sharedCache).Except(sharedEntries, StringComparer.Ordinal));
+        Assert.True(File.Exists(copy.CachedCompiler));
+        Assert.Equal(sharedWriteTime, File.GetLastWriteTimeUtc(copy.CachedCompiler));
+        copy.Dispose();
+        Assert.False(Directory.Exists(cacheRoot));
+    }
+
+    // A '*' or '?' in the cache path would make the sweep's glob, and every item use of the path, a file pattern, so the
+    // build refuses it before reading or writing the cache. A decoy sibling whose name the wildcard matches holds a stale
+    // temporary file, which an unescaped sweep would delete. Uncached, the wildcard cache root is absent, so a refusal placed
+    // after MakeDir or the sweep leaves it created. Cached, the wildcard cache holds a copy of the verified compiler and a
+    // stale temporary file, so a build that skipped the refusal would run that compiler without a download and exit 0, and
+    // an unescaped sweep before the refusal would delete the stale file.
+    [Theory]
+    [InlineData("flatc?cache", "flatcXcache", false)]
+    [InlineData("flatc*cache", "flatcXYcache", true)]
+    public void AWildcardInTheCompilerCachePathRefusesTheBuild(string cacheName, string decoyName, bool cached)
+    {
+        using var copy = WireBuildCopy.Create();
+        var cacheRoot = copy.PathOf(cacheName);
+        var redirect = "-p:FlatcCacheRoot=" + cacheRoot;
+        var directory = copy.Properties(["FlatcCacheDirectory", "FlatcPath"], redirect)["FlatcCacheDirectory"];
+        Assert.StartsWith(cacheRoot + "/", directory, StringComparison.Ordinal);
+        var now = DateTime.UtcNow;
+        string[] entries = [];
+        if (cached)
+        {
+            Directory.CreateDirectory(directory);
+            File.Copy(copy.CachedCompiler, Path.Combine(directory, "flatc"));
+            var stale = Path.Combine(directory, $"flatc.{Guid.NewGuid():N}.tmp");
+            File.WriteAllText(stale, "not a compiler\n");
+            File.SetLastWriteTimeUtc(stale, now.AddMinutes(-90));
+            entries = Directory.GetFileSystemEntries(directory);
+        }
+        var decoyDirectory = copy.PathOf(decoyName) + directory[cacheRoot.Length..];
+        Directory.CreateDirectory(decoyDirectory);
+        var decoy = Path.Combine(decoyDirectory, $"flatc.{Guid.NewGuid():N}.tmp");
+        File.WriteAllText(decoy, "not a compiler\n");
+        File.SetLastWriteTimeUtc(decoy, now.AddDays(-1));
+        var decoyWriteTime = File.GetLastWriteTimeUtc(decoy);
+
+        var result = copy.TryBuild(redirect);
+
+        Assert.NotEqual(0, result.ExitCode);
+        Assert.Contains($"The FlatBuffers compiler cache path \"{directory}\" contains a wildcard character", result.Output, StringComparison.Ordinal);
+        Assert.Contains("Wildcard characters are not supported in the compiler cache path", result.Output, StringComparison.Ordinal);
+        Assert.False(File.Exists(copy.PathOf(IntermediateAssembly)));
+        Assert.False(File.Exists(copy.PathOf(Assembly)));
+        if (cached) Assert.Equal(entries, Directory.GetFileSystemEntries(directory));
+        else Assert.False(Directory.Exists(cacheRoot));
+        Assert.Equal(decoyWriteTime, File.GetLastWriteTimeUtc(decoy));
+    }
+
     private static HashSet<string> DeclaredWireTypes(string assembly)
     {
         using var stream = File.OpenRead(assembly);
@@ -299,7 +395,7 @@ public sealed class WorkshopWireBuildTests
         // write the cache, which these cases never do.
         private void RequireCachedCompiler()
         {
-            var properties = Properties("FlatcPath", "FlatcBinarySha256");
+            var properties = Properties(["FlatcPath", "FlatcBinarySha256"]);
             CachedCompiler = properties["FlatcPath"];
             PinnedCompilerDigest = properties["FlatcBinarySha256"];
             if (File.Exists(CachedCompiler)) return;
@@ -351,10 +447,11 @@ public sealed class WorkshopWireBuildTests
             return result;
         }
 
-        // With two or more names, -getProperty prints one JSON object on stdout.
-        private Dictionary<string, string> Properties(params string[] names)
+        /// <summary>The named properties as the copied project file evaluates them with the given build options; with two or
+        /// more names, -getProperty prints one JSON object on stdout.</summary>
+        public Dictionary<string, string> Properties(string[] names, params string[] options)
         {
-            var result = Dotnet(["msbuild", PathOf(ProjectFile), .. names.Select(name => "-getProperty:" + name)]);
+            var result = Dotnet(["msbuild", PathOf(ProjectFile), .. options, .. names.Select(name => "-getProperty:" + name)]);
             Assert.True(result.ExitCode == 0, $"dotnet msbuild -getProperty failed:\n{result.Report}");
             using var document = JsonDocument.Parse(result.Output);
             return names.ToDictionary(name => name, name => document.RootElement.GetProperty("Properties").GetProperty(name).GetString() ?? "", StringComparer.Ordinal);

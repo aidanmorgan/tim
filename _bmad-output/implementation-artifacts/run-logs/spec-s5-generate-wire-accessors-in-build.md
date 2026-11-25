@@ -235,3 +235,231 @@ Same owner and environment as E10, E12 and E14; every log starts with `git rev-p
 - `[low]` `[patch]` FO4: `TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnes` now also admits the wire accessors — rename it and its comment at `:1212` and the contract row.
 - `[low]` `[patch]` FO5: `delivery-batches.md:295` "Now." describes the deleted files as present — relabel "Before.".
 - `[low]` `[reject]` IA-d: M8 and Linux provisioning have no suite test — as BH5.
+
+## E19 Candidate commit, and the lane coordinator's order to close ECH3-1 (25 November 2026, coordinator)
+
+- Candidate commit `a41139a006dce3f2889f56bcfead9ef123c02d59` on `slice-s5` (parent `3a80c6a8`), through the unmodified pre-commit hook: its selection 152 passed, 0 failed, 0 skipped (AC2; `commit-hook.log`). 28 paths, +1,199/−7,540.
+- Handled owner message (lane 2 coordinator, 25 November 2026): lane 4 holds the publish token, so S5 waits; use the wait to close ECH3-1 under the 4 November repair policy instead of deferring it — a fresh implementer; a standard fix (unique temporary name, digest check, atomic move; stale temporary files swept or ignored by name; no cache entry trusted without a digest check); one behavioural test in the normal suite showing a leftover partial or temporary file in the cache neither breaks the next build nor is used as the compiler; remove or close the deferred entries; re-review with fresh Edge Case Hunter, Verification Gap and Forward-Only reviewers; captures, maintainability gate and full round on the final tree with HEAD and HEAD-AFTER (expected 7,338 plus the new tests); one new commit on top of `a41139a0`, no amend; stop for the token. The Element-Free Engine Auditor also runs, because the protocol runs both auditors on every pass.
+- Contract status returns to `in-progress` for this repair; the original implementation owners stay recorded; the fresh implementer is named in E20.
+
+## E20 ECH3-1 repair: sweep stale temporary compiler files (25 November 2026, fresh implementation owner)
+
+Fresh implementation owner for this repair (dispatched by the lane coordinator, E19). Pinned environment as E1; every log starts with `git rev-parse HEAD` (`a41139a0`). Nothing committed, staged or stashed; E19 not edited.
+
+- `CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj`, `ProvisionFlatBuffersCompiler`: right after `MakeDir`, on every provisioning run (cache hit or miss), the items `_FlatcTemporaryFile` (`$(FlatcCacheDirectory)flatc.*.tmp`) and `_FlatcStaleTemporary` (those whose `File.GetLastWriteTime(...).ToUniversalTime().Ticks` is below `DateTime.UtcNow.AddMinutes(-60).Ticks`) are built and `Delete` removes the stale ones. The age is a literal in the target, not a property. The condition first skips empty metadata, because MSBuild evaluates it once with empty metadata when no temporary file exists (probe (e) without the guard: `MSB4184 … GetLastWriteTime('')`). `File.GetLastWriteTimeUtc` is not an MSBuild property function (`MSB4185`), hence `GetLastWriteTime` converted to UTC. On the download path a `Touch` of the extracted binary now precedes its `Copy` to `flatc.<guid>.tmp`, because the archive entry's write time survives `Unzip`, `Copy` and `mv` (the shared cache's `flatc`, placed by M8 on 24 November 2026, has write time 11 February 2025), so without it a new temporary file would look a year old and be swept from under a concurrent build. The provisioning comment states the rule and its age.
+- Sweep age, 60 minutes: one placement is touch, copy of the 7,435,504-byte binary, `chmod`, one SHA-256 and a rename, which takes seconds, so a file a live build is placing is never that old even on a slow or busy machine; an orphan costs only its disk space until the next provisioning run after that age. A stale file that cannot be deleted fails the build with `MSB3061` naming it (probe (f), `fix5-sweep-probe-locked.log`, exit 1 as observed; the product does not change this: failing loudly is the intended outcome); a stale file another build already deleted is a no-op (probe (d)).
+- `OnError` → `DeleteFlatcTemporary` kept: it removes a failed build's own file at once and only that file; the sweep is the only thing that reaches a killed build's file, and only after the age. They cover different failures and neither replaces the other's timing.
+- `CuriousContraptions.tests/WorkshopWireBuildTests.cs`: new fact `ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun` (contract table row "Leftover temporary file"). `WireBuildCopy.Properties` becomes public and takes build options (`Properties(string[] names, params string[] options)`), so the case evaluates `FlatcCacheDirectory` and `FlatcPath` under `-p:FlatcCacheRoot=<copy>/flatc cache`; the class summary names the case's own cache. No new property or switch: `FlatcCacheRoot` is the production property the cache path derives from.
+- `CuriousContraptions.tests/CSharpStaticGateTests.cs`: vendored project digest re-pinned once, after the last project-file edit: `aa527c35f1e75fd2ff3c1155f164940107631e02c7971f77736900897aabab36`.
+- `schemas/README.md` unchanged: it does not describe temporary files or their cleanup.
+- Probe (no network, no shared cache): `.tools/s5-evidence/sweep-probe/probe.proj` (ignored folder), source recorded verbatim below; `fix5-sweep-probe.log`, exit 0: (a) a `Copy` of a source with write time 2025-02-11 keeps it (`2025-02-10T16:00:00.0000000Z`); (b) after `Touch` of the source the copy's write time equals now; (c) only the old `flatc.untouched.tmp` is selected, `flatc` (2025) and the fresh `flatc.touched.tmp` remain; (d) a second `Delete` of the already deleted stale file completes; (e) with no temporary file nothing is selected and the target completes. The probe computes the threshold once in a property; the product inlines the same expression. Two earlier runs in the same log name were overwritten: the first failed with `MSB4185` (`GetLastWriteTimeUtc`), the second with `MSB4184` at (e) before the empty-metadata guard.
+
+```xml
+<Project>
+  <!-- S5 fix5 probe (ECH3-1): (a) does Copy keep an old source write time; (b) does touching the source before Copy give
+       the copy a fresh one; (c) does the sweep's age filter select an old flatc.*.tmp but neither a fresh one nor an old
+       flatc; (d) does deleting an already vanished stale file fail; (e) does the sweep run cleanly in a directory with no
+       temporary file. Mirrors ProvisionFlatBuffersCompiler's sweep. -->
+  <PropertyGroup>
+    <ProbeDirectory>$(MSBuildThisFileDirectory)cache/</ProbeDirectory>
+    <ProbeSourceDirectory>$(MSBuildThisFileDirectory)source/</ProbeSourceDirectory>
+  </PropertyGroup>
+  <Target Name="Probe">
+    <RemoveDir Directories="$(ProbeDirectory);$(ProbeSourceDirectory)" />
+    <MakeDir Directories="$(ProbeDirectory);$(ProbeSourceDirectory)" />
+
+    <Touch Files="$(ProbeSourceDirectory)flatc" AlwaysCreate="true" Time="2025-02-11 00:00:00" />
+    <Copy SourceFiles="$(ProbeSourceDirectory)flatc" DestinationFiles="$(ProbeDirectory)flatc.untouched.tmp" />
+    <Message Importance="high" Text="(a) copy of an untouched old source: $([System.IO.File]::GetLastWriteTime('$(ProbeDirectory)flatc.untouched.tmp').ToUniversalTime().ToString('o'))" />
+    <Touch Files="$(ProbeSourceDirectory)flatc" />
+    <Copy SourceFiles="$(ProbeSourceDirectory)flatc" DestinationFiles="$(ProbeDirectory)flatc.touched.tmp" />
+    <Message Importance="high" Text="(b) copy of a touched source: $([System.IO.File]::GetLastWriteTime('$(ProbeDirectory)flatc.touched.tmp').ToUniversalTime().ToString('o')); now $([System.DateTime]::UtcNow.ToString('o'))" />
+
+    <Touch Files="$(ProbeDirectory)flatc" AlwaysCreate="true" Time="2025-02-11 00:00:00" />
+    <PropertyGroup>
+      <_FlatcStaleBeforeTicks>$([System.DateTime]::UtcNow.AddMinutes(-60).Ticks)</_FlatcStaleBeforeTicks>
+    </PropertyGroup>
+    <ItemGroup>
+      <_FlatcTemporaryFile Include="$(ProbeDirectory)flatc.*.tmp" />
+      <_FlatcStaleTemporary Include="@(_FlatcTemporaryFile)"
+                            Condition="'%(_FlatcTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_FlatcTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $(_FlatcStaleBeforeTicks)" />
+    </ItemGroup>
+    <Message Importance="high" Text="(c) selected as stale: @(_FlatcStaleTemporary->'%(Filename)%(Extension)')" />
+    <Delete Files="@(_FlatcStaleTemporary)" />
+    <ItemGroup>
+      <_ProbeRemaining Include="$(ProbeDirectory)*" />
+    </ItemGroup>
+    <Message Importance="high" Text="(c) remaining: @(_ProbeRemaining->'%(Filename)%(Extension)')" />
+
+    <Delete Files="@(_FlatcStaleTemporary)" />
+    <Message Importance="high" Text="(d) a second Delete of the vanished stale files completed" />
+
+    <Delete Files="@(_FlatcTemporaryFile)" />
+    <ItemGroup>
+      <_EmptyTemporaryFile Include="$(ProbeDirectory)flatc.*.tmp" />
+      <_EmptyStaleTemporary Include="@(_EmptyTemporaryFile)"
+                            Condition="'%(_EmptyTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_EmptyTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $(_FlatcStaleBeforeTicks)" />
+    </ItemGroup>
+    <Delete Files="@(_EmptyStaleTemporary)" />
+    <Message Importance="high" Text="(e) no temporary file: found [@(_EmptyTemporaryFile)], selected [@(_EmptyStaleTemporary)]" />
+  </Target>
+
+  <!-- (f), run on its own: does a Delete of a stale file it cannot remove (its directory is read-only) fail the build or
+       only warn? The directory's mode is restored after, and on failure. -->
+  <Target Name="ProbeLocked">
+    <RemoveDir Directories="$(MSBuildThisFileDirectory)locked/" />
+    <MakeDir Directories="$(MSBuildThisFileDirectory)locked/" />
+    <Touch Files="$(MSBuildThisFileDirectory)locked/flatc.old.tmp" AlwaysCreate="true" Time="2025-02-11 00:00:00" />
+    <Exec Command="chmod 555 &quot;$(MSBuildThisFileDirectory)locked&quot;" />
+    <Delete Files="$(MSBuildThisFileDirectory)locked/flatc.old.tmp" />
+    <Message Importance="high" Text="(f) the build continued after the Delete; file still present: $([System.IO.File]::Exists('$(MSBuildThisFileDirectory)locked/flatc.old.tmp'))" />
+    <CallTarget Targets="RestoreLocked" />
+    <OnError ExecuteTargets="RestoreLocked" />
+  </Target>
+  <Target Name="RestoreLocked">
+    <Exec Command="chmod 755 &quot;$(MSBuildThisFileDirectory)locked&quot;" />
+  </Target>
+</Project>
+```
+
+- Probe (f), `dotnet msbuild … -t:ProbeLocked` (`fix5-sweep-probe-locked.log`): `error MSB3061: Unable to delete file "…/locked/flatc.old.tmp". Access to the path … is denied.`, exit 1; the `OnError` target restored the directory to `drwxr-xr-x`.
+
+- Commands: incremental `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo`, exit 0, 0 warnings, 0 errors, no download (`fix5-build-tests.log`); `dotnet test CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~WorkshopWireBuildTests|FullyQualifiedName~CSharpStaticGateTests"` with `CSHARP_STATIC_GATE_BINLOGS=binlogs-c6` (logs that predate this project-file edit; the coordinator recaptures), 128 passed, 0 failed, 0 skipped, exit 0 (`fix5-focused.log`); `--list-tests`, exit 0, `WorkshopWireBuildTests` 17, `CSharpStaticGateTests` 111 (`fix5-list.log`); `git diff --check 3a80c6a8`, clean, exit 0 (`fix5-diff-check.log`); no new tracked file, so no `git add -N`. The shared cache still holds only `flatc` (write time 11 February 2025) before and after; the six `s5-wire-build-*` directories of E10's note are unchanged in number.
+- Counts: `WorkshopWireBuildTests` 16 → 17; full round 7,339 (AC4 delta +22), registration 787 and hook selection 152 unchanged, if the baseline is unchanged. Not run here: the maintainability gate, captures and full round (coordinator).
+- Residuals: the suite sets file times by hand, so the fresh write time of a temporary file born on the download path is shown only by the probe and the measured `Copy` behaviour, not by a suite test (the download path needs the network). A build suspended for more than 60 minutes between its `Touch` and its rename would have its file swept by another build; its `GetFileHash` or `mv` then fails loudly, nothing partial reaches `FlatcPath`, and a rerun places the compiler. Every other build test now also runs the sweep against the shared cache, which deletes only orphans older than 60 minutes, as any developer build does; contract task 7's "never … write the cache" now holds in that sense (nothing is placed in it), and the class summary says so.
+- Process note: one shell redirect in the first build command wrote a directory listing to `/tmp/dummy`, outside the checkout; it was deleted in the next command.
+
+## E21 Review pass 6 of the ECH3-1 closure (25 November 2026, coordinator)
+
+- Fresh implementation owner for E20: agent `a32ad7f1238c67063`, a `general-purpose` agent with no conversation history.
+- Inputs `.tools/s5-evidence/review-pass6/` (`blind-repair.diff`, `full-repair.diff`, both against `a41139a0`). Layers, fresh no-history agents: ECH `a3fba6c5e9ee969c8` (6), VG `a1218a518c2d47968` (2), FO `afa547123885a3219` (1; the sweep and the `OnError` cleanup are two behaviours; `-p:FlatcCacheRoot` is the production property), EFE `a11fd561fd63c4150` (Incomplete on three record findings; product repair resolves ECH3-1 and keeps the concurrent-build guarantee; tier engine confirmed). Triage: contract pass 6 (12 rows). Group L to the same owner (E22); records by the coordinator (AC4 +22 and 7,339, task 7's cache sentence, deferred entries closed, Code Map status).
+- Post-repair cold-cache evidence (EFE's probe, outside the checkout, under the session scratchpad `cold-probe/`, macOS arm64, pinned SDK, network on, 25 November 2026 01:33 UTC): a copy of the vendored project and schemas built with `-p:FlatcCacheRoot=<scratch cache>` seeded with no `flatc`, a one-day-old `flatc.staleorphan.tmp` and a ten-minute-old `flatc.freshorphan.tmp`; exit 0; the download message appeared (2,769,228 bytes); the placed `flatc` had mode 755, SHA-256 `f004709c…` and write time 09:33:17 local (the build's time, not the archive's February 2025, so the `Touch` works in the real target); the stale orphan was deleted, the fresh one kept, no third temporary file remained, `flatc-download/` was removed, 136 sources generated and the assembly built; the shared cache was unchanged. This is the post-repair execution of the download path (M8 row) that no suite test can run.
+- The full sequence started on the E20 tree (`final-round-3.log`, `binlogs-c7/`) was stopped by the coordinator once pass 6 made the tree stale; it has no HEAD-AFTER line and does not count.
+
+## E22 Review pass 6 fixes, group L (25 November 2026, implementation owner of E20)
+
+Same owner and environment as E20; every log starts with `git rev-parse HEAD` (`a41139a0`). Nothing committed, staged or stashed; E21 not edited.
+
+- `WorkshopWireBuildTests.ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun` (VG pass 6): the stale temporary file is two hours old (was one day); the ten-minute control is kept. The two ages pin the threshold between 10 and 120 minutes, and dropping `.ToUniversalTime()` fails the case on any host an hour or more from UTC (on this UTC+08:00 host the stale file would read six hours in the future and be kept). Comment updated.
+- Same test (ECH and VG pass 6): the shared-cache check no longer compares the whole listing; it asserts that no entry was added to the shared cache directory (`GetFileSystemEntries(...).Except(before)` is empty), that the shared `flatc` exists and that its write time is unchanged, so another worktree's build sweeping a shared orphan meanwhile cannot fail it.
+- `CuriousContraptions.FlatBuffers.csproj` (ECH pass 6): the sweep's item is `$([MSBuild]::Escape('$(FlatcCacheDirectory)'))flatc.*.tmp`, with a comment line saying why. Provisioning comment (EFE pass 6): the overclaim "that age never reaches a file a concurrent build is still placing" is replaced by the residual: only a build suspended for over 60 minutes while placing can lose its file to another build's sweep, and it then fails at its hash or rename with nothing placed at `FlatcPath`.
+- `CSharpStaticGateTests.cs`: vendored project digest re-pinned once, after the last project-file edit: `56b3b9927248a9ea9b6b185ea8286e724867309d3a2fe418bd966ad00b745fd2`.
+- Contract "Leftover temporary file" row updated (two-hour stale file, the narrower shared-cache assertions, the threshold pin, the probe below).
+- Escape probe: `.tools/s5-evidence/sweep-probe/escape.proj` (ignored folder; Anvil admits only checkout paths), cache directories under the session scratchpad `fix6-escape-probe/`, outside the checkout; `fix6-escape-probe.log`, both runs exit 0. Run 1 (`-t:Probe`, directory built by a property function as `GetFolderPath` builds the real one): with `…/space dir/` and with `…/semi;colon dir/`, the escaped glob found both `flatc.fresh.tmp` and `flatc.old.tmp`, selected only `flatc.old.tmp`, and `flatc` and `flatc.fresh.tmp` remained. The raw glob matched the same two files in both, because MSBuild stores a property function's result escaped; the escape matters for a literal value. Run 2 (`-t:Sweep -p:CacheKind=global -p:FlatcCacheDirectory=<root>/st*r dir/`, a literal global property holding a wildcard, beside a decoy `stXr dir/flatc.decoy.tmp` dated February 2025): the raw glob widened to three items including the decoy; the escaped glob was one literal, unexpanded item (`…/st*r dir/flatc.*.tmp`), so the sweep deleted nothing and the decoy remained. With a wildcard in the cache path the sweep therefore deletes nothing rather than another directory's files. A first run 2 was overwritten: the probe's target property overrode the global until it was conditioned out. Source verbatim:
+
+```xml
+<Project>
+  <!-- S5 fix6 probe (pass 6, ECH): does the sweep's glob still match when the cache directory's path holds a space (the macOS
+       default) or a ';', with the directory spliced in raw and escaped by MSBuild::Escape? The directory is built by a
+       property function, as GetFolderPath builds the real one, under ProbeRoot, a scratch directory outside the checkout
+       passed on the command line. Files are created by the shell so their names never pass through MSBuild splitting.
+       Second run, -t:Sweep -p:CacheKind=global -p:FlatcCacheDirectory=<root>/st*r dir/: the directory is a literal global
+       property holding a wildcard, beside a decoy sibling 'stXr dir' that the raw glob would also match. -->
+  <PropertyGroup>
+    <_Name Condition="'$(CacheKind)' == 'space'">space dir</_Name>
+    <_Name Condition="'$(CacheKind)' == 'semicolon'">semi;colon dir</_Name>
+  </PropertyGroup>
+
+  <Target Name="Probe">
+    <Error Condition="'$(ProbeRoot)' == ''" Text="Pass -p:ProbeRoot=(a scratch directory outside the checkout)." />
+    <RemoveDir Directories="$(ProbeRoot)" />
+    <MSBuild Projects="$(MSBuildThisFileFullPath)" Targets="Sweep" Properties="CacheKind=space;ProbeRoot=$(ProbeRoot)" />
+    <MSBuild Projects="$(MSBuildThisFileFullPath)" Targets="Sweep" Properties="CacheKind=semicolon;ProbeRoot=$(ProbeRoot)" />
+  </Target>
+
+  <Target Name="Sweep">
+    <PropertyGroup>
+      <FlatcCacheDirectory Condition="'$(CacheKind)' != 'global'">$([System.IO.Path]::Combine('$(ProbeRoot)', '$(_Name)'))/</FlatcCacheDirectory>
+    </PropertyGroup>
+    <Exec Condition="'$(CacheKind)' == 'global'" Command="mkdir -p &quot;$(ProbeRoot)stXr dir&quot; &amp;&amp; touch -t 202502110000 &quot;$(ProbeRoot)stXr dir/flatc.decoy.tmp&quot;" />
+    <Exec Command="mkdir -p &quot;$(FlatcCacheDirectory)&quot; &amp;&amp; touch -t 202502110000 &quot;$(FlatcCacheDirectory)flatc&quot; &quot;$(FlatcCacheDirectory)flatc.old.tmp&quot; &amp;&amp; touch &quot;$(FlatcCacheDirectory)flatc.fresh.tmp&quot;" />
+    <ItemGroup>
+      <_Raw Include="$(FlatcCacheDirectory)flatc.*.tmp" />
+      <_FlatcTemporaryFile Include="$([MSBuild]::Escape('$(FlatcCacheDirectory)'))flatc.*.tmp" />
+      <_FlatcStaleTemporary Include="@(_FlatcTemporaryFile)"
+                            Condition="'%(_FlatcTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_FlatcTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $([System.DateTime]::UtcNow.AddMinutes(-60).Ticks)" />
+    </ItemGroup>
+    <Message Importance="high" Text="[$(CacheKind)] directory [$(FlatcCacheDirectory)]" />
+    <Message Importance="high" Text="[$(CacheKind)] raw glob, @(_Raw->Count()) item(s): [@(_Raw, '] [')]" />
+    <Message Importance="high" Text="[$(CacheKind)] escaped glob, @(_FlatcTemporaryFile->Count()) item(s): [@(_FlatcTemporaryFile, '] [')]" />
+    <Message Importance="high" Text="[$(CacheKind)] selected stale: [@(_FlatcStaleTemporary, '] [')]" />
+    <Delete Files="@(_FlatcStaleTemporary)" />
+    <Exec Command="echo &quot;[$(CacheKind)] remaining:&quot; &amp;&amp; ls -1 &quot;$(FlatcCacheDirectory)&quot;" />
+  </Target>
+</Project>
+```
+
+- Commands: incremental `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo`, exit 0, 0 warnings, 0 errors, no download (`fix6-build-tests.log`); `dotnet test … --no-build --no-restore --filter "FullyQualifiedName~WorkshopWireBuildTests|FullyQualifiedName~CSharpStaticGateTests"` with `CSHARP_STATIC_GATE_BINLOGS=binlogs-c6` (predates this project-file edit; the coordinator recaptures), 128 passed, 0 failed, 0 skipped, exit 0 (`fix6-focused.log`); `--list-tests`, exit 0, `WorkshopWireBuildTests` 17, `CSharpStaticGateTests` 111 (`fix6-list.log`); `git diff --check 3a80c6a8`, clean, exit 0 (`fix6-diff-check.log`). The shared cache still holds only `flatc`; no new `s5-wire-build-*` directory.
+- Counts unchanged: `WorkshopWireBuildTests` 17; full round 7,339.
+- Residual: with a `*` or `?` in the cache path the sweep matches nothing, so orphans there stay until removed by hand (no wrong deletion); the unchanged `MakeDir` and quoted `Exec` uses of the cache path are outside this finding.
+
+## E23 Review pass 7 (25 November 2026, coordinator)
+
+- Inputs `.tools/s5-evidence/review-pass7/` (`blind-repair.diff`, `full-repair.diff` against `a41139a0`, `interdiff.diff` from pass 6's). Layers, fresh no-history agents: ECH `a49ebe245d6d427bf` (2), VG `a774baba015da1227` (2), FO `af2d7143287dac894` (1, record), EFE `a0b69b72273b19d09` (Incomplete on one test-comment finding; EFE6-F1 to F3 resolved; tier engine). Triage: contract pass 7 (6 rows). Group M (wildcard refusal with test; 90-minute stale age; exact coverage wording) to the same owner (E24); FO7-1 by the coordinator in the Auto Run Result at close.
+- The full sequence started on the pass-6 tree (`final-round-4.log`, `binlogs-c8/`) was stopped by the coordinator once pass 7 made the tree stale; it has no HEAD-AFTER line and does not count.
+
+## E24 Review pass 7 fixes (25 November 2026, implementation owner of E20 and E22)
+
+Same owner and environment as E20 and E22; every log starts with `git rev-parse HEAD` (`a41139a0`). Nothing committed, staged or stashed; E22 and E23 not edited.
+
+- `CuriousContraptions.FlatBuffers.csproj`, `ProvisionFlatBuffersCompiler` (ECH and VG pass 7): a third `Error`, after the empty-cache-root check and before `MakeDir`, refuses a cache directory whose path contains `*` or `?` (`Regex.IsMatch('$(FlatcCacheDirectory)', '[*?]')`), with the message `The FlatBuffers compiler cache path "<path>" contains a wildcard character (* or ?). Wildcard characters are not supported in the compiler cache path, because MSBuild reads them as a file pattern; nothing was read or written there.` The escape stays for `;`; its comment now says a wildcard is refused above. This one `Error` also covers the download path's own uses of the cache path, so no second check is needed: it precedes every step of the target (the sweep, the cache-hit `GetFileHash Files="$(FlatcPath)"`, an item parameter that would otherwise glob, the `Copy`, `chmod`, hash and `mv`), and generation runs `flatc` only after provisioning succeeds.
+- `WorkshopWireBuildTests`: new fact `AWildcardInTheCompilerCachePathRefusesTheBuild` (contract row "Wildcard in the cache path"). It builds with `-p:FlatcCacheRoot=<copy>/flatc?cache`, whose cache directory holds a copy of the verified `flatc`, so a build ignoring the refusal would exit 0 without a download. A one-day-old `flatc.<guid>.tmp` sits in the decoy sibling `flatcXcache`, which the `?` matches. The case asserts a non-zero exit, the message naming the cache path, the "not supported" sentence, no assembly, unchanged entries in the `?` cache directory, and an unchanged decoy write time.
+- `ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun` (ECH and EFE pass 7): the stale file is 90 minutes old (was two hours); the ten-minute control is kept. Correction to E22: its claim that dropping `.ToUniversalTime()` fails the case on any host an hour or more from UTC was wrong at exactly UTC+1, where the two-hour file read one hour old and was still swept. With 90 minutes, on a host one hour or more from UTC: ahead of UTC the stale file reads at most 30 minutes old and is kept (a 30-minute margin over the build's duration); behind it the fresh file reads at least 70 minutes old and is swept. A host less than an hour from UTC cannot show the slip. The comment and the contract row state this.
+- `CSharpStaticGateTests.cs`: vendored project digest re-pinned once, after the project-file edit: `b9c9c37696740d6baae98d40c6b03191bdcbe047d4064391b686d48f6c41c322`.
+- Commands: incremental `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo`, exit 0, 0 warnings, 0 errors, no download (`fix7-build-tests.log`); `dotnet test … --no-build --no-restore --filter "FullyQualifiedName~WorkshopWireBuildTests|FullyQualifiedName~CSharpStaticGateTests"` with `CSHARP_STATIC_GATE_BINLOGS=binlogs-c6` (predates this project-file edit; the coordinator recaptures), 129 passed, 0 failed, 0 skipped, exit 0 (`fix7-focused.log`); `--list-tests`, exit 0, `WorkshopWireBuildTests` 18, `CSharpStaticGateTests` 111 (`fix7-list.log`); `git diff --check 3a80c6a8`, clean, exit 0 (`fix7-diff-check.log`). The shared cache still holds only `flatc`; no new `s5-wire-build-*` directory.
+- Counts: `WorkshopWireBuildTests` 17 → 18; full round 7,340 (AC4 delta +23, 7,317 + 23); registration 787 and hook selection 152 unchanged, if the baseline is unchanged.
+- Residual: a literal `;` in a global `FlatcCacheRoot` is outside this finding; the property-function path (the production default) was shown to work by E22's probe.
+
+## E25 Review pass 8 (25 November 2026, coordinator)
+
+- Inputs `.tools/s5-evidence/review-pass8/` (`blind-repair.diff`, `full-repair.diff` against `a41139a0`, `interdiff.diff` from pass 7's). Layers, fresh no-history agents: ECH `a85cb74a5f9da9c81` (none), VG `aea6dcb62ed1f2a3f` (2: the `*` half of the refusal untested; the download-path `Touch`, rejected as before), FO `a53ceda9595a98ba6` (none; the refusal is a typed refusal and the kept escape is one route; aside: the sweep comment overstates where `;` is safe), EFE `a43e322d3982af7fa` (Incomplete on the `*` case; EFE7-F1 resolved; tier engine). Triage: contract pass 8. The `*` theory row and the comment correction go to the same owner (E26).
+- Side effects reported by reviewers, outside the checkout and the compiler cache: ECH's probe created and then removed an empty directory `~/Library/Application Support/c/` (HOME override did not reach `GetFolderPath` on macOS); EFE's probe, run with a fresh `DOTNET_CLI_HOME`, refreshed the write times of the pinned toolchain's workload install records under `~/.local/share/tim-toolchain/dotnet-10.0.403/metadata/workloads/InstalledPacks/` (packs already installed; no content change reported). Neither touches the cache or a checkout; the final round runs after them and records the toolchain check.
+- The full sequence started on the pass-7 tree (`final-round-5.log`, `binlogs-c9/`) was stopped by the coordinator once pass 8 made the tree stale; it has no HEAD-AFTER line and does not count.
+
+## E26 Review pass 8 fixes (25 November 2026, implementation owner of E20, E22 and E24)
+
+Same owner and environment as E20; every log starts with `git rev-parse HEAD` (`a41139a0`). Nothing committed, staged or stashed; E25 not edited.
+
+- `WorkshopWireBuildTests.AWildcardInTheCompilerCachePathRefusesTheBuild` (VG and EFE pass 8) is a theory of two cases: `flatc?cache` with decoy `flatcXcache`, and `flatc*cache` with decoy `flatcXYcache`; every assertion is kept, so narrowing the refusal to either character fails one case. Contract row "Wildcard in the cache path" updated.
+- `CuriousContraptions.FlatBuffers.csproj` (FO aside, pass 8): the comment above the sweep's escaped include now says only that this include never reads a `;` in the cache path as a separator; the path's other item uses are not escaped and the comment no longer implies they are.
+- `CSharpStaticGateTests.cs`: vendored project digest re-pinned once, after the project-file edit: `23bb9021bd735e351ef8444107499c324e0b9dead21a3da66b7cb86bea805765`.
+- Commands: incremental `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo`, exit 0, 0 warnings, 0 errors, no download (`fix8-build-tests.log`); `dotnet test … --no-build --no-restore --filter "FullyQualifiedName~WorkshopWireBuildTests|FullyQualifiedName~CSharpStaticGateTests"` with `CSHARP_STATIC_GATE_BINLOGS=binlogs-c6` (predates this project-file edit; the coordinator recaptures), 130 passed, 0 failed, 0 skipped, exit 0 (`fix8-focused.log`); `--list-tests`, exit 0, `WorkshopWireBuildTests` 19, `CSharpStaticGateTests` 111 (`fix8-list.log`); `git diff --check 3a80c6a8`, clean, exit 0 (`fix8-diff-check.log`). The shared cache still holds only `flatc`; no new `s5-wire-build-*` directory.
+- Counts: `WorkshopWireBuildTests` 18 → 19; full round 7,341 (AC4 delta +24, 7,317 + 24); registration 787 and hook selection 152 unchanged, if the baseline is unchanged.
+
+## E27 Review pass 9 (25 November 2026, coordinator)
+
+- Inputs `.tools/s5-evidence/review-pass9/` (`blind-repair.diff`, `full-repair.diff`, `interdiff.diff`). Layers (test and comment repair: both auditors and Verification Gap), fresh no-history agents: VG `a2ff5b6818c967c88` (1: the wildcard cases pre-create the cache directory, so a refusal placed after `MakeDir` would pass), FO `a9ac3930837b9ff75` (none), EFE `af3f18811d60de47c` (Scoped Pass; EFE8-F1 resolved). Triage: contract pass 9 (1 row), test patch to the same owner (E28).
+- The full sequence started on the pass-8 tree (`final-round-6.log`, `binlogs-c10/`) was stopped by the coordinator during the full round once pass 9 made the tree stale; it has no HEAD-AFTER line and does not count. Recorded for reference only: captures and gate completed before the stop.
+
+## E28 Review pass 9 fix (25 November 2026, implementation owner of E20, E22, E24 and E26)
+
+Same owner and environment as E20; every log starts with `git rev-parse HEAD` (`a41139a0`). Test-only change; no product edit, so no digest re-pin. Nothing committed, staged or stashed; E27 not edited.
+
+- `WorkshopWireBuildTests.AWildcardInTheCompilerCachePathRefusesTheBuild` (VG pass 9) takes a third parameter, `cached`. The uncached `?` case leaves the wildcard cache root absent before the build and asserts it still does not exist afterwards, so a refusal moved below `MakeDir` or below the sweep fails it. The cached `*` case keeps the verified `flatc` copy, so a build that skipped the refusal would run it and exit 0 without a download, and adds a 90-minute-old `flatc.<guid>.tmp` whose survival it asserts through the unchanged directory entries. Both keep the message, no-assembly and decoy assertions. Contract row "Wildcard in the cache path" updated, naming the ordering defect each assertion catches.
+- Stated limit: if the refusal were removed altogether, the uncached case would download the compiler into its own temporary cache (never the shared one) before failing; the cached case fails without the network.
+- Commands: incremental `dotnet build CuriousContraptions.tests/CuriousContraptions.tests.csproj -c Debug --nologo`, exit 0, 0 warnings, 0 errors, no download (`fix9-build-tests.log`); `dotnet test … --no-build --no-restore --filter "FullyQualifiedName~WorkshopWireBuildTests"`, 19 passed, 0 failed, 0 skipped, exit 0 (`fix9-focused.log`); `--list-tests`, exit 0, `WorkshopWireBuildTests` 19 (`fix9-list.log`); `git diff --check 3a80c6a8`, clean, exit 0 (`fix9-diff-check.log`). The shared cache still holds only `flatc`; no new `s5-wire-build-*` directory.
+- Counts unchanged: `WorkshopWireBuildTests` 19; full round 7,341; registration 787 and hook selection 152, if the baseline is unchanged.
+
+## E29 Review pass 10; contract rows moved here for the word budget (25 November 2026, coordinator)
+
+- Review pass 10 inputs `.tools/s5-evidence/review-pass10/`. Layers, fresh no-history agents: VG `a26b36a263751b341` (none: every misplacement or removal of the wildcard refusal fails a case), FO `a473ccb8f79c16f26` (none), EFE `a8b3e71e78f937ab8` (Scoped Pass). Its observation, not a finding: E24's sentence that `GetFileHash Files="$(FlatcPath)"` "would otherwise glob" is probably inaccurate (task parameters do not expand wildcards); E24 stays as written and this note corrects it.
+- Review Triage Log passes 2 to 10 as written before the trim (contract now carries one line per finding group):
+  - Pass 2 (E11), 12 findings, high 3, medium 5, low 4: BH2-1, ECH2-1, FO2-1 (group H, high, patch) the define refusal ignored space separators, which Csc splits on (FO reproduced it) — separate on `[;,\s]`, re-pin the digest. BH2-2, ECH2-2, VG2-1, EFE2-F2 (group I, medium, patch) `ASpanAccessorDefineRefusesTheBuild` passed only the bare token — add the define inside a `;` list and a space-separated list by editing the copied project file, and a near-miss `ENABLE_SPAN_TX` control that builds. BH2-3, ECH2-3, EFE2-F4 (group J, low, patch) `WireBuildCopy.Create` leaked its temporary directory when `RequireCachedCompiler` or the copy threw — dispose on any exception and rethrow. EFE2-F1 (medium, patch) ECH7's pass-1 deferral was not allowed by Re-review scope — an `OnError` target deletes only this build's own temporary file on any provisioning failure. EFE2-F3 (low, patch) stale records (Execution cells citing `fix1-focused.log` on invalidated c2 logs, c3 unrecorded, AC4 cell 7,323, two status lines) — corrected by the coordinator (E11, E17).
+  - Pass 3 (E13), 7 findings, medium 4, low 3: BH3-1, ECH3-2, VG3-1, EFE3-F1 (group K, medium, patch) the repair removed the only case where `ENABLE_SPAN_T` is the whole `DefineConstants` value, so the regex's `^` and `$` branches were untested — restore the global `-p:` case; VG3-1 also asked for refusal rows with `,` or a space after the symbol and a control with a character before it (`S5_ENABLE_SPAN_T`). ECH3-1 (low, defer, later closed at pass 6) a build killed between `Copy` and `mv` leaves its `flatc.<guid>.tmp`. VG3-2 (low, reject) the `OnError` cleanup has no suite test — reaching it needs the download path, which the intent keeps out of tests. EFE3-F2 (low, patch) the `OnError` probe source sat in ignored `.tools/` — copied into E13.
+  - Pass 4 (E15), 1 finding: EFE4-F1 (medium, patch) the whole-value fact still never reached `$` because the SDK's `AddImplicitDefineConstants` appends framework defines after a global `-p:DefineConstants` — add `-p:DisableImplicitFrameworkDefines=true`, correct the comment, the M6 cell and E14 (by a new entry).
+  - Pass 5 (E17), 0 findings: VG none, FO none, EFE Scoped Pass; FO's aside that `audit-s5-5.md` matches AC3's grep was false.
+  - Pass 6 (E21), 12 findings, medium 4, low 6, false 2: VG6-1 (medium, patch, group L) the sweep age tested only at ten minutes and one day — stale file two hours old. VG6-2 (medium, reject) the download-path `Touch` has no suite test — intent keeps the network out of tests; E21's cold-cache run executed it. ECH6-1 (false, reject) an undeletable stale orphan fails loudly (MSB3061); provisioning requires a writable cache. ECH6-2 (false, reject) a placement suspended over 60 minutes loses its file and fails loudly; `FlatcPath` is never partial. ECH6-3 (low, patch, L) the cache directory was unescaped in the sweep's glob — escaped. ECH6-4 (low, patch, L) the new test compared the whole shared-cache listing — it asserts only what the case controls. ECH6-5 and EFE6-F1 (medium, patch) AC4 said +21 / 7,338 — restated. ECH6-6 and EFE6-F2 (low, patch) task 7 said the cases never write the cache — reworded. FO6-1 (low, patch) deferral records stayed open — closed. EFE6-F3 (low, patch) the M8 and new rows cited pre-repair cold-path evidence and the Code Map status read `done` — corrected.
+  - Pass 7 (E23), 6 findings, medium 2, low 4: ECH7-1 (medium, patch, group M) a cache path with `*` or `?` made the escaped glob match nothing, silently — typed refusal with a build test. ECH7-2 and EFE7-F1 (low, patch, M) a two-hour stale file still passed a dropped UTC conversion at exactly UTC+1 — 90 minutes, coverage stated exactly. VG7-1 (medium, patch, M) no test exercised the glob escape — the wildcard-refusal case with a decoy sibling. VG7-2 (low, reject) the download-path `Touch` — as VG6-2. FO7-1 (low, patch) the Auto Run Result said "deferred ECH3-1" — rewritten at close.
+  - Pass 8 (E25), 3 findings: VG8-1 and EFE8-F1 (medium, patch) only `?` executed — theory with `*`. VG8-2 (low, reject) as VG6-2. FO8 aside (low, patch) the sweep comment overclaimed where `;` is safe — limited to the sweep's include.
+  - Pass 9 (E27), 1 finding: VG9-1 (low, patch) the wildcard cases pre-created the cache directory — the `?` case starts with the root absent and asserts it stays absent; the `*` case keeps a stale file that must survive.
+  - Pass 10 (this entry), 0 findings.
+- Acceptance rows "Leftover temporary file" and "Wildcard in the cache path" in full, as written by the implementation owner (E20 to E28) before the coordinator shortened them in the contract:
+  - Leftover temporary file (ECH3-1; Always: placement by rename): `WorkshopWireBuildTests.ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun`: `-p:FlatcCacheRoot=<the case's own cache, with a space in its path>`, the production property the cache path derives from, pre-populated with a copy of the verified shared `flatc` (two days old), a truncated `flatc.<guid>.tmp` 90 minutes old and a garbage one ten minutes old; the build succeeds without a download and generates every schema type; the cache directory then holds exactly `flatc` and the ten-minute file, both with unchanged write times; no entry is added to the shared cache directory and the shared `flatc` exists with its write time unchanged; the case's cache is gone after disposal. Control: the ten-minute file, which a concurrent build could still be placing, is kept, and the old `flatc` is kept and run. Boundary: the two ages pin the 60-minute sweep age between 10 and 90 minutes; on a host one hour or more from UTC, reading local times as UTC fails the case (ahead: the stale file reads at most 30 minutes old and is kept, a 30-minute margin over the build's duration; behind: the fresh file reads at least 70 minutes old and is swept); a host less than an hour from UTC cannot show that slip. Not reached by the suite: the fresh write time of a temporary file born on the download path (network), shown by the probe (E20) and the post-repair cold-cache run (E21); a `;` in the cache path, shown by the probe (E22).
+  - Wildcard in the cache path (passes 7–9): `WorkshopWireBuildTests.AWildcardInTheCompilerCachePathRefusesTheBuild`, two cases. Uncached: `-p:FlatcCacheRoot=<copy>/flatc?cache`, root absent before the build, decoy sibling `flatcXcache`. Cached: `<copy>/flatc*cache`, its cache directory holding a copy of the verified `flatc` and a 90-minute-old `flatc.<guid>.tmp`, decoy `flatcXYcache`. Both: non-zero exit; the message names the cache path and says wildcard characters are not supported in it; no assembly; a one-day-old `flatc.<guid>.tmp` in the decoy (which the wildcard matches) keeps its write time. Uncached: the wildcard root still does not exist. Cached: the wildcard cache directory's entries, including the stale file, are unchanged. Ordering defects caught: the refusal moved below `MakeDir` or below the sweep leaves the uncached root created; the refusal removed lets the cached case run its compiler and exit 0 without a download (the message assertions also fail); an unescaped sweep run before the refusal deletes the decoy's file in both cases and the cached case's stale file. Control: `ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun` builds with a cache path that holds a space and no wildcard. Boundary: each refused character, `?` and `*`, as the only wildcard in the path.
+
+## E30 Final round, Final diff scope check and close of the ECH3-1 repair (25 November 2026, coordinator)
+
+- Final sequence `final-round-7.log` (`binlogs-c11/`, exported as `CSHARP_STATIC_GATE_BINLOGS`), executor the coordinator, under `caffeinate -i`, started after E28's last test edit: `HEAD` and `HEAD-AFTER` both `a41139a006dce3f2889f56bcfead9ef123c02d59` (the candidate is that commit plus the owned uncommitted repair; only the contract and run log changed while it ran). Captures: restore, playtest, solution, web restore, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`, each exit 0 under `set -eu`, 0 warnings, 0 errors, no download. Maintainability gate: both canary `PASS` lines, `Coupling dependencies: contract=4671, model=4, intrusive=0; violations=0`, `violations=0 (metrics=0, coupling=0). PASS`. Policy: `Policy fixtures: Passed: 67, Failed: 0, Skipped: 0`; `Auto: structural findings=0`. Registration check: 787 passed (17 + 67 + 192 + 97 + 414), 0 failed, 0 skipped. Full round with the deferred filter and `TreatNoTestsAsError=true`: WorkerAotGuard.Tests 17, BundleElements.Tests 287, Coverage.Tests 115, E2eRunner.Tests 256, CuriousContraptions.tests 6,666; 7,341 passed (= 7,317 + 24), 0 failed, `Skipped: 0` in every project; exit 0.
+- Final diff scope check of the repair (`git diff a41139a0`): informed reviewer EFE `a8b3e71e78f937ab8`, re-engaged after pass 10. Verdict Pass: six paths, every hunk serves the E19 order or a confirmed pass-6 to pass-9 repair; no unrelated churn; no record kept twice. Simplification: no justified opportunity (the sweep's escape, the inline 60-minute age, two redundant test lines, the wildcard theory's `cached` branch and the extra property read were each judged too small or would reopen a repair).
+- Contract trimmed to its close budget by moving the triage rows of passes 2 to 10 and the two long acceptance rows here (E29), compressing the post-review Spec Change Log lines and the Concurrency section (the earlier text is in commit `a41139a0`). Status `done`; Auto Run Result rewritten (FO7-1).
+- Close note addendum: the recurring class this slice is a test whose stated coverage outran what it exercised (passes 2 to 4 on the define refusal; passes 6 to 9 on the sweep's age, escape and refusal order). No item is left unresolved or deferred; ECH3-1 is closed. Not exercised before the repair commit: the unmodified hook on it (expected selection 152); not runnable locally: the O3 CI check on Linux, which now also covers the sweep and `Touch` on a cold cache.

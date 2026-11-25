@@ -45,15 +45,32 @@
 
   <!-- Makes the verified compiler available at FlatcPath. A cached binary is verified and never replaced; a missing one is
        downloaded into the intermediate directory, verified, made executable, verified again and renamed into place from a
-       temporary file in the cache directory, so no build ever sees a partial file at FlatcPath. A failure deletes this
-       build's own GUID-named temporary file, never another build's. Runs only from GenerateWireAccessors, so a build that
-       does not generate never needs the network or the cache. -->
+       temporary file in the cache directory, so no build ever sees a partial file at FlatcPath and a temporary file is never
+       run. A failed build deletes its own GUID-named temporary file at once; a build killed before its rename cannot, so
+       every run first deletes the cache directory's temporary files last written more than 60 minutes ago. Placing one
+       takes seconds (touch, copy a 7 MB binary, chmod, hash, rename); only a build suspended for over 60 minutes while placing
+       can lose its file to another build's sweep, and it then fails at its hash or rename with nothing placed at FlatcPath.
+       An orphan costs only its disk space until it is swept. The extracted binary is touched before the copy,
+       because the archive entry's write time (February 2025) survives Unzip and Copy and would make a new temporary file
+       look stale. Runs only from GenerateWireAccessors, so a build that does not generate never needs the network or the
+       cache. -->
   <Target Name="ProvisionFlatBuffersCompiler">
     <Error Condition="'$(FlatcAsset)' == ''"
            Text="The pinned FlatBuffers compiler $(FlatcVersion) has no release asset for this build host ($([System.Runtime.InteropServices.RuntimeInformation]::OSDescription), $(FlatcHostArchitecture)). Supported build hosts: macOS (Arm64, X64) and Linux X64." />
     <Error Condition="'$(FlatcCacheRoot)' == ''"
            Text="The FlatBuffers compiler cache has no location: Environment.SpecialFolder.LocalApplicationData evaluated to an empty path (set HOME, or XDG_DATA_HOME on Linux)." />
+    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(FlatcCacheDirectory)', '[*?]'))"
+           Text="The FlatBuffers compiler cache path &quot;$(FlatcCacheDirectory)&quot; contains a wildcard character (* or ?). Wildcard characters are not supported in the compiler cache path, because MSBuild reads them as a file pattern; nothing was read or written there." />
     <MakeDir Directories="$(FlatcCacheDirectory)" />
+    <!-- The directory is escaped, so this include never reads a ';' in the cache path as a separator (a wildcard is refused
+         above). With no temporary file MSBuild still evaluates the condition once, with an empty path, which its first
+         comparison skips. -->
+    <ItemGroup>
+      <_FlatcTemporaryFile Include="$([MSBuild]::Escape('$(FlatcCacheDirectory)'))flatc.*.tmp" />
+      <_FlatcStaleTemporary Include="@(_FlatcTemporaryFile)"
+                            Condition="'%(_FlatcTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_FlatcTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $([System.DateTime]::UtcNow.AddMinutes(-60).Ticks)" />
+    </ItemGroup>
+    <Delete Files="@(_FlatcStaleTemporary)" />
     <PropertyGroup>
       <_FlatcCached>$([System.IO.File]::Exists('$(FlatcPath)'))</_FlatcCached>
       <_FlatcDownloadDirectory>$(IntermediateOutputPath)flatc-download/</_FlatcDownloadDirectory>
@@ -81,6 +98,7 @@
     <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcArchiveSha256)' != '$(FlatcArchiveSha256)'"
            Text="The downloaded FlatBuffers compiler archive &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcArchiveSha256.ToLowerInvariant()), but the pinned digest is $(FlatcArchiveSha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
     <Unzip Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcArchive)" DestinationFolder="$(_FlatcDownloadDirectory)extracted/" />
+    <Touch Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcDownloadDirectory)extracted/flatc" />
     <Copy Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcDownloadDirectory)extracted/flatc" DestinationFiles="$(_FlatcTemporary)" />
     <Exec Condition="'$(_FlatcCached)' != 'true'" Command="chmod 755 &quot;$(_FlatcTemporary)&quot; &amp;&amp; test -x &quot;$(_FlatcTemporary)&quot;" />
     <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcTemporary)" Algorithm="SHA256">

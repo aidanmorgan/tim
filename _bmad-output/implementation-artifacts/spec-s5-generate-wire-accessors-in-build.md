@@ -12,14 +12,7 @@ context:
   - '{project-root}/docs/delivery-workflow.md'
   - '{project-root}/_bmad/custom/bmad-loop-protocol.md'
 warnings: ['oversized']
-deferred:
-  - summary: >-
-      A build killed outright between placing flatc.<guid>.tmp in the compiler cache and renaming it leaves that temporary file behind.
-    evidence: |-
-      Review pass 3, ECH3-1, deferred under Re-review scope: the kill case predates the pass-2 repair, which removes the file on every build failure through DeleteFlatcTemporary; no build step runs after a kill. Harm: one orphaned file per killed cold-cache download; FlatcPath is never partial. Recorded in deferred-work.md (S5 residual).
-    location: >-
-      CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj (ProvisionFlatBuffersCompiler)
-    severity: low
+deferred: []
 ---
 
 <intent-contract>
@@ -149,9 +142,7 @@ The owner answered these directly, in one batch.
 
 ### Concurrency
 
-Prerequisite (coordinator decision 37, 23 November 2026): the planning work of 22–23 November 2026 publishes first. That work is `docs/planning/elements/readiness/` (the owner and coordinator decisions), `docs/planning/invest/delivery-batches.md` sections 0 and 5, `named-elements.md`, `requirements.md`, `sprint-status.yaml`, `deferred-work.md` and `AGENTS.md`. This slice starts from the published main that contains it, and the coordinator re-reads the S5 section and the `deferred-work.md` "S5:" item on that baseline before dispatch.
-
-Cannot run beside a slice that edits `schemas/*.fbs` or the two generated files: that slice would regenerate files this one deletes. Before the engine programme no allowed slice does (owner decisions 22 and 24h: visible-solid parts A, B, B2 and C, the Baseball repair, S3, and S6 with S6b–S6g; S5b follows this slice and starts from its published main). Under owner decision 24m S5 is lane 2; lane 1 (visible-solid part B), lane 3 (lettered level ids) and lane 4 (policy-tool fixes) run in other worktrees, and none edits `schemas/*.fbs` or the generated files (checked on the baseline, run log E1). Lane 4 edits `tools/anvil/CheckStagedTests.cs` and `VerifyPolicy.cs`, whose lines this contract cites as unchanged evidence; those citations are resolved at merge. One publish token; its holder merges `origin/main` once under 24m rule (2). Shared files touched: `CuriousContraptions.tests/CuriousContraptions.tests.csproj` (the one ProjectReference), `CuriousContraptions.slnx`, `CuriousContraptions.tests/CSharpStaticGateTests.cs` (S3 edits its trim list and `GeneratedConfigViolations`), `_bmad/custom/bmad-loop-protocol.md`, `_bmad/custom/role-cards.md`, `docs/delivery-workflow.md` (S3 edits its registration paragraph), `deferred-work.md`, `TODO.md`. One publisher at a time; the later publisher merges main once and repeats the full local round on the merged candidate. The new test file is subject to the staged-source rule of `tools/anvil/CheckStagedTests.cs`: it is staged with `git add` before the candidate commit.
+Prerequisite: the planning work of 22–23 November 2026 publishes first (coordinator decision 37); the baseline contains it. Cannot run beside a slice that edits `schemas/*.fbs` or the generated files; none of the owner decision 24m lanes does (run log E1). Lane 4 edits `tools/anvil/CheckStagedTests.cs` and `VerifyPolicy.cs`, cited here as unchanged evidence; those citations are resolved at merge. Shared documents: `_bmad/custom/bmad-loop-protocol.md`, `_bmad/custom/role-cards.md`, `docs/delivery-workflow.md`, `deferred-work.md`, `delivery-batches.md`, `TODO.md`; shared code files: `CuriousContraptions.slnx`, the test project file and `CSharpStaticGateTests.cs`. One publish token; its holder merges `origin/main` once under 24m rule (2), keeps both sides of shared documents and repeats the full local round on the merged commit. New test files are staged with `git add` before the commit (`CheckStagedTests.cs`).
 
 ## Tasks & Acceptance
 
@@ -162,7 +153,7 @@ Cannot run beside a slice that edits `schemas/*.fbs` or the two generated files:
 4. `tools/WorkshopWireGeneration/`, `CuriousContraptions.slnx`, `CuriousContraptions.tests/CuriousContraptions.tests.csproj`, `CuriousContraptions.tests/WorkshopWireGenerationTests.cs` -- delete the tool, its solution entry, its reference and its tests -- D2.
 5. `CuriousContraptions.tests/CSharpStaticGateTests.cs` -- delete `GeneratedWire` and its two exemptions; add the rule "vendored project only, under its intermediate generation folder, compiler header, each declared type is a schema type or a schema table's or union's `Verify` class, and the set of schema types is complete" as a function with direct cases; add the case that the vendored project's logged compile carries no `ENABLE_SPAN_T` define; update the vendored project digest -- M6.
 6. `CuriousContraptions.tests/WorkshopFormatTests.cs`, `CuriousContraptions.tests/TypedTransportCommandTests.cs`, `CuriousContraptions.tests/GameFloatGuardTests.cs` -- remove the entries for the deleted paths and the five generated-adapter rows -- no dead allow-list rows.
-7. `CuriousContraptions.tests/WorkshopWireBuildTests.cs` -- each test method copies exactly `Directory.Build.props`, `Directory.Build.targets`, `global.json`, `.editorconfig` (so the copied compile sees the same `[CuriousContraptions.FlatBuffers/**.cs] generated_code = true` section and no `.editorconfig` above the temporary folder applies), `tools/runtime/RuntimeTypeScript.targets`, the files `git ls-files -- CuriousContraptions.FlatBuffers` lists in the test's checkout (so no `obj/` or `bin/` content is copied) and `schemas/*.fbs` into its own new temporary directory outside the checkout, builds there, and deletes it at the end; no copy, build or state is shared between methods. It drives M1 to M5 and M7 through real `dotnet build` child processes, reading the built assembly's metadata. Each child keeps `PATH`, `DOTNET_ROOT`, `HOME`, `TMPDIR` and `NUGET_PACKAGES`, runs the `dotnet` executable that `DOTNET_HOST_PATH` names, clears only `MSBUILD*`, `MSBuildSDKsPath`, `MSBuildExtensionsPath`, `VSTEST_*` and `TESTINGPLATFORM_*`, passes `-nodeReuse:false` and has a generous finite timeout. The cases rely on the warm cache that building the test project guarantees and never touch the network or write the cache. Record in the run log that the copy's implicit restore, including the SDK's ILLink package for an `IsTrimmable` project, resolves from the global packages folder without network. M5 changes one hex digit of the pinned binary digest in the copied project file.
+7. `CuriousContraptions.tests/WorkshopWireBuildTests.cs` -- each test method copies exactly `Directory.Build.props`, `Directory.Build.targets`, `global.json`, `.editorconfig` (so the copied compile sees the same `[CuriousContraptions.FlatBuffers/**.cs] generated_code = true` section and no `.editorconfig` above the temporary folder applies), `tools/runtime/RuntimeTypeScript.targets`, the files `git ls-files -- CuriousContraptions.FlatBuffers` lists in the test's checkout (so no `obj/` or `bin/` content is copied) and `schemas/*.fbs` into its own new temporary directory outside the checkout, builds there, and deletes it at the end; no copy, build or state is shared between methods. It drives M1 to M5 and M7 through real `dotnet build` child processes, reading the built assembly's metadata. Each child keeps `PATH`, `DOTNET_ROOT`, `HOME`, `TMPDIR` and `NUGET_PACKAGES`, runs the `dotnet` executable that `DOTNET_HOST_PATH` names, clears only `MSBUILD*`, `MSBuildSDKsPath`, `MSBuildExtensionsPath`, `VSTEST_*` and `TESTINGPLATFORM_*`, passes `-nodeReuse:false` and has a generous finite timeout. The cases rely on the warm cache that building the test project guarantees, never touch the network and place nothing in the cache; like any generating build they sweep stale temporary files from it (Spec Change Log, ECH3-1 closure). Record in the run log that the copy's implicit restore, including the SDK's ILLink package for an `IsTrimmable` project, resolves from the global packages folder without network. M5 changes one hex digit of the pinned binary digest in the copied project file.
 8. From `web.binlog` and `solution.binlog`, record how many times the vendored project builds and with which intermediate directories (query: the `IntermediateOutputPath` of each `CuriousContraptions.FlatBuffers` project evaluation). If, within one binary log, two evaluations of `CuriousContraptions.FlatBuffers` with different global properties that each run `GenerateWireAccessors` or a compile target share one `IntermediateOutputPath`, stop and return to planning. NuGet's restore-only evaluation (`ExcludeRestorePackageImports=true`, restore-graph targets only) and sequential builds reusing one intermediate directory are normal and not a stop (coordinator amendment 1, Spec Change Log).
 9. On the implementer's machine, once: move the cache directory aside, run the solution capture build with network access, record the run (download, verification, placement, success) in the run log, and restore nothing -- M8.
 10. `schemas/README.md`, `_bmad/custom/bmad-loop-protocol.md:155`, `_bmad/custom/role-cards.md:64`, `docs/delivery-workflow.md:34`, `docs/planning/invest/delivery-batches.md`, `deferred-work.md`, `TODO.md` -- describe build generation, the prerequisite and the cache path; drop the two pathspecs, "still committed" and the generator phrase; rewrite the S5 story's acceptance sentence to name the pinned compiler alone, recording that the joining tool `WorkshopWireGeneration` it named was deleted (D2; it existed only to make the output committable); close S5 and record S5b in `deferred-work.md` as "queued: generate the TypeScript wire module in the build (S5b), straight after S5 and before the engine programme (owner decision 24h)", with its numbers (O4), owner (the coordinator) and gate. The rewritten `schemas/README.md` and the S5 story state that the C# accessors are build output, that the domain mapping codecs remain ordinary typed C# (coordinator decision 38), and that the hand-coded wire listed in the Code Map ("Wire code left hand-written") remains until `ENGINE-WIRE-ABI` (owner decision 24k) and, for the TypeScript module, S5b -- current documents.
@@ -171,89 +162,91 @@ Cannot run beside a slice that edits `schemas/*.fbs` or the two generated files:
 - AC1: Given a checkout with no generated C#, when the five compiler-log capture builds run with a warm cache, and once from a cold cache (M8), then all succeed and `git status --porcelain` lists no generated file.
 - AC2: Given the candidate's staged index, when the unmodified `.githooks/pre-commit` runs, then its snapshot builds generate the accessors from the cache and the hook passes.
 - AC3: Given the candidate, when `git ls-files` is searched for `WorkshopWireGenerated`, `WorkshopAuthoringGenerated` and `tools/WorkshopWireGeneration`, then nothing is listed; and `git grep -n -e WorkshopWireGenerat -e WorkshopAuthoringGenerat -e WorkshopWireGeneration -- . ':(exclude)_bmad-output' ':(exclude)docs/archive'` lists no match except in the S5 section of `docs/planning/invest/delivery-batches.md`, which records what was removed, or in a dated audit record under `docs/planning/elements/readiness/` that already matched at `baseline_revision` (the same `git grep` is run at the baseline and compared; such records are historical evidence and are not edited).
-- AC4: Given the full local round, when it completes, then failures are 0 and skipped is 0 in every project, and the total is the current full local round at the baseline + 21 (−7 `WorkshopWireGenerationTests` cases, +16 `WorkshopWireBuildTests` cases, +12 `CSharpStaticGateTests` cases: −7 + 16 + 12 = +21, after review passes 1 to 3's test additions; Spec Change Log), re-measured at start: 7,317 at the baseline, so 7,338.
+- AC4: Given the full local round, when it completes, then failures are 0 and skipped is 0 in every project, and the total is the current full local round at the baseline + 24 (−7 `WorkshopWireGenerationTests` cases, +19 `WorkshopWireBuildTests` cases, +12 `CSharpStaticGateTests` cases: −7 + 19 + 12 = +24, after the review repairs' test additions; Spec Change Log), re-measured at start: 7,317 at the baseline, so 7,341.
 - AC5: Given the maintainability gate on the candidate, when it runs, then both canaries pass and metric and coupling violations are 0.
 
 ## Spec Change Log
 
 - 24 November 2026, coordinator amendment 1 (`bad_spec`, outside the intent contract; lane coordinator's decision, option 1): task 8's stop condition now covers only evaluations that each run `GenerateWireAccessors` or a compile target; NuGet's restore-only evaluation and sequential builds are excluded. Trigger: `~/.local/share/tim-toolchain/logs/slice-s5/task8.log` (web evaluations 27 and 38) and `task8-pre-s5-web.log` (lane 1's pre-S5 `web.binlog`, evaluations 23 and 39, the same pair). Kept: tasks 1–4 and 9, M1–M5 and M7 results, baseline and owner. Planning re-check: `docs/planning/elements/readiness/audits/audit-s5-5.md`. Run log E4, E5.
-- 25 November 2026, records after review pass 1 (patches, not `bad_spec`): task 5 admits a union's `Verify` class as well as a table's (BH2); AC4's delta and the Verification counts follow the added tests (+14: 7,331, registration 787, hook 152); the unsupported-host manual check became an executed test (VG2). Run log E9, E10.
-- 25 November 2026, records after review pass 2 (patches): the span-define refusal is a three-case theory plus a near-miss control fact, so AC4's delta is +17 (7,334; registration 787 and hook 152 unchanged). Run log E11, E12.
-- 25 November 2026, records after review pass 3 (patch, test only): the refusal theory gains two trailing-separator rows, a whole-value `-p:` refusal fact returns, and the control becomes a two-case theory, so AC4's delta is +21 (7,338; registration 787 and hook 152 unchanged). Run log E13, E14.
+- 25 November 2026, records after review passes 1 to 3 (patches, not `bad_spec`): task 5 admits a union's `Verify` class as well as a table's; the unsupported-host check became an executed test; AC4 and the Verification counts follow the added tests. Run log E9 to E14.
+- 25 November 2026, ECH3-1 closed at the lane coordinator's order (4 November repair policy; patch): provisioning sweeps `flatc.*.tmp` files older than 60 minutes from the cache on every run, touches the extracted binary before copying it, and refuses a cache path containing `*` or `?` with a typed error before anything is read or written there; build tests added; task 7's cache sentence says the cases place nothing in the cache and sweep stale temporary files like any build; the deferred item is closed. AC4 now +24 (7,341; registration 787, hook 152). Run log E19 to E28.
 
 ## Review Triage Log
 
 ### 2026-11-25 — Review pass 1 (engine tier, all six layers; run log E8, E9; rows in full: E18)
 - verdicts: 29 findings — high 1, medium 12, low 7, false 7, maybe-false 2
 - findings:
-  - `[medium]` `[patch]` BH1 (group A): deleting a whole schema file did not rerun generation — the schema list became a generation input, with a build test.
-  - `[medium]` `[patch]` BH2 (group B): the gate refused a union's `Verify` class, which pinned flatc emits — admitted, with theory cases.
-  - `[medium]` `[patch]` BH3 (group C): no refusing case for a missing header or a non-table `Verify`; the README overstated the gate — cases added, sentence corrected.
-  - `[medium]` `[patch]` BH4 (group D): with an empty cache, build-test children downloaded before the no-download assertion — the cache is checked before any build.
-  - `[medium]` `[reject]` BH5: the download path and Linux pins have no test — the intent keeps the network and redirect switches out of tests; M8 ran (E2); Linux is the O3 check.
-  - `[medium]` `[patch]` ECH1 (group A): same as BH1.
-  - `[medium]` `[patch]` ECH2 (group B): same as BH2.
-  - `[low]` `[patch]` ECH3 (group G): `git ls-files`' exit code ignored and streams merged — fixed.
-  - `[maybe-false]` `[patch]` ECH4 (group G): JSON parsed from merged streams — settled by group G.
-  - `[false]` `[reject]` ECH5: a cached binary without its executable bit fails loudly; no reachable path shown.
-  - `[false]` `[reject]` ECH6: the download's file name — M8 shows the expected name; another fails loudly.
-  - `[low]` `[defer]` ECH7: orphaned temporary file — superseded by pass-2 EFE2-F1 (repaired) and pass-3 ECH3-1 (deferred).
-  - `[false]` `[reject]` ECH8: concurrent builds into one `obj/` are unsupported by MSBuild; the intent's concurrency clause covers the cache.
-  - `[false]` `[reject]` ECH9: duplicate schema type names fail the gate loudly; none shown.
-  - `[maybe-false]` `[reject]` ECH10: other mixed-case `MSBuild*` variables — none shown; would be low.
-  - `[medium]` `[patch]` ECH11 (group D): same as BH4.
-  - `[medium]` `[patch]` VG1 (group C): same as BH3.
-  - `[medium]` `[patch]` VG2: unsupported-host refusal untested — test added; download-digest refusals as BH5.
-  - `[false]` `[reject]` IA-a: the shared schema parser — a missed declaration fails the gate loudly.
-  - `[false]` `[reject]` IA-b: one deleted generated file with the stamp kept — outside the intent's "absent" (clean tree, `--no-incremental`).
-  - `[low]` `[patch]` IA-c: the blind diff lacked its excluded-paths header — added from pass 2.
-  - `[high]` `[patch]` FO1 (group E): no build-time refusal of `ENABLE_SPAN_T` — refusal target, test and digest re-pin.
-  - `[false]` `[reject]` FO2: the README's version provenance is not a provisioning path.
-  - `[low]` `[patch]` FO3: inline copies of `ProjectOf`'s expression — reused.
-  - `[low]` `[patch]` FO4: the output-source test's name — renamed.
-  - `[low]` `[patch]` FO5: the S5 story's "Now." label — "Before.".
-  - `[medium]` `[patch]` EFE-F1 (group B): same as BH2.
-  - `[medium]` `[patch]` EFE-F2 (group C): same as BH3.
-  - `[low]` `[reject]` IA-d: M8 and Linux provisioning have no suite test — as BH5.
+  - `[medium]` `[patch]` BH1, ECH1 (group A): deleting a schema file did not rerun generation — schema list made an input.
+  - `[medium]` `[patch]` BH2, ECH2, EFE-F1 (group B): a union's `Verify` class was refused — admitted.
+  - `[medium]` `[patch]` BH3, VG1, EFE-F2 (group C): missing-header and non-table `Verify` refusals untested — cases added.
+  - `[medium]` `[patch]` BH4, ECH11 (group D): an empty cache let build tests download — cache checked first.
+  - `[medium]` `[reject]` BH5, IA-d: download path and Linux untested — network kept out of tests; M8 (E2) and O3.
+  - `[low]` `[patch]` ECH3, `[maybe-false]` `[patch]` ECH4 (group G): merged streams, unchecked exit code — fixed.
+  - `[false]` `[reject]` ECH5, ECH6, ECH8, ECH9, IA-a, IA-b, FO2; `[maybe-false]` `[reject]` ECH10: refuted (E18).
+  - `[low]` `[defer]` ECH7: orphaned temporary file — superseded (pass 2 EFE2-F1, pass 3 ECH3-1).
+  - `[medium]` `[patch]` VG2: unsupported-host refusal untested — test added.
+  - `[low]` `[patch]` IA-c: blind diff lacked its header — added.
+  - `[high]` `[patch]` FO1 (group E): no build-time `ENABLE_SPAN_T` refusal — added.
+  - `[low]` `[patch]` FO3, FO4, FO5: `ProjectOf` reuse, test rename, story label — done.
 - pass-1 patches applied by the replacement implementation owner (run log E10); verified by pass 2.
 
-### 2026-11-25 — Review pass 2 (re-review of the pass-1 repair: BH, ECH, VG, FO, EFE; run log E11)
+### 2026-11-25 — Review pass 2 (BH, ECH, VG, FO, EFE; run log E11; rows in full: E29)
 - verdicts: 12 findings — high 3, medium 5, low 4, false 0, maybe-false 0
 - findings:
-  - `[high]` `[patch]` BH2-1 (group H): the define refusal ignored space separators, which Csc splits on (FO reproduced it) — separate on `[;,\s]`.
-  - `[medium]` `[patch]` BH2-2 (group I): `ASpanAccessorDefineRefusesTheBuild` passes only the bare token — add the define inside a `;` list and a space-separated list (by editing the copied project file) and a near-miss `ENABLE_SPAN_TX` control that builds.
-  - `[low]` `[patch]` BH2-3 (group J): `WireBuildCopy.Create` leaks its temporary directory when `RequireCachedCompiler` or the copy throws — dispose on any exception inside `Create` and rethrow.
-  - `[high]` `[patch]` ECH2-1 (group H): same root cause as BH2-1.
-  - `[medium]` `[patch]` ECH2-2 (group I): same as BH2-2.
-  - `[low]` `[patch]` ECH2-3 (group J): same as BH2-3.
-  - `[high]` `[patch]` FO2-1 (group H): forward-only — pass-1 FO1 only partly resolved by the space gap; same fix, plus re-pin the vendored project digest.
-  - `[medium]` `[patch]` VG2-1 (group I): same as BH2-2.
-  - `[medium]` `[patch]` EFE2-F1: ECH7's pass-1 deferral was not allowed (Re-review scope) — an `OnError` target deletes only this build's own temporary file on any provisioning failure.
-  - `[medium]` `[patch]` EFE2-F2 (group I): same as BH2-2.
-  - `[low]` `[patch]` EFE2-F3: stale records (Execution cells, c3, AC4 cell, status lines) — corrected by the coordinator (E11, E17).
-  - `[low]` `[patch]` EFE2-F4 (group J): same as BH2-3.
-- pass-2 patches applied by the replacement implementation owner (run log E12); verified by pass 3 (FO: no violation; EFE: H, J, EFE2-F1 resolved).
+  - `[high]` `[patch]` BH2-1, ECH2-1, FO2-1 (group H): the define refusal ignored space separators — separators `[;,\s]`.
+  - `[medium]` `[patch]` BH2-2, ECH2-2, VG2-1, EFE2-F2 (group I): refusal tested with the bare token only — list, space and near-miss cases.
+  - `[low]` `[patch]` BH2-3, ECH2-3, EFE2-F4 (group J): `Create` leaked its directory on failure — disposed.
+  - `[medium]` `[patch]` EFE2-F1: ECH7's pass-1 deferral not allowed — `OnError` deletes the build's own temporary file.
+  - `[low]` `[patch]` EFE2-F3: stale records — corrected.
+- pass-2 patches applied (E12); verified by pass 3.
 
-### 2026-11-25 — Review pass 3 (re-review of the pass-2 repair: BH, ECH, VG, FO, EFE; Re-review scope applies; run log E13)
+### 2026-11-25 — Review pass 3 (BH, ECH, VG, FO, EFE; Re-review scope; run log E13; rows in full: E29)
 - verdicts: 7 findings — high 0, medium 4, low 3, false 0, maybe-false 0
 - findings:
-  - `[medium]` `[patch]` BH3-1 (group K): the repair removed the only case where `ENABLE_SPAN_T` is the whole `DefineConstants` value; the SDK adds defines on both sides of a project-file value, so the regex's `^` and `$` branches are now untested — restore the global `-p:DefineConstants=ENABLE_SPAN_T` refusal case.
-  - `[low]` `[defer]` ECH3-1: a build killed between `Copy` and `mv` still leaves its `flatc.<guid>.tmp` (no `OnError` runs) — outside what the pass-2 repair affects (the kill case predates it), breaks no hard rule, criterion or gameplay behaviour; deferred under Re-review scope (`deferred-work.md`, contract `deferred:`).
-  - `[medium]` `[patch]` ECH3-2 (group K): same as BH3-1.
-  - `[medium]` `[patch]` VG3-1 (group K): same as BH3-1, plus refusal rows with `,` or a space after the symbol and a building control with a character before it (`S5_ENABLE_SPAN_T`).
-  - `[low]` `[reject]` VG3-2: the `OnError` cleanup has no suite test — reaching it needs the download path, which the intent keeps out of tests (no network, no test-only redirect switch); mechanism evidence is the recorded probe (EFE3-F2) and FO's and EFE's reading.
-  - `[medium]` `[patch]` EFE3-F1 (group K): same as BH3-1.
-  - `[low]` `[patch]` EFE3-F2: the probe project behind `fix2-onerror-probe.log` sits in ignored `.tools/` — coordinator copies its source into the run log (E13).
-- pass-3 patches applied (run log E13, E14); verified by pass 4 except EFE4-F1.
+  - `[medium]` `[patch]` BH3-1, ECH3-2, VG3-1, EFE3-F1 (group K): whole-value and trailing-separator define cases untested — restored and added, with a leading near-miss control.
+  - `[low]` `[defer]` ECH3-1: a killed build's temporary file stays in the cache — closed at pass 6 (E19 to E22).
+  - `[low]` `[reject]` VG3-2: `OnError` cleanup has no suite test — the intent keeps the download path out of tests.
+  - `[low]` `[patch]` EFE3-F2: the probe source was in ignored `.tools/` — copied into E13.
+- pass-3 patches applied (E14); verified by pass 4 except EFE4-F1.
 
-### 2026-11-25 — Review pass 4 (re-review of the pass-3 test repair: VG, FO, EFE; Re-review scope applies; run log E15)
-- verdicts: 1 finding — high 0, medium 1, low 0, false 0, maybe-false 0 (VG and FO: none)
+### 2026-11-25 — Review passes 4 and 5 (VG, FO, EFE; run log E15, E17)
+- pass 4: 1 finding — `[medium]` `[patch]` EFE4-F1: the whole-value fact never reached `$` (the SDK appends framework defines) — `-p:DisableImplicitFrameworkDefines=true`, records corrected (E16).
+- pass 5: 0 findings — VG none, FO none, EFE Scoped Pass; FO's aside on AC3's grep was false (E17).
+
+### 2026-11-25 — Review pass 6 (the ECH3-1 closure on top of `a41139a0`: ECH, VG, FO, EFE; run log E21)
+- verdicts: 12 findings — high 0, medium 4, low 6, false 2, maybe-false 0. The pass-3 ECH3-1 deferral is superseded: fixed in this repair (E20).
 - findings:
-  - `[medium]` `[patch]` EFE4-F1: `ASpanAccessorDefineAsTheWholeDefineListRefusesTheBuild` still never reaches the regex's `$` branch — the SDK's `AddImplicitDefineConstants` appends framework defines after a global `-p:DefineConstants` (EFE probe: `ENABLE_SPAN_T;NET;NET10_0;…`), so the value is never the whole token; its comment, E14 and the M6 row say otherwise — add `-p:DisableImplicitFrameworkDefines=true` to that fact, correct the comment and the M6 cell (E14 corrected by a new entry).
-- pass-4 patch applied (run log E16); verified by pass 5.
+  - `[medium]` `[patch]` VG6-1 (group L): sweep age tested at ten minutes and one day only — narrower ages.
+  - `[medium]` `[reject]` VG6-2: the download-path `Touch` is untested — network kept out of tests; E21's cold-cache run executed it.
+  - `[false]` `[reject]` ECH6-1: an undeletable orphan fails loudly; a writable cache is required.
+  - `[false]` `[reject]` ECH6-2: a placement suspended over 60 minutes fails loudly; `FlatcPath` is never partial.
+  - `[low]` `[patch]` ECH6-3, ECH6-4 (group L): unescaped glob; whole shared-cache comparison — escaped; narrowed.
+  - `[medium]` `[patch]` ECH6-5, EFE6-F1: AC4 stale — restated.
+  - `[low]` `[patch]` ECH6-6, EFE6-F2: task 7's cache sentence — reworded.
+  - `[low]` `[patch]` FO6-1: deferral records open — closed.
+  - `[low]` `[patch]` EFE6-F3: pre-repair cold-path evidence and status line — corrected.
+- pass-6 patches applied (E22); verified by pass 7 except the rows below.
 
-### 2026-11-25 — Review pass 5 (re-review of the pass-4 test repair: VG, FO, EFE; run log E17)
-- verdicts: 0 findings — VG none (the whole-value fact reaches `^` and `$`; the exact-value assertion is justified), FO none (no product path reads `DisableImplicitFrameworkDefines`), EFE Scoped Pass (own SDK probe reproduced both outcomes). FO's aside that `audit-s5-5.md` matches AC3's grep is false: the candidate grep lists only `delivery-batches.md` and the five audit records the baseline lists (E17).
+### 2026-11-25 — Review pass 7 (ECH, VG, FO, EFE; Re-review scope; run log E23; rows in full: E29)
+- verdicts: 6 findings — high 0, medium 2, low 4, false 0, maybe-false 0
+- findings:
+  - `[medium]` `[patch]` ECH7-1, VG7-1 (group M): a wildcard cache path went silently unswept and the escape was untested — typed refusal with a decoy test.
+  - `[low]` `[patch]` ECH7-2, EFE7-F1 (group M): a UTC+1 slip passed — 90-minute stale file.
+  - `[low]` `[reject]` VG7-2: the download-path `Touch` — as VG6-2.
+  - `[low]` `[patch]` FO7-1: the Auto Run Result said "deferred ECH3-1" — rewritten at close.
+- pass-7 patches applied (E24); verified by pass 8 except the rows below.
+
+### 2026-11-25 — Review pass 8 (ECH, VG, FO, EFE; run log E25)
+- verdicts: 3 findings — high 0, medium 1, low 2, false 0, maybe-false 0 (ECH none)
+- findings:
+  - `[medium]` `[patch]` VG8-1: only the `?` half of the wildcard refusal is executed — the case becomes a theory with `*` (EFE8-F1 the same).
+  - `[low]` `[reject]` VG8-2: the download-path `Touch` has no suite test — as VG6-2.
+  - `[low]` `[patch]` FO8 aside: the sweep comment said a `;` is never a separator anywhere — limited to the sweep's include.
+- pass-8 patches applied (run log E26); verified by pass 9.
+
+### 2026-11-25 — Review passes 9 and 10 (VG, FO, EFE; run log E27, E29)
+- pass 9: 1 finding — `[low]` `[patch]` VG9-1: the wildcard cases pre-created the cache directory, so a refusal moved below `MakeDir` would pass — the `?` case starts with the root absent and asserts it stays absent; the `*` case keeps a stale file that must survive (E28). FO none; EFE Scoped Pass.
+- pass 10: 0 findings — VG none (each misplacement or removal of the refusal fails a case), FO none, EFE Scoped Pass.
 
 ## Design Notes
 
@@ -269,7 +262,7 @@ Cannot run beside a slice that edits `schemas/*.fbs` or the two generated files:
 
 Executor: implementation owner, with the pinned environment of `docs/delivery-workflow.md#reproducible-local-verification`. Schema, vendored project, test or build-configuration changes invalidate the captures. Round logs go under `~/.local/share/tim-toolchain/logs/slice-s5/`, each starting with `git rev-parse HEAD`.
 
-Expected counts, from the baseline's round (S3's merged round on `2d61fe05`, the same tree for tests: 7,317; registration 775; hook selection 140): full round 7,338, registration check 787, hook selection 152 (run log E1; raised by review passes 1 to 3's test additions, E10, E12, E14). Because this slice edits `_bmad/custom`, the handoff also runs `dotnet run --file tools/anvil/VerifyPolicy.cs` with no arguments and `-- --bmad-check --route Auto`.
+Expected counts, from the baseline's round (S3's merged round on `2d61fe05`, the same tree for tests: 7,317; registration 775; hook selection 140): full round 7,341, registration check 787, hook selection 152 (run log E1; raised by the review repairs' test additions, E10, E12, E14, E20, E24, E26). Because this slice edits `_bmad/custom`, the handoff also runs `dotnet run --file tools/anvil/VerifyPolicy.cs` with no arguments and `-- --bmad-check --route Auto`.
 
 Environment: the pinned toolchain first on `PATH`: `PATH=$HOME/.local/share/tim-toolchain/dotnet-10.0.403:$HOME/.local/share/tim-toolchain/node-v26.12.1-darwin-arm64/bin:$PATH` and `DOTNET_ROOT=$HOME/.local/share/tim-toolchain/dotnet-10.0.403` (on this host the default `PATH` has Homebrew node v26.13.1 and a dotnet without `wasm-tools`, so the capture's node check and the web build fail otherwise); record the session environment check in the run log.
 
@@ -293,18 +286,20 @@ Environment: the pinned toolchain first on `PATH`: `PATH=$HOME/.local/share/tim-
 
 | Rows | Named discriminating test | Control and boundary | Execution |
 |---|---|---|---|
-| M1, AC1 | `WorkshopWireBuildTests.ACleanCopyGeneratesEverySchemaTypeAndCompiles`: the built assembly declares every `enum`, `struct` and `table` of both schemas | Control: the copy contains no generated C# before the build. Boundary: both schemas, including the authoring schema's include of the wire schema | passed in the final round (E17); AC1: final captures exit 0, no generated file in `git status` (E17); cold cache M8 (E2) |
-| M2 | `WorkshopWireBuildTests.AnAddedSchemaFieldIsAnAccessorAfterAnIncrementalBuild` | Control: the accessor is absent from the assembly built before the edit. Boundary: the field is added to the authoring schema, which includes the wire schema | passed (final round, E17) |
-| M3 | `WorkshopWireBuildTests.AnUnchangedSchemaDoesNotRegenerate`: generated sources keep their write time across a second build | Control: in the same copy, after the unchanged second build, touch `schemas/workshop_authoring.fbs`; a third build changes the generated sources' write time | passed (final round, E17) |
-| M4 | `WorkshopWireBuildTests.ARemovedSchemaTypeLeavesNoGeneratedSource`; `WorkshopWireBuildTests.ADeletedSchemaFileLeavesNoGeneratedSource` (review fix BH1/ECH1: the schema list is a generation input) | Control: the type's source and metadata exist before removal (`SavedConstruction` before the delete). Boundary: the last type declared in the schema (an unreferenced table appended to the copy's wire schema, then removed); a whole schema file deleted (`schemas/workshop_authoring.fbs`, whose types no remaining schema declares) | both passed (final round, E17) |
-| M5 | `WorkshopWireBuildTests.APinThatTheCachedCompilerDoesNotMatchRefusesTheBuild`: exit code non-zero; the message names the file, both digests and the cache path to delete; no assembly is produced; the cached file's write time is unchanged | Control: M1 with the unaltered project file. Boundary: one hex digit of the binary digest | passed (final round, E17) |
-| M6 | `CSharpStaticGateTests.TheGeneratedWireRuleAdmitsOnlySchemaTypes`, eleven synthetic cases (two admitted: schema-equal, union with its `Verify`; nine refused: extra type, missing type, outside the folder, other project, `ENABLE_SPAN_T` define, no header, struct, enum and unknown `…Verify`); `TheVendoredCompileDefinesNoSpanAccessorSymbol` and the renamed `TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnesAndTheWireAccessors` on the real logs; the build refusals `WorkshopWireBuildTests.ASpanAccessorDefineRefusesTheBuild` (five separator cases) and `ASpanAccessorDefineAsTheWholeDefineListRefusesTheBuild` (exact value, asserted from the message; E16) | Control: the two admitted cases pass; `WorkshopWireBuildTests.ADefineThatOnlyContainsTheSpanAccessorSymbolBuilds`, two cases (`ENABLE_SPAN_TX` and `S5_ENABLE_SPAN_T` in the list), builds and generates. Boundary: the nine refused cases; each separator before and after the symbol; the symbol as the whole list | all passed in the final round on its own captures (E17) |
-| Unsupported host | `WorkshopWireBuildTests.AnUnsupportedBuildHostRefusesTheBuild` (review fix VG2): `-p:FlatcHostArchitecture=Arm`, the production property the asset table is keyed on; non-zero exit, the "has no release asset for this build host" message naming the host's OS description and `Arm`, no assembly | Control: every other build test builds on the host's own architecture | passed (final round, E17) |
-| M7 | `WorkshopWireBuildTests.ANonIncrementalBuildRegeneratesAndCompiles`: after `dotnet build --no-incremental` the generated sources have a later write time and the assembly declares every schema type | Control: in the same copy, an ordinary second build before the `--no-incremental` build leaves the write time unchanged | passed (final round, E17) |
-| M8 | One recorded cold-cache run on the implementer's machine (task 9); not a suite test, because it needs the network and writes the shared cache | Control: the same build with the warm cache downloads nothing. Linux is covered only by CI (O3) | recorded (run log E2); control: every later capture downloads nothing (E7, E17); Linux pending O3 |
+| M1, AC1 | `WorkshopWireBuildTests.ACleanCopyGeneratesEverySchemaTypeAndCompiles`: the built assembly declares every `enum`, `struct` and `table` of both schemas | Control: the copy contains no generated C# before the build. Boundary: both schemas, including the authoring schema's include of the wire schema | passed in the final round (E30); AC1: final captures exit 0, no generated file in `git status` (E30); cold cache M8 (E2) |
+| M2 | `WorkshopWireBuildTests.AnAddedSchemaFieldIsAnAccessorAfterAnIncrementalBuild` | Control: the accessor is absent from the assembly built before the edit. Boundary: the field is added to the authoring schema, which includes the wire schema | passed (final round, E30) |
+| M3 | `WorkshopWireBuildTests.AnUnchangedSchemaDoesNotRegenerate`: generated sources keep their write time across a second build | Control: in the same copy, after the unchanged second build, touch `schemas/workshop_authoring.fbs`; a third build changes the generated sources' write time | passed (final round, E30) |
+| M4 | `WorkshopWireBuildTests.ARemovedSchemaTypeLeavesNoGeneratedSource`; `WorkshopWireBuildTests.ADeletedSchemaFileLeavesNoGeneratedSource` (review fix BH1/ECH1: the schema list is a generation input) | Control: the type's source and metadata exist before removal (`SavedConstruction` before the delete). Boundary: the last type declared in the schema (an unreferenced table appended to the copy's wire schema, then removed); a whole schema file deleted (`schemas/workshop_authoring.fbs`, whose types no remaining schema declares) | both passed (final round, E30) |
+| M5 | `WorkshopWireBuildTests.APinThatTheCachedCompilerDoesNotMatchRefusesTheBuild`: exit code non-zero; the message names the file, both digests and the cache path to delete; no assembly is produced; the cached file's write time is unchanged | Control: M1 with the unaltered project file. Boundary: one hex digit of the binary digest | passed (final round, E30) |
+| M6 | `CSharpStaticGateTests.TheGeneratedWireRuleAdmitsOnlySchemaTypes`, eleven synthetic cases (two admitted: schema-equal, union with its `Verify`; nine refused: extra type, missing type, outside the folder, other project, `ENABLE_SPAN_T` define, no header, struct, enum and unknown `…Verify`); `TheVendoredCompileDefinesNoSpanAccessorSymbol` and the renamed `TheBuildOutputSourcesAreOnlyTheSdkGeneratedOnesAndTheWireAccessors` on the real logs; the build refusals `WorkshopWireBuildTests.ASpanAccessorDefineRefusesTheBuild` (five separator cases) and `ASpanAccessorDefineAsTheWholeDefineListRefusesTheBuild` (exact value, asserted from the message; E16) | Control: the two admitted cases pass; `WorkshopWireBuildTests.ADefineThatOnlyContainsTheSpanAccessorSymbolBuilds`, two cases (`ENABLE_SPAN_TX` and `S5_ENABLE_SPAN_T` in the list), builds and generates. Boundary: the nine refused cases; each separator before and after the symbol; the symbol as the whole list | all passed in the final round on its own captures (E30) |
+| Unsupported host | `WorkshopWireBuildTests.AnUnsupportedBuildHostRefusesTheBuild` (review fix VG2): `-p:FlatcHostArchitecture=Arm`, the production property the asset table is keyed on; non-zero exit, the "has no release asset for this build host" message naming the host's OS description and `Arm`, no assembly | Control: every other build test builds on the host's own architecture | passed (final round, E30) |
+| Leftover temporary file (ECH3-1) | `WorkshopWireBuildTests.ALeftoverTemporaryFileInTheCompilerCacheIsSweptWhenStaleAndNeverRun`: own cache via `-p:FlatcCacheRoot` (a space in its path) holding a verified `flatc`, a 90-minute-old truncated `flatc.<guid>.tmp` and a ten-minute-old one; the build succeeds without a download; only `flatc` and the ten-minute file remain, write times unchanged; the shared cache gains nothing (full row: run log E29) | Control: the ten-minute file is kept. Boundary: the ages pin the 60-minute sweep between 10 and 90 minutes and catch a local-for-UTC slip of an hour or more; the download-path write time is shown by E21's cold-cache run | passed (final round, E30) |
+| Wildcard in the cache path | `WorkshopWireBuildTests.AWildcardInTheCompilerCachePathRefusesTheBuild`, two cases: `flatc?cache` absent before the build, and `flatc*cache` holding a verified `flatc` and a stale temporary file, each beside a decoy its wildcard matches; non-zero exit, the message naming the path, no assembly; the `?` root still absent, the `*` directory unchanged, the decoy untouched (full row: E29) | Control: the leftover case builds with a non-wildcard path. Boundary: each character; a refusal moved below `MakeDir` or the sweep, or removed, fails a case | passed (final round, E30) |
+| M7 | `WorkshopWireBuildTests.ANonIncrementalBuildRegeneratesAndCompiles`: after `dotnet build --no-incremental` the generated sources have a later write time and the assembly declares every schema type | Control: in the same copy, an ordinary second build before the `--no-incremental` build leaves the write time unchanged | passed (final round, E30) |
+| M8 | One recorded cold-cache run on the implementer's machine (task 9); not a suite test, because it needs the network and writes the shared cache | Control: the same build with the warm cache downloads nothing. Linux is covered only by CI (O3) | recorded (run log E2); after the ECH3-1 repair, a cold-cache run through a redirected cache root placed a fresh-dated verified `flatc` and swept only the stale orphan (E21); control: every later capture downloads nothing (E7, E17, E30); Linux pending O3 |
 | AC2 | Hook run at the candidate commit | The hook's own static-gate selection reads the snapshot's binary logs | not run before the commit: the hook runs on the candidate commit (expected selection 152) |
-| AC3 | `CSharpStaticGateTests.EveryRepositoryCSharpFileIsCompiledByAProject` and `TheSolutionListsEveryCSharpProject`, plus the `git ls-files` command and the `git grep` command (second check) | Control: both pass on the baseline with the files present; the baseline grep lists the expected dated audit records under `docs/planning/elements/readiness/` | passed: the tests in the final round, the grep at the candidate (E17) |
-| AC4, AC5 | Full local round and maintainability gate | Totals compared with the baseline round the coordinator records | AC4: 7,338 passed, 0 failed, `Skipped: 0` in all five projects; AC5: both canaries PASS, coupling and metric violations 0 (final round, E17) |
+| AC3 | `CSharpStaticGateTests.EveryRepositoryCSharpFileIsCompiledByAProject` and `TheSolutionListsEveryCSharpProject`, plus the `git ls-files` command and the `git grep` command (second check) | Control: both pass on the baseline with the files present; the baseline grep lists the expected dated audit records under `docs/planning/elements/readiness/` | passed: the tests in the final round, the grep at the candidate (E30) |
+| AC4, AC5 | Full local round and maintainability gate | Totals compared with the baseline round the coordinator records | AC4: 7,341 passed, 0 failed, `Skipped: 0` in all five projects; AC5: both canaries PASS, coupling and metric violations 0 (final round, E30) |
 
 No tolerance or observation window applies: every assertion is a count, a name, a presence, a write time ordering or an exit status.
 
@@ -313,14 +308,15 @@ No tolerance or observation window applies: every assertion is a count, a name, 
 - Full owned diff inspected by the implementation owners (run log E7, E10–E16): no needless branch, duplicate rule or unrelated churn. Kept on purpose: the define check sits both in the rule's theory and in the real-log fact, as M6 specifies.
 - Review repairs and their tests, by pass: run log E10 (pass 1), E12 (pass 2), E14 (pass 3), E16 (pass 4); the detail formerly here is in E17.
 - Departures recorded for review: each build-test child passes `--disable-build-servers` with `-nodeReuse:false`; M4 appends an unreferenced table to the copy's wire schema and removes it; placement into the cache is `mv -f` (one `rename`) rather than MSBuild `Move`.
+- ECH3-1 repair (run log E20 to E28): provisioning sweeps stale `flatc.*.tmp` files (over 60 minutes) on every run, touches the extracted binary before copying it, and refuses a wildcard cache path; the `OnError` cleanup stays for a failed build's own file.
 
 ## Auto Run Result
 
-Blocked at task 8 (run log E3, E4); resolved by the lane coordinator's decision and coordinator amendment 1, which passed its planning re-check (`audit-s5-5.md`; run log E5, E6).
+Blocked at task 8 (run log E3, E4); resolved by coordinator amendment 1 (`audit-s5-5.md`; E5, E6). Candidate commit `a41139a0` (E19); ECH3-1 then closed at the lane coordinator's order in a second commit (E19 to E30).
 
-- Summary: the C# wire accessors are generated in every build by the pinned, digest-verified flatc 25.2.10 into the vendored project's intermediate folder; the committed generated files, their sidecars, the joining tool and its tests are deleted; the static gate admits exactly the schemas' generated set; the build refuses `ENABLE_SPAN_T`.
-- Files: the vendored project (provisioning, schema list, generation, define refusal, compile items); the game project, solution and test project (removed entries); `CSharpStaticGateTests` (generated-wire rule, define fact, digest pin); `WorkshopWireBuildTests` (16 build cases); three allow-list test files; `schemas/README.md`, the protocol, role card, delivery workflow, delivery batches, deferred work and `TODO.md`; S3's run log (receipt); `audit-s5-5.md`.
-- Review: five passes, 49 findings (29, 12, 7, 1, 0); patched groups A–K, EFE2-F1, EFE3-F2 and EFE4-F1; deferred ECH3-1 (Re-review scope); rejected with recorded reasons BH5, IA-d, VG3-2, ECH5, ECH6, ECH8, ECH9, ECH10, IA-a, IA-b, FO2. Follow-up review recommended: false (pass 5 patched nothing).
-- Acceptance: Element-Free Engine Auditor Scoped Pass at pass 5 (engine tier, implementation acceptance); Forward-Only no violation; Final diff scope Pass (informed reviewer; 28 paths against `3a80c6a8`, all necessary, no justified simplification; run log E17).
-- Verified on the final tree (run log E17): five captures, 0 warnings; maintainability gate PASS (both canaries, violations 0); policy checks pass; registration 787; full round 7,338 passed, 0 failed, `Skipped: 0`.
-- Remaining for the approver: the hook at the candidate commit (AC2, selection 152). Not verifiable locally: the Linux asset, executable bit and rename (owner decision O3's single CI check); remote artifact and deployment. Browser qualification deferred.
+- Summary: the C# wire accessors are generated in every build by the pinned, digest-verified flatc 25.2.10 into the vendored project's intermediate folder; the committed generated files, their sidecars, the joining tool and its tests are deleted; the static gate admits exactly the schemas' generated set; the build refuses `ENABLE_SPAN_T`; provisioning sweeps stale temporary files and refuses a wildcard cache path.
+- Files: the vendored project; the game project, solution and test project (removed entries); `CSharpStaticGateTests`; `WorkshopWireBuildTests` (19 cases); three allow-list test files; `schemas/README.md`, protocol, role card, delivery workflow, delivery batches, deferred work, `TODO.md`; S3's run log; `audit-s5-5.md`.
+- Review: ten passes, 71 findings (29, 12, 7, 1, 0; then 12, 6, 3, 1, 0); every confirmed finding patched; ECH3-1, deferred at pass 3, closed in the repair; rejected with recorded reasons: BH5, IA-d, VG3-2, VG6-2, VG7-2, VG8-2, ECH5, ECH6, ECH8, ECH9, ECH10, ECH6-1, ECH6-2, IA-a, IA-b, FO2. Follow-up review recommended: false (pass 10 patched nothing).
+- Acceptance: Element-Free Engine Auditor Scoped Pass at passes 5 and 10 (engine tier); Forward-Only no violation; Final diff scope Pass for the candidate (E17) and for the ECH3-1 repair (E30).
+- Verified on the final tree (E30): five captures, 0 warnings; maintainability gate PASS (both canaries, violations 0); policy checks pass; registration 787; full round 7,341 passed, 0 failed, `Skipped: 0`.
+- Remaining for the approver: the hook at the repair commit (selection 152). Not verifiable locally: the Linux asset, executable bit and rename (owner decision O3's single CI check, which also covers the sweep and `Touch` on a cold cache); remote artifact and deployment. Browser qualification deferred.
