@@ -224,7 +224,7 @@ Only visible-solid parts A, B, B2 and C, the Baseball repair, and S3, S5 and S6 
 |---|---|---|---|---|
 | spec-elements-visible-solid-remainder (part A) | `done`; published as `37fbd3a4` | none beyond baseline | audit-visible-solid-A-2: Scoped Pass after R1 (applied) | yes |
 | spec-elements-visible-solid-remainder-b | `done`; published as `c3456907` | part A | audit-visible-solid-B-2: Scoped Pass | yes |
-| spec-elements-visible-solid-remainder-b2 | `done` (set at Finalize, in the candidate commit); planning verdict (:51) | parts A and B | audit-visible-solid-B2-5: Scoped Pass at `466ff4ca` | yes |
+| spec-elements-visible-solid-remainder-b2 | `done` (set at Finalize, in the candidate commit); planning verdict (:58) | parts A and B | audit-visible-solid-B2-5: Scoped Pass at `466ff4ca` | yes |
 | spec-elements-visible-solid-remainder-c | `blocked` (:53) | parts B and B2 | audit-visible-solid-C-2: Scoped Pass, blocked on prerequisites | yes |
 | spec-repair-baseball-el-239 | `draft`, `blocked-on-prerequisite` (:60) | EL-223 published (conflicts with owner 22; DC-13) | audit-repair-baseball: Incomplete, fixes applied, which the audit says makes it a Scoped Pass | yes, once DC-13 is resolved |
 | spec-s3-remaining-per-package-lists | `done`; published as `3a80c6a8` (merge `2d61fe05`) | none | none on file (self-reported) | yes |

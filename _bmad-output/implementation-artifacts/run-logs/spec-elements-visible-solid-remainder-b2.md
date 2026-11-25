@@ -134,3 +134,11 @@ Outside the intent contract: baseline and planning-verdict paragraphs; tier reas
 - Correction to E11, records bullet: the records changed during and after the round also include the contract's `status: 'done'` and its Auto Run Result.
 - `TODO.md:3` now says every confirmed finding was repaired, deferred under Re-review scope or routed to its existing owner (VG-O2 rejected, EFE3-O3 deferred, the `ball` row comment routed to part C), not "repaired".
 - Records-only commit on top of `16e920ba` (no amend); no test reads these files, so the final round on the `16e920ba` tree stands.
+
+## E14 Records owner: SnapshotApproval record repair (26 November 2026)
+
+- Agent: a fresh records-only owner, no inherited history.
+- The SnapshotApproval of the publication merge `830100a3` failed on F1 only. Every other check passed: the merge kept both sides; the full round 7431 passed, 0 failed, 0 skipped (`Skipped: 0` in every project); registration 829; maintainability gate PASS; VerifyPolicy 78/0/0; self-test 37/0/0; AC2 re-run `{"sameIds":true,"unequal":[]}`.
+- Correction made: `completion-ledger.md:227`, the part B2 row's planning-verdict citation `(:51)` → `(:58)`, the contract's "Planning verdict:" line at HEAD (`:51` was its baseline line).
+- Correction to E11: its statement that `completion-ledger.md:227` is true held only after this repair; the pass-2 patch had written the baseline line.
+- Records only, so the coordinator repeats the merged-commit checks on the new SHA.
