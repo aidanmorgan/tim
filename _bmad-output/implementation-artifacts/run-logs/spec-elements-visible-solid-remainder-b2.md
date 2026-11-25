@@ -125,3 +125,10 @@ Outside the intent contract: baseline and planning-verdict paragraphs; tier reas
 - Capabilities found missing late: none.
 - Role-card candidate for the next policy change (one line, Implementation owner): before handoff, list every record line the delivered change makes false (grep the element id and the changed art across `docs/planning/` and current contracts) and update them in the same candidate.
 - Remaining for the approver: SnapshotApproval of the committed SHA after the publish token; the normal pre-commit hook runs at the commit. Browser qualification is pending to the post-catalogue E2E phase; remote build, artifact and deployment are not verified (owner instruction of 29 October).
+
+## E13 Coordinator: record corrections after the candidate commit `16e920ba` (25 November 2026)
+
+- Correction to E11, registration bullet: the edits after E5 changed `TennisArtTests.cs`, the `VisibleSolidColliderTests.cs:129` comment (repair 1) and records, not only `TennisArtTests.cs` and records. The conclusion stands: the registration filter selects neither class, and the final round (7417/0/0) covers both.
+- Correction to E11, records bullet: the records changed during and after the round also include the contract's `status: 'done'` and its Auto Run Result.
+- `TODO.md:3` now says every confirmed finding was repaired, deferred under Re-review scope or routed to its existing owner (VG-O2 rejected, EFE3-O3 deferred, the `ball` row comment routed to part C), not "repaired".
+- Records-only commit on top of `16e920ba` (no amend); no test reads these files, so the final round on the `16e920ba` tree stands.
