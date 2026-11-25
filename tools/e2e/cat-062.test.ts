@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import { mkdir } from 'node:fs/promises';
 import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
-import { decodeWorkshopResponse, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse } from './workshop-wire.ts';
+import { type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 
 const SpringRoute = { Centred: 'Centred', Miss: 'Miss' } as const;
 type SpringRoute = typeof SpringRoute[keyof typeof SpringRoute];

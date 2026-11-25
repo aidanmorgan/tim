@@ -280,9 +280,19 @@ internal static partial class TimingDetector
             if (!File.Exists(full)) throw new FileNotFoundException($"Imported module {relative} does not exist.", full);
             var directory = Path.GetDirectoryName(relative) ?? "";
             foreach (var specifier in LocalImports(File.ReadAllText(full)))
-                pending.Push(Path.GetRelativePath(repositoryRoot, Path.GetFullPath(Path.Combine(repositoryRoot, directory, specifier))).Replace('\\', '/'));
+                pending.Push(ModulePath(repositoryRoot, Path.GetRelativePath(repositoryRoot, Path.GetFullPath(Path.Combine(repositoryRoot, directory, specifier))).Replace('\\', '/')));
         }
         return [.. seen];
+    }
+
+    /// <summary>The module file a resolved specifier names, in TypeScript's candidate order: a `.js` specifier names its `.ts`
+    /// sibling when that exists, and otherwise the path as written (the generated wire modules import each other that way, S5b);
+    /// any other specifier (`.ts`, `.mjs`) is the path as written. A path that does not exist is refused by the closure, naming it.</summary>
+    private static string ModulePath(string repositoryRoot, string relative)
+    {
+        if (!relative.EndsWith(".js", StringComparison.Ordinal)) return relative;
+        var source = relative[..^".js".Length] + ".ts";
+        return File.Exists(Path.Combine(repositoryRoot, source)) ? source : relative;
     }
 
     /// <summary>Every hit in a suite's import closure: a hit in a shared module is attributed to every suite importing it.</summary>

@@ -2,7 +2,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, energyStore, authoredState, decodeSavedConstruction, parameter, contactHits, type BodyRead, type WorkshopResponse, type InstanceRecord , storedEnergy } from './workshop-wire.ts';
+import { decodeWorkshopResponse, energyStore, authoredState, decodeSavedConstruction, parameter, contactHits, storedEnergy } from './workshop-wire.ts';
+import { type BodyRead, type WorkshopResponse, type InstanceRecord } from './.wire/curious-contraptions/wire.ts';
 
 
 function bodyState(b: BodyRead) {

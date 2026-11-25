@@ -113,7 +113,7 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string> VendoredFiles = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         [".gdignore"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        ["CuriousContraptions.FlatBuffers.csproj"] = "23bb9021bd735e351ef8444107499c324e0b9dead21a3da66b7cb86bea805765",
+        ["CuriousContraptions.FlatBuffers.csproj"] = "4ddd4b96d72e001481b29eb57d495f4873b0df2ae5f7f4d141c8934e29fe2c47",
         ["Directory.Build.props"] = "fbe5b5fc68e5fdb2444d929055a2e193231f88ee039e96d06b2a0aeec8173b92",
     }.Concat(VendoredFlatBuffersIdentityTests.Pinned).ToDictionary(StringComparer.Ordinal);
 

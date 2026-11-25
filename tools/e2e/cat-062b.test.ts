@@ -4,7 +4,8 @@ import { mkdir } from 'node:fs/promises';
 import { resolve, sep } from 'node:path';
 import { createRequire } from 'node:module';
 import { WorkshopDriver } from './workshop-driver.ts';
-import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter, type BodyRead, type WorkshopResponse } from './workshop-wire.ts';
+import { decodeWorkshopResponse, decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
+import { type BodyRead, type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 
 enum Lesson { SpringForward = 7, ReadyToRebound = 8 }
 enum Route { Passive, Charged, Zero, Away, Ready, MissingReceiver }
