@@ -52,36 +52,13 @@ deferred: []
 
 Delivery shape: single structural tooling and policy slice (no element, family or closure). Review tier: **engine**, because `tools/anvil/`, `_bmad/custom/` and `docs/delivery-workflow.md` are tool, policy and workflow files outside the data-only allow-list; the capability probe is below. Baseline: captured at dispatch as the published main that contains owner decisions 24m and 24n and the coordinator ruling recorded after 24m (all uncommitted at drafting); every scope guard and `git diff` compares against it. Drafted and line-checked on `0959e883` (origin/main, 24 November 2026), which is the drafting revision only. Lane 4 of owner decision 24m.
 
-**Status: reviewed candidate (four review passes, Final diff scope Pass; Review Triage Log and Auto Run Result); the pass-1 decision is the coordinator decision of 25 Nov 2026 (Spec Change Log 1).** Planning verdict: **Scoped Pass** (ready-for-dev) per the fifth audit (`docs/planning/elements/readiness/audits/audit-policy-tool-fixes-5.md`, 24 November 2026), whose four non-blocking findings are applied. Audits 1 to 4 (`audit-policy-tool-fixes-1.md` to `-4.md`) were each Incomplete; their findings (1–18, 1–6, 1–3, 1–6) are all applied. The owner decision is settled as owner decision 24n and lane admission by the coordinator ruling recorded after 24m (both 24 November 2026), published on the baseline.
+**Status: reviewed candidate (passes 1–4 on `330d6bc9`; the pass-1 decision is the coordinator decision of 25 Nov 2026, Spec Change Log 1); merged with `51529148` as `52c2c643` (E15), whose SnapshotApproval found R6 and R7 (Spec Change Log 3); repaired (E16, E18) and re-reviewed in passes 5 and 6 (E19); the post-merge Final diff scope check is in the Review Triage Log.** Planning verdict: **Scoped Pass** (ready-for-dev) per the fifth audit (`docs/planning/elements/readiness/audits/audit-policy-tool-fixes-5.md`, 24 November 2026), whose four non-blocking findings are applied. Audits 1 to 4 (`audit-policy-tool-fixes-1.md` to `-4.md`) were each Incomplete; their findings (1–18, 1–6, 1–3, 1–6) are all applied. The owner decision is settled as owner decision 24n and lane admission by the coordinator ruling recorded after 24m (both 24 November 2026), published on the baseline.
 
 **Dispatch (run log E1, E2).** Checkout `.claude/worktrees/slice-policy-tool-fixes`, branch `slice-policy-tool-fixes`; baseline `5f1c4d4a170f5eceedf16b68378b2befa096651d`. Owned code, policy and workflow files are unchanged from `0959e883`, so the anchors and probe hold; `deferred-work.md` lines moved (E2). Implementation owner: a fresh no-history subagent (Claude Opus 5.5, agent `a368b3287d3f6b1ff`), unavailable after the 24 November session stall; repairs go to a named replacement (E6).
 
 ### Carry-forward: every deferred entry naming this slice
 
-Source entries in `deferred-work.md` on `0959e883`. "In" items are this slice's acceptance; "Closed" and "Not taken" items get no change, with the reason.
-
-| Id | Entry (`deferred-work.md`) | Item | Disposition |
-|---|---|---|---|
-| F1 | pass 8, `:325` | harness children clear only three git variables, not other `GIT_*` or user configuration | In: P1 |
-| F2 | pass 8 | no-git case not exercised where `dotnet` is a wrapper script and `/bin` holds git | In: P2 |
-| F3 | pass 8 | no case stages a non-scanned trigger extension in upper case | In: P3 |
-| F4 | pass 8 | no staged-source refusal through a real `git commit` | In: P4 |
-| F5 | pass 8 | the gitlink refusal names the path but not git's text | In: P5 |
-| F6 | pass 8 | registration filter selects 767 where main's practice selects 798 | In: P10 |
-| F7 | pass 8 | role card's handoff list lacks the policy-tool harness item | In: task 9 |
-| F8 | pass 8 | the S2 contract's Code Map cites old line numbers | Closed, no edit: the entry's own owner line says "history and need no action", and AGENTS.md keeps historical artifacts unchanged. The dispatch brief listed it as a fix; this contract does not edit the published contract |
-| F9 | pass 9 addendum, `:328` | cleanup-failure paths have no case | In: P9 |
-| F10 | pass 9 | the passed-count line prints before a non-zero exit on cleanup failure | In: P9 |
-| F11 | pass 9 | the cleanup result has two shapes | In: task 6 |
-| F12 | pass 9 | run log E22 cites logs later overwritten | Closed, no edit: an append-only run log of a published slice |
-| F13 | pass 7, `:318` | `.js`, `.mjs`, `.cjs`, `.jsx`, `.tsx` have no skip-content fixture | In: P7 |
-| F14 | pass 7 | no case runs the tool from a subdirectory | In: P8 |
-| F15 | pass 7 | `SourceKind` values in the scanned table are never read | In: task 4 |
-| F16 | pass 7 | the harness-requirement sentence is repeated in three documents | In: task 9 |
-| F17 | pass 6 BH10, `:312` | hand-copied check counts in `tools/anvil/README.md` and `TODO.md` | In: task 10 restates them from this slice's run |
-| F18 | pass 6 EFE-o2, `:313` | Allow fixtures and the empty-index case assert exit 0 only | In: P6 (this slice changes the skip scan's refusal, so it is "the next slice that changes the skip check") |
-| F19 | completion-ledger OS-04 (`completion-ledger.md:395`) | `TODO.md` absent from the data-only allow-list | In: P11 (owner decision 24n) |
-| — | pass 6 EC3, EC4; the staged-source residual `:299–304`; pass 7's stray-file item (`:318`) | amend, merge and documents-only commits; stray `*.cs` files in the test project directory | Not taken: their recorded owner is each committer and the staged-source rule, with no slice queued; unchanged |
+F1–F19 (every `deferred-work.md` entry naming this slice on `0959e883`, each "In" with its matrix row or task, F8 and F12 "Closed, no edit", and the not-taken items) are moved verbatim to run log E17 (Contract budget). S3's residuals R6 and R7, which reached this slice through the merge, are Spec Change Log 3.
 
 ### Owned scope
 
@@ -89,11 +66,11 @@ Source entries in `deferred-work.md` on `0959e883`. "In" items are this slice's 
 - `tools/anvil/CheckStagedTests.cs` -- `enum SourceKind` `:8` (deleted); the `SourcePaths` summary `:170–172`; `SourcePaths.Scanned` `:175–181` (a set); `SkipScan` `:227–265` (the `git show` at `:238` captures its error; the refusal at `:242–248` carries it).
 - `tools/anvil/fixtures.json` -- one Block fixture for each of `.js`, `.mjs`, `.cjs`, `.jsx`, `.tsx`.
 - `tools/anvil/README.md` -- tool self-check count `:52` (14, unchanged); the harness rule `:114` (linked, not restated); the inventory, counts and child-environment paragraph `:116–149`.
-- `_bmad/custom/bmad-loop-protocol.md` -- handoff item 2 `:180`; the allow-list `:54–60` (owner decision 24n).
-- `_bmad/custom/role-cards.md` -- implementation owner's "Before handoff" `:33–40`.
-- `docs/delivery-workflow.md` -- an anchor `policy-tool-harness` before the harness rule `:58` (the one statement of the rule); the registration filter `:67`; the count sentence `:70`.
+- `_bmad/custom/bmad-loop-protocol.md` -- handoff item 2 `:180`; the allow-list `:54–60` (owner decision 24n); after the merge, handoff item 3's R7 pointer (Spec Change Log 3).
+- `_bmad/custom/role-cards.md` -- implementation owner's "Before handoff" `:33–40`; after the merge, its item 3 and the protocol's handoff item 3 gain the R7 pointer (Spec Change Log 3), and `deferred-work.md` closes R6 and R7.
+- `docs/delivery-workflow.md` -- an anchor `policy-tool-harness` before the harness rule `:58` (the one statement of the rule); the registration filter `:67`; the count sentence `:70`; after the merge, `SolutionMembershipTests` in the filter and the count restated (R6, Spec Change Log 3).
 - `docs/planning/elements/readiness/completion-ledger.md` -- row OS-04 (`:395`) state column set to done.
-- `_bmad-output/implementation-artifacts/deferred-work.md` -- F1–F19 marked closed with this slice; any residual added with source, evidence and owner.
+- `_bmad-output/implementation-artifacts/deferred-work.md` -- F1–F19 marked closed with this slice; any residual added with source, evidence and owner; after the merge, S3 residuals R6 and R7 closed (Spec Change Log 3).
 - `TODO.md`, this contract and `_bmad-output/implementation-artifacts/run-logs/spec-policy-tool-fixes.md`.
 
 Read, not changed: `.githooks/pre-commit`; `tools/anvil/no-skipped-tests.json`; `tools/anvil/VerifyPolicy.cs:428–965` (`CustomizationCheck`, whose self-test reads `_bmad/custom` and must stay 37/0/0) and `:966` onward (gates); `_bmad/custom/bmad-loop-protocol.md:71,206`, `_bmad/custom/role-cards.md:90` and `_bmad/custom/bmad-build-auto.toml:21` (tier confirmation opens hunks of list-line paths only; the 24n allowance is path-based, so they need no edit); `AGENTS.md` ("Review tiers" defers to the protocol).
@@ -113,9 +90,9 @@ Policy text, not a tested capability: the data-only allow-list (`bmad-loop-proto
 
 ### Decisions
 
-- **D1. All `GIT_*` variables are removed from every harness child,** then `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null` and `LC_ALL=C` are set and the case's own `environment` applied. One rule covers `git rev-parse --local-env-vars` (15 names on git 2.56.1), the `GIT_CONFIG_KEY_n`/`VALUE_n` pairs it omits, and user and XDG configuration (`GIT_CONFIG_GLOBAL=/dev/null` suppresses the user and XDG configuration files). The disposable repository's local configuration also sets `core.excludesFile` and `core.attributesFile` to `/dev/null` (`VerifyPolicy.cs:43–45`), because git reads its default `$XDG_CONFIG_HOME/git/ignore` or `$HOME/.config/git/ignore` whenever `core.excludesFile` is unset, whatever `GIT_CONFIG_GLOBAL` says (probed on git 2.56.1, audit 4; record in the run log). `HOME` is kept, because the hook's `dotnet run` needs it.
-- **D2. The no-git case links `<root>/dotnet`, runs `/bin/sh`, and sets `PATH` to that one directory,** where `<root>` is the directory three levels above `RuntimeEnvironment.GetRuntimeDirectory()` (`<root>/shared/Microsoft.NETCore.App/<version>/`), the runtime the harness runs on. No environment variable is read: `dotnet run` gives the app `DOTNET_ROOT_<ARCH>`, not `DOTNET_ROOT`, and passes a caller's `DOTNET_ROOT` through unchanged (probed on SDK 10.0.403, audit 3; record the probe in the run log), and `DOTNET_HOST_PATH` is absent whenever the caller sets `DOTNET_ROOT`. With `/bin` no longer on the child's `PATH`, the "`/bin` holds git" host condition is the one this host runs, so no seam is needed. If `dotnet run --file` cannot run in the hook with that `PATH` on this host, stop and return to planning.
-- **D3. The gitlink case derives its expected text from real git.** The harness runs `git show :0:Module.cs --` (coordinator decision, 25 Nov 2026; Spec Change Log 2) through `Harness.Execute` with `requireSuccess: false` in the same repository, requires a non-zero exit, and takes the first non-empty line of its output (stdout is empty for this failure, so the merged output is git's error); that line must appear inside the refusal line that starts `CheckStagedTests: the staged content of Module.cs could not be read`, and must occur exactly once in the hook's output, which proves the tool captured it instead of passing git's stderr through.
+- **D1. All `GIT_*` variables are removed from every harness child,** then `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null` and `LC_ALL=C` are set and the case's own `environment` applied; the disposable repository sets `core.excludesFile` and `core.attributesFile` to `/dev/null`; `HOME` is kept. Reason and probes: run log E19 (full text), E3.
+- **D2. The no-git case links `<root>/dotnet` (three levels above `RuntimeEnvironment.GetRuntimeDirectory()`), runs `/bin/sh`, and sets `PATH` to that one directory;** no environment variable is read. Reason, probes and stop condition: run log E19 (full text), E3.
+- **D3. The gitlink case derives its expected text from real git:** git's first error line from `git show :0:Module.cs --` (Spec Change Log 2) must appear inside the refusal line, exactly once in the hook's output. Full text: run log E19.
 - **D4. One cleanup shape:** `Harness.RemoveAll(params DirectoryInfo[])` attempts every directory and returns whether all were removed; the main run and `UnusableGit` both use it. The passed-count line is printed only after `RemoveAll` returns true.
 - **D5. The harness rule is stated once,** in `docs/delivery-workflow.md:58` under a new anchor `policy-tool-harness`; protocol handoff item 2, the role card's new item and `tools/anvil/README.md:114` link to `#policy-tool-harness`.
 - **D6. `SourceKind` is deleted, not used.** The tool decides only "scanned or not"; the scanned set becomes `FrozenSet<string>`, and the `SourcePaths` summary (`:170–172`) drops "internal choices remain enum-typed". No closed set is lost: the enum's values were never read (`:189` reads keys only).
@@ -127,7 +104,7 @@ Policy text, not a tested capability: the data-only allow-list (`bmad-loop-proto
 
 ### What this removes
 
-The three-variable list at `VerifyPolicy.cs:127`; the first-`dotnet`-on-`PATH` lookup and the `/bin` condition in `PathWithoutGit`; the second cleanup shape (`List<bool>` in `UnusableGit`); the passed-count line before cleanup and its `+ 6` literal; `enum SourceKind`; the repeated harness-rule sentences in the protocol and the README; the stale `b5b9b233`/713 count sentence; the hand counts in `tools/anvil/README.md` (restated from this run).
+The three-name `GIT_*` list, the `PATH` lookup of `dotnet`, the second cleanup shape, the early count line, `enum SourceKind` and the repeated harness-rule sentences; the full list is in run log E20.
 
 ## Tasks & Acceptance
 
@@ -150,7 +127,7 @@ The three-variable list at `VerifyPolicy.cs:127`; the first-`dotnet`-on-`PATH` l
 - AC2: Given the candidate, when the same command runs (a) with the pinned toolchain first on `PATH`, (b) with a directory holding both `dotnet` and `git` first, and (c) with a scratch wrapper named `dotnet` (`#!/bin/sh` and `exec env "$DOTNET_ROOT/dotnet" "$@"`) first on `PATH` under the Verification environment, (d) with `DOTNET_ROOT` unset (`env -u DOTNET_ROOT`), and (e) with `DOTNET_ROOT` naming an empty scratch directory, then each passes with the AC1 total. Control for (c), recorded once in the run log: at the drafting revision's `PathWithoutGit`, the same wrapper makes the no-git case fail (exit 127, no refusal text).
 - AC3: Given the candidate, when `dotnet run --file tools/anvil/CheckStagedTests.cs` runs in a clean checkout, then it reports its 14 self-check cases held.
 - AC4: Given the candidate, when `dotnet run --file tools/anvil/VerifyPolicy.cs -- --bmad-check --self-test` runs, then `Fixtures: Passed: 37, Failed: 0, Skipped: 0.`; and `--bmad-check --project-root "$PWD"` reports `structural findings=0` for every route.
-- AC5: Given the candidate, when the registration check in `docs/delivery-workflow.md` runs, then its count equals the count the `:70` sentence states (re-measured and restated on the merged candidate when this slice publishes second), with 0 failed and 0 skipped; and each of `CurrentCapabilityInputsTests` and `WorkshopIntegrationStartupTests`, filtered alone, selects more than zero tests, the total being the 18-class count plus those two counts.
+- AC5: Given the candidate, when the registration check in `docs/delivery-workflow.md` runs, then its count equals the count the `:70` sentence states (re-measured and restated on the merged candidate when this slice publishes second), with 0 failed and 0 skipped; and each of `CurrentCapabilityInputsTests` and `WorkshopIntegrationStartupTests`, filtered alone, selects more than zero tests, the total being the 18-class count plus those two counts and, from Spec Change Log 3, the `SolutionMembershipTests` count.
 - AC6: Given the candidate, when the full local round runs, then its total equals the baseline's, or on a merged candidate the merged main's total (this slice changes no test project), 0 failed, `Skipped: 0`.
 - AC7: Given the candidate, when `git grep -n -e 'Whenever a file under .tools/anvil/. changes, run' -e 'The hook and CI build that harness but do not run it' -- AGENTS.md _bmad/custom tools/anvil docs/delivery-workflow.md docs/testing-guidance.md` runs, then it lists only `docs/delivery-workflow.md`.
 - AC8: Given the candidate, when `git grep -n 'allow-list' -- AGENTS.md _bmad/custom docs/delivery-workflow.md` runs, then the list is defined only at `bmad-loop-protocol.md:54–60` and every other hit refers to it; the new bullet matches the 24n wording (read in review).
@@ -159,6 +136,7 @@ The three-variable list at `VerifyPolicy.cs:127`; the first-`dotnet`-on-`PATH` l
 
 1. 2026-11-25, review pass 1, coordinator decision, 25 Nov 2026 (option (a) of the pass-1 Auto Run Result). Trigger: the `intent_gap` row (a staged path named `0:Foo.cs` is read as stage 0 of `Foo.cs`). Amended: the Never clause gains the stage-0 read exception; P5's expected text and D3 use `git show :0:Module.cs`; matrix row P12 and its harness case; task 4; AC1 becomes baseline + 11 (78). Known-bad state avoided: the no-skip gate scanning another file's bytes. KEEP: every other decision of the staged-source and skip rules, D1–D7, the Final diff scope list and the pass-1 candidate.
 2. 2026-11-25, review pass 2 (Edge Case Hunter, the `:0:<path>` work-tree row). The explicit stage-0 read of entry 1 ends its argument list with `--` (`git show :0:<path> --`), so git reads the argument only as the stage-0 revision even when a work-tree file has that literal name; this is the same read under the same coordinator decision, not a new rule. D3's reference read mirrors it (`git show :0:Module.cs --`; review pass 3). KEEP: entry 1 and the AC1 count (78); the proof sits inside the P12 control, with no new PASS line.
+3. 2026-11-25, SnapshotApproval of merge `52c2c643` (Fail). The merge brought S3's residuals R6 and R7 (`deferred-work.md`, published in `3a80c6a8` after this slice's baseline), owned by "the next slice that edits the registration check" and "the next policy change to `_bmad/custom`", which this slice is. Added to owned scope: R6, `SolutionMembershipTests` joins the registration filter and the count is re-measured and restated; R7, a one-line pointer in the Implementation owner card's handoff item 3 and the protocol's handoff item 3 sends a slice that adds a slider declaration or makes a package a capture-target payload to the registration paragraph's slider and payload obligations, without routing it to the registration checks; both entries closed. KEEP: everything reviewed at `330d6bc9` and the merge resolution of `52c2c643`.
 
 ## Review Triage Log
 
@@ -235,6 +213,32 @@ The three-variable list at `VerifyPolicy.cs:127`; the first-`dotnet`-on-`PATH` l
 
 - Informed reviewer: the pass-4 Element-Free Engine auditor (`a2645eeadb12f4e25`), re-engaged after re-review, read-only, on `git diff 5f1c4d4a` (12 paths, all on the Final diff scope list; nothing outside it). Every hunk traced to a task, decision, closed deferred item or confirmed repair; nothing removed; simplification analysis: none justified (each option cosmetic or weakening a check). One record item (the AC3 row citing E11) applied. Verdict: **Pass**, conditional on later edits being records only, which they are (E14).
 - Acceptance verdict (engineering gate): Scoped Pass for the policy-tool and harness scope; D1–D7 not engaged (no engine, package, wire or presentation code); E2, E5, E7, E8 and E9 applied; maintainability gate PASS on the final candidate (E13); full round 7309/0/0 (E14). Browser, release and remote qualification are not claimed.
+- Invalidated by the post-merge R6/R7 repair (policy text changed): a fresh Final diff scope check and the maintainability gate run on the new final candidate (below).
+
+### 2026-11-25 — Review pass
+
+- Pass 5, engine tier, re-review of the post-merge R6/R7 repair (E16; Spec Change Log 3): Verification Gap, Forward-Only, Element-Free Engine (policy text only; run log E18).
+- verdicts: 4 findings — high 1, medium 0, low 3, false 0, maybe-false 0
+- findings:
+  - `[high]` `[patch]` FO-1: the R7 sentence at `role-cards.md:37` and `bmad-loop-protocol.md:181` restated the registration paragraph's slider and payload obligations (a second statement already narrower in trigger and merging the remedies) — replaced by a pointer only (owner, E18).
+  - `[low]` `[patch]` EFE F2: the same sentence's parenthetical ran the slider and payload remedies into one "or" list — removed with FO-1.
+  - `[low]` `[patch]` EFE F1: `TODO.md`'s lane 4 line named the wrong commit as "this merge commit", omitted the failed SnapshotApproval and listed done checks as pending — restated for the repair commit (coordinator).
+  - `[low]` `[patch]` EFE F3: the R6 and R7 closures cited line numbers without a revision under a `0959e883` header — line numbers replaced by the anchor and section headings (owner, E18).
+- Verification Gap: no findings. The contract's Auto Run Result, owned scope and Final diff scope were refreshed for the repair (coordinator).
+
+### 2026-11-25 — Review pass
+
+- Pass 6, re-review of the pass-5 repair (E18): Verification Gap, Forward-Only, Element-Free Engine (run log E19).
+- verdicts: 3 findings — high 0, medium 0, low 3, false 0, maybe-false 0
+- findings:
+  - `[low]` `[patch]` EFE: the pass-5 F3 row said "revision named" where the closures now cite the anchor and headings — corrected (coordinator).
+  - `[low]` `[patch]` EFE: the Status line presented the invalidated Final diff scope Pass as current and omitted E18 and pass 6 — restated (coordinator); recurring class, close note E14.
+  - `[low]` `[patch]` EFE: the owned-scope bullets for the protocol and `deferred-work.md` omitted their post-merge edits — added (coordinator).
+- Verification Gap and Forward-Only: no findings (Forward-Only: the pointer's trigger and carve-out route only; no restated rule).
+
+### Final diff scope (post-merge)
+
+- Informed reviewer: the pass-6 Element-Free Engine auditor (`adf7cff433b7e8801`), read-only, on `git diff 51529148` (12 paths, all on the Final diff scope list, nothing untracked) and `git diff 52c2c643` (7 paths). `tools/anvil` is byte-identical to the reviewed `330d6bc9`, so the first check's analysis applies; every policy, workflow and record hunk traces to P10, P11, AC5, AC7, AC8, task 9, F7 or Spec Change Log 3; the lane 3 receipt in `TODO.md` is the merge's own resolution. Nothing removed; simplification analysis: none justified. Maintainability gate PASS on this candidate (`maintainability-postmerge.log`; violations 0, both canaries, coupling summary; C# unchanged since). Verdict: **Pass**.
 
 ## Design Notes
 
@@ -265,7 +269,7 @@ Environment: the pinned toolchain first on `PATH` (`PATH=$HOME/.local/share/tim-
 | P7 | Five new Block fixtures, one per kind | Control: the existing "ordinary Playwright" Allow (`.ts`) | ran, passed (E4) |
 | P8 | "a new C# file is refused when the hook runs from a subdirectory" | Control: the same files with the hook at the top level (first existing case) | ran, passed (E4) |
 | P9 | "a directory the harness cannot delete is reported and fails the run" (task 6) | Control: the first directory after restoring its mode is removed. F10 (count printed only after `RemoveAll` returns true) is checked by code order in review. One `try`/`finally` holds all setup; the mode is restored in a `finally` that never throws, and the cleanup removes only directories no removal was yet attempted on, so no failed removal is retried and no directory already gone is reported (checked by reading) | ran, passed (E12) |
-| P10, AC5 | Registration check command, the `:70` sentence and the two single-class runs | Count compared with the run's output | ran: 798 = 767 + 16 + 15, 0 failed, 0 skipped (E4); 798/0/0 again on the final candidate (E14); merged with `51529148`: 806 = 775 + 16 + 15, 0 failed, 0 skipped, and the `:70` sentence restated (E15) |
+| P10, AC5 | Registration check command, the `:70` sentence and the two single-class runs | Count compared with the run's output | ran: 798 = 767 + 16 + 15, 0 failed, 0 skipped (E4); 798/0/0 again on the final candidate (E14); merged with `51529148`: 806 = 775 + 16 + 15, 0 failed, 0 skipped (E15); with `SolutionMembershipTests` (Spec Change Log 3): 809 = 806 + 3, 0 failed, 0 skipped, and the count sentence restated (E16) |
 | P12 | "a staged skip in a file named `0:Foo.cs` beside a clean `Foo.cs` is rejected" (coordinator decision, 25 Nov 2026) | Control: the same pair without the skip, beside a committed file literally named `:0:Foo.cs` (Spec Change Log 2) and run with `GIT_TRACE=1`, passes with `Anvil snapshot 0.ts: 0:Foo.cs`, `Anvil snapshot 1.ts: Foo.cs`, the scanner's report and git's `trace: built-in: git show :0:Foo.cs --` line; no PASS line of its own | ran, passed (E12) |
 | P11, AC8 | The AC8 consistency check | Three contracts' tier reasons cited in the Capability probe | ran (E4) |
 | AC3 | Tool self-check | 14 cases | ran on the final candidate, 14 held (E14) |
@@ -308,8 +312,9 @@ Resolved 2026-11-25: coordinator decision, 25 Nov 2026, option (a) (Spec Change 
 
 Final result (2026-11-25): status `done`.
 - Summary: the harness's children are isolated from inherited git variables and user, XDG and system configuration; the no-git case links the running runtime's own `dotnet`; the skip scan reads each staged path by its explicit stage-0 form `git show :0:<path> --` and carries git's error on one refusal line, passing git's warnings through on success; new harness cases cover P1, P3, P4, P7 (five), P8, P9 and P12, and pass cases prove their scan (P6); one cleanup shape; the count prints after cleanup; `SourceKind` deleted; the harness rule is stated once (`#policy-tool-harness`); `TODO.md` is on the data-only allow-list (24n); the registration filter gains two classes (798).
-- Files: `tools/anvil/VerifyPolicy.cs` (harness), `tools/anvil/CheckStagedTests.cs` (stage-0 read, refusal text, `SourceKind` deleted), `tools/anvil/fixtures.json` (five Block fixtures), `tools/anvil/README.md` (inventory, 78 checks), `_bmad/custom/bmad-loop-protocol.md` (24n bullet, item 2 link), `_bmad/custom/role-cards.md` (handoff item 2), `docs/delivery-workflow.md` (anchor, filter, count), `completion-ledger.md` (OS-04 done), `deferred-work.md` (F1–F19 dispositions), `TODO.md`, this contract and its run log.
+- Files: the twelve paths of the Final diff scope list, each with its change, in run log E20.
 - Review: four passes; 39 findings in all (pass 1: 17, of which 1 intent_gap settled by coordinator decision and 6 false; pass 2: 16; pass 3: 3; pass 4: 3); every confirmed finding patched and re-reviewed; none deferred; rejected rows are pass 1's six false Intent Alignment readings, each refuted by the contract line cited in its row.
 - Follow-up review recommendation: `false` (pass 4 patched three low record rows; no unverified risk named).
 - Verification (E13, E14): capture builds 0 warnings and 0 errors; maintainability gate PASS (violations 0, both canaries, coupling summary); harness 78/0/0 with 78 `PASS ` lines; tool self-check 14; policy checker self-test 37/0/0 and `structural findings=0` on seven routes; registration check 798/0/0; AC7 one hit; AC8 eleven references to the one definition; `git diff --check` clean; full round 7309/0/0, `Skipped: 0`, bracketed by HEAD and HEAD-AFTER on an unchanged tree.
 - Residual risks: the multi-line refusal and success pass-through are proven with `GIT_TRACE=1` on git 2.56.1 only; scratch probe directories under the host's temporary folder were left by denied `rm` calls (outside the checkout).
+- Post-merge (2026-11-25): merged with `51529148` as `52c2c643` (E15; round 7339/0/0); its SnapshotApproval failed on S3 residuals R6 and R7, which the merge brought to this slice (Spec Change Log 3); repaired (E16, E18) and re-reviewed (passes 5 and 6, E19); the registration filter now has 21 classes and selects 809 (E16).
