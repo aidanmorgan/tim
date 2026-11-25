@@ -78,6 +78,8 @@ public sealed class BalloonTests
         Assert.Equal(AtmospherePreset.Vacuum, loaded.Atmosphere);
         Assert.Equal(((WorkshopGenericInstance)authored.Instances.Single()).Parameters,
             ((WorkshopGenericInstance)loaded.Instances.Single()).Parameters);
+        // The Balloon is declared a capture-target payload.
+        Assert.True(DeclaredPhysics.IsPayload(new PartId("balloon")));
         await using var h = await WorkshopIntegrationHarness.Building(loaded);
         var initial = h.Committed.GasStores[0];
         await h.Run(); await h.Advance(30);

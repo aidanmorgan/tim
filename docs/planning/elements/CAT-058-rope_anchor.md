@@ -154,7 +154,7 @@ No item needs the owner.
 
 - **Collaborators, all delivered:** Weight (`Load`), Pulley (`Guide`), Impact lever (`TieA`/`TieB`, `Load`), Trampoline (tether tests `TrampolineTests.cs:2112`, `:2140`), Linear pusher (`LinearPusherTests.HeadTransfersLoadThroughCargoToARopeAndDisconnectingTheRopeReleasesTravel`, `LinearPusherTests.cs:179`). Both ends of every link are `SimulationDomain.Rope`, Bidirectional.
 - **Not delivered:** EL-067 Steel cable (a connection material; needs `ENGINE-CONNECTION-MATERIALS`), EL-066 Scissors and EL-068 Tin snips (cutters), EL-063 Cable winch, EL-065 Load hook.
-- **Campaign.** No level in `content/puzzles.json` places a Rope anchor: levels 19 and 20 tie Weights through Pulleys only. The plan teaches the anchor at level 12c, where the authored `pulley_depth` becomes the anchor's lesson; the content slice must add the anchor to that level (it places none today), and a pendulum lesson is further Epic 15 work that would need no engine story.
+- **Campaign.** No level in `content/puzzles.json` places a Rope anchor: levels 19 and 20 tie Weights through Pulleys only. The plan teaches the anchor at level 12c, where the authored `pulley_depth` becomes the anchor's lesson; `pulley_depth`'s Early level proof adds the anchor to that level (completion-ledger OS-09, owner decision 24o(3); it places none today), and a pendulum lesson is further Epic 15 work that would need no engine story.
 - **Coverage binding.** Catalogue key `rope_anchor` (CAT-058).
 
 ## 8. Delivery and residuals

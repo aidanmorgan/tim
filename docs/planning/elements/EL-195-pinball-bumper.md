@@ -100,7 +100,7 @@ The closure reviewer also confirms that a saved `PowerIn` wire reloads and recha
 ### Integration
 
 - **Collaborators.** Battery, Wall, Receiver, Ball, Impact switch: all delivered.
-- **Campaign.** Row 1 (bumper): first use 1–10, reuse 21–30, 41–50, 91–100, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained lessons [todo-157](../requirements.md#todo-157). In `content/puzzles.json`: levels 10 `bumper_sidekick`, 11 `bumper_depth` and 13 `wall_and_bumper` are Playable; 12 `wall_return` is planned and provable now (Early level proof, "Air and capture" group).
+- **Campaign.** Row 1 (bumper): first use 1–10, reuse 21–30, 41–50, 91–100, 136–150 ([campaign-element-coverage](../requirements.md#campaign-element-coverage)); retained lessons [todo-157](../requirements.md#todo-157). In `content/puzzles.json` (numbers are authored positions before decision 24d, each paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)): levels 10 `bumper_sidekick`, 11 `bumper_depth` and 13 `wall_and_bumper` are Playable; 12 `wall_return` was removed under owner decision 24d.
 - **Coverage binding.** Catalogue key `bumper` (CAT-015). EL-195 has no package of its own and so no package source binding. No lesson-fixture story (S8) is needed.
 - **Value checks.** The default 8 m/s kick is what the three delivered lessons are tuned to. Refilling the default 32 J store inside the 0.15 s cooldown needs 32 / 0.15 = 213 W, so with a source limited below about 213 W (the default Battery's 120 W included) rapid repeat hits weaken, which is the supply lesson; at 213 W and above they do not.
 

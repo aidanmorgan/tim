@@ -13,7 +13,7 @@ This is the Story 7.0 CAT-019-D declaration readiness spec for the conveyor belt
 | Requirement anchor | [CAT-019](../requirements.md#current-cat-019); retained behaviour [todo-151](../requirements.md#todo-151) |
 | Mapped identities | [EL-202 Conveyor](../invest/named-elements.md#element-202), a candidate Duplicate closure of this part; [EL-200 Drive belt](../invest/named-elements.md#element-200) is a related identity for the authored belt link and is not closed by this part (section 8) |
 | Roadmap story | [11.1b Conveyor](../../../_bmad-output/planning-artifacts/epics.md#catalogue-slice-ownership); retain every CAT-019 mode and mapped named-identity obligation. |
-| Status (25 November 2026) | **Delivered, with one requirement criterion not met.** CAT-019's "length/width define the surface" criterion is not met: `length` and `width` bind nothing. Package id `conveyor`, directory `elements/Conveyor`, palette category Motion, order 37 (`elements/Conveyor/ConveyorElementDeclaration.cs:25`–`:30`). Slice record: [11.1b Conveyor](../../../_bmad-output/implementation-artifacts/spec-11-1b-conveyor.md) (status done; commit `a0f6c4c0`, 17 November 2026); link artwork by [11.2b](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) (commit `c34f6390`). Other residuals (section 8): treads and direction arrow not drawn. The solid pulleys and flat spokes (R1) are implemented by visible-solid remainder part B; independent review and approval remain. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-PARAMETER-BOUND-FRAMES` (dimensions) and `ENGINE-ISLANDS-SLEEP` (the resting roller), and `ENGINE-CAPABILITY-INSTANCES` (the tread-wrapping value mapping, capability row 7; coordinator decision 29). Browser qualification pending. Checked on `37fbd3a4` (part B's baseline) with part B's candidate. |
+| Status (25 November 2026) | **Delivered, with one requirement criterion not met.** CAT-019's "length/width define the surface" criterion is not met: `length` and `width` bind nothing. Package id `conveyor`, directory `elements/Conveyor`, palette category Motion, order 37 (`elements/Conveyor/ConveyorElementDeclaration.cs:25`–`:30`). Slice record: [11.1b Conveyor](../../../_bmad-output/implementation-artifacts/spec-11-1b-conveyor.md) (status done; commit `a0f6c4c0`, 17 November 2026); link artwork by [11.2b](../../../_bmad-output/implementation-artifacts/spec-11-2b-reverse-transmission.md) (commit `c34f6390`). Other residuals (section 8): treads and direction arrow not drawn. The solid pulleys and flat spokes (R1) are implemented, natively tested and independently reviewed in visible-solid remainder part B. Every residual slice is blocked on the engine programme (owner decision 3a, 22 November 2026); the stories that own this part's gaps are `ENGINE-PARAMETER-BOUND-FRAMES` (dimensions) and `ENGINE-ISLANDS-SLEEP` (the resting roller), and `ENGINE-CAPABILITY-INSTANCES` (the tread-wrapping value mapping, capability row 7; coordinator decision 29). Browser qualification pending. Checked on `37fbd3a4` (part B's baseline) with part B's candidate. |
 
 ## 2. Declaration
 
@@ -49,7 +49,7 @@ Read from `elements/Conveyor/ConveyorElementDeclaration.cs` and `elements/Convey
 
 ### Art
 - Catalogue colour Conveyor `#d69c47`, (0.84, 0.61, 0.28) ([DESIGN colour system](../../../DESIGN.md#colour-system)); icon `elements/Conveyor/icon.svg`. [DESIGN mechanical work feedback](../../../DESIGN.md#mechanical-work-feedback) governs the motion presentation.
-- **Art and solidity (`elements/Conveyor/conveyor.tscn`; the `conveyor` row of `CuriousContraptions.tests/VisibleSolidColliderTests.cs`), with [part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md)'s candidate (independent review and approval remain).**
+- **Art and solidity (`elements/Conveyor/conveyor.tscn`; the `conveyor` row of `CuriousContraptions.tests/VisibleSolidColliderTests.cs`), with [part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md)'s candidate (implemented, natively tested and independently reviewed).**
 
   | Node | Mesh | Class | Note |
   | --- | --- | --- | --- |
@@ -64,7 +64,7 @@ Read from `elements/Conveyor/ConveyorElementDeclaration.cs` and `elements/Convey
 
 ### Catalogue and inventory entry
 - Id `conveyor`, title "Conveyor belt", category Motion, order 37 (`elements/Conveyor/ConveyorElementDeclaration.cs:25`–`:30`).
-- It is in inventory in 9 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
+- It is in inventory in 4 levels and placed in `belt_relay` and `double_cold_start` ([current consumers](../invest/current-consumers.md#cat-019-i)).
 
 ## 3. Engine capabilities
 
@@ -144,7 +144,7 @@ Counts: 5 present, 0 untested, 2 narrower, 0 missing.
 - `CuriousContraptions.tests/SurfaceMotorBudgetTests.cs`
 - `CuriousContraptions.tests/MechanicalTests.cs`
 - `CuriousContraptions.tests/MechanicalWorkTests.cs`
-- `content/puzzles.json` (levels `conveyor_courier`, `belt_relay`, `reverse_belt`, `double_cold_start`, `depth_delivery`)
+- `content/puzzles.json` (levels `conveyor_courier`, `belt_relay`, `reverse_belt`, `double_cold_start`)
 - `tools/Campaign/Program.cs`
 - `ui/WorkshopIcons.cs` (pictogram)
 - `engine/physics/ContactSlipPath.cs` (checked, CPU slip integration of driven surfaces, no element values)
@@ -157,7 +157,7 @@ Follow the [CAT-019 row](../requirements.md#current-cat-019) and Story 11.1; do 
 - **Chrome UI recipe.** Open `conveyor_courier`. Drag the conveyor from the toolbox under the ball with the real placement controls. Connect battery `Supply` → motor `PowerIn` and motor `Drive` → conveyor `DriveIn` with the contextual wiring UI. Run, then record the captured goal, roller and payload poses, and bundle identity.
 - **Positive.** The payload is carried along local +X into the receiver; treads, pulleys and arrow follow committed travel (facts 14, 17, 27).
 - **Negative/control.** An unpowered motor or missing Mechanical link gives no motion; a wire from the activation domain is rejected; a ball outside the belt width is untouched (facts 16, 18, 19).
-- **Boundaries.** Stalled or loaded belt, coasting after supply loss, reversed ratio, downstream chained conveyor (`belt_relay`), rotated belt (`depth_delivery`), side and underside contacts (facts 15, 20–22, 30, 33).
+- **Boundaries.** Stalled or loaded belt, coasting after supply loss, reversed ratio, downstream chained conveyor (`belt_relay`), rotated belt, side and underside contacts (facts 15, 20–22, 30, 33).
 - **Run/Reset.** Roller angle, speed, tread phase and payload return exactly (fact 20).
 - **Save/Load.** `length`, `width`, `surface_per_radian`, pose and typed mechanical links round-trip; retired properties are rejected (fact 13).
 - **Integrations.** Motor (CAT-042), Reverse transmission and Clutch (Story 11.2), Basketball/Receiver capture.
@@ -205,7 +205,7 @@ The questions were: 1 parameter bounds; 2 mechanical loop policy; 3 idle roller 
 
 - **Drive sources (delivered).** Motor (`Drive`, Mechanical output, +1), Windmill (`elements/Windmill/WindmillElementDeclaration.cs:47`), another Conveyor's `Drive`, and a Clutch or Reverse gear between them. Supply reaches the Motor from the Battery, Impact switch, Hold timer or a gate.
 - **Cargo and goals (delivered).** Basketball, Tennis ball, Bowling ball, Receiver.
-- **Campaign (`content/puzzles.json`), all Planned.** 16 `conveyor_courier`, 17 `belt_relay` and 18 `reverse_belt` have one `captured` goal and are provable from delivered parts after the engine programme (owner decision 3a) ([delivery batches section 4](../invest/delivery-batches.md#4-early-level-proof)); 31, 37, 46, 49, 53, 55 and 58 wait for goal evaluation. Every authored Conveyor uses the default 3 × 1.2 m size.
+- **Campaign (`content/puzzles.json`), all Planned; numbers are authored positions before decision 24d, each paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d).** 16 `conveyor_courier`, 17 `belt_relay` and 18 `reverse_belt` have one `captured` goal and are provable from delivered parts after the engine programme (owner decision 3a) ([delivery batches section 4](../invest/delivery-batches.md#4-early-level-proof)); 49 `double_cold_start` and 58 `grand_contraption` wait for goal evaluation and their conversion (completion-ledger OS-08). Every authored Conveyor uses the default 3 × 1.2 m size.
 - **Coverage binding.** Catalogue key `conveyor` (CAT-019) in `docs/coverage/catalogue-elements.json`. EL-202 has none of its own.
 - **Lesson fixtures.** A level that offers it from the player's inventory needs no lesson-fixture story; a level that locks it as a fixture adds a `FIX-` row to the catalogue fixture table ([current consumers](../invest/current-consumers.md), read by `tools/Coverage/CurrentCatalogue.cs:100`), and needs [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) only for per-parameter or connection locks. Each level is authored by its Early level proof slice.
 
@@ -215,7 +215,7 @@ Delivered as recorded in section 1. Every residual slice is blocked on the engin
 
 | # | Residual | Owner | Tier | Prerequisite |
 | --- | --- | --- | --- | --- |
-| R1 | Both pulley wheels solid; both spokes printed flat | [ELEMENTS-VISIBLE-SOLID-REMAINDER part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md): implemented and natively tested; independent review and approval remain | Engine, as that contract states (it changes the shared matcher) | part A (published) |
+| R1 | Both pulley wheels solid; both spokes printed flat | [ELEMENTS-VISIBLE-SOLID-REMAINDER part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md): implemented, natively tested and independently reviewed | Engine, as that contract states (it changes the shared matcher) | part A (published) |
 | R2 | Requirement criterion not met: `length` and `width` are validated, saved and shown but resize nothing. The scene is a fixed 3 × 1.2 m belt, and the hinge frame, rims and ports are constants. A player who edits them sees no change | New slice `conveyor-dimensions`, after the engine story `ENGINE-PARAMETER-BOUND-FRAMES` (capability row 6). Not a scope cut: the parameters stay | Engine for the prerequisite; data-only for the package slice once it is published | the engine programme, then `ENGINE-PARAMETER-BOUND-FRAMES` |
 | R3 | Ten treads and the direction arrow of [DESIGN.md](../../../DESIGN.md) are not in the scene | `conveyor-dimensions` (the treads must scale with length) | as R2 | as R2, and an owning story for capability row 7 (none yet) |
 | R4 | Stalled-belt and underside-contact tests | The next slice that touches the package (R1 or R2); a missing test is a patch | Data-only | the engine programme |

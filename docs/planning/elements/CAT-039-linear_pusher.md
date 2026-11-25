@@ -38,7 +38,7 @@ The current declaration is `elements/LinearPusher/LinearPusherElementDeclaration
 | Presentation | head follows package body 1; span `Visual/Rod` from the barrel face (0.6, 0, 0) to the head; `Visual/Indicator` albedo by `CommittedPrismaticPhase` (held, moving, blocked colours); pick radius 1.3 m | `:66`–`:76` |
 | Palette | category Power, order 40, colour (0.4, 0.72, 0.79) | `:11`–`:13` |
 
-### Art and solidity (scene with part B's candidate; independent review and approval remain)
+### Art and solidity (scene with part B's candidate, independently reviewed)
 
 | Node | Mesh and pose | Layer and class |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ The current declaration is `elements/LinearPusher/LinearPusherElementDeclaration
 | `Visual/Socket_PowerIn`, `Socket_ExtendIn`, `Socket_RetractIn`, `Socket_RetractedOut`, `Socket_ExtendedOut`, each with its `col_Socket_…` | navy spheres r 0.07 m at the five port positions | solid: one shared sphere shape, base colliders 3–7 in this order (rows B3, B4). Sockets keep their colliders (owner decision, 21 November 2026) |
 | `Visual/TravelMark0`–`4` | gold quads 0.022 × 0.1 m at x −0.2, −0.05, 0.1, 0.25, 0.4 and z 0.3252, 0.2 mm in front of the barrel's front face (z 0.325) | printed; were boxes standing up to 14 mm off the face (row B9) |
 
-The new colliders grow the part's +z reach from 0.5 to 0.57 m. Floating art, recorded and not repaired by part B: the `RetractedOut` and `ExtendedOut` sockets sit 7.6 cm clear of the barrel with nothing drawn between them and it; repair part D seats them. Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (implemented and natively tested; independent review and approval remain); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `linear_pusher`. Design authority: [DESIGN.md "Electric linear pusher"](../../../DESIGN.md#electric-linear-pusher). No level in `content/puzzles.json` places or stocks the part.
+The new colliders grow the part's +z reach from 0.5 to 0.57 m. Floating art, recorded and not repaired by part B: the `RetractedOut` and `ExtendedOut` sockets sit 7.6 cm clear of the barrel with nothing drawn between them and it; repair part D seats them. Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (implemented, natively tested and independently reviewed); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `linear_pusher`. Design authority: [DESIGN.md "Electric linear pusher"](../../../DESIGN.md#electric-linear-pusher). No level in `content/puzzles.json` places or stocks the part.
 
 ## 3. Engine capabilities
 
@@ -177,7 +177,7 @@ Every question the harvest raised is decided; none needs the owner.
 
 - **Delivered** by 11.3.
 - **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it. The stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP`, `ENGINE-SUPPLY-DEMAND` and `ENGINE-CAPABILITY-INSTANCES` (section 3).
-- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states; it changes the shared matcher): implemented and natively tested, independent review and approval remain. (2) LP-R1: one test, data-only tier, or absorbed by S4.
+- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states; it changes the shared matcher): implemented, natively tested and independently reviewed. (2) LP-R1: one test, data-only tier, or absorbed by S4.
 - **Supply drain.** A supplied drive debits nothing today, for this part as for the Motor and the Powered gate. Owned by the engine story `ENGINE-SUPPLY-DEMAND`, which also decides whether the two electrical nodes' unread values become the standing demand or are deleted. The pusher needs no declaration change beyond that.
 - **Probe re-check for part B:** collider order on both bodies is unchanged (head sphere, then rod, then the appended ring), and the declared footprint stays 2 bodies, 1 moving, 1 prismatic.
 

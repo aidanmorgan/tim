@@ -118,7 +118,7 @@ Files harvested:
 
 Acceptance: [CAT-023](../requirements.md#current-cat-023) and its delivery notes. Every row runs the production simulation; none depends on a domino-specific code path.
 
-- **Construction.** `domino_effect`: place four dominoes from inventory, wire the end domino to the lamp, Run. When the content slice re-authors the level (owner decision 24f; coordinator decision 41) the lamp and its wire go and the goal stays Captured: the last domino knocks a ball into a Receiving basket.
+- **Construction.** `domino_effect`: place four dominoes from inventory, wire the end domino to the lamp, Run. When the level is re-authored (completion-ledger OS-06; owner decisions 24f and 24o(3); coordinator decision 41) the lamp and its wire go and the goal stays Captured: the last domino knocks a ball into a Receiving basket.
 - **Positive.** A close-gap chain topples by real contact, each tile starting to turn only after the one before it; `ActivationOut` emits once past 45°; Solved once.
 - **Negative/control.** A gap breaks the chain; a 10° tilt rocks back without emitting; an upright tile never fires; an unwired end falls but lights nothing; a wire into a domino is refused; the striker does not reach the second tile first (the cascade test asserts the order of first motion).
 - **Run/Reset, Save/Load.** Reset restores upright poses and rearms the sensor; save and load restore the chain.
@@ -138,7 +138,7 @@ Needs the owner: nothing.
 ## 7. Integration
 
 - **Collaborators.** Basketball and Bowling ball (strikers), Signal lamp (`ActivationIn`), Delay box, Ramp, Wall, the bench. All delivered. The tile's output is a Signal pulse and matches the lamp's input domain.
-- **Campaign.** `domino_effect` (Playable; plan level 4, re-authored without the lamp and with a Captured goal, [campaign coverage](readiness/campaign-coverage.md#chapter-1-re-authoring-and-relocated-authored-levels-owner-decisions-24f-and-24e)) in `content/puzzles.json`; first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
+- **Campaign.** `domino_effect` (Playable; plan level 4; its re-authoring without the lamp and with a Captured goal is completion-ledger OS-06, [campaign coverage](readiness/campaign-coverage.md#chapter-1-re-authoring-and-relocated-authored-levels-owner-decisions-24f-and-24e)) in `content/puzzles.json`; first use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage).
 - **Coverage binding.** Catalogue key `domino` in `docs/coverage/catalogue-elements.json`. A level that offers it from the player's inventory needs no lesson-fixture story; a level that locks it as a fixture adds a `FIX-` row to the catalogue fixture table ([current consumers](../invest/current-consumers.md), read by `tools/Coverage/CurrentCatalogue.cs:100`), and needs [S8](../invest/delivery-batches.md#s8-lesson-fixtures-for-any-admitted-package) only for per-parameter or connection locks.
 
 ## 8. Delivery

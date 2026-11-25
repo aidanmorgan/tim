@@ -105,3 +105,7 @@ Implementation owner is agent `a6d62335ede1659a8` (fresh general-purpose subagen
 - Unresolved or cause-unknown: none. Added to `deferred-work.md`: stale citations in the unpublished contracts of parts B and C, `spec-engine-art-solidity.md` and S3; the exact-symmetry Balloon balance on the eye.
 - Capability found missing late: none; the one late discovery was a test outcome (a body falling onto the new eye), handled by the amendment.
 - Card line for the next policy change: "At planning, search for every test that places a dynamic body anywhere near a new collider, including bodies that fall onto it after an event such as a rupture, and run the full round once before review to enumerate failures."
+
+## E12 Publication receipt (coordinator, 24 November 2026)
+
+SnapshotApproval Pass by an independent subagent on 37fbd3a48710306347b1660039d4ed142f0eeb3d, no blocking finding; full local round 7309/0/0, `Skipped: 0`; fast-forward push from 0959e883; remote build, artifact and deployment unverified (owner instruction of 29 October).

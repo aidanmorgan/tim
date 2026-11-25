@@ -33,11 +33,14 @@ Read: the documents your prompt names, this card, the slice **contract** (the na
 **Before handoff, in this order**
 
 1. Maintainability gate passes. It builds in its own temporary folder, so the matching compiler-log builds made from the same sources stay current and are not repeated after it.
-2. [New-package registration check](../../docs/delivery-workflow.md#new-package-registration-check) passes, whenever the slice adds or renames a package, port, parameter, wire field, test file or tool.
-3. Affected tests pass, and the acceptance-to-test table names a test that ran for every row.
-4. `git add -N` your new files, then `git diff --check <baseline_revision>` is clean.
-5. Inspect the full owned diff for needless branches, duplicate rules and unrelated churn.
-6. One full local round, zero failures, `Skipped: 0`.
+2. Policy-tool harness passes whenever a file under `tools/anvil/` changes ([rule](../../docs/delivery-workflow.md#policy-tool-harness)).
+3. [New-package registration check](../../docs/delivery-workflow.md#new-package-registration-check) passes, whenever the slice adds or renames a package, port, parameter, wire field, test file or tool. A slice that adds a slider or payload package, gives an existing package a slider declaration, or makes an existing package a capture-target payload follows the [registration paragraph's](../../docs/delivery-workflow.md#new-package-registration-check) slider and payload obligations, which the registration checks do not cover.
+4. Affected tests pass, and the acceptance-to-test table names a test that ran for every row.
+5. `git add -N` your new files, then `git diff --check <baseline_revision>` is clean.
+6. Inspect the full owned diff for needless branches, duplicate rules and unrelated churn.
+7. One full local round, zero failures, `Skipped: 0`.
+
+Run a long command (a build, the full round) in the foreground with a timeout, or start it in the background, and wait for it with the host's blocking tool call in the same turn until it exits, waiting again whenever a timeout expires or the host moves it to the background ([waiting](bmad-loop-protocol.md#capacity-and-independence)); never end your turn while a command you started is still running or while saying work is pending.
 
 Report: what changed, each command with its result and raw output location, the filled table, and remaining risks.
 
@@ -61,7 +64,7 @@ Read: this card, your layer's instruction, the diff you were given, the [reviewe
 - This is a physics puzzle game. Judge outcomes, causal order, stability and lifecycle; do not demand exact ticks, incidental contact sequences or tighter precision. Unjustified precision in a test is itself a finding.
 - Follow your layer's instruction on what you may run. No mutants, no browser gate, no finding quota. Report evidence limits and unreadable inputs.
 - For each finding give the file and line, the concrete defect, and its gameplay or interface consequence, in your layer's own output format. Where you can tell, add whether the fix is a test change or a product change; the coordinator classifies and routes. Intent Alignment stays descriptive and adds no classification.
-- Your diff leaves out generated wire code and binary or imported assets; its header lists the excluded paths that changed. Name one by path if a finding depends on it.
+- Your diff leaves out engine identifier files and binary or imported assets; its header lists the excluded paths that changed. Name one by path if a finding depends on it.
 - On a re-review, your input is the repair diff. Report defects in the repair and in what it directly affects.
 
 ## Informed auditors (Forward-Only, Element-Free Engine, acceptance, planning)
@@ -80,6 +83,7 @@ Read: this card and the [loop protocol](bmad-loop-protocol.md) fully.
 
 - Wait for a child or a long command with the host's blocking tool call in the same turn. Do not poll on a timer, do not end the turn to await a child, and do not post a status message while nothing has changed.
 - Update `TODO.md` and the sprint status only when the slice's outcome, blocker or candidate changes.
+- Restate the Code Map's Status line, where the contract has one, and `TODO.md` in the same edit that records a returned repair, not before the repair returns ([records](bmad-loop-protocol.md#capacity-and-independence)); check that the returned patch also updated the acceptance-to-test table's run citations, and return a stale one to the owner as a patch ([routing](bmad-loop-protocol.md#triage-re-review-and-completion)).
 - After a context compaction, re-read the run log's handled-messages list before acting. Never act again on an owner message that list records as handled.
 - Ask the owner every open decision in one batch at planning, each with a recommended default. Do not surface them one at a time during implementation.
 - Route each confirmed finding by its classification: a missing or weak test is a patch.

@@ -11,7 +11,7 @@
 | Mapped identities | none: no EL/TH/RAD/GAP identity is the signal lamp. TH-36 Lamp-trigger apparatus (Batch N) concerns a historical light and heat source and is a different element. |
 | Disposition | **Delivered.** Package id `lamp`, directory `elements/SignalLamp/`. Records: `review-c-lamp-detector.md` (native Pass at `2065d3`); colliders by `elements-visible-solid` (done). |
 | Roadmap | [CAT-063-I and CAT-035-I](../invest/vertical-delivery.md#switch-lamp); Story 4.1 (lamp glow on the animation worker) |
-| Levels | two Playable lessons place it (`domino_effect`, `delayed_signal`); 17 planned levels name it in [CAT-035-I consumers](../invest/current-consumers.md#cat-035-i) |
+| Levels | two Playable lessons place it (`domino_effect`, `delayed_signal`); 5 planned levels name it in [CAT-035-I consumers](../invest/current-consumers.md#cat-035-i) |
 
 ## 2. Declaration
 
@@ -114,7 +114,7 @@ Acceptance: [CAT-035](../requirements.md#current-cat-035) and [simulation and el
 | Lessons with a lamp solve, and not with a cause missing | `LaunchLessonSolveTests.AuthoredLessonSolvesAndOneMissingCausePreventsTheGoal` (`domino_effect`, `delayed_signal`) | 60, 120 and 240 Hz |
 | After the hygiene slice the package declares no electrical node or domain | **planned** `DeclaredIndicatorPassageTests.TheLampDeclaresOnlyItsSignalDomain`: the bundle entry for `lamp` has domains Signal only and no electrical node (exact, a declared value) | the Delay box entry reads the same |
 
-Levels: `domino_effect` and `delayed_signal` are Playable and solved with a missing-cause control (the content slice re-authors `domino_effect` without the lamp, owner decision 24f and coordinator decision 41, after which only `delayed_signal` places it among the Playable levels). The other 17 levels that name the lamp are Planned and have no authored content yet: power_trip, spring_signal, wind_signal, counterweight, pulley_depth, catch_and_signal, two_signals, mixed_signals, spatial_signals, triple_signal, bounce_mail, relay_workshop, signals_and_chain, cold_signals, depth_telegraph, bridges_and_signal, grand_contraption. They belong to their campaign chapter stories; those with more than one goal wait for ENGINE-GOALS. Nothing in them is owed by this package.
+Levels: `domino_effect` and `delayed_signal` are Playable and solved with a missing-cause control (`domino_effect` is re-authored without the lamp by completion-ledger OS-06, owner decisions 24f and 24o(3) and coordinator decision 41, after which only `delayed_signal` places it among the Playable levels). The other 5 levels that name the lamp are Planned and have no authored content yet: power_trip, spring_signal, counterweight, pulley_depth, grand_contraption. They belong to their campaign chapter stories; those with more than one goal wait for ENGINE-GOALS. Nothing in them is owed by this package.
 
 Integrations named by the requirement: [sequence-task-279](../requirements.md#sequence-task-279) (ActivationIn from a switch, detector or delay); [IX-07 signal propagation](../requirements.md#interaction-07). The lamp is also listed among electrical consumers ([sequence-task-278](../requirements.md#sequence-task-278)) and optical sources ([sequence-task-281](../requirements.md#sequence-task-281)); neither is its activation contract.
 

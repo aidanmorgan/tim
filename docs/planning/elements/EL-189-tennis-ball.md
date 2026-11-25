@@ -111,7 +111,7 @@ No port exists, so no wrong-kind connection case applies.
 ### Integration
 
 - **Collaborators.** Delivered: Fan, Receiver, Impact switch, Pressure plate, Basketball, Bowling ball. In flight: Bellows (12.4). Planned: Bell.
-- **Campaign.** 22 levels place it, from level 3 `air_mail`; first use 1–10. Audit [sequence-task-285](../requirements.md#sequence-task-285); interaction rows [IX-01](../requirements.md#interaction-01), [IX-02](../requirements.md#interaction-02), [IX-11](../requirements.md#interaction-11).
+- **Campaign.** 5 levels place it, from level 3 `air_mail` (authored position before decision 24d, paired with its plan level in [campaign coverage, section 5](readiness/campaign-coverage.md#5-removed-and-converted-levels-owner-decision-24d)); first use 1–10. Audit [sequence-task-285](../requirements.md#sequence-task-285); interaction rows [IX-01](../requirements.md#interaction-01), [IX-02](../requirements.md#interaction-02), [IX-11](../requirements.md#interaction-11).
 - **Coverage binding.** The catalogue key `tennis` in `docs/coverage/catalogue-elements.json`. A closed duplicate has no binding of its own.
 - **Lesson fixture (S8).** Only where a level pre-places it as a locked fixture with locked parameters.
 

@@ -11,7 +11,7 @@
 | Mapped identities | EL-191 Wall (refines this part; §8). Related barrier identities with their own specs: EL-073 Brick barrier, EL-074 Wood barrier, EL-050 Acoustic screen, TH-09 Insulating panel. |
 | Disposition | **Delivered.** Package id `wall`, directory `elements/Wall/`. Slice record: [9A.27 generic Wall](../../../_bmad-output/implementation-artifacts/spec-9a-27-generic-wall.md) ([review](../../../_bmad-output/implementation-artifacts/review-9a-27-generic-wall.md)). |
 | Roadmap | Stories 1.4 (box contact, local-axis resize), 1.5 (anti-tunnelling), 9A.27 |
-| Levels | `wall_and_bumper` (Playable); `wall_return` and `solar_shadow` are Planned (`content/puzzles.json`). See [CAT-066-I consumers](../invest/current-consumers.md#cat-066-i). |
+| Levels | `wall_and_bumper` (Playable); `solar_shadow` is Planned (`content/puzzles.json`). See [CAT-066-I consumers](../invest/current-consumers.md#cat-066-i). |
 
 ## 2. Declaration
 
@@ -146,7 +146,7 @@ Resolved:
 ## 7. Integration
 
 - **Collaborators.** Delivered: every ball kind, Bumper (`wall_and_bumper`), Receiver, Fan (air occlusion). Not delivered: Flashlight (CAT-029), Solar panel (CAT-059), Bell (CAT-009), Sound meter (CAT-060), Bellows (12.4, in flight).
-- **Campaign.** `wall_and_bumper` (Playable); `wall_return`, `solar_shadow` (Planned). First use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row: wall variants); wall and bumper teaching [sequence-task-304](../requirements.md#sequence-task-304) and [todo-163](../requirements.md#todo-163).
+- **Campaign.** `wall_and_bumper` (Playable); `solar_shadow` (Planned). First use 1–10 in the [element coverage ledger](../requirements.md#campaign-element-coverage) (physical presets row: wall variants); wall and bumper teaching [sequence-task-304](../requirements.md#sequence-task-304) and [todo-163](../requirements.md#todo-163).
 - **Coverage binding.** Catalogue key `wall` in `docs/coverage/catalogue-elements.json`.
 - **Lesson fixture.** None needed (S8 not required).
 

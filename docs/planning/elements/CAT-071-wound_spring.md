@@ -38,7 +38,7 @@ The current declaration is `elements/WoundSpring/WoundSpringElementDeclaration.c
 | Presentation | `Visual/Latch` local Z rotation to −0.65 rad on `CommittedRetentionReleased`, rate-limited to 8 rad/s; head and shaft follow their bodies; span `Visual/Coil` from the base to the head; `Mark0`–`4` local Y from `stroke`; pick radius 1.25 m | `:70`–`:80` |
 | Palette | category Motion, order 41, colour (0.4, 0.72, 0.79) | `:11`–`:14` |
 
-### Art and solidity (scene with part B's candidate; independent review and approval remain)
+### Art and solidity (scene with part B's candidate, independently reviewed)
 
 | Node | Mesh and pose | Layer and class |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ The current declaration is `elements/WoundSpring/WoundSpringElementDeclaration.c
 | `Visual/Latch/Lever` | gold box 0.22 × 0.1 × 0.1 m at the pivot (0.48, 0.25, 0.5) | decorative: turned by a presentation binding |
 | `Visual/Coil/Turn0`–`63` | silver cylinders r 0.025 m | decorative: a span drawn between the base and the head pose |
 
-Floating or exposed art, recorded and not repaired by part B: the activation socket, the drive wheel and the latch lever stand 0.35–0.39 m in front of the rails with nothing drawn joining them to the housing. About 0.4 m of the coil shows below the sleeve: it is span art, decorative under the delivered rule (the `spring` row's coil, "drawn by the spring's compression", and the span rule of `spec-engine-art-solidity.md`), so it has no collider. Repair part D seats the socket, wheel and lever. Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (implemented and natively tested; independent review and approval remain); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `wound_spring`.
+Floating or exposed art, recorded and not repaired by part B: the activation socket, the drive wheel and the latch lever stand 0.35–0.39 m in front of the rails with nothing drawn joining them to the housing. About 0.4 m of the coil shows below the sleeve: it is span art, decorative under the delivered rule (the `spring` row's coil, "drawn by the spring's compression", and the span rule of `spec-engine-art-solidity.md`), so it has no collider. Repair part D seats the socket, wheel and lever. Part B is [visible-solid remainder part B](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b.md) (implemented, natively tested and independently reviewed); the classification source is [`spec-engine-art-solidity.md`](../../../_bmad-output/implementation-artifacts/spec-engine-art-solidity.md), row `wound_spring`.
 
 ## 3. Engine capabilities
 
@@ -173,7 +173,7 @@ Every question the harvest raised is decided; none needs the owner.
 - **Delivered** by 11.4a (commit `494c3711`). Contradiction to clear: the slice record's front matter says `status: 'in-progress'` while the package and both levels are on published main; a status edit owned by the next slice that touches the package.
 - **Blocked on the engine programme (owner decision 3a, 22 November 2026).** Every residual slice below waits for it, the one-test slice included. The stories that own this part's gaps are `ENGINE-ISLANDS-SLEEP` and `ENGINE-OPTICAL` (section 3).
 - **Later row owned here (coordinator decisions 36 and 41).** [CAT-051](CAT-051-powered_gate.md) fact 25 (`WoundSpringTests.cs:457–501` at harvest commit `a6c914e`): a timer-driven Powered gate rotated 90° blocks a released plunger (spring Blocked, charge retained). It is a cross-part row owned by this part's slice, because the Wound spring is taught at 41, after the gate at 24; CAT-051 keeps the fact's text.
-- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states): implemented and natively tested, independent review and approval remain. (2) WS-R1: one test, data-only tier, or absorbed by S4.
+- **Residual slices.** (1) Visible-solid remainder part B (engine tier, as that contract states): implemented, natively tested and independently reviewed. (2) WS-R1: one test, data-only tier, or absorbed by S4.
 - **Probe re-check for part B:** separating the six drawn proxies must leave every collider index, the sleeve's three dimensions and the footprint (3 bodies, 2 moving, 1 prismatic, 1 revolute) unchanged (the index order is proven by the contract's AC2 comparison of the decoded bundle with the baseline's, not by the order-free matcher); `Mark0`–`4` keep their `stroke` height bindings and become quads at z 0.1002.
 
 ## 9. Engine conformance (owner instruction, 22 November 2026)

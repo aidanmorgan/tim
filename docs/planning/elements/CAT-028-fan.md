@@ -106,7 +106,7 @@ Chrome recipe: post-catalogue.
 
 ## 7. Integration
 
-Works with Tennis ball, Balloon, Basketball, Bowling ball, Wall, Pipe, both bends, Funnel, Impact switch, Battery, Motor, Windmill (delivered); Wind chimes (Story 14.4, planned: its sail is an airflow receiver). Campaign: first use in levels 11–20 ([campaign reservations](../invest/campaign-reservations.md)); 22 levels in `content/puzzles.json` place it, eight of them as a fixed cold fan. Coverage binding: catalogue key `fan`. A level with a fixed fan uses the lesson-fixture story (S8).
+Works with Tennis ball, Balloon, Basketball, Bowling ball, Wall, Pipe, both bends, Funnel, Impact switch, Battery, Motor, Windmill (delivered); Wind chimes (Story 14.4, planned: its sail is an airflow receiver). Campaign: first use in levels 11–20 ([campaign reservations](../invest/campaign-reservations.md)); 5 levels in `content/puzzles.json` place it, 2 of them as a fixed cold fan. Coverage binding: catalogue key `fan`. A level with a fixed fan uses the lesson-fixture story (S8).
 
 ## 8. Delivery
 

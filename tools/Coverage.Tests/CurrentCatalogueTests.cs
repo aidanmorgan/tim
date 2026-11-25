@@ -58,8 +58,8 @@ public class CurrentCatalogueTests
         Assert.Equal(72, plan.Elements.Length);
         Assert.Equal(104, plan.Elements.Sum(element => element.Modes.Length));
         Assert.Equal(72, plan.Elements.Sum(element => element.Modes.Count(mode => mode.Dimension == ModeDimension.Configuration)));
-        // 260 Planned parts plus 44 Playable placements, including the authored popped-goal Balloon.
-        Assert.Equal(304, plan.Fixtures.Length);
+        // 78 Planned parts plus 44 Playable placements, including the authored popped-goal Balloon.
+        Assert.Equal(122, plan.Fixtures.Length);
     }
 
     [Fact]
