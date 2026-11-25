@@ -5,8 +5,6 @@ using System.Text.Json;
 
 return StagedTestPolicy.Run();
 
-enum SourceKind { CSharp, JavaScript, JavaScriptModule, JavaScriptCommon, JavaScriptReact, TypeScript, TypeScriptReact }
-
 /// <summary>The questions the staged-source rule asks git.</summary>
 enum GitQuery { IntentToAdd, StagedForScan, StagedInAnyStatus, Untracked, Ignored }
 
@@ -167,18 +165,14 @@ static class StagedSourceSelfCheck
     }
 }
 
-/// <summary>External filename boundary (extensions in any case); internal choices remain enum-typed. One place says
-/// which staged paths are skip-scanned and which make a commit a source commit; the rule, its self-check and the
-/// line the tool prints all read it.</summary>
+/// <summary>External filename boundary (extensions in any case). One place says which staged paths are skip-scanned
+/// and which make a commit a source commit; the rule, its self-check and the line the tool prints all read it.</summary>
 static class SourcePaths
 {
-    static readonly FrozenDictionary<string, SourceKind> Scanned = new Dictionary<string, SourceKind>
+    static readonly FrozenSet<string> Scanned = new[]
     {
-        [".cs"] = SourceKind.CSharp, [".js"] = SourceKind.JavaScript,
-        [".mjs"] = SourceKind.JavaScriptModule, [".cjs"] = SourceKind.JavaScriptCommon,
-        [".jsx"] = SourceKind.JavaScriptReact, [".ts"] = SourceKind.TypeScript,
-        [".tsx"] = SourceKind.TypeScriptReact
-    }.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+        ".cs", ".js", ".mjs", ".cjs", ".jsx", ".ts", ".tsx"
+    }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
     // Not scanned, but staging one makes the commit a source commit: build inputs and content the build or the tests
     // read. Documents (.md, .yaml, .toml) are not among them.
     static readonly FrozenSet<string> SourceCommitInputs = new[]
@@ -186,13 +180,13 @@ static class SourcePaths
         ".csproj", ".props", ".targets", ".slnx", ".sln", ".rsp", ".editorconfig", ".json", ".tscn"
     }.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
 
-    public static bool IsScanned(string path) => Scanned.ContainsKey(Path.GetExtension(path));
+    public static bool IsScanned(string path) => Scanned.Contains(Path.GetExtension(path));
 
     public static bool StagesSource(string path) => IsScanned(path) || SourceCommitInputs.Contains(Path.GetExtension(path));
 
     /// <summary>Every extension that makes a commit a source commit, in a stable order.</summary>
     public static IEnumerable<string> SourceCommitExtensions =>
-        Scanned.Keys.Concat(SourceCommitInputs).Order(StringComparer.Ordinal);
+        Scanned.Concat(SourceCommitInputs).Order(StringComparer.Ordinal);
 }
 
 static class StagedTestPolicy
@@ -235,17 +229,26 @@ static class StagedTestPolicy
                 // Anvil (checked at 0.14.3-alpha.6) does not apply this registry to C# source.
                 // This textual policy scans unchanged staged bytes with a supported source suffix.
                 var snapshot = Path.Combine(directory.FullName, index + ScannerSuffix);
-                using var source = Start("git", ["show", ":" + paths[index]]);
+                // The explicit stage 0 reads the path as named, even one that looks like a stage (0:Foo.cs); the closing
+                // "--" keeps it a revision when a work-tree file has that literal name (:0:Foo.cs).
+                using var source = Start("git", ["show", ":0:" + paths[index], "--"], captureError: true);
+                var reading = source.StandardError.ReadToEndAsync();
                 using (var output = File.Create(snapshot))
                     source.StandardOutput.BaseStream.CopyTo(output);
                 source.WaitForExit();
-                // A staged path whose content git cannot show (a gitlink, for one) is a refusal that names the path.
+                var error = reading.Result;
+                // A staged path whose content git cannot show (a gitlink, for one) is a refusal: one line that names
+                // the path and carries git's own error.
                 if (source.ExitCode != 0)
                 {
+                    var gitError = string.Join("; ", error.Split('\n',
+                        StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
                     Console.Error.WriteLine($"CheckStagedTests: the staged content of {paths[index]} could not be read " +
-                        $"(git show :{paths[index]} failed), so the commit is refused.");
+                        $"(git show :0:{paths[index]} -- failed), so the commit is refused: {gitError}");
                     return 1;
                 }
+                // Git's warnings on a successful read still reach the committer.
+                Console.Error.Write(error);
                 arguments.Add(snapshot);
                 Console.WriteLine($"Anvil snapshot {Path.GetFileName(snapshot)}: {paths[index]}");
             }

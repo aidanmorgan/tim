@@ -6,7 +6,7 @@
 - Lane 1, collider repairs: part B (in progress) → B2 → C and the Baseball repair.
 - Lane 2, structural stories: S3 (in progress) → S5 → S5b → S6 → S6b–S6g (each S6 follow-on replanned at dispatch).
 - Lane 3: lettered level ids ([contract](_bmad-output/implementation-artifacts/spec-tool-lettered-level-ids.md)), then the content slice that uses them (contract not yet drafted; runs once it passes planning).
-- Lane 4: policy-tool fixes ([contract](_bmad-output/implementation-artifacts/spec-policy-tool-fixes.md)).
+- Lane 4: policy-tool fixes ([contract](_bmad-output/implementation-artifacts/spec-policy-tool-fixes.md), [run log](_bmad-output/implementation-artifacts/run-logs/spec-policy-tool-fixes.md)): reviewed candidate on baseline `5f1c4d4a` (four review passes, Final diff scope Pass; stage-0 skip-scan read by coordinator decision of 25 November): policy-tool harness 78 checks passed, 0 failed, 0 skipped; tool self-check 14 cases; policy checker self-test 37/0/0; registration check 798/0/0; full local round 7309/0/0 (`Skipped: 0`).
 
 Each slice captures its dispatch baseline from the published main (coordinator decision 38); contracts and audits are under `_bmad-output/implementation-artifacts/` and [readiness/audits](docs/planning/elements/readiness/audits/). Then the engine programme, one slice at a time, in the order of [vertical-delivery](docs/planning/invest/vertical-delivery.md); then elements in campaign first-teaching order (owner decision 24a).
 

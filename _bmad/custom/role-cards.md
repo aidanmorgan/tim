@@ -33,11 +33,12 @@ Read: the documents your prompt names, this card, the slice **contract** (the na
 **Before handoff, in this order**
 
 1. Maintainability gate passes. It builds in its own temporary folder, so the matching compiler-log builds made from the same sources stay current and are not repeated after it.
-2. [New-package registration check](../../docs/delivery-workflow.md#new-package-registration-check) passes, whenever the slice adds or renames a package, port, parameter, wire field, test file or tool.
-3. Affected tests pass, and the acceptance-to-test table names a test that ran for every row.
-4. `git add -N` your new files, then `git diff --check <baseline_revision>` is clean.
-5. Inspect the full owned diff for needless branches, duplicate rules and unrelated churn.
-6. One full local round, zero failures, `Skipped: 0`.
+2. Policy-tool harness passes whenever a file under `tools/anvil/` changes ([rule](../../docs/delivery-workflow.md#policy-tool-harness)).
+3. [New-package registration check](../../docs/delivery-workflow.md#new-package-registration-check) passes, whenever the slice adds or renames a package, port, parameter, wire field, test file or tool.
+4. Affected tests pass, and the acceptance-to-test table names a test that ran for every row.
+5. `git add -N` your new files, then `git diff --check <baseline_revision>` is clean.
+6. Inspect the full owned diff for needless branches, duplicate rules and unrelated churn.
+7. One full local round, zero failures, `Skipped: 0`.
 
 Report: what changed, each command with its result and raw output location, the filled table, and remaining risks.
 
