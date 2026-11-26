@@ -15,7 +15,7 @@ deferred:
   - summary: >-
       spec-engine-art-solidity.md cites VisibleSolidColliderTests.cs lines (:249, :241, :194) that already named unrelated code at the baseline.
     evidence: |-
-      Review pass 3, Element-Free Engine auditor observation 3; pre-existing, outside the repair diff, breaks no hard rule (Re-review scope). Already owned by the part A carry-forward, deferred-work.md:364 (each slice re-reads its cited lines at dispatch).
+      Review pass 3, Element-Free Engine auditor observation 3; pre-existing, outside the repair diff, breaks no hard rule (Re-review scope). Already owned by the part A carry-forward, deferred-work.md:368 (each slice re-reads its cited lines at dispatch).
     location: >-
       _bmad-output/implementation-artifacts/spec-engine-art-solidity.md
     severity: low
@@ -146,7 +146,7 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
   - `low` `patch` EFE-R2a: `batch-d.md:17` Prerequisites still says "part B2 after part B".
   - `false` `reject` EFE-R2b: `delivery-batches.md:246–247` say B2 stays queued — those are parts A and B's delivery records; B2's current state is its own row `:248` and `TODO.md`.
   - `low` `patch` EFE-R3: `completion-ledger.md:227` names audit B2-2 as current — name audit 5.
-  - `low` `patch` EFE-R4: `deferred-work.md:377` count (137 in 100) has no reproducible command, and "the Tennis ball's two element documents … were refreshed" has nothing to refresh — state the command and its count; drop the claim.
+  - `low` `patch` EFE-R4: `deferred-work.md:381` count (137 in 100) has no reproducible command, and "the Tennis ball's two element documents … were refreshed" has nothing to refresh — state the command and its count; drop the claim.
   - `low` `patch` EFE-R5: contract `:51` "no test has run" and Design Note 8 "unexecuted tests" are stale (coordinator corrected both); run log E5 says E8 not triggered — owner appends the correction.
   - `low` `patch` EFE-R6: records cite `.tools/` files (ignored) as evidence — state the results inline as the record and label `.tools/` files as transient review inputs (`role-cards.md:15`); no further `cp`.
   - `low` `patch` EFE evidence limit (orientation): grouped with IA1.
@@ -160,8 +160,8 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
   - `low` `patch` BH2-2: the tolerance comment names "a band turned 1° off its great circle", but a tilted band through the centre is still on a great circle; the check excludes a seam drawn off its authored 45° great circle — correct the comment.
   - `false` `reject` FO2-O1: `CAT-064-tennis.md:50` and `EL-189-tennis-ball.md:55` say "like the Pool ball's stripe" — they restate owner decision 24i's own words, and owner decision 11 does rule that stripe printed flush (`owner-decisions-2026-11-22.md:23`, `:62`); true as a decision record.
   - `low` `patch` EFE2-F1: `completion-ledger.md:227` status cell still says "`draft`; Scoped Pass after repair (:47)" — state the contract's status at the candidate commit (`done`, set at Finalize) and point at the planning verdict `:51`.
-  - `low` `patch` EFE2-F2: `deferred-work.md:377` counts only the `VisibleSolidColliderTests.cs:N` form — say so and name the continuation (`, :N`) and range-end forms that also move.
-  - `low` `patch` EFE2-F3: contract Code Map `:82` still quotes the pre-repair comment, and the Code Map and task 4 point at `deferred-work.md:376` for the line at `:377` — corrected by the coordinator in this pass.
+  - `low` `patch` EFE2-F2: `deferred-work.md:381` counts only the `VisibleSolidColliderTests.cs:N` form — say so and name the continuation (`, :N`) and range-end forms that also move.
+  - `low` `patch` EFE2-F3: contract Code Map `:82` still quotes the pre-repair comment, and the Code Map and task 4 point at `deferred-work.md:376` for the line then at `:377` (`:381` after part C) — corrected by the coordinator in this pass.
 
 ### 2026-11-25 — Review pass 3 (re-review of repair 2: Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free Engine; Re-review scope applies; run log E11)
 - verdicts: 4 findings — high 0, medium 0, low 2, false 2, maybe-false 0
@@ -169,7 +169,7 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
   - `false` `reject` BH3-1: the width and great-circle checks reuse the 0.5 mm print stand-off, not a lateral bound — both check authored scene values (D3's 8 mm width, the intent's 45°-about-X great circle), which the testing guidance allows exactly; the 0.5 mm window is looser than exact, still fails the named defects, and has 0.5 mm margin on the authored scene (Verification Gap and Element-Free auditor agree).
   - `false` `reject` EFE3-O1: `completion-ledger.md:227` says `done` while the contract is `in-review` — Finalize sets `done` in the same candidate commit.
   - `low` `patch` EFE3-O2: the Verification executor line names only the implementation owner, but the coordinator ran the final capture, gate and round — line corrected by the coordinator.
-  - `low` `defer` EFE3-O3: `spec-engine-art-solidity.md` cites `VisibleSolidColliderTests.cs:249`, `:241`, `:194`, already stale at the baseline — outside the repair, no rule broken (Re-review scope); owned by the part A carry-forward (`deferred-work.md:364`); in `deferred:`.
+  - `low` `defer` EFE3-O3: `spec-engine-art-solidity.md` cites `VisibleSolidColliderTests.cs:249`, `:241`, `:194`, already stale at the baseline — outside the repair, no rule broken (Re-review scope); owned by the part A carry-forward (`deferred-work.md:368`); in `deferred:`.
 
 ## Design Notes
 

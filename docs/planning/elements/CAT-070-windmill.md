@@ -26,33 +26,33 @@ Interfaces: `IHingeElement`, `IRotaryAirflowCaptureElement`, `ICoordinateTravelE
 | Item | Declaration |
 | --- | --- |
 | Bodies | a static support and one dynamic rotor; footprint 2 bodies, 1 moving, 1 revolute constraint (`Decl:18`) |
-| Support colliders | base box 1.1 × 0.16 × 0.9 m at (0.25, −1.08, 0); tower box 0.22 × 1.1 × 0.25 m at (0.25, −0.55, 0); nacelle box 0.65 × 0.45 × 0.55 m at (0.25, −0.1, 0); guard Tube at (−0.12, 0, 0), axis X, bore radius 0.745 m, outer radius 0.815 m, half-length 0.035 m |
+| Support colliders | base box 1.1 × 0.16 × 0.9 m at (0.25, −1.08, 0); tower box 0.22 × 1.1 × 0.25 m at (0.25, −0.55, 0); nacelle box 0.65 × 0.45 × 0.55 m at (0.25, −0.1, 0); guard Tube at (−0.12, 0, 0), axis X, bore radius 0.745 m, outer radius 0.815 m, half-length 0.035 m; output wheel cylinder r 0.24 m, 0.12 m long, at (0.25, −0.1, 0.44), axis Z (`col_output`, base collider index 4, visible-solid remainder part C) |
 | Rotor colliders | hub sphere r 0.14 m; four blade boxes with half-extents (0.0375, 0.26, 0.105) m, centred 0.4 m out on arms 90° apart, each pitched 30° about its arm |
-| Material | support and rotor: restitution 0, friction 0.3, rolling resistance 0, threshold 0.1 m/s (`Decl:25`–`:26`) |
-| Hinge | continuous, at (−0.12, 0, 0) about local X, no drive, no bearing friction; rotor 1 kg, axial inertia 0.245 kg·m², transverse (3 × 0.7² + 0.075²)/12 kg·m² (`Decl:12`, `:27`–`:33`) |
-| Rotary capture | on the hinge coordinate: four samples of weight 0.25 at (−0.12, ±0.42, 0) and (−0.12, 0, ±0.42) in the support's frame; pitch limit 0.4 m; response `radians_per_force`; cut-in 0.05 N; unloaded target cap 12 rad/s; its own nine colliders are the exempt internal occluders (`Decl:34`–`:41`) |
-| Travel observer | one, on the hinge coordinate, threshold 2π of absolute accepted travel; publishes `CoordinateTravelReached` (`Decl:42`–`:45`) |
+| Material | support and rotor: restitution 0, friction 0.3, rolling resistance 0, threshold 0.1 m/s (`Decl:24`–`:25`) |
+| Hinge | continuous, at (−0.12, 0, 0) about local X, no drive, no bearing friction; rotor 1 kg, axial inertia 0.245 kg·m², transverse (3 × 0.7² + 0.075²)/12 kg·m² (`Decl:12`, `:26`–`:32`) |
+| Rotary capture | on the hinge coordinate: four samples of weight 0.25 at (−0.12, ±0.42, 0) and (−0.12, 0, ±0.42) in the support's frame; pitch limit 0.4 m; response `radians_per_force`; cut-in 0.05 N; unloaded target cap 12 rad/s; its own ten colliders, the output wheel's included, are the exempt internal occluders (`Decl:33`–`:40`) |
+| Travel observer | one, on the hinge coordinate, threshold 2π of absolute accepted travel; publishes `CoordinateTravelReached` (`Decl:41`–`:44`) |
 
 | `PortId` | Role | Domain | Direction | Position (m) | Binding |
 | --- | --- | --- | --- | --- | --- |
-| `Drive` | Drive | Mechanical | Output | (0.25, −0.1, 0.52) | hinge coordinate 1:1; rim r 0.24 m centred (0.25, −0.1, 0.44) (`Decl:46`–`:50`) |
+| `Drive` | Drive | Mechanical | Output | (0.25, −0.1, 0.52) | hinge coordinate 1:1; rim r 0.24 m centred (0.25, −0.1, 0.44) (`Decl:45`–`:49`) |
 
 Engagement classes (planned declaration data, [EL-201](EL-201-drive-chain.md#2-declaration), owned by `ENGINE-MECHANICAL-LINKS`): `Drive` admits Smooth only, a light sail shaft, so a Drive belt is admitted and a Drive chain is refused there. The delivered rigid link stays admitted and is unchanged (owner decision 2).
 
-Presentation: `Visual/Output` rotation = −1 × the committed hinge angle; `Visual/Rotor` is the physical rotor body (`Decl:51`–`:55`). Catalogue description: "Airflow turns the blades and drives connected machines. Rear airflow reverses rotation; loads slow the shaft." (`Decl:14`).
+Presentation: `Visual/Output` rotation = −1 × the committed hinge angle; `Visual/Rotor` is the physical rotor body (`Decl:50`–`:54`). Catalogue description: "Airflow turns the blades and drives connected machines. Rear airflow reverses rotation; loads slow the shaft." (`Decl:14`).
 
 ## 3. Art and solidity
 
 | Node | Class | Moved by |
 | --- | --- | --- |
-| `Visual/Base`, `Tower`, `Nacelle` | solid: box colliders `col_base`, `col_tower`, `col_nacelle` (`Scene:76`–`:84`) | nothing |
-| `Visual/Guard` (imported ring) | hollow: Tube collider `col_guard` (`Scene:88`) | nothing |
-| `Visual/Rotor/Hub` and four `Blade` boxes | solid, on the hinge body: `col_hub` and four `col_blade` (`Scene:121`–`:184`) | the rotor body's pose |
+| `Visual/Base`, `Tower`, `Nacelle` | solid: box colliders `col_base`, `col_tower`, `col_nacelle` (`Scene:80`–`:88`) | nothing |
+| `Visual/Guard` (imported ring) | hollow: Tube collider `col_guard` (`Scene:92`) | nothing |
+| `Visual/Rotor/Hub` and four `Blade` boxes | solid, on the hinge body: `col_hub` and four `col_blade` (`Scene:130`–`:193`) | the rotor body's pose |
 | four blade `Tip`s | decorative: each lies inside its blade's box | the rotor body's pose |
-| `Visual/Output/Wheel` (cylinder r 0.24 m, 0.12 m long, at (0.25, −0.1, 0.44)) | **defect: stands 0.105 m in front of the nacelle with no collider** | the output binding (about its own axis) |
+| `Visual/Output/Wheel` (cylinder r 0.24 m, 0.12 m long, at (0.25, −0.1, 0.44)) | solid: cylinder collider `col_output` (`Scene:99`, part C); it stands 0.105 m in front of the nacelle, which repair part D seats (coordinator decision 39) | the output binding (about its own axis) |
 | `Visual/Output/Spoke0`, `Spoke1` | decorative: turned by the output binding | the output binding |
 
-The package has no row in the visible-solid table. Repair: [part C](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md) (drafted, blocked on parts B and B2): a static cylinder collider for the wheel as base collider 4, added to the capture's own exemptions so rear airflow still reaches the samples, and a matcher that reads the imported guard ring. Colours: navy base, cream tower, nacelle, guard and wheel, cyan blades, gold hub, tips and spoke marks. Icon: four cyan vanes in a ring on a cream tower. At a glance it differs from the Fan by four pitched vanes, the tower and the side pulley.
+[Visible-solid remainder part C](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-c.md) adds the package's row to the visible-solid table: a static cylinder collider `col_output` for the wheel at base collider index 4 (base colliders 4 → 5, its D5), added to the capture's own exemptions (ten in all) so rear airflow still reaches the samples, and a matcher that reads the imported guard ring (bore 0.745 m, outer 0.815 m, half-length 0.035 m), which matches `col_guard`. Colours: navy base, cream tower, nacelle, guard and wheel, cyan blades, gold hub, tips and spoke marks. Icon: four cyan vanes in a ring on a cream tower. At a glance it differs from the Fan by four pitched vanes, the tower and the side pulley.
 
 ## 4. Engine capabilities
 
@@ -85,7 +85,7 @@ All executed in the published package.
 | --- | --- |
 | Four samples; partial occlusion removes its share | `RotaryAirflowRuntimeTests.FourActualPoseSamplesLoseOnlyOccludedWeight` |
 | Signed rear drive, edge-on and opposing controls | `ActualSourcePoseAndSignedExposureDetermineDrive` (`:267`), `OpposingSourcesPayTheirOwnWorkAndInactiveBranchesPayNothing` (`:413`), `RotaryAirflowLawTests.EqualOppositionAndEdgeOnArePassive` (`:96`) |
-| Response 0.1–4 admitted, others refused | `WindmillAdmissionTests.ResponseAdmitsOnlyCanonicalFiniteRange` (`:252`), `WindmillArtworkTests.ResponseEditorRefusesInvalidValuesWithoutChangingUndoOrInstalledConstruction` (`CuriousContraptions.tests/WindmillArtworkTests.cs:11`) |
+| Response 0.1–4 admitted, others refused | `WindmillAdmissionTests.ResponseAdmitsOnlyCanonicalFiniteRange` (`:273`), `WindmillArtworkTests.ResponseEditorRefusesInvalidValuesWithoutChangingUndoOrInstalledConstruction` (`CuriousContraptions.tests/WindmillArtworkTests.cs:11`) |
 | Cut-in 0.05 N inclusive | `RotaryAirflowRuntimeTests.InclusiveCutInControlsActualTransfer` (`:43`) |
 | Unloaded target and cap | `RotaryAirflowRuntimeTests.PaidFiniteRotorApproachesItsSignedUnloadedOperatingRegion` (`:16`) |
 | Load, backdrive and coast | `HeavyCargoLoadsTheFiniteShaftAndUnloadedRigAcceleratesAgain` (`:151`), `ConnectedExternalDriveBackdrivesActualWindmillAboveAerodynamicTarget` (`:375`), `ElectricalCutPreservesCoastThenReenableRestartsCapture` (`:179`) |
@@ -104,9 +104,9 @@ Works with Fan (all three supplies), Conveyor, Reverse transmission, Motor, Wall
 
 ## 8. Delivery
 
-Delivered and published. Residual work: part C's wheel collider and table row (engine review tier); the Bellows integration; browser proof, post-catalogue. `requirements.md` still says publication is pending and keeps the CAT-070 checkbox open (see the [batch summary](readiness/batch-d.md)). The blades collide, as delivered: [DESIGN.md](../../../DESIGN.md) "Windmill" is being updated to say so (owner decision 4, 22 November 2026).
+Delivered and published. Part C adds the wheel collider, its capture exemption and the table row (engine review tier). Residual work: seating the wheel on the nacelle (repair part D); the Bellows integration; browser proof, post-catalogue. `requirements.md` still says publication is pending and keeps the CAT-070 checkbox open (see the [batch summary](readiness/batch-d.md)). The blades collide, as delivered: [DESIGN.md](../../../DESIGN.md) "Windmill" is being updated to say so (owner decision 4, 22 November 2026).
 
-**Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; in particular `ENGINE-SPATIAL-QUERIES` and `ENGINE-ISLANDS-SLEEP`; then part C after parts B and B2. The Bellows row waits for the Bellows slice (CAT-010).
+**Prerequisites, in order.** Blocked on the engine programme (owner decision 3a, 22 November 2026), which precedes every further element; in particular `ENGINE-SPATIAL-QUERIES` and `ENGINE-ISLANDS-SLEEP`; then repair part D, which seats the wheel. Part C runs before the programme (owner decision 22). The Bellows row waits for the Bellows slice (CAT-010).
 
 ## 9. Open questions
 
@@ -114,14 +114,14 @@ None. Catalogue wording, the cut-in unit (a force, 0.05 N), the contact material
 
 ## Engine conformance
 
-Against the owner's conformance addendum of 22 November 2026 (element-free engine gate in [AGENTS.md](../../../AGENTS.md); design contracts D1–D7 in `_bmad/custom/element-free-engine-design.md`). **Verdict: conforms with one fix pending (point 3: the output wheel has no collider; part C).**
+Against the owner's conformance addendum of 22 November 2026 (element-free engine gate in [AGENTS.md](../../../AGENTS.md); design contracts D1–D7 in `_bmad/custom/element-free-engine-design.md`). **Verdict: conforms (point 3: the output wheel's collider is added by part C).**
 
 1. **Declaration data only.** One declaration class of descriptors, one scene, one imported guard mesh, one icon. No runtime project names the part: a search of `engine/`, `ui/` and every `CuriousContraptions.*` runtime project for `windmill` and `Windmill` returns nothing. There is no per-part occurrence, "active" rule or observe loop: the part declares a generic travel observer.
 2. **Generic laws.** Spin-up, reversal and cut-in: the rotary airflow capture law on a declared revolute coordinate. Coast and backdrive: the hinge with finite inertia and no drive. Partial blocking: occlusion of each sample by any collider except the declared internal ones. Output: the mechanical transmission law through a declared drive port and rim. First full turn: the coordinate-travel observation with a declared threshold.
-3. **Layers.** Colliders: hidden `col_base`, `col_tower`, `col_nacelle`, `col_guard`, `col_hub` and four `col_blade` (after part C also `col_output`). Visuals: the nodes of section 3; none is a collider. Animation: one binding turns `Visual/Output` from the committed hinge angle; the wheel's art turns about its own axis, which a static cylinder collider matches at every angle.
+3. **Layers.** Colliders: hidden `col_base`, `col_tower`, `col_nacelle`, `col_guard`, `col_output` (part C), `col_hub` and four `col_blade`. Visuals: the nodes of section 3; none is a collider. Animation: one binding turns `Visual/Output` from the committed hinge angle; the wheel's art turns about its own axis, which a static cylinder collider matches at every angle.
 4. **One-way flow and typing.** Art reads the committed coordinate; nothing flows back. The port is typed Mechanical, Output, Drive.
-5. **Flat state.** 2 bodies (1 static, 1 dynamic); 9 colliders (7 boxes, 1 tube, 1 sphere; 10 after part C, adding a cylinder); 1 revolute joint; 0 drives; 1 rotary capture with 4 samples; 1 travel observer; 0 stores and domain nodes; 1 port; 1 event kind; 1 presentation binding and 1 body-pose mapping. All fixed at compile time.
-6. **Performance.** Nine colliders: each of the four blades is a drawn solid on a moving body that a ball can strike, and the guard is a true hollow ring. None is cosmetic. Four capture samples cost four occlusion queries per source per substep; today each query scans every collider, and `ENGINE-SPATIAL-QUERIES` replaces the scan with its segment query. A calm rotor comes to rest. Island sleeping is not implemented (`docs/gpu-f32-physics.md:273` describes it); a resting rotor is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`; nothing in this part works around either gap.
+5. **Flat state.** 2 bodies (1 static, 1 dynamic); 10 colliders (7 boxes, 1 tube, 1 sphere, 1 cylinder; 9 before part C); 1 revolute joint; 0 drives; 1 rotary capture with 4 samples; 1 travel observer; 0 stores and domain nodes; 1 port; 1 event kind; 1 presentation binding and 1 body-pose mapping. All fixed at compile time.
+6. **Performance.** Ten colliders: each of the four blades is a drawn solid on a moving body that a ball can strike, the output wheel is a drawn solid a ball can land on, and the guard is a true hollow ring. None is cosmetic. Four capture samples cost four occlusion queries per source per substep; today each query scans every collider, and `ENGINE-SPATIAL-QUERIES` replaces the scan with its segment query. A calm rotor comes to rest. Island sleeping is not implemented (`docs/gpu-f32-physics.md:273` describes it); a resting rotor is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`; nothing in this part works around either gap.
 7. **Tests are scenarios.** All rows run the production simulation; `WindmillAdmissionTests.UnfamiliarRepeatedCapturesKeepExactFramesAndHingesWhenReordered` (`:14`) runs the same law on declarations that are not this package.
 
 ## Appendix: Historical evidence

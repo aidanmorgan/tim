@@ -142,3 +142,9 @@ Outside the intent contract: baseline and planning-verdict paragraphs; tier reas
 - Correction made: `completion-ledger.md:227`, the part B2 row's planning-verdict citation `(:51)` → `(:58)`, the contract's "Planning verdict:" line at HEAD (`:51` was its baseline line).
 - Correction to E11: its statement that `completion-ledger.md:227` is true held only after this repair; the pass-2 patch had written the baseline line.
 - Records only, so the coordinator repeats the merged-commit checks on the new SHA.
+
+## E15 Lane 1 coordinator: publication receipt (26 November 2026, recorded in part C's candidate)
+
+- Published as `d37c0b9830f0a98660338e1a9bcb5cda61530943`, a fast-forward of `origin/main` from `39aaba70` (slice `16e920ba`, `8c97a23e`; merge `830100a3`; records `d37c0b98`).
+- On `d37c0b98`: full local round 7431 passed, 0 failed, `Skipped: 0` in every project; registration 829; `VerifyPolicy.cs` 78/0/0; `--bmad-check --self-test` 37/0/0; maintainability gate PASS; SnapshotApproval Pass after one record-only fail (E14). Remote build, artifact and deployment unverified (owner instruction of 29 October).
+- Citation correction (append-only; the entries above keep their wording): after the merge with `39aaba70`, the `deferred-work.md` lines this record cites moved. In part C's candidate (which adds one line above them), the part A carry-forward cited as `:364` (E11, E12) is at `:368`, and the delete-declaration-colliders carry-forward line cited as `:376` and `:377` (E4, E7–E10, handled messages) is at `:381`. The contract's lines that cite them are updated in part C's candidate.
