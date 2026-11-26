@@ -28,8 +28,6 @@ public sealed class PipeBend90ElementDeclaration : IMechanicalElement, ISceneGeo
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0.15f, 0.3f, 0f, 0.1f))

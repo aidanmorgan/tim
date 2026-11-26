@@ -555,7 +555,7 @@ No tolerance applies; these are text and link checks.
 ## Auto Run Result
 
 **Summary.** DOC-ENGINE-STATUS (engine programme order 1, documents only, lane 4, owner decision 24q).
-- `docs/gpu-f32-physics.md` and the isolation authority now state every engine feature on the story's topic list in one of two ways: as running code, with a `path:line` citation at `37a259c9`, or as a target with its owning story. ISO Current status §4.4 has 27 rows.
+- `docs/gpu-f32-physics.md` and the isolation authority now state every engine feature on the story's topic list in one of two ways: as running code, with a `path:line` citation at `37a259c9`, or as a target with its owning story. ISO §4.4 has 26 rows (KinematicMode deleted at the merge).
 - The present-tense claims of absent features in nine other current documents are restated the same way.
 - The two pose-ring comments no longer say zero-copy or triple-buffered.
 - 24q and the sequence wording are recorded in every place M7 lists.

@@ -69,6 +69,10 @@ public sealed record MechanicalPayload(KinematicMode KinematicMode, MassFrameDec
     public IReadOnlyList<CuriousContraptions.Gpu.RotaryAirflowCaptureDescriptor> RotaryAirflowCaptures { get; init; } = [];
     [System.Text.Json.Serialization.JsonRequired]
     public IReadOnlyList<CuriousContraptions.Gpu.CoordinateTravelDescriptor> CoordinateTravelObservers { get; init; } = [];
+    /// <summary>One collider list per moving body, in package body order (sliders, then hinges): the proxies the scene bake finds
+    /// under that body's scene root. The bake is its only writer; a list count other than the moving bodies' is refused.</summary>
+    [System.Text.Json.Serialization.JsonRequired]
+    public IReadOnlyList<IReadOnlyList<ColliderDescriptor>> MovingBodyColliders { get; init; } = [];
 }
 
 public sealed record ElectricalPayload(IReadOnlyList<ElectricalNodeDescriptor> Nodes, SupplyGraphDescriptor? SupplyGraph);
@@ -118,9 +122,9 @@ public enum BundleErrorCode
     /// <c>col_hull</c>), a shape that is not a local sub-resource, a shape value left to its default, a nonuniform scale the shape cannot
     /// take, an open cylinder without both caps open or without its wall, or a tapered cylinder mesh.</summary>
     UnsupportedColliderProxy = 18,
-    /// <summary>Inconsistent collider ownership. A package's colliders are its scene's proxies, so this covers: a declaration without
-    /// scene bodies (<c>ISceneGeometryElement</c>); a declaration that states data colliders on any body; an ownership that does not
-    /// name the base and every moving body; or overlapping body roots.</summary>
+    /// <summary>Inconsistent collider ownership. A package's colliders are its scene's proxies, so this covers: an ownership that does
+    /// not name the base and every moving body; overlapping body roots; or a mechanical payload whose moving-body collider lists do
+    /// not number exactly its moving bodies.</summary>
     SceneColliderOwnership = 19
 }
 
@@ -137,7 +141,6 @@ public sealed record NamedEntry(string Source, BundleEntry Entry);
 public interface IBundleServices
 {
     BundleEntry Entry(IPuzzleElementDeclaration declaration);
-    string Write(IEnumerable<IPuzzleElementDeclaration> declarations);
     string WriteEntries(IEnumerable<BundleEntry> entries);
     BundleDocument Read(string json);
     IReadOnlyList<BundleError> Validate(IReadOnlyList<NamedEntry> entries);

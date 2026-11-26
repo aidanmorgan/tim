@@ -54,8 +54,6 @@ public sealed class PipeElementDeclaration : IMechanicalElement, ISceneGeometryE
         new(2, GeometryComponent.OffsetX, "length", .5f, 0f)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>The pipe family's documented restitution 0.15 (CAT-048).</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [

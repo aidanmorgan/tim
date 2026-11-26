@@ -61,7 +61,7 @@ The harvest-era "Exists now" and "Missing" lists (baseline `a6c914e`) are remove
 
 | Capability | Status | Symbol | Exercising test |
 | --- | --- | --- | --- |
-| Several colliders on one moving body, each keeping its own contact | present | `HingeBodyDescriptor.Colliders`, `CuriousContraptions.Abstractions/MechanicalContractValues.cs:123` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`); `EveryDeclaredChildUsesItsCommittedMotionAndResetAndRefusesForeignSets` (`:1021`) |
+| Several colliders on one moving body, each keeping its own contact | present | `MechanicalPayload.MovingBodyColliders`, `CuriousContraptions.Abstractions/BundleServices.cs:75` | `CompoundMassAndRollingTests.ManyChildSupportKeepsFiniteDissipativeMotionAndFrictionControl` (`:19`); `EveryDeclaredChildUsesItsCommittedMotionAndResetAndRefusesForeignSets` (`:1021`) |
 
 Counts: 7 present, 2 present-untested, 0 narrower, 0 missing. Beyond the engine programme (owner decision 3a), no specific engine story is a prerequisite.
 

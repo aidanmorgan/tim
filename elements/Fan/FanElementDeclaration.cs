@@ -28,7 +28,6 @@ public sealed class FanElementDeclaration : IHingeElement, IEnergyStoreElement, 
     public PayloadPolicy Payload => PayloadPolicy.None;
     public MassFrameDeclaration MassFrame => MassFrameDeclaration.Constant(0, Vector3.Zero, Vector3.Zero, Quaternion.Identity, 0, Vector3.Zero);
     public IReadOnlyList<AnchorPointDescriptor> AnchorPoints => [];
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
     public IReadOnlyList<EventDescriptor> Events => [new(SimulationEventKind.MemoryChanged, new("enable"))];
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
         [new(".", new(1, .3f, 0, .1f)), new("Visual/Hub", new(0, .3f, 0, .1f))];
@@ -37,7 +36,7 @@ public sealed class FanElementDeclaration : IHingeElement, IEnergyStoreElement, 
         [new(new(0), new(Vector3.Zero, AxisFrame), new(Vector3.Zero, AxisFrame), -MathF.PI, MathF.PI,
             RevoluteTravel.Continuous, MechanicalValue.Fixed(0), MechanicalValue.Fixed(0), MechanicalValue.Fixed(0),
             MechanicalValue.Fixed(0), false,
-            new(MassFrameDeclaration.Constant(.15f, Vector3.Zero, new(.001176f), Quaternion.Identity, 0, Vector3.Zero), []), null)];
+            new(MassFrameDeclaration.Constant(.15f, Vector3.Zero, new(.001176f), Quaternion.Identity, 0, Vector3.Zero)), null)];
 
     public IReadOnlyList<EnergyStoreDescriptor> EnergyStores =>
         [new(new(1), new(0), EnergyExpression.Direct(MechanicalValue.Fixed(14400)),

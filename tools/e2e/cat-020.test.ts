@@ -15,7 +15,8 @@ import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
 import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { decodeSavedConstruction, type InstanceRecord } from './workshop-wire.ts';
+import { decodeSavedConstruction } from './workshop-wire.ts';
+import { type InstanceRecord } from './.wire/curious-contraptions/wire.ts';
 import { MemoryKind, activationMemoryRows, assertLoadRestores, snapshotEntries, snapshotValue, type ActivationMemoryRow } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;

@@ -30,8 +30,6 @@ public sealed class FunnelElementDeclaration : IMechanicalElement, ISceneGeometr
 
     public IReadOnlyList<PortDescriptor> Ports => [];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0.15f, 0.3f, 0f, 0.1f))

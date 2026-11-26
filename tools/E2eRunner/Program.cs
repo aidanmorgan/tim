@@ -110,7 +110,7 @@ internal static class Program
         RequireDeclaredSuites(root);
         var output = NewOutputDirectory(command.Options[Option.Out]);
         using var runner = RunnerLock.Acquire(RunnerLock.For(root));
-        var toolchain = Toolchain.Resolve(Home);
+        var toolchain = Toolchain.Resolve(Home, root);
         if (command.Verb == Verb.Calibrate) return await CalibrateAsync(root, output, toolchain, artifact).ConfigureAwait(false);
 
         var memory = MeasuredWorkers.MachineMemory();

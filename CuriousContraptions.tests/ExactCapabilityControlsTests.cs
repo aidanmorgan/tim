@@ -61,8 +61,7 @@ public sealed class ExactCapabilityControlsTests
             Damping: MechanicalValue.Fixed(2f),
             Compression: MechanicalValue.Fixed(0f),
             BodiesCollide: false,
-            MovingBody: new(MassFrameDeclaration.Constant(0.5f, Vector3.Zero, new(0.01f), Quaternion.Identity, 0f, Vector3.Zero),
-                [new(Shape.Box, new(0.1f, 0.1f, 0.1f), Vector3.Zero, Quaternion.Identity, new(0f, 0.6f, 0f, 0.1f), 0f)]),
+            MovingBody: new(MassFrameDeclaration.Constant(0.5f, Vector3.Zero, new(0.01f), Quaternion.Identity, 0f, Vector3.Zero)),
             Drive: new(MechanicalValue.Fixed(0.5f), MechanicalValue.Fixed(2f), MechanicalValue.Fixed(10f), MechanicalValue.Fixed(50f), MechanicalValue.Fixed(50f)));
 
         PresentationBinding StateBinding(string node, CoordinateReference actuator, PresentationStateValues values) =>
@@ -142,7 +141,13 @@ public sealed class ExactCapabilityControlsTests
             Mechanical = motor.Mechanical with
             {
                 Hinges = [hinge0, hinge1],
-                Sliders = [slider0]
+                Sliders = [slider0],
+                // Sliders' bodies first, then the hinges'.
+                MovingBodyColliders =
+                [
+                    [new(Shape.Box, new(0.1f, 0.1f, 0.1f), Vector3.Zero, Quaternion.Identity, new(0f, 0.6f, 0f, 0.1f), 0f)],
+                    motor.Mechanical.MovingBodyColliders[0], motor.Mechanical.MovingBodyColliders[0]
+                ]
             },
             Electrical = motor.Electrical! with
             {

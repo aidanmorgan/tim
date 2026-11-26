@@ -115,8 +115,8 @@ public static class PackageValidator
         }
         string expectedParent;
         if (port.Body.Value == 0) expectedParent = ".";
-        else if (package.Declaration is ISceneGeometryElement geometry && port.Body.Value > 0 && port.Body.Value < geometry.SceneBodies.Count)
-            expectedParent = geometry.SceneBodies[port.Body.Value].Root;
+        else if (port.Body.Value > 0 && port.Body.Value < package.Declaration.SceneBodies.Count)
+            expectedParent = package.Declaration.SceneBodies[port.Body.Value].Root;
         else
         {
             errors.Add(new(BundleErrorCode.OutOfRange, $"{where}.Body: body {port.Body.Value} is not a declared scene body"));

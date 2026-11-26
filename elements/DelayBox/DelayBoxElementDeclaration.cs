@@ -39,9 +39,6 @@ public sealed class DelayBoxElementDeclaration : ISignalElement, ISceneGeometryE
         new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, new Vector3(.72f, 0f, 0f), Vector3.UnitX)
     ];
 
-    /// <summary>The foot of the housing.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

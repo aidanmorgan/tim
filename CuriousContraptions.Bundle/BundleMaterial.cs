@@ -19,17 +19,10 @@ internal static class BundleMaterial
         return result;
     }
 
-    public static IReadOnlyList<ColliderDescriptor> Shapes(BundleEntry entry, PackageBodyIndex body)
-    {
-        if (body.Value == 0 && entry.Footprint.Bodies > 0) return entry.Colliders;
-        var sliders = entry.Mechanical?.Sliders ?? [];
-        var hinges = entry.Mechanical?.Hinges ?? [];
-        var index = body.Value - 1;
-        if (index >= 0 && index < sliders.Count) return sliders[index].MovingBody.Colliders;
-        index -= sliders.Count;
-        if (index >= 0 && index < hinges.Count) return hinges[index].MovingBody.Colliders;
+    /// <summary>The body's colliders; body zero of a part without bodies, or an unresolved body, is refused.</summary>
+    public static IReadOnlyList<ColliderDescriptor> Shapes(BundleEntry entry, PackageBodyIndex body) =>
+        (body.Value != 0 || entry.Footprint.Bodies > 0 ? PackageBodyGeometry.Colliders(entry, body) : null) ??
         throw new ArgumentException("Material body is unresolved.");
-    }
 
     public static void Validate(BundleEntry entry)
     {

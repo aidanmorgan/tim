@@ -51,8 +51,6 @@ public sealed class BumperElementDeclaration : IContactWorkElement, IEnergyStore
         new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(0f, 0f, .65f), Vector3.UnitZ)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

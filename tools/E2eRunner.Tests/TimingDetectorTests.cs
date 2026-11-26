@@ -126,6 +126,38 @@ public sealed class TimingDetectorTests
         finally { root.Delete(true); }
     }
 
+    // S5b (T9): the generated wire modules under tools/e2e/.wire/ are TypeScript files that import each other with `.js`
+    // specifiers, which resolve to the `.ts` source first, as TypeScript tries candidates. The suite reaches the entry module,
+    // which re-exports a per-type file, which imports its sibling in the compiler's `../../<namespace>/wire/<name>.js` form; a
+    // `.js` specifier with both files names the `.ts` one, and one with only the `.js` file names it as written.
+    [Fact]
+    public void AnImportClosureResolvesADotJsSpecifierToItsTypeScriptSource()
+    {
+        var root = Directory.CreateTempSubdirectory("e2e-detector-");
+        try
+        {
+            var wire = Path.Combine(root.FullName, "tools", "e2e", ".wire", "m", "wire");
+            Directory.CreateDirectory(wire);
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", "suite.test.ts"),
+                "import { A } from './.wire/m/wire.ts';\nimport { h } from './helper.js';\nimport { p } from './plain.js';\n");
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", "helper.js"), "export const h = 1;\n");
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", "helper.ts"), "export const h: number = 1;\n");
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", "plain.js"), "export const p = 1;\n");
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", ".wire", "m", "wire.ts"), "export { A } from './wire/a.js';\n");
+            File.WriteAllText(Path.Combine(wire, "a.ts"), "import { B } from '../../m/wire/b.js';\nexport class A { b?: B; }\n");
+            File.WriteAllText(Path.Combine(wire, "b.ts"), "export class B {}\n");
+
+            Assert.Equal(["tools/e2e/.wire/m/wire.ts", "tools/e2e/.wire/m/wire/a.ts", "tools/e2e/.wire/m/wire/b.ts", "tools/e2e/helper.ts",
+                "tools/e2e/plain.js", "tools/e2e/suite.test.ts"], TimingDetector.ImportClosure(root.FullName, "tools/e2e/suite.test.ts"));
+
+            // Control: a `.js` specifier with neither file still fails, naming the module as written.
+            File.WriteAllText(Path.Combine(root.FullName, "tools", "e2e", "gone.test.ts"), "import { G } from './.wire/m/wire/gone.js';\n");
+            var missing = Assert.Throws<FileNotFoundException>(() => TimingDetector.ImportClosure(root.FullName, "tools/e2e/gone.test.ts"));
+            Assert.Contains("tools/e2e/.wire/m/wire/gone.js", missing.Message, StringComparison.Ordinal);
+        }
+        finally { root.Delete(true); }
+    }
+
     [Fact]
     public void MissingImportedModuleFails()
     {

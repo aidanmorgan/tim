@@ -742,14 +742,14 @@ public static class NativeTwoDriveScenario
         var sliders = targets.Select((target, index) => new PrismaticSliderDescriptor(
             new(new(index == 0 ? -2 : 2, 0, 0), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
             MechanicalValue.Fixed(-.2f), MechanicalValue.Fixed(2), MechanicalValue.Fixed(3), MechanicalValue.Fixed(.5f), MechanicalValue.Fixed(0), false,
-            new(MassFrameDeclaration.Constant(1, Vector3.Zero, Vector3.One, Quaternion.Identity, 0, new(0, -9.81f, 0)), [shape]),
+            new(MassFrameDeclaration.Constant(1, Vector3.Zero, Vector3.One, Quaternion.Identity, 0, new(0, -9.81f, 0))),
             new(MechanicalValue.Fixed(target), MechanicalValue.Fixed(1.6f), MechanicalValue.Fixed(8),
                 MechanicalValue.Fixed(20), MechanicalValue.Fixed(20)))).ToArray();
         var entry = template with
         {
             Metadata = template.Metadata with { Id = "native_two_drives", PaletteOrder = entries.Max(e => e.Metadata.PaletteOrder) + 1 },
             Footprint = new(3, 2, 2, 0), Colliders = [shape], ColliderBindings = [], TubeMouths = [], TubeMouthBindings = [],
-            Mechanical = template.Mechanical! with { Sliders = sliders },
+            Mechanical = template.Mechanical! with { Sliders = sliders, MovingBodyColliders = [[shape], [shape]] },
             Electrical = template.Electrical! with
             {
                 SupplyGraph = template.Electrical.SupplyGraph! with

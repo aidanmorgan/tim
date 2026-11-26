@@ -21,7 +21,7 @@ Rewritten on 22 November 2026 as one current text against checkout `spec-drafts`
 
 ## 2. Declaration
 
-Follows the delivered Wall shape for a static part with no ports (`elements/Wall/WallElementDeclaration.cs:11-13`), with package-declared colliders as the Heating plate (TH-04).
+Follows the delivered Wall shape for a static part with no ports (`elements/Wall/WallElementDeclaration.cs:11-13`), with colliders baked from its scene, as the Heating plate (TH-04).
 
 - **Interfaces.** `IMechanicalElement`, `ISceneGeometryElement`, and the thermal-node contract of ENGINE-THERMAL.
 - **Body.** One static body (`KinematicMode.Static`, zero static mass frame), origin at the centre of the foot's underside. The player places it with its foot touching the face it cools: on the Heating plate's disc, on a heat pump face, against a generator's cold plate (static-on-static pairs resolved once at Run, T3's list). Static because thermal links come from touch (coordinator decision 21; audit N3); the earlier dynamic sink could not hang under a pump face and added a loose six-collider body to every thermal level.

@@ -87,7 +87,8 @@ public sealed class WoundSpringContractTests
         var entry = TestBundle.Entry(new("motor"));
         var hinge = entry.Mechanical!.Hinges[0];
         var transformed = hinge with { Drive = hinge.Drive!.Value with { TargetSpeed = MechanicalValue.NegatedParameter("speed") } };
-        var probe = entry with { Mechanical = entry.Mechanical with { Hinges = [hinge, transformed] } };
+        var probe = entry with { Mechanical = entry.Mechanical with { Hinges = [hinge, transformed],
+            MovingBodyColliders = [entry.Mechanical.MovingBodyColliders[0], entry.Mechanical.MovingBodyColliders[0]] } };
         Assert.Single(RunControlBindings.Lanes(probe, "speed"));
         Assert.True(RunControlBindings.IsBoundToNonLane(probe, "speed"));
     }
@@ -260,6 +261,7 @@ public sealed class WoundSpringContractTests
             Mechanical = mechanical with
             {
                 Hinges = [hinge, hinge with { BaseFrame = new(new(.62f, -.55f, .5f), System.Numerics.Quaternion.Identity) }],
+                MovingBodyColliders = [mechanical.MovingBodyColliders[0], mechanical.MovingBodyColliders[1], mechanical.MovingBodyColliders[1]],
                 Transmissions =
                 [
                     mechanical.Transmissions[0],
@@ -332,6 +334,7 @@ public sealed class WoundSpringContractTests
             Mechanical = mechanical with
             {
                 Sliders = [mechanical.Sliders[0], secondSlider],
+                MovingBodyColliders = [mechanical.MovingBodyColliders[0], mechanical.MovingBodyColliders[0], mechanical.MovingBodyColliders[1]],
                 Retentions =
                 [
                     mechanical.Retentions[0],

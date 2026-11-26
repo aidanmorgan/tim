@@ -57,7 +57,7 @@ The Run limit is 30 seconds of committed world time: 1800/3600/7200 commits at t
 
 To avoid GPU-to-CPU readback stalls (`mapAsync` stalls of 0.5–2 ms), the simulation worker publishes committed body poses into a lock-free ring in `SharedArrayBuffer`, today through at least one JavaScript-mediated copy per side; a zero-copy multi-buffered ring (depth derived from tick rate and render delay) is target ([Current status](architecture/element-package-isolation.md#current-status)).
 
-Each buffer slot in the ring stores contiguous SIMD-aligned 32-bit floats for all dynamic and kinematic bodies (position xyz, orientation quaternion xyzw, linear velocity xyz, flags), preceded by a 64-bit atomic sequence counter and a 64-bit committed timestamp.
+Each buffer slot in the ring stores contiguous SIMD-aligned 32-bit floats for all dynamic bodies (position xyz, orientation quaternion xyzw, linear velocity xyz, flags), preceded by a 64-bit atomic sequence counter and a 64-bit committed timestamp.
 
 The atomic sequence protocol ensures torn reads are impossible without mutex locks. The writer runs today, copying the slot with `target.set` between its two sequence stores (`CuriousContraptions.web/wwwroot/pose-ring.ts:95-98`) rather than with SIMD stores; the reader is the `ENGINE-WIRE-ABI` target, because no production code reads the ring ([Current status](architecture/element-package-isolation.md#current-status)):
 1. **Writer Protocol (Simulation Worker):**

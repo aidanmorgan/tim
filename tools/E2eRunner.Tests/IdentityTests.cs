@@ -173,6 +173,45 @@ public sealed class IdentityTests : IDisposable
         Assert.Contains("re-hash", summary.Detail, StringComparison.Ordinal);
     }
 
+    // S5b: the generated wire modules the suites import are ignored build output under tools/e2e/.wire/, so the suite digest reads
+    // them from the file system. A regenerated module and a changed schema record (.wire/schemas.txt) each change the digest;
+    // control: an unrelated ignored file under tools/e2e/ does not.
+    // Boundary: a deleted .wire/ folder changes the digest and the computation does not fail. A folder or file removed while the
+    // digest reads it (the race with a regenerating build) is handled the same way by source review; this test does not trigger it.
+    [Fact]
+    public void TheSuiteDigestCoversTheGeneratedWireModulesAndNoOtherIgnoredFile()
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        File.WriteAllText(Path.Combine(root, ".gitignore"), "tools/e2e/.wire/\n*.tmp\n");
+        Directory.CreateDirectory(Path.Combine(root, "tools", "e2e", ".wire", "m", "wire"));
+        File.WriteAllText(Path.Combine(root, "tools", "e2e", "a.test.ts"), "import { A } from './.wire/m/wire.ts';\n");
+        File.WriteAllText(Path.Combine(root, "tools", "e2e", ".wire", "m", "wire.ts"), "export { A } from './wire/a.js';\n");
+        var generated = Path.Combine(root, "tools", "e2e", ".wire", "m", "wire", "a.ts");
+        File.WriteAllText(generated, "export class A {}\n");
+        var record = Path.Combine(root, "tools", "e2e", ".wire", "schemas.txt");
+        File.WriteAllText(record, "a.fbs\n");
+        var unrelated = Path.Combine(root, "tools", "e2e", "notes.tmp");
+        File.WriteAllText(unrelated, "one");
+        var first = SourceIdentity.SuiteSources(root);
+
+        File.WriteAllText(unrelated, "two");
+        Assert.Equal(first, SourceIdentity.SuiteSources(root));
+
+        File.WriteAllText(generated, "export class A { b = 1; }\n");
+        var regenerated = SourceIdentity.SuiteSources(root);
+        Assert.NotEqual(first, regenerated);
+
+        File.WriteAllText(record, "a.fbs\nb.fbs\n");
+        var rerecorded = SourceIdentity.SuiteSources(root);
+        Assert.NotEqual(regenerated, rerecorded);
+
+        Directory.Delete(Path.Combine(root, "tools", "e2e", ".wire"), recursive: true);
+        var removed = SourceIdentity.SuiteSources(root);
+        Assert.NotEqual(rerecorded, removed);
+        Assert.NotEqual(first, removed);
+    }
+
     [Fact]
     public async Task SuiteSourceChangedMidRunIsIdentityChanged()
     {

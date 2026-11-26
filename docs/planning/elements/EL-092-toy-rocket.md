@@ -33,7 +33,7 @@ One dynamic body, long axis local +Y, nozzle at −Y. Mass 0.4 kg (**starting va
 | Fins A | Box | 0.44 × 0.18 × 0.02 | (0, −0.36, 0) |
 | Fins B | Box | 0.02 × 0.18 × 0.44 | (0, −0.36, 0) |
 
-Four colliders against the Tennis ball's two. Reason: the nose and the four fins are proud visible solids, and the crossed fin pair gives a 0.44 m base so the rocket stands on a bench.
+Four colliders against the Tennis ball's one, its sphere (its seam is printed flush, owner decision 24i). Reason: the nose and the four fins are proud visible solids, and the crossed fin pair gives a 0.44 m base so the rocket stands on a bench.
 
 ### Store, jet and signal nodes
 

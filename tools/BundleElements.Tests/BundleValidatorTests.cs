@@ -13,7 +13,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ResidenceCapabilityRejectsMalformedRegionsBindingsAndParticipationWithoutThrowing()
     {
-        var entry = Bundle.BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             Parameters = [new("participation", ParameterUnit.None, ParameterKind.Choice, 0f, 1f, 1f, ["Disabled", "Enabled"])]
         });
@@ -79,7 +79,7 @@ public sealed class BundleValidatorTests
     public void ContactDischargeRequiresExactStoreAndTypedSpeed()
     {
         var strength = new ParameterDescriptor("strength", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 20f, 8f, [], ParameterEditorPolicy.Clamp);
-        var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = [strength] });
+        var entry = FixtureBake.Entry(new Fixture { Parameters = [strength] });
         var work = new ContactWorkDescriptor(new("work"), new(0), new(1), MechanicalValue.FromParameter("strength"), .05f, 72);
         var energy = CuriousContraptions.Gpu.EnergyExpression.Direct(MechanicalValue.Fixed(400f));
         var store = new CuriousContraptions.Gpu.EnergyStoreDescriptor(new(1), new(0), energy, energy, MechanicalValue.Fixed(100f));
@@ -118,7 +118,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void CompliantSurfaceCapabilityAdmitsTheRuntimeDomainAndRefusesOutsideIt()
     {
-        var entry = Bundle.BundleSchema.Entry(new CompliantFixture());
+        var entry = FixtureBake.Entry(new CompliantFixture(), FixtureBake.Bed, []);
         var surface = entry.Mechanical!.CompliantSurface!.Value;
         Bundle.BundleEntry With(CompliantSurfaceDescriptor value, KinematicMode mode = KinematicMode.Static) =>
             entry with { Mechanical = entry.Mechanical! with { KinematicMode = mode, CompliantSurface = value } };
@@ -165,7 +165,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void TheMechanicalPayloadRequiresTheCompliantSurfaceKeyAndAdmitsANullValue()
     {
-        var json = Bundle.BundleSchema.Write([new Fixture()]);
+        var json = Bundle.BundleSchema.WriteEntries([FixtureBake.Entry(new Fixture())]);
         Assert.Contains("\"CompliantSurface\": null,", json, StringComparison.Ordinal);
         Assert.Null(Assert.Single(Bundle.BundleSchema.Read(json).Elements).Mechanical!.CompliantSurface);
         var missing = json.Replace("\"CompliantSurface\": null,", "", StringComparison.Ordinal);
@@ -182,13 +182,13 @@ public sealed class BundleValidatorTests
             .19f, -.81f, PresentationCurve.Linear, 0f, PresentationOverlap.Replace, 0f);
         static IReadOnlyList<Bundle.BundleError> Check(Bundle.BundleEntry candidate, PresentationBinding binding) => Bundle.BundleValidator.Validate(
             [new("Fixture", candidate with { Presentation = candidate.Presentation with { Bindings = [binding] } })]);
-        Assert.Empty(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), sag));
-        Assert.Contains(Check(Bundle.BundleSchema.Entry(new Fixture()), sag),
+        Assert.Empty(Check(FixtureBake.Entry(new CompliantFixture(), FixtureBake.Bed, []), sag));
+        Assert.Contains(Check(FixtureBake.Entry(new Fixture()), sag),
             error => error.Detail.Contains(".Presentation.CompliantSurface", StringComparison.Ordinal));
         // The deflection is a committed state, read untimed and linear: a timed binding and a curved one are each refused, even on a
         // compliant surface.
         foreach (var invalid in new[] { sag with { Duration = .2f }, sag with { Curve = PresentationCurve.SmoothStep } })
-            Assert.Contains(Check(Bundle.BundleSchema.Entry(new CompliantFixture()), invalid),
+            Assert.Contains(Check(FixtureBake.Entry(new CompliantFixture(), FixtureBake.Bed, []), invalid),
                 error => error.Detail.Contains(".Presentation.DriverCurve", StringComparison.Ordinal));
     }
 
@@ -203,7 +203,7 @@ public sealed class BundleValidatorTests
         static IReadOnlyList<Bundle.BundleError> Check(PresentationBinding binding, PrismaticDriveDescriptor? drive)
         {
             var targets = drive is not null ? new SupplyTarget[] { new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)) } : [];
-            var candidate = Bundle.BundleSchema.Entry(new Fixture
+            var candidate = FixtureBake.Entry(new Fixture
             {
                 Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
             }) with
@@ -228,7 +228,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void AParameterBoundSliderDriveValueMustBeInItsOwnUnit()
     {
-        static IReadOnlyList<Bundle.BundleError> UnitErrors(ParameterUnit unit) => Bundle.BundleValidator.Validate([new("FixtureDrive", Bundle.BundleSchema.Entry(new Fixture
+        static IReadOnlyList<Bundle.BundleError> UnitErrors(ParameterUnit unit) => Bundle.BundleValidator.Validate([new("FixtureDrive", FixtureBake.Entry(new Fixture
         {
             Parameters = [.. Fixture.SpringParameters, new("effort", unit, ParameterKind.Real, 1f, 60f, 20f, [])],
             Ports = [Fixture.PowerIn],
@@ -256,7 +256,7 @@ public sealed class BundleValidatorTests
         static IReadOnlyList<Bundle.BundleError> Check(PrismaticDriveDescriptor? drive, PresentationBinding binding)
         {
             var targets = drive is not null ? new SupplyTarget[] { new SupplyDriveTarget(new(CoordinateKind.Prismatic, 0)) } : [];
-            var candidate = Bundle.BundleSchema.Entry(new Fixture
+            var candidate = FixtureBake.Entry(new Fixture
             {
                 Parameters = Fixture.SpringParameters, Ports = [Fixture.PowerIn], Sliders = [Fixture.Slider() with { Drive = drive }]
             }) with
@@ -302,14 +302,13 @@ public sealed class BundleValidatorTests
     public void AMassPolynomialNamesARealParameterAndRejectsInvalidEvaluatedFrames()
     {
         var mass = new ParameterDescriptor("mass", ParameterUnit.Kilogram, ParameterKind.Real, .25f, 8f, 4f, [], ParameterEditorPolicy.Clamp);
-        var entry = Bundle.BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             Parameters = [mass],
             KinematicMode = Abstractions.Mechanical.KinematicMode.Dynamic,
             Footprint = new(1, 1, 0, 0),
-            MassFrame = MassFrameDeclaration.Constant(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)),
-            Colliders = [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f), 0f)]
-        });
+            MassFrame = MassFrameDeclaration.Constant(4f, new(0f, .28f, 0f), new(.23f, .25f, .23f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f))
+        }, [new(ColliderShapeKind.Cylinder, new(.35f, .28f, .35f), new(0f, .28f, 0f), Quaternion.Identity, new MaterialProperties(.08f, .3f, .03f, .1f), 0f)], []);
         var bound = new MassScalar(new ParameterId("mass"), 0f, 1f, 0f, 0f);
         Bundle.BundleEntry With(MassScalar value, params ParameterDescriptor[] parameters) =>
             entry with { Metadata = entry.Metadata with { Parameters = parameters }, Mechanical = entry.Mechanical! with
@@ -372,7 +371,7 @@ public sealed class BundleValidatorTests
     public void OnlyAHollowColliderDeclaresTheRadiusLane()
     {
         static IReadOnlyList<Bundle.BundleError> Check(ColliderDescriptor collider) =>
-            Bundle.BundleValidator.Validate([new("Fixture", Bundle.BundleSchema.Entry(new Fixture { Colliders = [collider] }))]);
+            Bundle.BundleValidator.Validate([new("Fixture", FixtureBake.Entry(new Fixture(), [collider], []))]);
         var box = Fixture.Box(new(.35f, .28f, .35f));
         Assert.DoesNotContain(Check(box), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
         Assert.Contains(Check(box with { Radius = .1f }), error => error.Detail.Contains("Colliders[0].Radius", StringComparison.Ordinal));
@@ -384,7 +383,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ContactCapabilityRequiresOneTypedParameterAndPulseOutput()
     {
-        var entry = Bundle.BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             Parameters = [new("speed", ParameterUnit.MetrePerSecond, ParameterKind.Real, 0f, 64f, .8f, [], ParameterEditorPolicy.Clamp)],
             Ports = [new(PortId.ActivationOut, SimulationDomain.Signal, PortDirection.Output, PortRole.ActivationOut, new("ActivationOut", SocketGlyph.Text), PortSignalKind.Pulse, Vector3.Zero, Vector3.UnitX)]
@@ -408,7 +407,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void TimerAndSupplyCapabilitiesRejectUnresolvedOrWrongTypedDeclarations()
     {
-        var timer = Bundle.BundleSchema.Entry(new Fixture
+        var timer = FixtureBake.Entry(new Fixture
         {
             Parameters = [new("seconds", ParameterUnit.Second, ParameterKind.Real, .1f, 12f, 1f, [])],
             Ports = [
@@ -491,13 +490,14 @@ public sealed class BundleValidatorTests
         Assert.NotEmpty(Check(supply with { Electrical = supply.Electrical! with { Nodes = [] } }));
     }
     private sealed record CustomDescriptor(Abstractions.Electrical.LocalSupplyNodeId Id) : Abstractions.Electrical.SupplyNodeDescriptor(Id);
-    /// <summary>The bundle entry validator's errors for the entries the declarations build.</summary>
-    private static string[] Errors(params (string Package, IPuzzleElementDeclaration Declaration)[] packages)
-    {
-        var services = new CuriousContraptions.Bundle.BundleServices();
-        return services.Validate(packages.Select(package => new NamedEntry(package.Package, services.Entry(package.Declaration))).ToArray())
-            .Select(error => error.ToString()).ToArray();
-    }
+    /// <summary>The bundle entry validator's errors for the fixtures' baked entries (<see cref="FixtureBake.Entry(Fixture)"/>).</summary>
+    private static string[] Errors(params (string Package, Fixture Declaration)[] packages) =>
+        EntryErrors([.. packages.Select(package => (package.Package, FixtureBake.Entry(package.Declaration)))]);
+
+    /// <summary>The bundle entry validator's errors for these entries.</summary>
+    private static string[] EntryErrors(params (string Package, Bundle.BundleEntry Entry)[] entries) =>
+        [.. new CuriousContraptions.Bundle.BundleServices().Validate([.. entries.Select(entry => new NamedEntry(entry.Package, entry.Entry))])
+            .Select(error => error.ToString())];
 
     // Story 9A.39: a Source declares its finite store by four of its own parameters, inside the electrical source envelope.
     private static readonly ParameterDescriptor[] StoreParameters =
@@ -511,7 +511,7 @@ public sealed class BundleValidatorTests
 
     private static Bundle.BundleEntry Source(IReadOnlyList<ParameterDescriptor> parameters, Abstractions.Electrical.SupplySourceStoreDescriptor? store)
     {
-        var entry = Bundle.BundleSchema.Entry(new Fixture { Parameters = parameters });
+        var entry = FixtureBake.Entry(new Fixture { Parameters = parameters });
         return entry with
         {
             Domains = [SimulationDomain.Mechanical, SimulationDomain.Electrical],
@@ -698,7 +698,7 @@ public sealed class BundleValidatorTests
     {
         PortDescriptor Port(Vector3 normal) => new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null,
             Vector3.Zero, normal);
-        var entry = Bundle.BundleSchema.Entry(new Fixture { Ports = [Port(-Vector3.UnitY)] }) with
+        var entry = FixtureBake.Entry(new Fixture { Ports = [Port(-Vector3.UnitY)] }) with
         {
             Electrical = new([new("c", Abstractions.Electrical.ElectricalRole.Consumer, 12f, 1f, 0f, 100f)],
                 new SupplyGraphDescriptor([new SupplyConsumerDescriptor(new("c"), [])], [],
@@ -741,7 +741,7 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ANonFiniteValueNamesThePackageAndTheField() =>
         Assert.Equal(["BUNDLE002 FixtureNaN.Colliders[0].HalfExtents.x: not finite"],
-            Errors(("FixtureNaN", new Fixture { Colliders = [Fixture.Box(new(float.NaN, .5f, .5f))] })));
+            EntryErrors(("FixtureNaN", FixtureBake.Entry(new Fixture(), [Fixture.Box(new(float.NaN, .5f, .5f))], []))));
 
     [Fact]
     public void AnInfiniteMassIsNonFinite() =>
@@ -764,18 +764,18 @@ public sealed class BundleValidatorTests
     [Fact]
     public void ABodyWithoutAColliderIsRefused() =>
         Assert.Equal(["BUNDLE004 FixtureBody.Colliders: a body declares no collider"],
-            Errors(("FixtureBody", new Fixture { Colliders = [] })));
+            EntryErrors(("FixtureBody", FixtureBake.Entry(new Fixture(), [], []))));
 
     [Fact]
     public void ANonMechanicalBodyWithoutAColliderIsRefused() =>
         Assert.Equal(["BUNDLE004 FixtureLamp.Colliders: a body declares no collider"],
-            Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0, 0), Colliders = [] })));
+            EntryErrors(("FixtureLamp", FixtureBake.Entry(new SignalFixture { Footprint = new(1, 0, 0, 0) }, [], []))));
 
     [Fact]
     public void ANonMechanicalPackageWithColliderOrWithoutBodyIsAdmitted()
     {
-        Assert.Empty(Errors(("FixtureLamp", new SignalFixture { Footprint = new(1, 0, 0, 0) })));
-        Assert.Empty(Errors(("FixtureSignal", new SignalFixture { Footprint = new(0, 0, 0, 0), Colliders = [] })));
+        Assert.Empty(EntryErrors(("FixtureLamp", FixtureBake.Entry(new SignalFixture { Footprint = new(1, 0, 0, 0) }, FixtureBake.Lamp, []))));
+        Assert.Empty(EntryErrors(("FixtureSignal", FixtureBake.Entry(new SignalFixture { Footprint = new(0, 0, 0, 0) }, [], []))));
     }
 
     // Story 9A.22: a declared event kind is a defined record kind, declared once; None is no record.
@@ -817,8 +817,80 @@ public sealed class BundleValidatorTests
 
     [Fact]
     public void ASliderWhoseMovingBodyHasNoColliderIsRefused() =>
-        Assert.Equal(["BUNDLE004 FixtureSlider.Sliders[0].MovingBody.Colliders: a body declares no collider"],
-            Errors(("FixtureSlider", new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider(moving: [])] })));
+        Assert.Equal(["BUNDLE004 FixtureSlider.Mechanical.MovingBodyColliders[0]: a body declares no collider"],
+            EntryErrors(("FixtureSlider", FixtureBake.Entry(new Fixture { Parameters = Fixture.SpringParameters, Sliders = [Fixture.Slider()] },
+                FixtureBake.Block, [[]]))));
+
+    /// <summary>A fixture with a slider (body 1) and a hinge (body 2), each with its baked plate, and a restitution binding on the
+    /// hinge's body: admitted as it stands.</summary>
+    private static Bundle.BundleEntry SliderAndHinge()
+    {
+        var hinge = new RevoluteHingeDescriptor(new(0), new(new(0f, .3f, 0f), Quaternion.Identity), new(Vector3.Zero, Quaternion.Identity),
+            -.5f, .5f, RevoluteTravel.Limited, MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(0f),
+            MechanicalValue.Fixed(0f), false, new(Fixture.Slider().MovingBody.MassFrame), null);
+        var surface = new ParameterDescriptor("surface", ParameterUnit.None, ParameterKind.Real, 0f, 1f, .4f, []);
+        var entry = FixtureBake.Entry(new Fixture { Parameters = [.. Fixture.SpringParameters, surface], Sliders = [Fixture.Slider()],
+            Footprint = new(3, 2, 1, 1) }, FixtureBake.Block, [FixtureBake.Plate, FixtureBake.Plate]);
+        return entry with
+        {
+            Mechanical = entry.Mechanical! with { Hinges = [hinge] },
+            MaterialBindings = [new(new(2), MaterialComponent.Restitution, new("surface"))],
+            Presentation = entry.Presentation with { Bodies = [.. entry.Presentation.Bodies, new("Visual/Body2", new(2), Vector3.Zero)] }
+        };
+    }
+
+    /// <summary>R3: a mechanical payload carries exactly one baked collider list per moving body (sliders, then hinges). Fewer lists
+    /// (one list for a slider and a hinge, whose material binding names the hinge body that has none), none for one moving body, and one
+    /// too many are each refused as <see cref="Bundle.BundleErrorCode.SceneColliderOwnership"/>, and validation returns its errors
+    /// rather than throwing. Control: one list per moving body is admitted.</summary>
+    [Theory]
+    [InlineData(2, 1)]
+    [InlineData(1, 0)]
+    [InlineData(2, 3)]
+    public void MovingBodyColliderListsThatDoNotNumberTheMovingBodiesAreRefused(int movingBodies, int lists)
+    {
+        var admitted = SliderAndHinge();
+        if (movingBodies == 1)
+            admitted = admitted with
+            {
+                Mechanical = admitted.Mechanical! with { Hinges = [], MovingBodyColliders = [FixtureBake.Plate] }, MaterialBindings = [],
+                Footprint = new(2, 1, 1, 0), Presentation = admitted.Presentation with { Bodies = [admitted.Presentation.Bodies[0]] }
+            };
+        Assert.Empty(EntryErrors(("FixtureLists", admitted)));
+        var refused = admitted with { Mechanical = admitted.Mechanical! with { MovingBodyColliders = [.. Enumerable.Repeat(FixtureBake.Plate, lists)] } };
+        Assert.Contains($"BUNDLE019 FixtureLists.Mechanical.MovingBodyColliders: {lists} collider lists for {movingBodies} moving bodies",
+            EntryErrors(("FixtureLists", refused)));
+    }
+
+    /// <summary>R3 through a bundle-text round trip: an entry with one moving-body collider list for a slider and a hinge, written to
+    /// bundle text with <c>WriteEntries</c> and read back with <c>Read</c>, is refused as
+    /// <see cref="Bundle.BundleErrorCode.SceneColliderOwnership"/>. Control: the entry with one list per moving body round-trips and
+    /// is admitted.</summary>
+    [Fact]
+    public void AMovingBodyListCountRoundTrippedThroughBundleTextIsRefused()
+    {
+        static Bundle.BundleEntry RoundTrip(Bundle.BundleEntry entry) =>
+            Assert.Single(Bundle.BundleSchema.Read(Bundle.BundleSchema.WriteEntries([entry])).Elements);
+        var admitted = SliderAndHinge();
+        Assert.Empty(EntryErrors(("FixtureLists", RoundTrip(admitted))));
+        var refused = admitted with { Mechanical = admitted.Mechanical! with { MovingBodyColliders = [FixtureBake.Plate] } };
+        Assert.Contains("BUNDLE019 FixtureLists.Mechanical.MovingBodyColliders: 1 collider lists for 2 moving bodies",
+            EntryErrors(("FixtureLists", RoundTrip(refused))));
+    }
+
+    /// <summary>Each baked moving-body collider is validated like a base collider and named by its list: a non-finite half extent on
+    /// the hinge's body is refused at <c>Mechanical.MovingBodyColliders[1][0]</c>. Control: <see cref="SliderAndHinge"/> is
+    /// admitted.</summary>
+    [Fact]
+    public void AMalformedMovingBodyColliderIsRefusedAtItsList()
+    {
+        var admitted = SliderAndHinge();
+        Assert.Empty(EntryErrors(("FixtureLists", admitted)));
+        var refused = admitted with { Mechanical = admitted.Mechanical! with
+            { MovingBodyColliders = [FixtureBake.Plate, [Fixture.Box(new(float.NaN, .075f, .6f))]] } };
+        Assert.Equal(["BUNDLE002 FixtureLists.Mechanical.MovingBodyColliders[1][0].HalfExtents.x: not finite"],
+            EntryErrors(("FixtureLists", refused)));
+    }
 
     [Fact]
     public void ASliderMustTravelThroughItsRestFrame() =>
@@ -840,7 +912,7 @@ public sealed class BundleValidatorTests
         var targets = hasConsumer
             ? Enumerable.Range(0, sliders).Select(i => (SupplyTarget)new SupplyDriveTarget(new(CoordinateKind.Prismatic, i))).ToArray()
             : [];
-        var entry = Bundle.BundleSchema.Entry(new Fixture
+        var entry = FixtureBake.Entry(new Fixture
         {
             Parameters = Fixture.SpringParameters,
             Ports = [Fixture.PowerIn],
@@ -945,9 +1017,9 @@ public sealed class BundleValidatorTests
         {
             Mechanical = lever.Mechanical with
             {
-                Hinges = [hinge with { MovingBody = hinge.MovingBody with { Colliders = [] } }]
+                MovingBodyColliders = [[]]
             }
-        }, "Hinges[0].MovingBody.Colliders", Bundle.BundleErrorCode.BodyWithoutCollider);
+        }, "Mechanical.MovingBodyColliders[0]", Bundle.BundleErrorCode.BodyWithoutCollider);
 
         // Port body index out of bounds
         Refused(lever with
@@ -1081,4 +1153,17 @@ public sealed class BundleValidatorTests
     public void AnAssemblyWithNoDeclarationIsRefused() =>
         Assert.Equal(["BUNDLE005 FixtureNone: declares 0 elements; a package declares exactly one"],
             PackageDiscovery.FromAssembly("FixtureNone", typeof(IPuzzleElementDeclaration).Assembly).Errors.Select(error => error.ToString()));
+
+    /// <summary>AC6: a body moves only as a static or a dynamic body. An entry whose mechanical payload carries the value 2, once
+    /// <c>Kinematic</c> and now no member, is refused with the undefined-enum code. Controls: the same fixture static, and dynamic
+    /// with a dynamic mass frame, are admitted.</summary>
+    [Fact]
+    public void AKinematicModeOtherThanStaticOrDynamicIsRefusedAsUndefined()
+    {
+        Assert.Empty(Errors(("FixtureMode", new Fixture())));
+        Assert.Empty(Errors(("FixtureMode", new Fixture { KinematicMode = KinematicMode.Dynamic, Footprint = new(1, 1, 0, 0),
+            MassFrame = MassFrameDeclaration.Constant(.25f, Vector3.Zero, new(.03f, .06f, .04f), Quaternion.Identity, 0f, new(0f, -9.81f, 0f)) })));
+        Assert.Contains("BUNDLE003 FixtureMode.KinematicMode: undefined enum value",
+            Errors(("FixtureMode", new Fixture { KinematicMode = (KinematicMode)2 })));
+    }
 }

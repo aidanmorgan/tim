@@ -22,10 +22,10 @@ public sealed class RetentionWorkTests
         var mass = MassFrameDeclaration.Constant(.5f, Vector3.Zero, new(.02f), Quaternion.Identity, 0f, Vector3.Zero);
         var slider = new PrismaticSliderDescriptor(new(new(1f, 0, 0), Quaternion.Identity),
             new(new(.25f, 0, 0), Quaternion.Identity), MechanicalValue.Fixed(-.8f), MechanicalValue.Fixed(0f),
-            MechanicalValue.Fixed(40f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(.25f), false, new(mass, [collider]), null);
+            MechanicalValue.Fixed(40f), MechanicalValue.Fixed(0f), MechanicalValue.Fixed(.25f), false, new(mass), null);
         var hinge = mechanical.Hinges[0] with { BaseFrame = new(new(-1f, 0, 0), Quaternion.Identity),
             MovingFrame = new(Vector3.Zero, Quaternion.Identity), FrictionTorque = MechanicalValue.Fixed(0f),
-            MovingBody = new(mass, [collider]) };
+            MovingBody = new(mass) };
         var entry = template with {
             Metadata = template.Metadata with { Id = "unfamiliar_reciprocal_work", Parameters = template.Metadata.Parameters
                 .Select(p => p.Key == "speed" ? p with { Minimum = -4f, Maximum = 4f, Default = -2f } : p).ToArray() },
@@ -34,7 +34,7 @@ public sealed class RetentionWorkTests
             Colliders = [collider],
             Mechanical = mechanical with { KinematicMode = movingSupport ? KinematicMode.Dynamic : KinematicMode.Static,
                 MassFrame = movingSupport ? MassFrameDeclaration.Constant(1f, Vector3.Zero, new(.2f), Quaternion.Identity, 0f, Vector3.Zero) : mechanical.MassFrame,
-                Sliders = [slider], Hinges = [hinge],
+                Sliders = [slider], Hinges = [hinge], MovingBodyColliders = [[collider], [collider]],
                 Transmissions = [new(new(31), new(CoordinateKind.Revolute, 0), new(CoordinateKind.Prismatic, 0),
                     MechanicalValue.Fixed(.1f), TransmissionConstraintKind.Bilateral)] },
             Presentation = template.Presentation with { Bindings = [], Bodies = [new("Slider", new(1), Vector3.Zero), new("Shaft", new(2), Vector3.Zero)], Spans = [], Parameters = [] }

@@ -3,7 +3,8 @@ import {test} from 'node:test';
 import {mkdirSync} from 'node:fs';
 import {resolve,sep,join} from 'node:path';
 import {WorkshopDriver} from './workshop-driver.ts';
-import {decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, type BodyRead, type WorkshopResponse, type SavedConstruction, storedEnergy } from './workshop-wire.ts';
+import {decodeWorkshopResponse, energyStore, decodeSavedConstruction, authoredState, parameter, contactHits, storedEnergy } from './workshop-wire.ts';
+import { type BodyRead, type WorkshopResponse, type SavedConstruction } from './.wire/curious-contraptions/wire.ts';
 
 // Closed numeric sets; external level names are converted only at the driver boundary.
 enum Lesson { Depth=5, Wall=6 }

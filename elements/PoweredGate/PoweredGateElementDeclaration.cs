@@ -38,8 +38,6 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyEleme
         new(PortId.PowerIn, SimulationDomain.Electrical, PortDirection.Input, PortRole.PowerIn, new("PowerIn", SocketGlyph.Text), null, new Vector3(0f, 1.65f, .92f), Vector3.UnitZ)
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     /// <summary>The frame and the blade both take the gate's documented contact material (CAT-051 §2): restitution 0.1, friction 0.3,
     /// threshold 0.1 m/s.</summary>
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
@@ -80,7 +78,7 @@ public sealed class PoweredGateElementDeclaration : ISliderElement, ISupplyEleme
             new(MassFrameDeclaration.Constant(1f, Vector3.Zero,
                 new Vector3((.72f * .72f + .72f * .72f) / 3f,
                     (.06f * .06f + .72f * .72f) / 3f, (.06f * .06f + .72f * .72f) / 3f),
-                Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f)), []),
+                Quaternion.Identity, 0f, new Vector3(0f, -9.81f, 0f))),
             new(Target: MechanicalValue.Fixed(1.55f), MaxSpeed: MechanicalValue.Fixed(2.8f), StoppingAcceleration: MechanicalValue.Fixed(14f),
                 MaxEffort: MechanicalValue.Fixed(60f), MaxPower: MechanicalValue.Fixed(120f)))
     ];

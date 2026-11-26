@@ -186,7 +186,7 @@ internal static class SignalBundleValidation
 
     private static void ValidateLoad(BundleEntry entry, SignalContactLoadDescriptor load, Action<string> refuse)
     {
-        var colliders = Colliders(entry, load.Frame);
+        var colliders = PackageBodyGeometry.Colliders(entry, load.Frame) ?? [];
         if (!Body(entry, load.Frame, KinematicMode.Static) || load.RegionCollider < 0 || load.RegionCollider >= colliders.Count ||
             colliders[load.RegionCollider].ShapeKind != ColliderShapeKind.Box || colliders[load.RegionCollider].Rotation != Quaternion.Identity ||
             load.SupportingColliders is null || load.SupportingColliders.Count == 0 ||
@@ -215,14 +215,5 @@ internal static class SignalBundleValidation
         if (body.Value < 0 || body.Value > children || entry.Footprint.Bodies == 0) return false;
         var motion = body.Value > 0 ? KinematicMode.Dynamic : entry.Mechanical?.KinematicMode ?? KinematicMode.Static;
         return mode is null || mode == motion;
-    }
-    private static IReadOnlyList<ColliderDescriptor> Colliders(BundleEntry entry, PackageBodyIndex body)
-    {
-        if (body.Value == 0) return entry.Colliders;
-        var index = body.Value - 1;
-        if (entry.Mechanical is not { } mechanical || index < 0) return [];
-        if (index < mechanical.Sliders.Count) return mechanical.Sliders[index].MovingBody.Colliders;
-        index -= mechanical.Sliders.Count;
-        return index < mechanical.Hinges.Count ? mechanical.Hinges[index].MovingBody.Colliders : [];
     }
 }

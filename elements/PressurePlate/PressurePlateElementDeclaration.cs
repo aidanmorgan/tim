@@ -49,9 +49,6 @@ public sealed class PressurePlateElementDeclaration : IMechanicalElement, ISuppl
         new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(1.18f, -.08f, 0f), Vector3.UnitX)
     ];
 
-    /// <summary>The base slab and the top face that carries the contact load.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0.1f, 0.3f, 0f, 0.1f))

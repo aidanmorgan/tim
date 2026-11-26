@@ -63,9 +63,6 @@ public sealed class CounterElementDeclaration : ISignalElement, ISupplyElement, 
         new(PortId.Supply, SimulationDomain.Electrical, PortDirection.Output, PortRole.Supply, new("Supply", SocketGlyph.Text), null, new Vector3(.93f, 0f, 0f), Vector3.UnitX)
     ];
 
-    /// <summary>The housing and its foot.</summary>
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(1f, 0.3f, 0f, 0.1f))

@@ -2,7 +2,8 @@ using CuriousContraptions.Abstractions;
 
 namespace CuriousContraptions.Bundle;
 
-/// <summary>The package body's actual collider list in the canonical root/slider/hinge body ordering.</summary>
+/// <summary>The one resolver of a package body's actual collider list in the canonical root/slider/hinge body ordering: the entry's
+/// colliders for body zero, the payload's baked list for a moving body. Null when the index names no moving body or no baked list.</summary>
 internal static class PackageBodyGeometry
 {
     public static IReadOnlyList<ColliderDescriptor>? Colliders(BundleEntry entry, PackageBodyIndex body)
@@ -10,9 +11,7 @@ internal static class PackageBodyGeometry
         if (body.Value == 0) return entry.Colliders;
         if (entry.Mechanical is not { } mechanical) return null;
         var index = body.Value - 1;
-        if (index < 0) return null;
-        if (index < mechanical.Sliders.Count) return mechanical.Sliders[index].MovingBody.Colliders;
-        index -= mechanical.Sliders.Count;
-        return index < mechanical.Hinges.Count ? mechanical.Hinges[index].MovingBody.Colliders : null;
+        var moving = Math.Min(mechanical.Sliders.Count + mechanical.Hinges.Count, mechanical.MovingBodyColliders.Count);
+        return index >= 0 && index < moving ? mechanical.MovingBodyColliders[index] : null;
     }
 }

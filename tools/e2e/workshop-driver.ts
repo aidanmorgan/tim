@@ -6,7 +6,8 @@ import { createRequire } from 'node:module';
 import { appendFileSync } from 'node:fs';
 import { raiseCloseFindings, recordCloseFinding, SessionFault, sessionFaultFindings } from '../workshop-close-findings.ts';
 import type { Browser, BrowserContext, ConsoleMessage, Page, Worker } from 'playwright';
-import { decodeWorkshopResponse, decodeSavedConstruction, ResponseKind } from './workshop-wire.ts';
+import { decodeWorkshopResponse, decodeSavedConstruction } from './workshop-wire.ts';
+import { CommandKind, CommandOutcome, ResponseKind, SimulationPhase } from './.wire/curious-contraptions/wire.ts';
 import { assertRunAdvanced, assertSnapshotEqual, readSnapshot, snapshotFrom, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
@@ -84,36 +85,28 @@ declare global {
     };
 }
 
-// Closed sets of the CCGPU acknowledgement (engine/gpu/WorkshopSimulation.cs, engine/gpu/WorkshopMessages.cs). Node runs these suites in
-// type-strip mode, which rejects TypeScript `enum`, so each set is a frozen value table with its derived union type.
-const CommandOutcome = { Applied: 0, Rejected: 1, Superseded: 2, Faulted: 3, Cancelled: 4 } as const;
-type CommandOutcome = typeof CommandOutcome[keyof typeof CommandOutcome];
-const SimulationPhase = {
-    Uninitialized: 0, Initializing: 1, Building: 2, Admitting: 3, Starting: 4, Running: 5,
-    Paused: 6, Completed: 7, Resetting: 8, Faulted: 9, Disposed: 10,
-} as const;
-type SimulationPhase = typeof SimulationPhase[keyof typeof SimulationPhase];
+// The acknowledgement's closed sets come from the generated wire module (schemas/workshop_wire.fbs), which the runner's tsx loader
+// compiles, enums included. The rejection reason is a raw integer on the wire with no schema enum (engine/gpu/WorkshopMessages.cs),
+// so it stays a frozen value table with its derived union type.
 const CommandRejection = {
     // 6 is the retired DeviceLost rejection (Story 9.4b): undefined on the wire.
     None: 0, Busy: 1, InvalidConstruction: 2, WrongRevision: 3, WrongPhase: 4, GpuAdmission: 5, InvalidRead: 7,
     IdentityExhausted: 8, StaleGeneration: 9, Cancelled: 10, AlreadyCommitted: 11, Capacity: 12, ReliableStalled: 13, Transport: 14,
 } as const;
 type CommandRejection = typeof CommandRejection[keyof typeof CommandRejection];
-const ResponseKindAcknowledgement = 0;
 
-// The commands the Workshop UI issues (values of WorkshopCommandKind) and the phase each leaves the simulation in when Applied. The
+// The commands the Workshop UI issues (members of CommandKind) and the phase each leaves the simulation in when Applied. The
 // acknowledgement carries no command kind, so a command is matched by order (a newer command sequence and authority revision than the
 // last consumed acknowledgement, exactly one arrival) and by the phase its kind implies.
-const WorkshopCommand = { Construct: 1, Run: 2, Reset: 3, Pause: 7, Resume: 8, Step: 9, Save: 10 } as const;
-type WorkshopCommand = typeof WorkshopCommand[keyof typeof WorkshopCommand];
-const PHASE_AFTER: Readonly<Record<WorkshopCommand, SimulationPhase>> = {
-    [WorkshopCommand.Construct]: SimulationPhase.Building,
-    [WorkshopCommand.Run]: SimulationPhase.Running,
-    [WorkshopCommand.Reset]: SimulationPhase.Building,
-    [WorkshopCommand.Pause]: SimulationPhase.Paused,
-    [WorkshopCommand.Resume]: SimulationPhase.Running,
-    [WorkshopCommand.Step]: SimulationPhase.Paused,
-    [WorkshopCommand.Save]: SimulationPhase.Building,
+type UiCommand = CommandKind.Construct | CommandKind.Run | CommandKind.Reset | CommandKind.Pause | CommandKind.Resume | CommandKind.Step | CommandKind.Save;
+const PHASE_AFTER: Readonly<Record<UiCommand, SimulationPhase>> = {
+    [CommandKind.Construct]: SimulationPhase.Building,
+    [CommandKind.Run]: SimulationPhase.Running,
+    [CommandKind.Reset]: SimulationPhase.Building,
+    [CommandKind.Pause]: SimulationPhase.Paused,
+    [CommandKind.Resume]: SimulationPhase.Running,
+    [CommandKind.Step]: SimulationPhase.Paused,
+    [CommandKind.Save]: SimulationPhase.Building,
 };
 
 interface WorkshopAcknowledgement {
@@ -135,10 +128,11 @@ function nameOf(table: Readonly<Record<string, string | number>>, value: number)
     return Object.keys(table).find(key => table[key] === value) ?? `#${value}`;
 }
 
-function member<T extends number>(table: Readonly<Record<string, T>>, value: number, field: string): T {
-    const found = Object.values(table).find(entry => entry === value);
-    if (found === undefined) throw new Error(`unknown ${field} ${value}`);
-    return found;
+// A decoded value is a member of its closed set (a generated enum or a value table), typed by that set, or the acknowledgement
+// is refused.
+function member<E extends Readonly<Record<string, string | number>>>(table: E, value: number, field: string): Extract<E[keyof E], number> {
+    if (!Object.values(table).includes(value)) throw new Error(`unknown ${field} ${value}`);
+    return value as Extract<E[keyof E], number>;
 }
 
 // MachineWorld.LogWorkshop prints "CCGPU <base64>" for every command the Workshop UI issues (Construct for placement, edits, wiring,
@@ -584,7 +578,7 @@ export class WorkshopDriver {
     // consumed one, Applied, in the phase the command's kind implies, and the only acknowledgement the input produced. A missing
     // acknowledgement means the UI ignored the input; a rejection reports its reason.
     // Returns the exact encoded acknowledgement it consumed: Story 9R.1 binds every snapshot to this entry.
-    private async command(action: string, kind: WorkshopCommand, operate: () => Promise<void>, settle: boolean = true): Promise<Uint8Array> {
+    private async command(action: string, kind: UiCommand, operate: () => Promise<void>, settle: boolean = true): Promise<Uint8Array> {
         const mark = this.acknowledgements.length;
         await operate();
         const arrived = await this.waitForConsole(() => this.acknowledgements.length > mark, ACK_TIMEOUT_MS);
@@ -599,20 +593,20 @@ export class WorkshopDriver {
             throw new Error(`${action}: acknowledgement (sequence ${ack.sequence}, revision ${ack.revision}) is not newer than the last consumed one (sequence ${last.sequence}, revision ${last.revision})`);
         const phase = PHASE_AFTER[kind];
         if (ack.phase !== phase)
-            throw new Error(`${action}: ${nameOf(WorkshopCommand, kind)} acknowledged in phase ${nameOf(SimulationPhase, ack.phase)}, expected ${nameOf(SimulationPhase, phase)}`);
+            throw new Error(`${action}: ${nameOf(CommandKind, kind)} acknowledged in phase ${nameOf(SimulationPhase, ack.phase)}, expected ${nameOf(SimulationPhase, phase)}`);
         this.lastAcknowledged = ack;
         this.phase = ack.phase;
         // Every acknowledged command rebuilds the palette (RefreshPalette), which may move its scroll: re-scroll before the next row.
         this.paletteScrolled = false;
         if (settle) await this.frames(UI_SETTLE_FRAMES);
         if (this.acknowledgements.length !== mark + 1)
-            throw new Error(`${action}: ${this.acknowledgements.length - mark} acknowledgements arrived; the input should issue exactly one ${nameOf(WorkshopCommand, kind)}`);
+            throw new Error(`${action}: ${this.acknowledgements.length - mark} acknowledgements arrived; the input should issue exactly one ${nameOf(CommandKind, kind)}`);
         return entry.bytes;
     }
 
     // A construction edit (placement, gizmo commit, wiring, level selection, Load) is installed once its Construct is acknowledged.
     private async construct(action: string, operate: () => Promise<void>): Promise<void> {
-        await this.command(action, WorkshopCommand.Construct, operate);
+        await this.command(action, CommandKind.Construct, operate);
         this.paletteScrolled = false;
     }
 
@@ -861,7 +855,7 @@ export class WorkshopDriver {
     async save(): Promise<{ acknowledgement: Uint8Array; slot: Uint8Array }> {
         await this.openMenu();
         // Save stores the IndexedDB slot first and only then sends its Save command, so the acknowledgement follows the stored slot.
-        const acknowledgement = await this.command('save', WorkshopCommand.Save, () => this.press(UI_ANCHORS.menu.save.x, UI_ANCHORS.menu.save.y));
+        const acknowledgement = await this.command('save', CommandKind.Save, () => this.press(UI_ANCHORS.menu.save.x, UI_ANCHORS.menu.save.y));
         const slot = await this.expectSavedSlot();
         await this.closeMenu();
         return { acknowledgement, slot };
@@ -881,7 +875,7 @@ export class WorkshopDriver {
      *  mid-run committed read (for a suite's boundary assertions). */
     async expectRunAdvanced(s0: RunResetSnapshot): Promise<RunResetSnapshot> {
         await this.openMenu();
-        const acknowledgement = await this.command('expectRunAdvanced (pause)', WorkshopCommand.Pause,
+        const acknowledgement = await this.command('expectRunAdvanced (pause)', CommandKind.Pause,
             () => this.press(UI_ANCHORS.menu.pause.x, UI_ANCHORS.menu.pause.y));
         await this.closeMenu();
         const paused = readSnapshot(acknowledgement);
@@ -986,7 +980,7 @@ export class WorkshopDriver {
 
     async pauseSimulation(): Promise<void> {
         await this.openMenu();
-        await this.command('pauseSimulation', WorkshopCommand.Pause, () => this.press(UI_ANCHORS.menu.pause.x, UI_ANCHORS.menu.pause.y));
+        await this.command('pauseSimulation', CommandKind.Pause, () => this.press(UI_ANCHORS.menu.pause.x, UI_ANCHORS.menu.pause.y));
         await this.closeMenu();
     }
 
@@ -994,14 +988,14 @@ export class WorkshopDriver {
      *  per-tick activations and memory rows a suite reads tick by tick). */
     async stepSimulation(): Promise<RunResetSnapshot> {
         await this.openMenu();
-        const acknowledgement = await this.command('stepSimulation', WorkshopCommand.Step, () => this.press(1212,246));
+        const acknowledgement = await this.command('stepSimulation', CommandKind.Step, () => this.press(1212,246));
         await this.closeMenu();
         return readSnapshot(acknowledgement);
     }
 
     async resumeSimulation(): Promise<void> {
         await this.openMenu();
-        await this.command('resumeSimulation', WorkshopCommand.Resume, () => this.press(UI_ANCHORS.menu.resume.x, UI_ANCHORS.menu.resume.y));
+        await this.command('resumeSimulation', CommandKind.Resume, () => this.press(UI_ANCHORS.menu.resume.x, UI_ANCHORS.menu.resume.y));
         await this.closeMenu();
     }
 
@@ -1012,7 +1006,7 @@ export class WorkshopDriver {
         const before = await this.readLatestPose();
         if (!before) throw new Error('run: the pose ring is unreadable in Build mode');
         const pressed = Date.now();
-        await this.command('run (Space)', WorkshopCommand.Run, () => this.pressKey('Space'), false);
+        await this.command('run (Space)', CommandKind.Run, () => this.pressKey('Space'), false);
         await this.waitForPublicationAfter(before);
         await this.holdUntil(pressed + windowMs);
     }
@@ -1022,7 +1016,7 @@ export class WorkshopDriver {
     async reset(holdMs: number = 0): Promise<void> {
         await this.frames(UI_SETTLE_FRAMES); // the preceding Run's UI continuation has released the command gate
         const pressed = Date.now();
-        await this.command('reset (Space)', WorkshopCommand.Reset, () => this.pressKey('Space'));
+        await this.command('reset (Space)', CommandKind.Reset, () => this.pressKey('Space'));
         this.solvedAtReset = this.capturedCount;
         await this.holdUntil(pressed + holdMs);
     }

@@ -7,7 +7,8 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import type { Worker } from 'playwright';
-import { CommandKind, CommandOutcome, SimulationPhase, decodeWorkshopResponse, encodeWorkshopCommand } from './workshop-wire.ts';
+import { decodeWorkshopResponse, encodeWorkshopCommand } from './workshop-wire.ts';
+import { CommandKind, CommandOutcome, SimulationPhase } from './.wire/curious-contraptions/wire.ts';
 enum CommandRejection { None = 0, WrongPhase = 4 }
 import { SessionFault, WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 

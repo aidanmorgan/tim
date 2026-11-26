@@ -126,6 +126,8 @@ public sealed class VisibleSolidColliderTests
         // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),
         [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], []),
+        // The seam is printed flush with no collider (owner decision 24i), as owner decision 11 rules for the planned Pool ball's stripe.
+        [new PartId("tennis")] = new(["Visual/Felt"], null, [], ["Visual/Seam"], []),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
         [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], []),
@@ -295,10 +297,8 @@ public sealed class VisibleSolidColliderTests
     private static List<ColliderDescriptor>[] MovingPools(PartId element, BundleEntry entry, ArtSpec spec)
     {
         var declaration = TestBundle.Packages.Single(package => package.Declaration.Metadata.Id == element.Value).Declaration;
-        Assert.Equal(Assert.IsAssignableFrom<ISceneGeometryElement>(declaration).SceneBodies.Skip(1).Select(body => body.Root), spec.MovingRoots);
-        return entry.Mechanical is { } mechanical
-            ? [.. mechanical.Sliders.Select(s => s.MovingBody.Colliders.ToList()), .. mechanical.Hinges.Select(h => h.MovingBody.Colliders.ToList())]
-            : [];
+        Assert.Equal(declaration.SceneBodies.Skip(1).Select(body => body.Root), spec.MovingRoots);
+        return entry.Mechanical is { } mechanical ? [.. mechanical.MovingBodyColliders.Select(body => body.ToList())] : [];
     }
 
     /// <summary>The pool of the body that owns an art path: the moving body whose root lies above it (scene body roots do not nest),

@@ -88,7 +88,7 @@ Map row families (navigation only, D14): ContactImpulse, JointConstraint, RigidB
 | Capability | Status | Evidence |
 | --- | --- | --- |
 | Passive prismatic slider with spring, damping and both stops | present | `MechanicalContractValues.cs:104`; `SliderInstanceTests.ThePlateHoldsItsLowerAndUpperStops` (`CuriousContraptions.tests/SliderInstanceTests.cs:61`) |
-| A slider body carrying two box colliders | present, untested | `SliderBodyDescriptor` takes a collider list (`MechanicalContractValues.cs:75`–`:77`); each delivered slider body carries one |
+| A slider body carrying two box colliders | present, untested | a moving body's colliders are its baked list in `MechanicalPayload.MovingBodyColliders` (`BundleServices.cs:75`); each delivered slider body carries one |
 | A Signal pulse output reaching a consumer's input | present | `ContactActivationTests.ActualBaseBoxContactUsesInclusiveNonHalfThresholdAndExactReportedSpeed` (`CuriousContraptions.tests/ContactActivationTests.cs:235`) routes a switch occurrence to a lamp |
 | A consumer refusing a command it cannot pay for | present | `CannonIntegrationTests.PhysicalLoadChargesAndFiresOnlyWithItsSeparateSupply` (`CuriousContraptions.tests/CannonIntegrationTests.cs:550`), unpowered case |
 | Lamp recoloured from committed activation | present, untested | `PresentationDriver.CommittedActivation` (`CuriousContraptions.Abstractions/ElementPresentation.cs:22`); no test body opened for this driver |

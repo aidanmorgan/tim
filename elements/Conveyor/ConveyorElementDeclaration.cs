@@ -51,8 +51,6 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
             MechanicalRim: new(new(0), new(1.35f, -.07f, .78f), Quaternion.Identity, .22f, 1f))
     ];
 
-    public IReadOnlyList<ColliderDescriptor> Colliders => [];
-
     public IReadOnlyList<SceneBodyGeometry> SceneBodies =>
     [
         new(".", new(0.05f, 0.3f, 0f, 0.1f)),
@@ -101,8 +99,7 @@ public sealed class ConveyorElementDeclaration : IHingeElement, IDrivenSurfaceEl
                         RollerMass * (3f * RollerRadius * RollerRadius + RollerWidth * RollerWidth) / 12f),
                     principalFrame: new Quaternion(MathF.Sqrt(.5f), 0f, 0f, MathF.Sqrt(.5f)),
                     linearDrag: 0f,
-                    gravity: new Vector3(0f, -9.81f, 0f)),
-                Colliders: []),
+                    gravity: new Vector3(0f, -9.81f, 0f))),
             Drive: null)
     ];
 

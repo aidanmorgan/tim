@@ -1338,3 +1338,44 @@ That matches AC3.
   - the commit, as a repair commit on top of `d4b84b4e` through the normal hooks.
 - The results of those three are in the coordinator's report.
 - Fetch, merge, push and SnapshotApproval wait for the publish token. The merge re-checks the lane 1 lines and `owner-decisions-2026-11-22.md:71`.
+
+## E41 Merge with main `d37c0b98`: citation re-check, link rule and pre-commit verification (implementation owner, 26 November 2026)
+
+The coordinator holds the publish token and started the merge of `origin/main` `d37c0b9830f0a98660338e1a9bcb5cda61530943` into the slice tip `f1a74b43` (uncommitted; `MERGE_HEAD` set; no unmerged paths). The coordinator's own resolutions are listed in its message and are not repeated here. This entry covers the implementation owner's part. Nothing is committed.
+
+**Method.** Main's changed files: `git diff --name-only 37a259c9 d37c0b98` (161 outside `_bmad-output/implementation-artifacts/`; the merge base is `37a259c9`). A read-only script collected every backticked `path:line` citation, with its `:N` continuations, from the lines this slice added or changed (`git diff -U0 37a259c9 f1a74b43`, run logs excluded). It resolved short paths by unique file name and kept the citations whose target main changed: 166. For each, it compared the cited lines at `f1a74b43` with the same lines in the merged worktree. 107 were identical. The other 59 were read by hand against the merged tree.
+
+**Moved by main and corrected** (before → after; each on a line this slice changed):
+- `tools/BundleElements/SceneGeometryExtractor.cs`: main deleted 8 lines above the refusals (the data-collider refusal and the per-body bake, `git diff f1a74b43`). The proxy-kind refusal moved from `:111-114` to `:103-106`, the shape switch from `:125-131` to `:117-123`, `Hollow` from `:205-244` to `:197-236` (Tube and Frustum at `:234-235`), and the `BakeProxy` entry check from `:110-114` to `:102-106`. Lines corrected:
+  - `:111-114`, `:125-131` → `:103-106`, `:117-123`: `DESIGN.md:87`, `:92`; `docs/engine-contracts.md:88`; `docs/general-engine-design.md:100`, `:104`, `:188`; `docs/gpu-f32-physics.md:71`, `:150`, `:218`; `_bmad-output/planning-artifacts/architecture.md:151`.
+  - `:111-114` → `:103-106`: `docs/planning/invest/decisions.md:122`.
+  - `:205-244` and `:111-114` → `:197-236` and `:103-106`: `docs/planning/invest/engine.md:179`, `:202`.
+  - `:110-114` → `:102-106`: `_bmad-output/implementation-artifacts/deferred-work.md:372`.
+- `CuriousContraptions.Bundle/BundleValidator.cs`: the electrical node ratings check (`Electrical`, from `private void Electrical` to the `MaxPower` check) moved from `:865-877` to `:877-889`. `_bmad-output/planning-artifacts/epics.md:4604`: `BundleValidator.cs:865-877` → `BundleValidator.cs:877-889`. The worktree line still had `:865-877` before this edit.
+- `tools/e2e/workshop-driver.ts`: the "zero-copy pose ring" comment moved from `:1147` to `:1141`. `deferred-work.md:433`: `workshop-driver.ts:1147` → `workshop-driver.ts:1141`.
+- `CuriousContraptions.tests/VisibleSolidColliderTests.cs`: the Weight entry moved from `:141` to `:143`. `docs/planning/elements/EL-069-moving-bucket.md:186`: `VisibleSolidColliderTests.cs:141` → `VisibleSolidColliderTests.cs:143`.
+
+**Checked and unchanged.**
+- `tools/BundleElements/PackageValidator.cs`: `:88-97` (names), `:116-133` (parent and position) and `:127` keep their positions. Main changed `:118-119` to read `package.Declaration.SceneBodies` directly; the rule they cite is the same.
+- `SceneGeometryExtractor.cs:27-28` (the proxy selection) is unchanged.
+- ISO §4.4: the only citations into a file main changed were the `KinematicMode.Kinematic` row's (`MechanicalContractValues.cs:7-11`, `:25-26`), and the coordinator deleted that row. Every other §4.4 citation targets a file main did not change or is identical at its range.
+- Lane 1 lines: `docs/shared-clock-cadence.md:60` and `epics.md:4466` are still at those numbers, with main's text.
+- `owner-decisions-2026-11-22.md:71` is main's 24p line; its link resolves (the link rule below), and 24q follows at `:79`.
+- The contract's citations name positions at its baseline `37a259c9` (`baseline_revision`, contract `:86`, `:184`), and the contract is the coordinator's, so none is edited. At the merge, two of them no longer name the same line: `TODO.md:7` and `:17` (contract `:264`) are now `:9` and `:19`, and the per-slice "When" range `delivery-batches.md:246-337` (contract `:177`, `:266`) now ends at `:338` (main inserted `:307`).
+
+**Not edited, reported.**
+- `EL-069-moving-bucket.md:186`, on a line this slice changed, also cites `CSharpStaticGateTests.cs:687`–`:703` (the trim list) and `PackageRuntimeParityTests.cs:641` (placement switch) and `:653` (generic list). Those positions held at `e228254a` but not at `37a259c9` or at the slice tip: the targets were replaced by derived membership under S3 (the line says "until S3"). Main did not cause this, and the text is pre-existing, so it is left for the coordinator's ruling.
+- Lines this slice did not change still cite positions main moved: `VisibleSolidColliderTests.cs:141` at `docs/planning/elements/CAT-067-weight.md:5`, `EL-069-moving-bucket.md:139`, `EL-070-moving-cage.md:142` and `:187`, and `EL-204-weight.md:43`; `SceneGeometryExtractor.cs:111-114` at `docs/planning/elements/readiness/engine-design-gap.md:41`. Line citations are not links, so the rule leaves them.
+
+**ISO `:143`:** "This view records published main `37a259c9…` for §4.4, the engine features stated as target (DOC-ENGINE-STATUS, 25 November 2026)." → "… (DOC-ENGINE-STATUS, 25 November 2026); the §4.4 citations were re-checked at this slice's merge with published main `d37c0b9830f0a98660338e1a9bcb5cda61530943` (26 November 2026)." The rest of the line is unchanged.
+
+**Link rule.** After an incremental test-project build of the merged tree (exit 0, 0 warnings, 0 errors; `tests-build-e41.log`), `ArchitectureDocsConsistencyTests` passed 29/0/0 over the 27 checked documents (`arch-docs-e41-pre.log`). Main brought no broken link or anchor into them, so there is no link fix.
+
+**Verification on the merged worktree** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; HEAD `f1a74b43`, `MERGE_HEAD` `d37c0b98`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e41/`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e41-a.log`, `capture-e41-b.log`, `capture-e41-c.log`.
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4627, model=4, intrusive=0; violations=0`; `maintainability-e41.log`.
+3. Registration filter (`docs/delivery-workflow.md:69`, unchanged on main): **829/0/0** (WorkerAotGuard 17, BundleElements 203, Coverage 83, E2eRunner 97, CuriousContraptions.tests 429); `registration-e41.log`.
+4. `dotnet run --file tools/anvil/VerifyPolicy.cs`: exit 0, "Policy fixtures: Passed: 78, Failed: 0, Skipped: 0."; `verify-policy-e41.log`. `-- --bmad-check --self-test`: exit 0, "Fixtures: Passed: 37, Failed: 0, Skipped: 0."; `bmad-self-test-e41.log`.
+5. `ArchitectureDocsConsistencyTests` on the E41 build, run last, after this entry: `arch-docs-e41-final.log`.
+
+The full round runs on the exact merged commit after the coordinator commits it.

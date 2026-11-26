@@ -13,8 +13,8 @@ public static partial class SceneGeometryExtractor
     private sealed record Node(string Name, string Type, string Path, string? Parent, Dictionary<string, string> Values);
 
     /// <summary>The entry with its colliders and tube mouths baked from the scene. A package's colliders are its scene's proxies, each
-    /// on the body whose <paramref name="ownership"/> root it sits under; a declaration that states data colliders on any body is
-    /// refused.</summary>
+    /// on the body whose <paramref name="ownership"/> root it sits under: the base body's on the entry, each moving body's as its list
+    /// in the payload's moving-body collider lists.</summary>
     public static BundleEntry Bake(string text, BundleEntry entry, IReadOnlyList<SceneBodyGeometry> ownership)
     {
         var sections = Parse(text);
@@ -28,26 +28,18 @@ public static partial class SceneGeometryExtractor
             n.Name.StartsWith("col_", StringComparison.OrdinalIgnoreCase)).ToArray();
         var sliders = entry.Mechanical?.Sliders ?? [];
         var hinges = entry.Mechanical?.Hinges ?? [];
-        var hasData = entry.Colliders.Count != 0 || sliders.Any(s => s.MovingBody.Colliders.Count != 0) || hinges.Any(h => h.MovingBody.Colliders.Count != 0);
-        if (hasData) throw Refuse(BundleErrorCode.SceneColliderOwnership, "A package's colliders come from its scene; its declaration states data colliders.");
         if (ownership.Count != 1 + sliders.Count + hinges.Count || ownership[0].Root != ".")
             throw Refuse(BundleErrorCode.SceneColliderOwnership, "Scene ownership must name the base, every slider and every hinge body.");
         ValidateBodyRoots(ownership, byPath);
         var bodies = Enumerable.Range(0, ownership.Count).Select(_ => new List<ColliderDescriptor>()).ToArray();
         BakeBodies(proxies, resources, byPath, ownership, bodies);
         if (bodies.Any(body => body.Count == 0)) throw Refuse(BundleErrorCode.BodyWithoutCollider, "A scene body has no collider.");
-        var bakedSliders = sliders.Select((slider, index) => slider with
-        { MovingBody = slider.MovingBody with { Colliders = bodies[index + 1] } }).ToArray();
-        var bakedHinges = hinges.Select((hinge, index) => hinge with
-        { MovingBody = hinge.MovingBody with { Colliders = bodies[index + 1 + sliders.Count] } }).ToArray();
         return entry with
         {
             Colliders = bodies[0],
-            Mechanical = entry.Mechanical is { } mechanical ? mechanical with { Sliders = bakedSliders, Hinges = bakedHinges } : null,
+            Mechanical = entry.Mechanical is { } mechanical ? mechanical with { MovingBodyColliders = [.. bodies.Skip(1)] } : null,
             TubeMouths = Mouths(nodes, byPath)
         };
-
-
     }
 
     /// <summary>A <c>Loc_Port_</c> node as the locator check reads it: its name after the prefix, its parent's path ("." for the scene
