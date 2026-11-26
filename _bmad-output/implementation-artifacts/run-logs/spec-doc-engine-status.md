@@ -1509,3 +1509,17 @@ A fresh owner remapped the citations (E43). These are my rulings on what E43 lef
 - **The 91 "until S3" lines** are deferred with an owner (`deferred-work.md`).
 
 Next: commit, a full round on the new SHA, and a fresh SnapshotApproval.
+
+## E45 SnapshotApproval repair B4: DOC citation in a blocked spec (implementation owner, 26 November 2026)
+
+HEAD `c84d47b9`. One line-local number change; no C#, test or build input changed, so nothing was rebuilt.
+
+**Fix.** `spec-elements-visible-solid-remainder-d.md:159` (`status: 'blocked'`, backlog in `sprint-status.yaml`) cited the Contact Slop envelope ("5 % of the 0.0625 m radius") as `` `docs/gpu-f32-physics.md:368` ``. At `origin/main` `d37c0b98` DOC `:368` was the Contact Slop row; at HEAD that row is `:389`, and `:368` is the position-update formula. Before: `` `docs/gpu-f32-physics.md:368` ``. After: `` `docs/gpu-f32-physics.md:389` ``. Checked with `git show d37c0b98:docs/gpu-f32-physics.md | sed -n 368p` and `sed -n 389p docs/gpu-f32-physics.md` (identical row).
+
+**Other specs.** `grep -l 'gpu-f32-physics\.md:[0-9]' _bmad-output/implementation-artifacts/spec-*.md`, with each match's frontmatter `status:`, found seven specs. Six are done (`spec-6-1b-engine-drag-application`, `spec-9a-0-architecture-authority-docs`, `spec-9a-44-f32-everywhere`, `spec-delete-declaration-colliders`, `spec-engine-cylinder-creep`, `spec-engine-tensile-drive-coupling`); the seventh is the one fixed above. No other spec that is not done cites a DOC line number. Not edited: the done specs.
+
+**E43's exclusion.** E43 excluded every `spec-*.md` as history. That holds only for done specs; a spec that is not done is a current contract, and its DOC line citations must follow DOC.
+
+**Checks**, run after this entry, which is the last edit (logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. `git diff --check HEAD`: `diff-check-e45.log`.
+2. `ArchitectureDocsConsistencyTests` on the E41 build (`CSHARP_STATIC_GATE_BINLOGS` = `binlogs-e41/`, `--no-build --no-restore`): `arch-docs-e45.log`.
