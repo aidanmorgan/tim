@@ -73,7 +73,7 @@ Every bar, rail, post, guide and the eye has a collider (owner rule, visible = s
 ### Behaviour and numbers
 
 - **Laws.** Rigid-body dynamics, contact and a tension-only rope. Cargo is held by the bars and floor only; no capture force or sensor.
-- **Bar gap 0.25 m.** Half the default Tennis ball (0.50 m), the smallest delivered ball at its default, so nothing in the catalogue leaves between bars. A Tennis ball set below 0.125 m radius does pass, as the real geometry dictates. Bars are 0.05 m thick, five times the 1 cm tunnelling bound (`docs/gpu-f32-physics.md:375`).
+- **Bar gap 0.25 m.** Half the default Tennis ball (0.50 m), the smallest delivered ball at its default, so nothing in the catalogue leaves between bars. A Tennis ball set below 0.125 m radius does pass, as the real geometry dictates. Bars are 0.05 m thick, five times the 1 cm tunnelling bound (`docs/gpu-f32-physics.md:396`).
 - **Interior 1.08 × 0.88 × 1.08 m.** Holds a Basketball (0.70 m), a default Weight (0.70 m across, 0.56 m tall) or two Tennis balls.
 - **Gate.** Closed at `door_opening` 0: its bottom rail sits on the floor line and its bars close the front face. Raised by h, the clear height under the bottom rail is h, up to the full 0.88 m at the maximum 0.9 m, where the gate stands above the roof between its guides. The clear width is 1.08 m. A partial opening passes only what is lower than it: 0.4 m holds every default ball; 0.6 m releases a Bowling ball (0.56 m) and holds a Basketball.
 - **Mass 2.5 kg** (starting value). Empty it is lighter than a 3 kg counterweight and rises; with a Basketball (3.5 kg) it descends. With a Bowling ball it is 6.5 kg, inside the Weight's 8 kg maximum.
@@ -93,7 +93,7 @@ Every bar, rail, post, guide and the eye has a collider (owner rule, visible = s
 | Rope Load port on a dynamic body; tension-only span | *present* | `RopeAttachmentRole` `CuriousContraptions.Abstractions/PortDescriptor.cs:73` | `CuriousContraptions.tests/RopeTests.cs:21`, `:34`; `WeightTests.cs:1153` |
 | Reset and save/load of a rope-hung dynamic body and its parameter | *present* | — | `WeightTests.cs:1275`, `:1309`, `:805` |
 | A dynamic sphere carried inside a cage of thin box children whose body hangs from a rope | *present, untested* | composition of the rows above | nearest: `WeightTests.cs:585`, `RopeTests.cs:362` |
-| Thin (0.05 m) box children of a **dynamic** body stopping a ball at 8 to 20 m/s | *present, untested* | the tunnelling bound is stated for barriers (`docs/gpu-f32-physics.md:375`) | static only: `CuriousContraptions.tests/WorkshopWallTests.cs:88`; `VisibleSolidColliderTests.cs:1199` |
+| Thin (0.05 m) box children of a **dynamic** body stopping a ball at 8 to 20 m/s | *present, untested* | the tunnelling bound is stated for barriers (`docs/gpu-f32-physics.md:396`) | static only: `CuriousContraptions.tests/WorkshopWallTests.cs:88`; `VisibleSolidColliderTests.cs:1199` |
 
 Counts: 6 present, 2 present-untested, 0 narrower, 0 missing.
 

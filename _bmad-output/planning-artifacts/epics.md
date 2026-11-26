@@ -937,7 +937,7 @@ I want `WorkshopPhysicsCompiler` to extract collision shapes and socket anchors 
 So that physical geometry and connection ports are defined purely by 3D artist assets without hardcoded C# tables.
 
 **Acceptance Criteria:**
-- **Given** an instantiated `.glb` scene hierarchy with collision proxy nodes of the admitted kinds (`col_box`, `col_sphere`, `col_cylinder` and the hollow tube, frustum and torus proxies of [hollow geometry](../../docs/hollow-geometry-design.md#declaration-data)) or `KHR_physics_rigid_bodies`; capsule and hull proxies (`col_capsule`, `col_hull`) are refused with a typed reason, as `docs/gpu-f32-physics.md:59` states, until a story admits them (a convex extruded profile is `ENGINE-PROFILE-COLLIDER`'s; index C29),
+- **Given** an instantiated `.glb` scene hierarchy with collision proxy nodes of the admitted kinds (`col_box`, `col_sphere`, `col_cylinder` and the hollow tube, frustum and torus proxies of [hollow geometry](../../docs/hollow-geometry-design.md#declaration-data)) or `KHR_physics_rigid_bodies`; capsule and hull proxies (`col_capsule`, `col_hull`) are refused with a typed reason, as `docs/gpu-f32-physics.md:63` states, until a story admits them (a convex extruded profile is `ENGINE-PROFILE-COLLIDER`'s; index C29),
 - **When** `WorkshopPhysicsCompiler` compiles the physics graph at Run start,
 - **Then** it traverses the scene graph and extracts `ColliderDeclaration` records generically based solely on node transforms and geometry without element-specific branching.
 - **And** 3D socket anchor points for electrical, activation, and mechanical connections are resolved dynamically from named empty locator nodes (`Loc_Port_<Id>`) matching declared `PortDefinition.Id` values.

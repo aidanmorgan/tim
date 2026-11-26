@@ -79,7 +79,7 @@ Laws: rigid-body dynamics and contact; a shock threshold on contact (approach sp
 - **Blast, `blast_radius` 1.2 m.** J(d) = 2.5 × (1 − d ÷ 1.2) N·s on each unshielded dynamic body, the negative sum on the flask, all scaled by one factor if the kinetic energy added would exceed `energy`. A Basketball resting 0.6 m away, centre to centre (the two radii sum to 0.49 m): 2.5 × (1 − 0.6/1.2) = 1.25 N·s, 1.25 m/s. A Tennis ball at 0.6 m: 3.6 m/s, under the Bumper's 8 m/s.
 - **Chain.** A blast is not a contact, so one flask's blast does not release another directly; a flask thrown by a blast releases if it then lands or strikes faster than `shock_speed`. Two flasks meeting at 3 m/s both release.
 - **Spent.** The store reads zero and the release cannot recur until Reset; the same body remains.
-- **Fit and tunnelling.** 0.30 m across: it passes the pipe bore (1.3 m across) and is under the Cannon's 0.6 m minimum width, so it does not seat. Thrown at 6 m/s it moves 0.0125 m per substep against a 0.15 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:195`, `:258`).
+- **Fit and tunnelling.** 0.30 m across: it passes the pipe bore (1.3 m across) and is under the Cannon's 0.6 m minimum width, so it does not seat. Thrown at 6 m/s it moves 0.0125 m per substep against a 0.15 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:213`, `:276`).
 
 ## 3. Engine capabilities
 

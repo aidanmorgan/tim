@@ -83,7 +83,7 @@ Laws: as EL-092 (store-paid jet, its reaction, signal memory), plus the signal n
 - **Extremes.** `thrust` 6 N, `charge` 80 J: a₀ = 20.2 m/s², k = 1.88 /s, terminal 10.8 m/s; E(t) = 96·t − 6·h(t) reaches 80 J near t = 1.5 s with h = 10.8 m and v = 10.2 m/s; apex about 16 m. Speed never passes the 16 m/s flow speed, under the 64 m/s linear envelope (`CuriousContraptions.Abstractions/CanonicalBodyValues.cs:16`). `thrust` under the 1.96 N weight never lifts it (at 1 N the store drains at 16 W, in 2 s); the fuse still runs. In a Vacuum atmosphere there is no thrust and no debit; the fuse still runs.
 - **Exhaust.** The 0.6 m cone (terminal radius 0.15 m) pushes a body directly below the nozzle with its share of the rated force; no acceptance row depends on the exhaust reaching a body. Candidates and occlusion come from ENGINE-SPATIAL-QUERIES.
 - **Spent.** The store empties and stays empty; the timer completes with the Latch policy and neither restarts nor re-emits on a later input; the memory is already set. A second pulse changes nothing until Reset.
-- **Fit and tunnelling.** 0.24 m across the head and 0.30 m across the fins: it passes the pipe bore (1.3 m across) and is not a Cannon payload. At most 16 m/s is 0.033 m per substep against a 0.08 m tube radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:195`, `:258`).
+- **Fit and tunnelling.** 0.24 m across the head and 0.30 m across the fins: it passes the pipe bore (1.3 m across) and is not a Cannon payload. At most 16 m/s is 0.033 m per substep against a 0.08 m tube radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:213`, `:276`).
 
 ## 3. Engine capabilities
 

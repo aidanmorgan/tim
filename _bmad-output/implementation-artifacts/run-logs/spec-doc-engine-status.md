@@ -1398,3 +1398,114 @@ HEAD `333f64e2` (parents: slice tip `f1a74b43`, `origin/main` `d37c0b98`). Two l
 **Checks** (logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
 1. `git diff --check HEAD`: `diff-check-e42.log`.
 2. `ArchitectureDocsConsistencyTests` on the E41 build (`CSHARP_STATIC_GATE_BINLOGS` = `binlogs-e41/`, `--no-build --no-restore`), run last, after this entry: `arch-docs-e42.log`. The class reads the documents from the source tree.
+
+## E43 SnapshotApproval repair B3: DOC line citations remapped to HEAD `368c2012` (implementation owner, 26 November 2026)
+
+HEAD `368c2012`. This slice's edits to `docs/gpu-f32-physics.md` (DOC) shifted its line numbers from `origin/main` `d37c0b98`, so line citations of DOC elsewhere in the tree landed on other text. All edits are line-local number changes; no C#, test or build input changed, so nothing was rebuilt. The 91 "until S3" lines were not touched (coordinator deferral).
+
+**Method.**
+- Selector: `git grep -n -E 'gpu-f32-physics\.md`?:[0-9]+'`, plus the same-line continuations read from each matching line: `` `:N` `` after a comma, a bare `` `N` `` after an en dash, and "envelope `` `:N` ``".
+- Excluded as history or pinned, per the finding: run logs; `spec-*.md` and `review-*.md` under `_bmad-output/implementation-artifacts/`; `docs/planning/elements/readiness/audits/`; `docs/planning/elements/readiness/completion-ledger.md`, whose header pins `25df3cd5` and warns that lines move (remapping it is optional history work and was not done).
+- Line map: a read-only script in the session scratchpad parsed `git diff -U0 d37c0b98 HEAD -- docs/gpu-f32-physics.md` into an old-to-new map of unchanged lines and asserted that every unchanged old line equals its mapped HEAD line (it held for every line). A cited line inside a changed hunk was mapped to its edited continuation by content, not by offset, and remapped only if that line still states what the citing sentence attributes to DOC; otherwise it is listed for the coordinator below.
+- Coordinates: citing-file line numbers are HEAD lines (all edits are in place, so they are also working-tree lines). `deferred-work.md` numbers are working-tree lines, which include 7 uncommitted lines this repair did not write.
+
+**Old → new map used** (`d37c0b98` → HEAD):
+- `:59` → `:63`. Edited by this slice (E42 B1); continuation. Still says capsule and hull proxies are refused, which C29 and `epics.md:940` rely on.
+- `:132` → `:136`. Unchanged line (bulk and remainder stores).
+- `:147` → `:151`. Unchanged line (Materials row; its pair laws are geometric-mean friction, product restitution and maximum bounce threshold).
+- `:192`–`:195` → `:210`–`:213`. Edited hunk, 4 old lines to 6 new; mapped by content: `:210` is the `### 1. Broadphase: Dynamic AABB BVH` heading and `:213` the Fat AABBs bullet, which still expands a moving collider's box by its speed over the step.
+- `:224` → `:242`. Unchanged line (One Constraint Row for Every Pair, with the speculative margin).
+- `:258` → `:276`. Edited; continuation (Speculative Contacts, now with the margin the code uses).
+- `:273` → `:292`. Edited hunk, 5 old lines to 6 new; mapped by content (Sleeping State Machine, now worded as the target of `### 4. Target: Island Partitioning and Sleeping`). Every citing sentence says sleeping is specified or described but not implemented, which still holds.
+- `:299` → `:320`. Unchanged line (`### 3. Speculative Contacts for Continuous Collision Detection (CCD)`).
+- `:306` → `:327`. Edited; continuation (Zero Penetration without Ghost Collisions).
+- `:370` → `:391`. Unchanged line (Maximum Velocities).
+- `:375` → `:396`. Edited; continuation (Tunneling Threshold).
+
+**Flag on `:375` → `:396` and `:306` → `:327`.** The bound of 1 cm at 64 m/s is still stated, but now as Target: conservative advancement covers spheres, and other shapes are not generally qualified (`ENGINE-TUNNEL-QUALIFICATION`). Citing sentences that say tunnelling "is excluded" for box or hollow colliders now cite a line that qualifies that claim. The numbers are remapped; whether those sentences need rewording is left to the coordinator.
+
+**Edited citations** (71 cited line numbers on 48 lines in 39 files; a range counts as two numbers). Element files are under `docs/planning/elements/`.
+- `_bmad-output/planning-artifacts/epics.md:940`: `:59` → `:63`.
+- `readiness/engine-stories-index.md:189` (C29): `:59` → `:63`.
+- `CAT-001-ball.md:86`: `:370` → `:391`; `:273` → `:292`.
+- `CAT-002-ball_detector.md:86`: `:192`–`195`, `:224` → `:210`–`213`, `:242`.
+- `CAT-003-balloon.md:128`: `:273` → `:292`.
+- `CAT-004-basket.md:86`: `:192`–`195`, `:224` → `:210`–`213`, `:242`.
+- `CAT-010-bellows.md:135`: `:273` → `:292`.
+- `CAT-014-bowling.md:82`: `:370` → `:391`; `:273` → `:292`.
+- `CAT-015-bumper.md:109`: `:375` → `:396`.
+- `CAT-022-delay.md:85`: `:192`–`195`, `:224` → `:210`–`213`, `:242`.
+- `CAT-023-domino.md:91`: `:375` → `:396`.
+- `CAT-028-fan.md:130`: `:273` → `:292`.
+- `CAT-030-funnel.md:57`: `:299-306`, envelope `:375` → `:320-327`, envelope `:396`.
+- `CAT-035-lamp.md:79`: `:192`–`195`, `:224` → `:210`–`213`, `:242`.
+- `CAT-048-pipe.md:62`: `:299-306`, envelope `:375` → `:320-327`, envelope `:396`.
+- `CAT-049-pipe_bend_45.md:58`: `:299-306`, envelope `:375` → `:320-327`, envelope `:396`.
+- `CAT-050-pipe_bend_90.md:58`: `:299-306`, envelope `:375` → `:320-327`, envelope `:396`.
+- `CAT-062-spring.md:101`: `:375` → `:396`.
+- `CAT-063-switch.md:142`: `:375` → `:396`.
+- `CAT-064-tennis.md:115`: `:273` → `:292`.
+- `CAT-069-wind_chimes.md:143`: `:273` → `:292`.
+- `CAT-070-windmill.md:124`: `:273` → `:292`.
+- `EL-001-finite-reservoir.md:35`: `:132` → `:136`.
+- `EL-065-load-hook.md:100`: `:375` → `:396`.
+- `EL-069-moving-bucket.md:70`: `:147` → `:151`.
+- `EL-069-moving-bucket.md:134`: `:375` → `:396`.
+- `EL-070-moving-cage.md:76`: `:375` → `:396`.
+- `EL-070-moving-cage.md:96`: `:375` → `:396`.
+- `EL-071-straight-metal-ball-pipe.md:55`: `:147` → `:151`.
+- `EL-071-straight-metal-ball-pipe.md:85`: `:375` → `:396`.
+- `EL-072-curved-metal-ball-pipe.md:54`: `:147` → `:151`.
+- `EL-072-curved-metal-ball-pipe.md:87`: `:375` → `:396`.
+- `EL-073-brick-barrier.md:56`: `:147` → `:151`.
+- `EL-073-brick-barrier.md:60`: `:375` → `:396`.
+- `EL-073-brick-barrier.md:90`: `:375` → `:396`.
+- `EL-073-brick-barrier.md:115`: `:375` → `:396`.
+- `EL-074-wood-barrier.md:57`: `:147` → `:151`.
+- `EL-074-wood-barrier.md:91`: `:375` → `:396`.
+- `EL-074-wood-barrier.md:119`: `:375` → `:396`.
+- `EL-092-toy-rocket.md:91`: `:195`, `:258` → `:213`, `:276`.
+- `EL-095-toy-revolver.md:93`: `:195`, `:258` → `:213`, `:276`.
+- `EL-104-toy-firework.md:86`: `:195`, `:258` → `:213`, `:276`.
+- `EL-105-toy-missile.md:132`: `:195`, `:258` → `:213`, `:276`.
+- `EL-106-impact-sensitive-toy-charge.md:82`: `:195`, `:258` → `:213`, `:276`.
+- `EL-187-basketball.md:136`: `:273` → `:292`.
+- `EL-242-45-metal-ball-pipe-bend.md:54`: `:147` → `:151`.
+- `EL-242-45-metal-ball-pipe-bend.md:87`: `:375` → `:396`.
+- `readiness/batch-a.md:73`: `:273` → `:292`.
+
+**Listed for the coordinator, not remapped** (the continuation line no longer states what the citing sentence attributes to DOC):
+- `CAT-004-basket.md:51` and `EL-192-receiving-basket.md:55`, `:150`. Old `:150` said residence sensors accumulate dwell over sub-steps. Its continuation, HEAD `:154`, says residence is evaluated once per tick after the last sub-step. The rows' premise, "Residence sampled at each substep endpoint", is no longer stated by DOC.
+- `EL-169-cork-float.md:54`, `:149`. Old `:149` listed fluid buoyancy and a 64 m/s² acceleration clamp. HEAD `:153` states a 12 m/s² directional-guide maximum and 16 m/s² compile refusals, with liquid buoyancy a target (`ENGINE-LIQUID`). The 64 m/s² clamp the sentence relies on no longer exists in DOC.
+- `CAT-009-bell.md:75` and `CAT-069-wind_chimes.md:85`, `:165`–`:171`. The Phase 1–5 tick diagram was replaced, and no "Phase 2" field phase survives; a positional map (to about `:169`–`:176`) would be a guess. These two are already named in the Phase 1–5 entry of `deferred-work.md` (working-tree `:476`).
+
+**Matched by the selector, not edited:**
+- `_bmad-output/implementation-artifacts/evidence-9a-44/t0/scan-substr-f1ad3bd1.txt:94-95` and `scan-words-f1ad3bd1.txt:315-324` (12 lines): raw scan output pinned to `f1ad3bd1`; evidence.
+- `_bmad-output/implementation-artifacts/review-work-plan-2026-10-24.json:67` (`:59,71`): a dated review plan; history.
+- `_bmad-output/implementation-artifacts/deferred-work.md:106` (`:12`): DOC line 12 was edited by this slice but keeps its number, so no edit is needed.
+- `_bmad-output/implementation-artifacts/deferred-work.md:476` (`:165`): it reports what CAT-009 and CAT-069 cite; remapping it would make the entry false.
+- `docs/planning/elements/readiness/completion-ledger.md`: optional history, pinned to `25df3cd5`.
+
+**Checks**, run after this entry, which is the last edit (logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; results go to the coordinator's record):
+1. `git diff --check HEAD`: `diff-check-e43.log`.
+2. `ArchitectureDocsConsistencyTests` on the E41 build (`CSHARP_STATIC_GATE_BINLOGS` = `binlogs-e41/`, `--no-build --no-restore`): `arch-docs-e43.log`.
+3. `wc -l _bmad-output/planning-artifacts/epics.md`, expected 5855.
+
+## E44 Coordinator: publication SnapshotApproval rulings (26 November 2026)
+
+**SnapshotApproval of `333f64e2`: Fail.**
+- B1: the `DOC:59` merge re-check had not been done.
+- B2: the EL-069 S3 citations were stale.
+
+A fresh owner repaired both in E42, committed as `368c2012`. The full round on `368c2012` was 7456/0/0, `Skipped: 0` (`full-round-e42.log`).
+
+**SnapshotApproval of `368c2012`: Fail.**
+- B3: this slice's DOC edits shift DOC's line numbers, so DOC line citations elsewhere land on other text. The blocking cases were `epics.md:940` and `engine-stories-index.md:189`.
+
+A fresh owner remapped the citations (E43). These are my rulings on what E43 left for me:
+- **The three held citations are remapped:** `CAT-004-basket.md:51` and `EL-192-receiving-basket.md:55` from `:150` to `:154`, and `EL-169-cork-float.md:54` from `:149` to `:153`. Each now points at the line the slice corrected. The wording of those sentences, and of the 24 tunnelling citations, is deferred to each element's slice (`deferred-work.md`).
+- **CAT-009 and CAT-069** stay under the existing Phase 1–5 deferral.
+- **E43's extra exclusions are accepted:** evidence scans, the dated review plan, and `deferred-work.md:106` and `:476`.
+- **The 91 "until S3" lines** are deferred with an owner (`deferred-work.md`).
+
+Next: commit, a full round on the new SHA, and a fresh SnapshotApproval.

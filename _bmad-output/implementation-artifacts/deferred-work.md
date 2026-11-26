@@ -400,6 +400,20 @@ Each is outside the pass-6 repair and breaks no rule, required-now criterion or 
   - **Pointer, not an edit.** The Chrome E2E acceptance in rows 6.5b–6.5f (`vertical-delivery.md:186-190`) is governed by the AGENTS.md browser exception until the post-catalogue E2E phase.
 
   owner: 6.5f (LEGACY-PARTART-PURGE) story planning.
+- Stale "until S3" hand-list citations in element specs. source: DOC-ENGINE-STATUS publication SnapshotApproval, 26 November 2026 (run log E42, E43). summary:
+  - 91 lines in `docs/planning/elements/` still say that "until S3" an element adds entries to the hand lists in `CSharpStaticGateTests.cs` and `PackageRuntimeParityTests.cs`, citing line numbers.
+  - S3 (`e57c225b`, published as `3a80c6a8`) replaced those lists with derived membership: one guarded `CuriousContraptions.slnx` line per package. The citations no longer land.
+  - None of the lines was changed by this slice. `EL-069-moving-bucket.md:186`, which the slice did change, is repaired in E42.
+  - Selector: `git grep -n "until S3" -- docs/`.
+
+  owner: the coordinator routes it to the next documents-cleanup slice, or to the slice that next edits those element specs, which states one guarded solution line per package as E42 does.
+- Element-spec sentences that relied on DOC claims this slice corrected. source: DOC-ENGINE-STATUS publication SnapshotApproval B3 (run log E43). summary: the line citations into `docs/gpu-f32-physics.md` were remapped to the lines' new numbers (E43), but these citing sentences still describe the old DOC text.
+  - `CAT-004-basket.md:51` and `EL-192-receiving-basket.md:55` say residence is sampled at each substep endpoint; DOC `:154` now says once per tick.
+  - `EL-169-cork-float.md:54` relies on a 64 m/s² region clamp and fluid buoyancy; DOC `:153` gives 12 and 16 m/s² limits, with liquid buoyancy as the `ENGINE-LIQUID` target.
+  - 20 citations of DOC `:396` and 4 of `:327` say tunnelling "is excluded" for box or hollow colliders. DOC now states that bound only as a target and as not qualified beyond spheres.
+  - E43 lists every citing line.
+
+  owner: each element's own slice when it next edits its spec. Routed by the coordinator.
 
 ### Carry-forward, from the delete-declaration-colliders slice — 25 November 2026
 

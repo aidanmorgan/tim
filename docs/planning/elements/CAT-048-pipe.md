@@ -59,7 +59,7 @@ No art is moved by an animation binding, and nothing in physics reads art.
 | Air does not cross the shell | Airflow occlusion by solid colliders | The same three colliders |
 | Light crosses the shell and stops at the collars | Optical transport with a declared surface response per collider: missing, [ENGINE-OPTICAL](../../../_bmad-output/planning-artifacts/epics.md#story-engine-optical-beam-emission-transport-surface-interaction-and-reception) | `col_shell` declares Transmit (1, 1, 1), a criterion of ENGINE-OPTICAL (EL-176 section 10, item 6); the collars keep the default Absorb |
 
-**Performance fitness.** The body is static and has no sensor or field region. Three primitive hollow colliders replace the deleted box ring. Tunnelling through the 5 cm wall is excluded by the engine's general means, speculative contacts at 480 Hz substeps (`docs/gpu-f32-physics.md:299-306`; envelope `:375`: no penetration of a barrier at least 1 cm thick at up to 64 m/s). Nothing costs work in proportion to the scene. Engine gaps: optical response (ENGINE-OPTICAL). Placement assistance is authoring behaviour owned by Story 15.0.
+**Performance fitness.** The body is static and has no sensor or field region. Three primitive hollow colliders replace the deleted box ring. Tunnelling through the 5 cm wall is excluded by the engine's general means, speculative contacts at 480 Hz substeps (`docs/gpu-f32-physics.md:320-327`; envelope `:396`: no penetration of a barrier at least 1 cm thick at up to 64 m/s). Nothing costs work in proportion to the scene. Engine gaps: optical response (ENGINE-OPTICAL). Placement assistance is authoring behaviour owned by Story 15.0.
 
 ## 3. Engine capabilities
 

@@ -97,7 +97,7 @@ The doc comment at `PhysicsDeclarationValues.cs:10` places the hollow kinds on s
 - **Layers.** Colliders: 4 boxes on the dynamic body. Visuals: four boxes of the same size, none used as a collider. Animation: all four art nodes follow the body pose; no presentation binding. Visible = solid: each bar has its own collider, and no eye ring is drawn.
 - **One-way flow and typing.** Nothing is read back from art. Port role, domain and attachment role are enums; values are f32.
 - **Flat state.** 1 dynamic body, 4 box colliders, 0 joints, 0 drives, 0 sensors, 0 domain nodes, 0 stores, 0 bindings.
-- **Performance.** Four primitives. The bars are 0.04 m thick, above the 1 cm barrier bound that the engine's 480 Hz substeps and speculative margins keep at up to 64 m/s (`docs/gpu-f32-physics.md:375`); no per-part tunnelling check. No island sleeping exists today; a resting hook costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
+- **Performance.** Four primitives. The bars are 0.04 m thick, above the 1 cm barrier bound that the engine's 480 Hz substeps and speculative margins keep at up to 64 m/s (`docs/gpu-f32-physics.md:396`); no per-part tunnelling check. No island sleeping exists today; a resting hook costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
 - **Tests are scenarios.** Rows H1 to H9 run the production simulation with delivered parts.
 
 ## 4. Sources and legacy
