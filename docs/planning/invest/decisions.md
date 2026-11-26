@@ -119,7 +119,7 @@ Exact original domain criterion and technical stage: S635. Each row is separatel
 <a id="decision-gltf-element-assets"></a>
 ## Architectural Decision: Adoption of glTF 2.0 (.glb) for Element Visual and Collision Meshes
 
-**Status:** Approved / Authoritative
+**Status:** Superseded for format by the owner decision of 18 October 2026: the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`_bmad-output/planning-artifacts/epics.md:538`, `:933`). Its compile-time extraction in `WorkshopPhysicsCompiler`, its `col_capsule` and `col_hull` proxies and its `.tres` catalogue are not current: the build-time element bundle is the compiler's only element collider source (`docs/engine-contracts.md:92`), and both proxies are refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:111-114`). Whether `KHR_physics_rigid_bodies` and compile-time extraction stay planned is deferred to the ENGINE-CORE-2d replanning.
 
 ### Context
 Earlier prototypes explored constructing puzzle element 3D geometry and physical colliders imperatively in C# (`engine/PartArt.cs`, procedural ramp prisms, wall boxes, bumper domes) or relying on hardcoded C# coordinate and collider tables. This approach created tight coupling between engine source code and individual puzzle elements, violated the zero-element-assumptions invariant, bloated compiled C# assemblies, and prevented 3D artists from using standard digital content creation (DCC) workflows (such as Blender).
@@ -140,7 +140,7 @@ Adopt open-source, industry-standard **glTF 2.0 binary (`.glb`)** as the univers
 - **Co-Located Collision Geometry:** Authored directly within the same `.glb` container alongside visual meshes using standardized analytic shape proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hull proxies (`col_hull`), or the official Khronos `KHR_physics_rigid_bodies` extension.
 - **Socket Anchors:** Authored as empty locator nodes `Loc_Port_<Id>` inside the `.glb` transform hierarchy, matching declared `PortDefinition.Id` entries.
 - **Articulated & Secondary Sub-Assemblies:** Secondary dynamic components (e.g., motor shafts, springboard moving plates, lever arms) group their visual, collision, and locator nodes under dedicated child branches in the `.glb`.
-- **Zero Code-Defined Geometry:** Imperative C# procedural mesh generation (`engine/PartArt.cs`) is deprecated and scheduled for complete deletion at `LEGACY-0`.
+- **Zero Code-Defined Geometry:** Imperative C# procedural mesh generation (`ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`) is deprecated and scheduled for complete deletion at `LEGACY-0`.
 
 ### Rationale
 - **Universal Industry Standard:** Developed by the Khronos Group and universally supported across Blender, modern DCC tools, Godot, WebGL 2, and WebGPU pipelines.
@@ -150,7 +150,7 @@ Adopt open-source, industry-standard **glTF 2.0 binary (`.glb`)** as the univers
 
 ### Impact on Engine & Workflows
 - **Compiler:** `WorkshopPhysicsCompiler` inspects `.glb` scene hierarchies at compile-to-state time, extracts `ColliderDeclaration` records from collision nodes without element-specific branching, and packs them into flat SIMD Structure-of-Arrays (SoA) tables.
-- **Engine Codebase:** Procedural mesh code in `PartArt.cs` and hardcoded collider dimension tables are deprecated and scheduled for deletion at `LEGACY-0`.
+- **Engine Codebase:** Procedural mesh code in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and hardcoded collider dimension tables are deprecated and scheduled for deletion at `LEGACY-0`.
 - **Artist Workflow:** Artists author 1:1 metric assets in Blender, visually verifying PBR materials, collision proxies, and socket locators, and export directly to `.glb`.
 
 <a id="decision-dynamic-part-discovery"></a>

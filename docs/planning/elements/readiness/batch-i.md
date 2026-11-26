@@ -128,15 +128,19 @@ Consequences elsewhere in `epics.md`: `ENGINE-FRACTURE`'s Unblocks line ("every 
 
 **Ledger (`docs/planning/invest/named-elements.md`).**
 
-- **New identity for the 45° metal bend.** The number, S owner, requirement anchor and sequence-task are allocated by the cross-batch pass (EL-242 if unclaimed). Proposed entry, in the form of the EL-072 entry:
+- **New identity for the 45° metal bend.** Applied at `daba83d0`: [EL-242](../../invest/named-elements.md#element-242) was ledgered by coordinator decision 27, with owner S361 and `sequence-task-800` by coordinator decision 24l and requirement anchor `element-242`. The entry as proposed, in the form of the EL-072 entry:
 
-> ### element-242 · EL-242 · 45° metal ball pipe bend. Type: Mechanical. Scope/evidence source: [existing record](../../requirements.md#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces.
->
-> Owner **Snnn**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
->
-> **Delivery slice:** `named-el-242` under canonical **Snnn**. Also retains [CAT-049 acceptance](../elements/CAT-049-pipe_bend_45.md); a refinement does not waive distinct behavior. Family slice "Metal bends" with EL-072. **Backlog:** implementation and native proof must be established.
+The links in the fenced entry below are written relative to `docs/planning/invest/named-elements.md`, where the entry goes, not to this file.
 
-- **EL-072.** Replace "Also retains [CAT-049 acceptance](…), [CAT-050 acceptance](…)" with "Also retains [CAT-050 acceptance](../elements/CAT-050-pipe_bend_90.md); the 45° angle and CAT-049 acceptance are EL-242." Until both edits are made, CAT-049 acceptance stays an open criterion of EL-072.
+```markdown
+### element-242 · EL-242 · 45° metal ball pipe bend. Type: Mechanical. Scope/evidence source: [existing record](../requirements.md#todo-199). A 45° curved hollow conduit changes direction through real collision surfaces.
+
+Owner **Snnn**. Individual named outcome, modes, proof and publication retained. **Exact source outcome:** Fast and queued cargo remain conserved at seams. Apply the shared visual, generic-interaction, campaign and per-element proof contracts above.
+
+**Delivery slice:** `named-el-242` under canonical **Snnn**. Also retains [CAT-049 acceptance](../elements/CAT-049-pipe_bend_45.md); a refinement does not waive distinct behavior. Family slice "Metal bends" with EL-072. **Backlog:** implementation and native proof must be established.
+```
+
+- **EL-072.** At `daba83d0`, "`Also retains [CAT-049 acceptance](…), [CAT-050 acceptance](…)`" in the [EL-072 entry](../../invest/named-elements.md#element-072) was replaced by the form "`Also retains [CAT-050 acceptance](../elements/CAT-050-pipe_bend_90.md); the 45° angle and CAT-049 acceptance are EL-242.`", worded there "the 45° angle and CAT-049 acceptance belong to EL-242", and [EL-242](../../invest/named-elements.md#element-242) was ledgered, so CAT-049 acceptance is no longer an open criterion of EL-072.
 - **EL-069.** Replace "Also retains CAT-004 acceptance…" with "Related: CAT-004 (open-container geometry). The bucket declares no capture sensor; goal capture belongs to the goal engine slices."
 - **EL-064.** Replace the stale "Current candidate: 10.2b … review/publication pending" paragraph with the closure citation once the closure slice runs.
 - **EL-219 Rack-and-pinion slide.** Add: "Its delta over EL-053 is the attachment carriage; if the probe finds no other delta it is a variant of the EL-053 package or a Duplicate closure candidate."

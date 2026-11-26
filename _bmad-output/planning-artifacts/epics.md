@@ -908,7 +908,7 @@ So that contraptions can solve `spring_forward`.
 - **And** `tools/e2e/cat-062b.test.ts` passes 100% in Chrome serially.
 
 ### Story 6.5b: Dynamic Puzzle Part Discovery & Extensible PartId Architecture
-*Status: In-Progress*
+*Status: In-Progress* *Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.tres` part catalogue (`parts/catalog/`) named in the acceptance below is retired (`_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md:17`, `:24`); its discovery clauses read as "`PartRegistry.Load()` registers every element from the build-time element bundle without hardcoded path lists".*
 
 As an engine architect and player,  
 I want puzzle parts to be discovered dynamically from catalogue data and identified by extensible `PartId`s,  
@@ -951,7 +951,7 @@ So that physical geometry and connection ports are defined purely by 3D artist a
 
 *Depends on: Stories 6.5b and 6.5c.*
 
-*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The "self-contained `.glb` binary asset in `parts/models/`" clause below reads as "the element's own `.tscn` scene, with PBR materials and co-located `col_*` proxy nodes". The scene moves into its `elements/<Name>` package under Epic 9A. The AC-named suites that never existed are added by Stories 9R.11–9R.14 (`cat-001`, `cat-004`, `cat-054`, `cat-066`). `cat-064` and `cat-003` move to Story 12.1, because Story 9A.14 removes Tennis and Balloon from the palette. Reopened by the retro-verification; closes via Stories 9R.11–9R.14, 9R.18 and 9A.16.*
+*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The "self-contained `.glb` binary asset in `parts/models/`" clause below reads as "the element's own `.tscn` scene, with PBR materials and co-located `col_*` proxy nodes". The scene moves into its `elements/<Name>` package under Epic 9A. The AC-named suites that never existed are added by Stories 9R.11–9R.14 (`cat-001`, `cat-004`, `cat-054`, `cat-066`). `cat-064` and `cat-003` move to Story 12.1, because Story 9A.14 removes Tennis and Balloon from the palette. Reopened by the retro-verification; closes via Stories 9R.11–9R.14, 9R.18 and 9A.16. The `.tres` part catalogue (`parts/catalog/`) is retired (Story 9A.14, 21 Oct 2026; noted 26 Nov 2026 by DOC-ENGINE-STATUS); the `.tres` clause below reads as "defined by its element package's declaration, which `tools/BundleElements` writes into the build-time element bundle".*
 
 As a player and developer,  
 I want the existing balls, walls, ramps, and receiver converted from procedural C# code to declarative glTF 2.0 (`.glb`) assets,  
@@ -972,7 +972,7 @@ So that core simulation primitives follow the data-driven architecture with zero
 
 *Depends on: Story 6.5d.*
 
-*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.glb` clauses below read as "the element's own `.tscn` scene, with `col_*` proxies, `Loc_Port_<Id>` locators named exactly by the typed socket (Story 9A.17), and moving sub-assemblies as child branches". The AC-named suites that never existed are added by Stories 9R.15–9R.17 (`cat-063`, `cat-035`, `cat-022`), and `spring_forward` gains its Chrome proof in Story 9R.8. Reopened by the retro-verification; closes via Stories 9R.8, 9R.15–9R.17, 9R.18, 9A.16 and 9A.17.*
+*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.glb` clauses below read as "the element's own `.tscn` scene, with `col_*` proxies, `Loc_Port_<Id>` locators named exactly by the typed socket (Story 9A.17), and moving sub-assemblies as child branches". The AC-named suites that never existed are added by Stories 9R.15–9R.17 (`cat-063`, `cat-035`, `cat-022`), and `spring_forward` gains its Chrome proof in Story 9R.8. Reopened by the retro-verification; closes via Stories 9R.8, 9R.15–9R.17, 9R.18, 9A.16 and 9A.17. The `.tres` part catalogue (`parts/catalog/`) is retired (Story 9A.14, 21 Oct 2026; noted 26 Nov 2026 by DOC-ENGINE-STATUS); the `.tres` clause below reads as "defined by its element package's declaration, which `tools/BundleElements` writes into the build-time element bundle".*
 
 As a player and developer,  
 I want all existing interactive mechanisms, sensors, and timers converted to declarative glTF 2.0 (`.glb`) assets,  
@@ -992,7 +992,7 @@ So that all gameplay fixtures use data-driven 3D assets, port locators, and gene
 ### Story 6.5f: Zero-Remnant Procedural Geometry, Per-Part Classes, and WorkshopPartKind Purge
 *Status: Backlog*
 
-*Depends on: Stories 6.5d and 6.5e.*
+*Depends on: Stories 6.5d and 6.5e.* *Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.glb` + `PartId` clause below reads as "the element's own `.tscn` scene and its `PartId`".*
 
 As an engine maintainer,  
 I want all procedural mesh generation in `PartArt.cs`, closed enums in `WorkshopPartKind`, and dead per-part classes purged,  
@@ -1012,7 +1012,7 @@ So that Curious Contraptions contains strictly zero procedural mesh building rou
 ### Story 6.6: Straight Pipe Compound Cylindrical Collider (CAT-048a)
 *Status: Backlog*
 
-*Depends on: Story 6.5f (zero-remnant purge of PartArt and legacy part scripts; CAT-048 is authored purely via declarative .glb asset and .tres catalog definition without per-part C# code or enum modifications).*
+*Depends on: Story 6.5f (zero-remnant purge of PartArt and legacy part scripts; CAT-048 is authored purely via declarative .glb asset and .tres catalog definition without per-part C# code or enum modifications).* *Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the dependency's ".glb asset and .tres catalog definition" reads as "its element's own `.tscn` scene and its element package declaration".*
 
 As a player,  
 I want balls to roll smoothly through straight pipes without snagging,  
@@ -1158,7 +1158,7 @@ So that 100% of test files in the project are actively compiled and executed.
 - **And** `dotnet test CuriousContraptions.slnx` runs with 100% pass rate (0 failures).
 
 ### Story 7.4: Legacy CPU Physics, Procedural PartArt & Unshipped Engine Purge (LEGACY-0d)
-*Status: Review — all 655 legacy paths removed; current source/resource classification and applicable 45-case Chrome proof complete; procedural PartArt and hardcoded collider tables scheduled for permanent deletion; final scoped commit review pending*
+*Status: Review — all 655 legacy paths removed; current source/resource classification and applicable 45-case Chrome proof complete; procedural PartArt and hardcoded collider tables scheduled for permanent deletion; final scoped commit review pending* *Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the `.tres` part catalogue (`parts/catalog/`) is retired; the acceptance clause naming `.glb` assets and `.tres` catalog resources reads as "the elements' own `.tscn` scenes and package declarations, written into the build-time element bundle".*
 
 As an engine maintainer,  
 I want all superseded CPU physics files in `engine/physics/`, procedural mesh routines in `engine/PartArt.cs`, and dead classes in `parts/` deleted,  

@@ -185,6 +185,8 @@ Every puzzle element is implemented purely as declarative capability data withou
 
 ### 3.8 Universal glTF 2.0 (.glb) Geometry & Dynamic Part Discovery Architecture
 
+*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `epics.md:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the `.tres` part catalogue (`parts/catalog/`) is retired. The `.glb` references in this section read as "the element's own `.tscn` scene"; the discovery scan at `:203` reads as "`PartRegistry.Load()` reads the build-time element bundle", and `:205` reads as "authoring its element package (declaration and `.tscn` scene)".*
+
 All 72 puzzle elements, fixtures, and tools are defined purely as declarative data without bespoke engine code or procedural mesh builders:
 1. **Universal glTF 2.0 (`.glb`) Visual & Collision Asset Container:**
    - Both visual meshes and physical collision meshes are co-located in a single self-contained `.glb` binary asset per part.

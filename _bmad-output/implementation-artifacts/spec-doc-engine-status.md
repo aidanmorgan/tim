@@ -15,13 +15,6 @@ context:
 warnings: ['oversized']
 deferred:
   - summary: >-
-      Automated anchor check in ArchitectureDocsConsistencyTests covering fragments and the five documents outside its list.
-    evidence: |-
-      Review pass 1 VG-1. The test strips #fragments and reads only six documents. The intent contract's Never clause forbids test changes in this slice, so an executed one-off anchor check covers this candidate (run log E15). Recorded in deferred-work.md.
-    location: >-
-      CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs
-    severity: medium
-  - summary: >-
       Element documents still cite DOC's removed "Phase 1-5" solver diagram.
     evidence: |-
       Review passes 3 and 4 (FO3-def1, and the undercount found in pass 4). Selector: rg -l 'Phase [1-5]' docs/planning/elements, excluding readiness/audits. Outside the repair and outside DOC and ISO; breaks no rule. Recorded in deferred-work.md.
@@ -52,7 +45,7 @@ deferred:
   - summary: >-
       Restitution's mixed-manifold rule (WorkshopConstraintSolver.cs:777: a manifold's supporting points join only when it has no bouncing point) has no decided target.
     evidence: |-
-      Review pass 6 (VG6-1, BH6-1, EFE6-7). spec-engine-supported-impact-restitution.md:92 treated dropping those points as a defect, but ENGINE-ISLANDS-SLEEP has no contract line or acceptance row for mixed manifolds. The documents now state the rule as present behaviour only. Owner: ENGINE-ISLANDS-SLEEP planning decides it, with an acceptance case. Recorded in deferred-work.md.
+      Review pass 6 (VG6-1b; from VG6-1, BH6-1, EFE6-7). spec-engine-supported-impact-restitution.md:92 treated dropping those points as a defect, but ENGINE-ISLANDS-SLEEP has no contract line or acceptance row for mixed manifolds. The documents now state the rule as present behaviour only. Owner: ENGINE-ISLANDS-SLEEP planning decides it, with an acceptance case. Recorded in deferred-work.md.
     location: >-
       CuriousContraptions.Simulation/WorkshopConstraintSolver.cs:777; epics.md ENGINE-ISLANDS-SLEEP
     severity: medium
@@ -192,10 +185,9 @@ deferred:
 - Worktree `.claude/worktrees/slice-doc-engine-status`, branch `slice-doc-engine-status`.
 - Every `path:line` was measured at that commit (run log E2, E4).
 
-**Status:** done in lane 4, under owner decision 24q (25 November 2026). Review passes 1 to 8 are repaired or deferred with owners, and the Final diff scope check passes (Review Triage Log). The final round is recorded in run log E23. The merge and SnapshotApproval are the publish-token holder's checks.
+**Status:** done in lane 4, under owner decision 24q (25 November 2026). Passes 1 to 8 are repaired or deferred with owners. The VG-1 repair (26 November 2026) is reviewed under the coordinator's hard cap; its final round is in run log E39 and its Final diff scope Pass and close note in E40. The merge and SnapshotApproval are the publish-token holder's checks.
 
-**Planning verdict:** Scoped Pass, 25 November 2026, at the sixth check (run log E9).
-- H1–H4 are closed. The check's one remaining finding was a one-line addition it prescribed: add `epics.md:4466` to Design Notes 8. It is applied verbatim and is re-read by the step-04 informed auditors.
+**Planning verdict:** the sixth check (run log E9) closed H1–H4 and reported one low finding with a prescribed repair: add `epics.md:4466` to Design Notes 8. The coordinator applied the repair and recorded Scoped Pass without re-checking the applied line. An unresolved finding is not a Pass, so that record was not a valid verdict (Spec Change Log, 26 November 2026; run log E26). Verdict: **Scoped Pass, 26 November 2026**, by the independent re-check in VG-1 repair re-review pass 1 (Element-Free auditor, duty 2, items (a)–(c); run log E31, verbatim pass-1 entry).
 - Audits 1 and 2 and checks 3 to 5 failed. Their findings are repaired (E4–E8).
 
 **Review tier:** engine. All six layers run on the first pass.
@@ -362,49 +354,59 @@ Documents only. The slice delivers no capability and uses none. The scouts' and 
 **Acceptance Criteria:**
 - **AC1.** Given DOC and ISO at the candidate, when a reviewer reads every sentence, then each cites code that does what it says at the baseline, or is target with an existing owner story. No claim is contradicted by the code. The exceptions are the lane 1 lines: `DOC:59`, which is qualified by the status paragraph, and `DOC:145`, which lane 1 corrects. Both are re-checked at merge.
 - **AC2.** Given the candidate, when the M4 `rg` checks run over the current documents and code comments of the whole repository (excluding the Never list), then every hit is classified in the run log as target, rule, negation, historical, cited present or lane 1 line (exactly `DOC:145`, `shared-clock-cadence.md:60` and `epics.md:4466`, until merge), and no other hit is a present-tense false claim. "Historical" also covers facts pinned to a named commit, such as CAT-023's legacy-harvest table (`CAT-023-domino.md:105`, `:107`, at `a6c914e`). Every line of the owned-scope list (items 1–4) has its disposition in the run log. Control: the same checks on the baseline (`git grep` at `37a259c9`) are recorded with their hit count and the owned-scope lines they catch. Owned lines they do not catch are covered by name by M5.
-- **AC3.** Given the full local round, when it runs, then failures are 0 and skipped are 0, and no test is added or removed by this slice. The total equals that of the base it is measured on (7407 expected at `37a259c9`). The registration check is likewise unchanged (821 expected), and the maintainability gate passes with both canaries.
+- **AC3.** Given the full local round, when it runs, then failures are 0 and skipped are 0. The only test changes are the VG-1 link-checker changes named in the M6 (VG-1 repair) row: 26 tests added, and `EveryRelativeLinkInTheAuthorityDocsResolves` removed because the one link rule replaces it. The total equals the base total (7407 at `37a259c9`) plus 25, so 7432 on the repaired tip. The registration check is likewise unchanged (821 expected), and the maintainability gate passes with both canaries.
 - **AC4.** Given the planning records, when they are read, then 24q and the sequence clause appear in every M7 place with the same meaning. A search for current lists that say only repairs and tooling run before the programme finds none without the 24q clause.
 
 ## Spec Change Log
 
-- 25 November 2026, planning audit 1 (run log E4, Fail, ten findings). Repairs:
-  - F1: AC1 and M1 cover every sentence of DOC and ISO, with the off-topic claims dispositioned.
-  - F2: the missed lines are added (ISO §2.4, `DOC:339-341`, `architecture.md:72` and `:106`, `simulation-presentation-bridge.md:99`, `general-engine-design.md:192`, `:199` and `:203`, EL-158, EL-065, EL-069, `batch-i.md:170`).
-  - F3: `DOC:59` is qualified by the status paragraph and re-checked at merge.
-  - F4: M4 and AC2 are widened to the repository with full phrase classes. M5 comes from the implementer's own sweep. M7 and AC4 check meaning.
-  - F5: the Never list now excepts the 24q sequence lines. `named-elements.md:22` and `completion-ledger.md:128` are added, and 24q defines "pre-programme".
-  - F6: AC3 is "no test added or removed".
-  - F7: heading slugs are preserved and checked.
-  - F8: the copy wording follows the story and `ENGINE-WASM-THREADS`.
-  - F9: citations are corrected (`:273-275`, `CollisionParticipation`, `epics.md:4559`, clock-ring sites).
-  - F10: "kinematic" is narrowed to the body or motion kind, element examples are dropped from edited lines, lane 1's contract is named, and the edit count is reported.
-  - KEEP: rulings R1–R5, the claim dispositions, and the owner mapping.
-- 25 November 2026, planning audit 2 (run log E5, Fail: F1–F10 closed except `DOC:149`; six new findings). Repairs:
-  - N1: M4 uses phrase classes with stated flags and exclusions.
-  - N2: Concurrency records lane 1's edits of `DOC:145`, `shared-clock-cadence.md:60` and `epics.md:4466`, and the later publisher's merge rule.
-  - N3: `DOC:149` is decided (`ENGINE-FIELD-FORCE`, §4.4 row).
-  - N4: the startup `Atomics.wait` loop is stated.
-  - N5: M7 names the unchanged records.
-  - N6: unlinked headings naming absent features are retitled.
-  - Also: design answer 7 is shortened and M3 is reworded.
-- 25 November 2026, bounded third check (run log E6, Fail: three repair defects). Repairs:
-  - T1: M4 gains low-noise classes and full-path exclusions. The control records what the search catches. M5's named list is the inventory, and the missed lines are added to item 4 (`architecture.md:6`, `:51`, `:256`; `simulation-presentation-bridge.md:26`).
-  - T2: `DOC:149` cites ambient lift as present, gives region lift to `ENGINE-FIELD-FORCE` and liquid buoyancy to `ENGINE-LIQUID`, and restates the bound as 16 m/s². Both rows are added to §4.4.
-  - T3: M7 names every unchanged record.
-  - Coordinator message (25 November 2026): lane 1 owns `DOC:145` and `shared-clock-cadence.md:60`. This slice does not duplicate that edit and takes main's version at merge.
-- 25 November 2026, bounded fourth check (run log E7, Fail: one blocking finding, five low). Repairs:
-  - G1: a "lane 1 line" exception in M1, M4, AC2, the Verification classes and Design Notes 7.
-  - G2: five more lines in item 4; the inventory wording.
-  - G3: two more M7 records.
-  - G4: "refused at compile above 16 m/s²".
-  - G5: `Atomics\.waitAsync`, `static hollow\b`.
-  - G6: the verdict line.
-- 25 November 2026, bounded fifth check (run log E8, Fail: three blocking low findings in the repair text, one deferrable). Repairs:
-  - H1: `epics.md:4466` joins the lane 1 exception in M4, AC2 and Verification.
-  - H2: the CAT-023 legacy-harvest lines are dropped from item 4, and "historical" covers commit-pinned facts.
-  - H3: the two acceleration refusals are stated separately.
-  - H4: item 4's label is corrected.
+- 25 November 2026, planning audits 1–5, compacted for the contract budget. The verbatim entries are in this file at commit `d4b84b4e`, Spec Change Log lines 370–406. All five audits failed, and their repairs were applied.
+  - **Audit 1** (E4): F1–F10. AC1 and M1 cover every sentence of DOC and ISO; M4 and AC2 cover the whole repository; AC3 was "no test added or removed", later amended for VG-1 below.
+  - **Audit 2** (E5): N1–N6, covering the phrase classes, lane 1 concurrency, the `DOC:149` decision and the retitled headings.
+  - **Check 3** (E6): T1–T3, covering the low-noise classes, `DOC:149` lift and buoyancy owners, and the M7 records. Lane 1 owns `DOC:145` and `shared-clock-cadence.md:60`.
+  - **Check 4** (E7): G1–G6, covering the lane 1 line exception, item-4 lines, the M7 records and the 16 m/s² wording.
+  - **Check 5** (E8): H1–H4. `epics.md:4466` is added to the lane 1 exception, and the two refusals are stated separately.
+  - KEEP: rulings R1–R5, the claim dispositions and the owner mapping.
 - 25 November 2026, review pass 5, EFE5-1 (Code Map amendment outside the intent contract). The `DOC:149` bullet under Claim disposition is amended. It now gives declared ambient loads on any dynamic body, scaled by atmosphere pressure and optionally by a gas inventory, in place of "ambient buoyant lift of a gas-filled body". This avoids the known-bad state where ambient drag is described as gas-only. KEEP: the region-lift target owned by `ENGINE-FIELD-FORCE`, the liquid buoyancy target owned by `ENGINE-LIQUID`, and the 16 m/s² refusal wording.
+- 26 November 2026, correction to the planning verdict record. The sixth planning check (run log E9) reported one low finding with a prescribed repair: Design Notes 8 left out `epics.md:4466`. The coordinator applied the repair and recorded "Scoped Pass" itself, without an independent re-check of the applied line. That is not how a verdict is recorded: an unresolved finding is not a Pass. The Code Map planning-verdict line is corrected to say so, and run log E26 records the correction. The VG-1 repair re-review re-checked the applied line (Review Triage Log, "VG-1 repair re-review").
+- 26 November 2026, coordinator authorisation (VG-1 test-only repair). The intent contract's Never clause says "No code, schema, test or build change, except the two comment lines in `engine/gpu/WorkshopPoseRing.cs`". It is amended for one item: `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` gains `#fragment` anchor checking over the current documents it covers and the Markdown files this slice edits. The amendment includes a negative case (a missing anchor is reported) and a control (the current documents pass). This replaces the pass-1 deferral of VG-1, which the repair policy did not allow. No other test, code, schema or build change is admitted. KEEP: every other Never item.
+- 26 November 2026, VG-1 passes 1–5, compacted for the contract budget. The verbatim entries are in run log E38.
+  - **Pass 1:** AC3 amended for the authorised tests.
+  - **Pass 2, ruling (a):** one existence rule over the 27 checked documents, with 13 broken links repaired.
+  - **Pass 3:** the quotation skip was withdrawn (Forward-Only F-1a/F-1b); existence moved to tracked files; slug unescaping and a front-matter test were added; documents were made true.
+  - **Pass 4:** Markdig 1.6.0 replaced the hand-written parsing, in the test project only; the scheme allow-list and unsupported-fragment reports were added; items 18–20 were patched.
+  - **Pass 5:** Markdig was pinned exactly (`[1.6.0]`); `<a name>` was withdrawn under FO-2; the HTML reading was narrowed; container-closed fences are not reported; `DESIGN.md` records the R091 rename; the class summary is the authority for the supported subset and its named limits, none of which occurs in the 27 documents.
+  - **Pass 6** was the last review pass for checker code.
+  - AC3 moved 7417 → 7423 → 7426 → 7429 → 7432 over these passes; registration stayed at 821 throughout.
+- 26 November 2026, VG-1 re-review pass 6, its patch re-review, the final and closing capped re-reviews, and the coordinator's rulings (run log E33–E36).
+  - **Present-day defects, patched:**
+    - `DESIGN.md:70` names every procedural mesh caller, including the gizmo and the unused `Line` builder.
+    - `DESIGN.md:76` says only +Y up.
+    - `DESIGN.md:82` and `general-engine-design.md:97` state the bake rule: any `CollisionShape3D`, or any `col_`-named node. A proxy sits under the root or a `Visual…` branch, and there is no `Collision/` node.
+    - `DESIGN.md:97` and `general-engine-design.md:105` state the validator's port-locator rule.
+    - `batch-i.md:131` credits coordinator decisions 27 and 24l.
+  - **`vertical-delivery.md`, ruling (i) and the later rulings (A):**
+    - in rows 6.5c–6.5e, `.glb` and glTF become `.tscn`, per the 18 October owner decision;
+    - `:197` and `:236` drop `.glb`, the `.tres` catalogue and `PartArt.cs`;
+    - R1 does not cover these checked lines with present defects.
+  - **6.5f acceptance.** The coordinator twice restated it and withdrew both versions, because a documents slice cannot change a story's acceptance. `vertical-delivery.md:190` now carries the source story's deletion and grep clauses (`epics.md:1004`, `:1006`) and its aim that no procedural mesh building routine remains in C# (`:998-999`). `DESIGN.md:70`, `:108` and `:419` state the same target. The story's `:1005` and `:1007` clauses were missing from the row before this slice and are deferred to 6.5f planning.
+  - **The glTF decision** (`invest/decisions.md:119-154`):
+    - its status line `:122` marks it superseded for format;
+    - its compile-time extraction, its `col_capsule`/`col_hull` proxies and its `.tres` catalogue are marked not current;
+    - `:143` and `:153` name `ui/WorkshopArtwork.cs`.
+  - **`engine.md`.** Lines `:179`, `:202`, `:206`, `:208`, `:211-213` and `:279` now say `.tscn`, and `:214` names `ui/WorkshopArtwork.cs`. Compile-time extraction is marked not current there, as it is at `vertical-delivery.md:187`. KHR is planned, not admitted today, and the hollow proxy kinds are listed.
+  - **Amendment notes, ruling (i).** Notes dated 26 November 2026 are added, inline on existing lines so that no `epics.md` citation shifts, to Stories 6.5b, 6.5d, 6.5e, 6.5f, LEGACY-0d and the CAT-048 dependency. PRD §3.8 gets its own paragraph.
+    - Each note applies the 18 October `.tscn` owner decision.
+    - Each note on a story that names the `.tres` catalogue records its retirement by Story 9A.14 (21 October 2026). It reads the retired clause as the element's package declaration, which `tools/BundleElements` writes into the build-time element bundle, or as `PartRegistry.Load()` reading that bundle.
+    - These are format readings under the owner decision and the delivered 9A.14. No acceptance criterion is removed.
+  - **Deferred** (in `deferred-work.md`):
+    - whether KHR and compile-time extraction stay planned (ENGINE-CORE-2d);
+    - 6.5f's in-story design questions: what replaces the runtime and UI geometry, the workbench table, the check method and the story's stale wording, with a pointer on the Chrome E2E clause.
+  - **Checker.**
+    - Three claimed behaviours gain assertions: `href` on an element other than `<a>`, an unquoted `id`, and entity-decoded values. The count is unchanged.
+    - The class summary names the enabled extensions (`UseAutoLinks`, `UseEmphasisExtras`, `UseTaskLists`).
+    - "Outside the subset" now means reported, or named as a limit.
+    - It adds the zero-occurrence limits found at pass 6 (E33 lists them).
+  - KEEP: AC3 7432, registration 821.
 
 ## Review Triage Log
 
@@ -415,66 +417,72 @@ Documents only. The slice delivers no capability and uses none. The scouts' and 
 - Pass 3 (five layers, repair diff; E17): 30 findings. high 1 (FO3-1), medium 5, low 18, false 4; 2 deferred (the Phase 1–5 citations and the anchor test). Patched (E17).
 - Pass 4 (five layers, repair diff; E18): 24 findings. medium 3, low 15; 3 deferred or noted. The stagnation reassessment required a sentence-by-sentence code check, with pointers in place of unverified detail. Patched (E18).
 
-### 2026-11-25 — Review pass 5 (Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free; repair diff from the pass-4 tree `5000c608`; Re-review scope; detail in run log E19)
-- verdicts: 15 findings. high 0, medium 2, low 10, false 2, maybe-false 0; 1 deferred. Forward-Only Pass. Every M4 citation in DOC and ISO resolves (270 checked).
-- findings:
-  - `[medium]` `[patch]` EFE5-1, BH5-3 Ambient loads are described as gas-only (ISO `:217`, `:219`; DOC `:153`; GED stage 2). They are declared on any dynamic body and scaled by atmosphere pressure, with the gas inventory fraction optional (`GasCouplingValues.cs:19-20`, `WorkshopPhysicsCompiler.Gas.cs:36-39`, `Gas.cs:95-114`). The contract's Code Map `DOC:149` bullet prescribed the narrow wording; the coordinator amended it (Spec Change Log).
-  - `[medium]` `[patch]` EFE5-2, EC5-2 GED stage 2 "angular velocity changes only through impulses". The spin clamp also writes angular velocity, as does the non-finite reset (`WorkshopConstraintSolver.cs:61-68`, `:79`; `WorkshopPhysicsEngine.cs:1182`). This is the second wrong version of the sentence, so per the stagnation rule it is deleted and replaced with a pointer to DOC's Maximum Velocities row.
-  - `[low]` `[patch]` EFE5-3, BH5-2, EC5-1 GED stage 2 cites a bare `(:65-66)`. Name `WorkshopPhysicsEngine.ContinuousReplay.cs:65-66`.
-  - `[low]` `[patch]` EFE5-4 Run log E18 calls baseline `deferred-work.md:211` "tensile-creep". It is the Story 10.3b lever entry. Append a correction.
-  - `[low]` `[patch]` BH5-1 GED stage 4 calls the cylinder solvers "closed-form", but rims use fixed-count searches (`WorkshopCollisionKernels.cs:1202-1211`, `:1347-1377`). Say "analytic, with fixed-count searches for cylinder rims".
-  - `[low]` `[patch]` BH5-4, EC5-3 The pose-slot citations miss the debt-stop caller at `Program.cs:296`. Cite `EmitRead` (`:335`, `:347`) as the single site.
-  - `[low]` `[patch]` BH5-5, EC5-5 `:777` (supports join only from manifolds that do not bounce) is classified inconsistently: intended in DOC, a limitation in epics, absent from ISO. State it once, consistently: present today, open under `ENGINE-ISLANDS-SLEEP` (whose island grouping replaces it). Put it in DOC's open list, the ISO islands row and `epics.md`.
-  - `[low]` `[patch]` EC5-4 The stale drive-supply citations also include `deferred-work.md:209` and `:209-213` (EL-196, EL-199, EL-068, `readiness/batch-c.md:79`). Widen the deferred entry's selector.
-  - `[low]` `[patch]` EC5-6 GED stage 8 cites `:279` for event staging. Finite-work staging is at `:277`, and both run when the commit is prepared (`PreparePhysicalCommit`, `:280`).
-  - `[low]` `[patch]` VG5-1 GED Electrical omits that a route closes only while its source has energy left (`engine/gpu/SupplyRoute.cs:336`).
-  - `[low]` `[defer]` EFE5-d1 `epics.md:4834` (ENGINE-LIQUID Present today) says "buoyancy exists only for a gas-filled body in air", the same narrowing. Outside the repair, outside DOC and ISO; frontmatter `deferred`.
-  - `[false]` `[reject]` FO5 borderlines (the payer chosen by data, the `EmitRead` callers, the hollow pointer, the ANIM-1 deletion): all compliant.
-  - `[false]` `[reject]` Evidence-limit notes, and AC3/E9 pending the final round and gate.
-
-### 2026-11-25 — Review pass 6 (Blind Hunter, Verification Gap, Forward-Only, Element-Free; Edge Case Hunter not launched, because the repair changed no traced path; repair diff from the pass-5 tree `2ac5a74c`; detail in run log E20)
-- verdicts: 13 findings. high 0, medium 1, low 8, false 1, maybe-false 0; 3 deferred. Forward-Only: no violation.
-- findings:
-  - `[medium]` `[patch]` VG6-1, BH6-1, EFE6-7 The pass-5 instruction to delete the `:777` rule and say "island grouping replaces these rules" is unsupported: no contract line and no acceptance case. Remove `:777` from ENGINE-ISLANDS-SLEEP *Deletes*, from DOC's open list and from ISO's "replaces" sentence. State it as cited present behaviour. Its target decision is deferred to ENGINE-ISLANDS-SLEEP planning (frontmatter `deferred`).
-  - `[low]` `[patch]` EFE6-1 GED stage 8 splits event staging by kind, but the code splits by operation. An `ApplyFiniteWork` operation stages only finite work (`:277`); an advance stages every kind (`:279`). Both run before `PreparePhysicalCommit` (`:280`).
-  - `[low]` `[patch]` BH6-3 The GED narrowphase fixed-count searches also cover box–cylinder edges (`SegmentSteps`, `WorkshopCollisionKernels.cs:1418`), not only rims.
-  - `[low]` `[patch]` BH6-4 The GED pointer to the envelope should name both the Maximum Velocities and Non-Finite Quantities rows, or the envelope as a whole.
-  - `[low]` `[patch]` BH6-2 The deferred stale-citation selector misses `readiness/batch-c.md:106` (`:212`). Widen the selector.
-  - `[low]` `[patch]` FO6-o ISO `:219` leaves out the optional inventory fraction that `:217` states. Make the two consistent.
-  - `[low]` `[patch]` EFE6-2, EFE6-3, EFE6-4, EFE6-5 Coordinator records: the frontmatter stale-citation entry is widened, the Status line is restated in this edit, the Code Map `DOC:149` bullet no longer applies the inventory fraction to drag, and the deferral records are completed. EFE4-d1 is resolved by the pass-4 rewrite of GED stage 6, so it needs no record. EFE4-d3 is a note, not a deferral. Each deferred item also goes into `deferred-work.md` through the owner's patch.
-  - `[low]` `[defer]` EFE6-6 `architecture.md:230` (balloon formula) is outside the repair and outside DOC and ISO; frontmatter `deferred`.
-  - `[low]` `[defer]` BH6-5 `epics.md:5240` cites a nonexistent `SIM/WorkshopPhysicsCompiler.Gas.cs`. Present at baseline and outside the repair; frontmatter `deferred`.
-  - `[medium]` `[defer]` VG6-1b The target for the mixed-manifold `:777` rule goes to ENGINE-ISLANDS-SLEEP planning; frontmatter `deferred`.
-  - `[false]` `[reject]` FO6 borderlines (data-selected inventory fraction, non-finite reset, `#if PLAYTEST` trace, lane 1 exceptions): compliant.
-- tally correction (EFE7 note): pass 6 had 11 finding rows. By verdict: medium 2 (VG6-1 patch, VG6-1b defer), low 8, false 1. Three were deferred: EFE6-6, BH6-5 and VG6-1b.
-
-### 2026-11-25 — Review pass 7 (Blind Hunter, Verification Gap, Forward-Only, Element-Free; repair diff from the pass-6 tree `81400915`; detail in run log E21)
-- verdicts: 8 rows. medium 0, low 6, false 2, maybe-false 0; 2 deferred. Forward-Only: no violation. Verification Gap: no gap.
-- findings:
-  - `[low]` `[patch]` BH7-2, BH7-3 The `:777` rule has contradictory ownership. ISO says "not owned here", the deferred entry names ENGINE-ISLANDS-SLEEP planning, and epics and DOC `:277` give no pointer. Make all three agree: present behaviour, with the target decision deferred to ENGINE-ISLANDS-SLEEP planning through `deferred-work.md#restitution-mixed-manifold-rule`. DOC `:277` and `epics.md:4559` link that entry.
-  - `[low]` `[patch]` BH7-1, VG7-1 The stale-citation entry misdescribes `readiness/batch-c.md:106`, which cites the wrong-symbol wording (`ElectricalSupply.Allocate`), not drive supply. It also misses `completion-ledger.md:288` (PD-43), which cites `deferred-work.md:221`. Fix the entry's wording and selector.
-  - `[low]` `[patch]` EFE7-F1 The source of the new `epics.md:4834` deferred entry says pass 6. It is pass 5 (EFE5-d1).
-  - `[low]` `[defer]` EFE7-F2 `epics.md:4800` "one finite gas store per body" is outside the repair; frontmatter `deferred`.
-  - `[low]` `[defer]` EFE7-F3 ENGINE-ISLANDS-SLEEP has no acceptance case for the upward-normal filters. This is a gap in that story's planning; frontmatter `deferred`.
-  - `[low]` `[patch]` EFE7-note The Status line is restated in this edit (coordinator).
-  - `[false]` `[reject]` FO7 borderlines: the `:777` single membership test, staging by operation, the inventory fraction, and carried rulings. All compliant.
-  - `[false]` `[reject]` Evidence limits, and AC3/E9 pending.
-
-### 2026-11-25 — Review pass 8 (Verification Gap, Forward-Only, Element-Free; Blind Hunter and Edge Case Hunter not launched because the repair touched records and one link only; repair diff from the pass-7 tree `4e242aa3`; detail in run log E22)
-- verdicts: 2 findings. low 2; both are records, both patched. Forward-Only: Pass. Verification Gap: no gap. The Element-Free auditor confirmed every pass-7 row repaired, and no new contradicted claim in DOC or ISO.
-- findings:
-  - `[low]` `[patch]` EFE8-1 The frontmatter stale-citation `deferred:` entry kept the pre-repair wording. The coordinator restated it: selector `(209|211|212|221)`, 14 files, the drive-supply citers and the `Allocate`-wording citers listed separately.
-  - `[low]` `[patch]` EFE8-2 The M2 Execution cell in the acceptance table cited only E15–E17. The owner added E19–E21 (run log E21). The coordinator checked the cell against E19–E21; it is a records-only line, so no further review layer is needed.
-- Review loop closes at pass 8. All confirmed findings are repaired or deferred under Re-review scope with an owner. Next: the Final diff scope check, then the maintainability gate and the full round on the final candidate.
+### Passes 5–8, compacted (the verbatim rows are in this file at commit `d4b84b4e`, lines 418–468; run log E28; contract budget)
+- Pass 5 (five layers; E19): 13 rows. medium 2, low 9, false 2; 1 deferred (EFE5-d1). The original header said 15, which miscounted. Forward-Only Pass. Patched.
+- Pass 6 (four layers; E20): 11 rows. medium 2, low 8, false 1; 3 deferred (EFE6-6, BH6-5, VG6-1b). Forward-Only: no violation. Patched.
+- Pass 7 (four layers; E21): 8 rows. low 6, false 2; 2 deferred (EFE7-F2, EFE7-F3). Forward-Only: no violation. Verification Gap: no gap. Patched.
+- Pass 8 (three layers; E22): 2 low record findings, both patched. Forward-Only Pass. Verification Gap: no gap. The original review loop closed at pass 8.
 
 ### Final diff scope (2026-11-25)
 - **Pass.** Checked by the pass-8 Element-Free auditor, re-engaged as the informed reviewer, on the full owned candidate: 28 files, +1473/−224 against `37a259c9`, every hunk inspected.
 - **Kept:** every hunk serves the full-sentence audit, an M4/M5 claim class, a confirmed repair, or a planning record the contract names. Product edits outside DOC and ISO total +94/−94. R1 exclusions are respected, and the lane 1 lines are byte-identical.
 - **Removed:** nothing. Simplification: no justified opportunity; three candidates were considered and rejected (run log E22).
-- **Final candidate checks (run log E23):**
+- **Pre-VG-1 candidate checks (run log E23; the VG-1 round is in E39, its Final diff scope Pass in E40):**
   - maintainability gate PASS, with both canaries;
   - registration check 821/0/0;
   - full round 7407/0/0, `Skipped: 0`.
+
+### VG-1 repair re-review, passes 1–4, compacted (26 November 2026; the verbatim entries are in run log E31; contract budget)
+- **Pass 1** (Verification Gap, Forward-Only, Element-Free; E26):
+  - FO-1 (two link rules) and FO-2 (`<a name>`), both high;
+  - VG-a, a missing-file negative;
+  - Element-Free D1-1 to D1-4, the records;
+  - the planning-line re-check: items (a)–(c) pass, item (d) reworded.
+  - Patched in E25. D1-1, D1-2 and D1-4 were coordinator record fixes, and D1-3 is applied before the final round.
+- **Pass 2** (all five layers, but the Blind Hunter stalled; E27, E28):
+  - Forward-Only Pass;
+  - Verification Gap and Edge Case Hunter found fence, path, slug, link-form, case and code-span gaps;
+  - ruling (a) made one existence rule over 27 documents, with 13 broken links repaired.
+  - Patched (E27).
+- **Pass 3** (the Edge Case Hunter stalled; E29):
+  - Forward-Only F-1a/F-1b: the quotation skip was a second rule, and it was withdrawn;
+  - the existence check moved to the tracked tree, slug unescaping was added, and the front-matter test was added;
+  - `DESIGN.md` and `current-consumers.md` lines made true.
+  - Patched (E29).
+- **Pass 4** (all five layers; E30, E31):
+  - `DESIGN.md:70`, `:104`, `:108` and `:419` and `batch-i.md:134` and `:141` made true;
+  - 20 latent parsing items, resolved by the Markdig ruling.
+  - Patched (E30).
+- **Pass 5** (all five layers; E32):
+  - **Forward-Only FO5-1 (high).** `<a name>` had come back as a second anchor form. The coordinator withdrew that clause under FO-2.
+  - **Forward-Only FO5-2 and FO5-3 (high), with the other layers.** `DESIGN.md` still named `.glb`. They also found that `engine/PartArt.cs` was renamed to `ui/WorkshopArtwork.cs` at `8f682f84` (R091), not removed. The list of remaining procedural builders was incomplete; 6.5f owns them all.
+  - **`batch-i.md`.** The `:133` note was false for one link, and the EL-242 and EL-072 bullets read as open.
+  - **Checker items (a)–(f) and (h).**
+    - autolinks bypassed the scheme allow-list;
+    - the HTML attribute reading was loose;
+    - fences closed by their container were reported as unclosed;
+    - the `HtmlBlock` and image paths had no tests;
+    - `Message` had a discard arm;
+    - two wording errors;
+    - the Markdig version was a minimum, not an exact pin.
+  - **Records:**
+    - the M6 count;
+    - this summary;
+    - the duplicate negative in `deferred-work.md`.
+  - All are patched in E32. Item (g) and the Markdig slug differences are stated limits (Spec Change Log).
+- **Pass 6** (all five layers; E33). Forward-Only: no violation. Present-day document defects patched (`DESIGN.md`, `batch-i.md:131`, `vertical-delivery.md:187-190` by ruling (i)); zero-occurrence checker items became stated limits.
+- **Pass-6 patch re-review** (four layers; E34). Forward-Only failed on `vertical-delivery` titles and S257, and found a second collider source. `DESIGN.md:82` was false.
+  - Ruling (A): patch, and defer 6.5f's design and the KHR questions.
+- **Final capped re-review** (four layers; E35). The 6.5f acceptance had been narrowed; the coordinator withdrew it and restored the source. Forward-Only qualifiers were added to the glTF decision and to compile-time extraction. Further `engine.md` and GED lines were fixed.
+- **Closing capped re-review** (four layers; E36). The grep clause was restored, the workbench table now has one owner, and KHR is planned. Forward-Only wanted the planning corpus to stop presenting `.glb` and `.tres` as current.
+  - Ruling (i): add amendment notes to `epics.md` and the PRD.
+- **Notes-only pass** (three layers; E37). Patched:
+  - the grep scope;
+  - the workbench support plane;
+  - citations;
+  - the dates on the notes;
+  - the explicit `.tres` readings.
+- **E37 re-review** (three layers): fixes patched in E39. Deferrals: `deferred-work.md`.
 
 ## Design Notes
 
@@ -539,9 +547,10 @@ No tolerance applies; these are text and link checks.
 | M2 | ISO §2 and §4 read against the code | Control: baseline `:147`, §2.1 and §2.4 | E10 (ISO dispositions); E15 to E17 (§4.4 now 27 rows: WebGPU, compliant reservation, membrane samples, compliant friction, acoustic, MNA and gas network added); E19 to E21 (§4.4 islands row `:202`, gas row `:217`, force-regions row `:219` and §2.1 `:102` re-edited) |
 | M3, M4, AC2 | The M4 `rg` with every hit classified | Control: the baseline `git grep` lists the E2.2 D lines | E11: baseline 220 lines in 56 files, each candidate hit classified; E15: repaired candidate 218 in 52; E18: candidate 219 in 52, each hit classified, `architecture.md:66` target; E19: candidate 219 in 52, same classification; E20: candidate 219 in 52, same classification; E21: final candidate 219 in 52, same classification |
 | M5 | Per-line disposition list in the run log | Boundary: target or rule lines left unchanged are named | E10, E15 to E21: 94 lines added and 94 removed outside DOC and ISO, unchanged target or rule lines named |
-| M6 | `ArchitectureDocsConsistencyTests`, plus the anchor and heading check | Control: the baseline anchor list | E15 to E21: `ArchitectureDocsConsistencyTests` 4/0/0; executed fragment check (E21: 1187 links, 0 broken), with a broken-anchor control; ids identical to the baseline |
+| M6 | `ArchitectureDocsConsistencyTests`, plus the anchor and heading check | Control: the baseline anchor list | E15 to E21: `ArchitectureDocsConsistencyTests` 4/0/0; executed fragment check (E21: 1187 links, 0 broken), with a broken-anchor control; ids identical to the baseline for the original candidate. The VG-1 repair later retitled `DESIGN.md:68` and `:102`; neither old slug has an inbound link |
 | M7, AC4 | Each listed sentence quoted in the run log, plus a search for "only repairs and tooling" or "before the engine programme" over current planning documents | Control: no 24q at the baseline | E10 places; E12 search: every current list carries 24q |
-| AC3 | Full round, registration check, maintainability gate | Base 7407/0/0 and 821 | E12: 7407/0/0, `Skipped: 0` (`full-round-2.log`), registration 821/0/0 and gate PASS before the pass-1 repairs; E15 to E21: no compile input changed, `Coverage.Tests` 132/0/0; E23 on the final candidate: capture builds recaptured (`binlogs-e23/`, 0 warnings), gate PASS with both canaries, registration 821/0/0, full round 7407/0/0, `Skipped: 0` (`full-round-e23.log`, HEAD and HEAD-AFTER `37a259c9`), `git diff --check` clean |
+| AC3 | Full round, registration check, maintainability gate | Base 7407/0/0 and 821; after the VG-1 repair, 7432 (base, plus the 26 added and minus the 1 removed M6 VG-1 tests) and 821 | E12: 7407/0/0, `Skipped: 0` (`full-round-2.log`), registration 821/0/0 and gate PASS before the pass-1 repairs; E15 to E21: no compile input changed, `Coverage.Tests` 132/0/0; E23 on the pre-VG-1 candidate (VG-1 tip: E39): capture builds recaptured (`binlogs-e23/`, 0 warnings), gate PASS with both canaries, registration 821/0/0, full round 7407/0/0, `Skipped: 0` (`full-round-e23.log`, HEAD and HEAD-AFTER `37a259c9`), `git diff --check` clean |
+| M6 (VG-1 repair) | `ArchitectureDocsConsistencyTests` one link rule, `FindLinkProblems`, over the six authority docs and the 26 Markdown files the slice edited in `37a259c9..d4b84b4e`. Real-tree control: `EveryRelativeLinkInTheCheckedDocsResolves`, which replaces `EveryRelativeLinkInTheAuthorityDocsResolves`. `AgentsLinksTheIsolationAuthority` is rewritten onto the shared enumerator, with its count unchanged | 25 in-memory cases: `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckIgnoresNameAndDataIdAttributes`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheLinkCheckReportsALinkToAMissingFile`, `TheLinkCheckReportsALinkAboveTheRepositoryRoot`, `TheLinkCheckReportsALinkToAnUntrackedFile`, `TheLinkCheckReportsATrackedFileDeletedFromTheWorktree`, `TheLinkCheckResolvesATrackedFileAndDirectoryButNotAPartialName`, `TheLinkCheckReportsAnUnclosedFence`, `TheLinkCheckDoesNotReportAFenceClosedByItsContainer`, `TheLinkCheckSkipsOnlyAClosedFrontMatter`, `TheLinkCheckIgnoresCodeSpansAndHtmlComments`, `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`, `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`, `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`, `TheLinkCheckReportsUnsupportedHtmlAnchorForms`, `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`, `TheLinkCheckReportsUnsupportedFragments`, `TheLinkCheckTreatsOnlyHttpHttpsAndMailtoAsExternal`, `TheLinkCheckMatchesPathsCaseSensitively`. Parsing is by Markdig `[1.6.0]` | E32: the class ran 29/0/0 on the E32 tree (`arch-docs-e32-final.log`), registration 821/0/0, gate PASS, capture builds `binlogs-e32/`. E33: 29/0/0 again after the pass-6 patch (`arch-docs-e33-final.log`). The final link run after the last record edit, and the full round, are on the tip (run log E39, E40). E24 to E30 are superseded |
 
 ## Auto Run Result
 
@@ -563,17 +572,25 @@ No tolerance applies; these are text and link checks.
   - PD-23, `sprint-status.yaml`, `deferred-work.md`;
   - this contract and its run log.
 
-**Review.** Eight passes, recorded in the Review Triage Log and run log E22. Every confirmed finding is repaired except nine deferrals, each with an owner and listed in frontmatter `deferred` and `deferred-work.md`. Eight are deferred under Re-review scope. VG-1, the automated anchor test, was deferred at pass 1 under the intent contract's Never clause and awaits the coordinator's ruling. No forward-only violation remains, and Verification Gap reports no gap. The Element-Free verdict: Scoped Pass for this documents slice.
+**VG-1 repair** (on `d4b84b4e`, coordinator-authorised, 26 November 2026):
+- `ArchitectureDocsConsistencyTests` has one Markdig-based link rule over 27 checked documents: every relative link resolves to a tracked file, and every fragment resolves to an anchor. There are 26 tests added and 1 removed.
+- Markdig `[1.6.0]` is added to the test project only.
+- About 60 document lines were made true.
+
+**Files added by the repair:**
+- the test file and its csproj;
+- `invest/engine.md`, `invest/decisions.md` and the PRD.
+
+**Review.**
+- The original eight passes are recorded in run log E22.
+- The VG-1 repair then had eleven reviews (passes 1–6, a patch re-review, three capped re-reviews, an E37 re-review), recorded in the Triage Log and run log E24–E40.
+- Every confirmed finding is repaired, apart from eight deferrals under Re-review scope (frontmatter `deferred`) and the deferrals the coordinator ruled under the hard cap (`deferred-work.md`). Each has an owner.
+- VG-1 is resolved.
+- The Element-Free verdict for this documents slice and its test-only repair is a Scoped Pass.
 
 **Follow-up review recommendation:** false.
 
-**Verification (E23, final candidate):**
-- maintainability gate PASS, with both canaries;
-- registration check 821/0/0;
-- full round 7407/0/0, `Skipped: 0`;
-- `ArchitectureDocsConsistencyTests` 4/0/0;
-- anchor check: 1,187 links, 0 broken;
-- `git diff --check` clean.
+**Verification:** the final full round is in run log E39; E40 names the final link run, made after the last edit. The maintainability gate is reused from E33, since no `.cs` or `.csproj` file has changed since then.
 
 **Residual risks:**
 - The merge with `origin/main` must apply the lane 1 re-checks (run log E22).

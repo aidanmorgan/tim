@@ -674,3 +674,667 @@ No file other than this run log and the contract's acceptance table was edited f
   - `[low]` `[defer]` EFE4-d3 DOC `:145` "compiled into flat data tables" is not contradicted (byte records are flat). Recorded only.
   - `[false]` `[reject]` FO4-b borderlines (store and electrical airflow selected by data, the two pose feeds, scale enums mirrored across layers, the KinematicMode merge step) are compliant or already ruled.
   - `[false]` `[reject]` Evidence-limit notes, and AC3 pending the final round.
+
+## E24 VG-1 repair: fragment anchor checking in `ArchitectureDocsConsistencyTests` (implementation owner, 26 November 2026)
+
+Test-only repair on top of commit `d4b84b4e`, authorised by the coordinator (VG-1). Uncommitted in the worktree. The coordinator records the intent-contract amendment in the Spec Change Log; the intent contract was not edited here.
+
+**Change.** `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` gains a fragment checker and eight tests; the four existing tests are unchanged.
+- Scope: the six authority documents the test already reads (`CurrentAuthorities` and the isolation authority) plus `SliceEditedDocuments`, an explicit list of the 26 Markdown files from `git diff --name-only 37a259c9 HEAD -- '*.md'` at `d4b84b4e`; 27 distinct documents (`AGENTS.md` is the only authority outside the slice list).
+- Checker: `FindMissingFragments(documents, read)` reports each relative link with a `#fragment` whose target defines no such fragment, as `MissingFragment(Document, Line, Fragment)`. A bare `#fragment` is checked against its own document; a target path resolves relative to the linking document; URLs and `mailto:` are skipped; a missing target defines nothing. `Anchors(markdown)` collects each `<a id="…">` (or `name`) and each ATX heading slug, numbering a repeated slug `-1`, `-2`, …; lines inside code fences define and link nothing. `Slug(heading)` is GitHub's: lower case; drops every character except letters, numbers, marks, connector punctuation (`_`), `-` and spaces; each space becomes `-`.
+- Tests: `EveryFragmentLinkInTheCheckedDocsResolves` (control, real tree, prints `file:line: #fragment` for each miss); `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine` (negative, cross-file: expects exactly `docs/a.md`, line 3, `absent`); `TheFragmentCheckReportsAMissingSameFileAnchor` (negative, same file: line 2, `elsewhere`); `TheFragmentCheckResolvesASameFileHeading`; `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading` (`#setup-1`); `TheFragmentCheckResolvesAnExplicitAnchor` (`<a id>` in `../c/b.md`); `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub` (the heading ``8. Demand-grown (pools) & `Foo_bar` `` gives `8-demand-grown-pools--foo_bar`); `TheFragmentCheckIgnoresHeadingsInsideCodeFences` (a fenced `# Ghost` defines nothing, so the link is reported). In-memory documents only for the checker cases; no fixture file, hash or skip.
+- The real tree passed on the first run; no document link needed fixing.
+
+**Records.** Contract: frontmatter `deferred:` VG-1 item removed; acceptance-to-test table gains an "M6 (VG-1 repair)" row. `deferred-work.md`: the anchor-test entry is marked resolved.
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e24/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e24`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e24-a.log`, `capture-e24-b.log`, `capture-e24-c.log`. (An incremental test-project build before them, `tests-build-e24.log`, was also clean.)
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e24.log`.
+3. Registration check filter: **821/0/0** (17 + 195 + 83 + 97 + 429), unchanged (no test file added); `registration-e24.log`.
+4. `ArchitectureDocsConsistencyTests`, run after every record edit in this entry (the checked documents include this run log, the contract and `deferred-work.md`): result below; `arch-docs-e24.log`.
+5. `git diff --check d4b84b4e`: result below; `diff-check-e24.log`.
+
+The full round is the coordinator's, on the tip after re-review.
+
+**Results of 4 and 5.** `ArchitectureDocsConsistencyTests` **12/0/0** (the four existing tests and the eight new ones), `Skipped: 0`, after the record edits; `arch-docs-e24.log`. `git diff --check d4b84b4e` clean (exit 0); `diff-check-e24.log`.
+
+## E25 VG-1 re-review pass 1 repairs (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24 work, over `d4b84b4e`. Files edited: `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, `_bmad-output/implementation-artifacts/deferred-work.md` and this run log. The contract is the coordinator's this round and was not edited.
+
+- **FO-1 (one link rule).** A single enumerator, `RelativeLinks(document, text)`, yields `RelativeLinkTarget(Line, Target, Fragment)` for every Markdown link outside code fences that is not a URL or `mailto:`: path and fragment percent-decoded, path resolved against the linking document by `Resolve` (null above the repository root), a bare `#fragment` targeting the document itself. `FindMissingFragments` and the existing `EveryRelativeLinkInTheAuthorityDocsResolves` both use it; the latter keeps its name and intent (every relative link in the six authority docs names an existing file or directory) and now reports `doc:line -> target`. The old whole-text regex, `Split('#')` and `Path.Combine(directory, …)` path is deleted; the file has one link-extraction and resolution rule. Behaviour now shared by both checks: links inside code fences are not links, and paths are percent-decoded.
+- **FO-2.** `ExplicitAnchor` accepts `<a id="…">` only; the `<a name>` alternative and "(or `name`)" in the `Anchors` doc comment are removed. E24's description of the checker said "(or `name`)"; that clause no longer holds.
+- **VG-a.** Two in-memory negatives: `TheFragmentCheckReportsALinkToAMissingFile` (`docs/a.md` linking to `gone.md#here`, expects exactly `docs/a.md`, line 1, `here`) and `TheFragmentCheckReportsALinkAboveTheRepositoryRoot` (`../../x.md#y` from `docs/a.md`, with a root-level `x.md` defining `# Y` present, so only the root climb can fail it; expects `docs/a.md`, line 1, `y`).
+- **deferred-work.md.** The resolved VG-1 entry's owner line now reads "DOC-ENGINE-STATUS, its VG-1 repair (run log E24 and E25)" (line-local).
+
+**Test count.** `ArchitectureDocsConsistencyTests` has 14 tests: the 4 present at `d4b84b4e` (`AgentsLinksTheIsolationAuthority`, `NoAuthorityPresentsRetiredDesignAsCurrent`, `TheBanCheckRejectsAReinstatedPhrase`, `EveryRelativeLinkInTheAuthorityDocsResolves`, the last rewritten on the shared enumerator) and 10 new: `EveryFragmentLinkInTheCheckedDocsResolves`, `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheFragmentCheckReportsALinkToAMissingFile`, `TheFragmentCheckReportsALinkAboveTheRepositoryRoot`. New tests against `d4b84b4e`: **+10**.
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e25/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e25`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e25-a.log`, `capture-e25-b.log`, `capture-e25-c.log` (preceded by a clean incremental test-project build, `tests-build-e25.log`).
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e25.log`.
+3. Registration check filter: **821/0/0**, unchanged; `registration-e25.log`.
+4. `ArchitectureDocsConsistencyTests`, run last, after this entry was written: `arch-docs-e25-final.log` (result reported to the coordinator; a pre-capture run on the same source was 14/0/0, `arch-docs-e25-pre.log`).
+5. `git diff --check d4b84b4e`: `diff-check-e25.log`.
+
+The first run of step 4 failed on this entry itself: its VG-a bullet quoted the seeded link in Markdown link syntax inside a code span, and the checker, like the one before it, does not exempt code spans, so it reported `spec-doc-engine-status.md:707` (fragment `here`). The bullet was reworded line-locally and step 4 rerun.
+
+## E27 VG-1 re-review pass 2 repairs and the one link rule (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24 and E25 work, over `d4b84b4e`, for the coordinator's pass-2 findings and its ruling on ECH#1 (option a: one link rule over all 27 checked documents). Files edited: `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, `_bmad-output/implementation-artifacts/deferred-work.md`, this run log, and the document lines listed below. The contract is the coordinator's and was not edited.
+
+**The one link rule** (`FindLinkProblems(documents, read, kindOf)`, one result type `LinkProblem(Document, Line, Kind, Detail)` with the closed `LinkProblemKind` MissingTarget, MissingFragment or UnclosedFence). Every relative link in the 27 checked documents must name an existing file or directory, case-exact; a link with a `#fragment` must also name a Markdown file that defines it. `EveryRelativeLinkInTheAuthorityDocsResolves` (six authorities, existence only) and `EveryFragmentLinkInTheCheckedDocsResolves` are replaced by the single real-tree test `EveryRelativeLinkInTheCheckedDocsResolves` over `LinkCheckedDocuments`. Per finding:
+1. Closed fence: `TheFragmentCheckIgnoresHeadingsInsideCodeFences` now also has a broken link inside the fence (not reported) and one after the closing fence (reported, line 6).
+2. Fence parsing: a fence opens on three or more backticks or tildes indented at most three spaces, records its character and run length, and closes only on a bare run of the same character at least as long; a fence left open is reported as `UnclosedFence` at its opening line. New fact `TheFenceScanReportsAnUnclosedFenceAndClosesOnlyOnAMatchingMarker` (a different character and a shorter run do not close; a four-space-indented marker is not a fence; the open tilde fence is reported).
+3. Root-absolute links: a path starting with `/` resolves from the repository root (`Resolve`); `TheFragmentCheckResolvesAnExplicitAnchor` gains a root-absolute link to the same anchor.
+4. and ruling A, existence: the existence rule is part of the one rule, through the `kindOf` callback; the in-memory negatives are `TheLinkCheckReportsALinkToAMissingFile` and `TheLinkCheckReportsALinkAboveTheRepositoryRoot` (renamed from E25's `TheFragmentCheck…` names), each now with a plain link beside the fragment link, both reported as MissingTarget with the destination as written.
+5. Code spans: links and explicit anchors are matched after code spans are removed; heading slugs keep code-span text. New fact `TheLinkCheckIgnoresCodeSpans`.
+6. Rendered slugs: links become their text and emphasis markers go (`*`, and `_` only at a word boundary) before slugging; `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub` adds a heading with a link (`see-the-guide`) and an emphasised one (`emphasis-and-strong`).
+7. Duplicate-slug collision: github-slugger's rule, incrementing until the candidate is new; `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading` now has a literal `Setup 1` heading and resolves `#setup-1` and `#setup-2`.
+8. Heading forms: setext headings and headings inside blockquotes define anchors; front matter defines nothing. New fact `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`.
+9. Link forms: titled and angle-bracket inline links, reference definitions (not footnotes) and `<a href>` go through the one enumerator. New fact `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`.
+10. Non-Markdown targets: only a `.md` file defines anchors; a fragment on another file or a directory is reported. New fact `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`.
+11. Case: `FindEntry(path, list)` matches each path segment ordinally against a directory listing (the real tree lists `Root`, memoised per test run). New fact `TheLinkCheckMatchesPathsCaseSensitively`.
+12. `AgentsLinksTheIsolationAuthority` asserts that `RelativeLinks("AGENTS.md", …)` has a link whose target is the isolation authority; `Read` is `ReadRepositoryFile(…) ?? throw new FileNotFoundException(…)`.
+13. Not implemented, as ruled: `<a name>`, single-quoted or attribute-first anchors.
+- Ruling B, quotations: links in a straight-double-quoted span within a line and on a blockquote line are not checked, stated in the `FindLinkProblems` doc comment. New fact `TheLinkCheckIgnoresQuotations` (a broken link inside each form is not reported; one just outside each is). Links this hides in the 27 documents: `batch-i.md:3` (two links, both existing), `:133` (one link, existing), `:137` (the blockquoted EL-242 proposal; its `../elements/CAT-049-pipe_bend_45.md` is broken from this file, as a quotation relative to its destination), and `:139` (the quoted instruction with placeholder destinations and `../elements/CAT-050-pipe_bend_90.md`). No other quoted span in the 27 documents contains a link once code spans are removed. None of these lines was edited.
+
+**Document lines repaired under the one rule** (no other link in the 27 documents failed it):
+- `docs/planning/invest/current-consumers.md` `:12` (`../../../parts/BallPart.cs`), `:43` (`BasketPart.cs`), `:137` (`BallPart.cs`), `:148` (`BumperPart.cs`), `:215` (`DelayPart.cs`), `:226` (`DominoPart.cs`), `:342` (`LampPart.cs`), `:525` (`RampPart.cs`), `:614` (`SwitchPart.cs`), `:647` (`WallPart.cs`): each link to the deleted `parts/*Part.cs` file becomes plain text naming the retired file in a code span (no link). Each sentence lists that file as legacy deleted (or, at `:137` and `:226`, retained artwork at the time), so the element package is not that file's current home.
+- `DESIGN.md:419`: the links to the deleted `engine/PartArt.cs` and `engine/PartAssistance.cs` become plain text, "part geometry/materials (retired `engine/PartArt.cs`; …)" and "assistance easing (retired `engine/PartAssistance.cs`)"; no current file holds either.
+- `docs/planning/elements/readiness/owner-decisions-2026-11-22.md:71`: the contract link `../../../_bmad-output/…/spec-s5c-one-wire-schema-file.md` (which lands under `docs/`) becomes `../../../../_bmad-output/implementation-artifacts/spec-s5c-one-wire-schema-file.md`, which exists at this baseline.
+
+**deferred-work.md.** The VG-1 entry's present-tense sentences are reworded as history ("When this entry was raised, …"), its owner line cites E24, E25 and E27, and its status names the one rule and lists the negatives.
+
+**Test count.** `ArchitectureDocsConsistencyTests` has 20 tests. Three are unchanged from `d4b84b4e` in name (`AgentsLinksTheIsolationAuthority`, rewritten on the enumerator; `NoAuthorityPresentsRetiredDesignAsCurrent`; `TheBanCheckRejectsAReinstatedPhrase`); `d4b84b4e`'s `EveryRelativeLinkInTheAuthorityDocsResolves` is removed, replaced by the one rule. New since `d4b84b4e`, **17**: `EveryRelativeLinkInTheCheckedDocsResolves`, `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheLinkCheckReportsALinkToAMissingFile`, `TheLinkCheckReportsALinkAboveTheRepositoryRoot`, `TheFenceScanReportsAnUnclosedFenceAndClosesOnlyOnAMatchingMarker`, `TheLinkCheckIgnoresCodeSpans`, `TheLinkCheckIgnoresQuotations`, `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`, `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`, `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`, `TheLinkCheckMatchesPathsCaseSensitively`. Net change against `d4b84b4e`: 4 → 20 (+17 new, −1 removed).
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e27/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e27`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e27-a.log`, `capture-e27-b.log`, `capture-e27-c.log`. Before them an incremental test-project build failed once with two CA1861 errors (constant array arguments in two new assertions), fixed by asserting tuples; the clean build is `tests-build-e27.log`.
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e27.log`.
+3. Registration check filter: **821/0/0**, unchanged; `registration-e27.log`.
+4. `git diff --check d4b84b4e`: `diff-check-e27.log`.
+5. `ArchitectureDocsConsistencyTests`, run last, after this entry: `arch-docs-e27-final.log`. Before the document repairs the real-tree test reported exactly the 13 links above (`arch-docs-e27-pre.log`); after them, 20/0/0 (`arch-docs-e27-pre2.log`).
+
+## E26 Coordinator: VG-1 authorisation, planning-verdict correction and re-review pass 1 (26 November 2026)
+
+**Coordinator message (26 November 2026).**
+- It authorised the VG-1 test-only repair: fragment checking in `ArchitectureDocsConsistencyTests`, with a negative case and a control, and an amendment to the contract's "no test changes" line.
+- It required re-review by fresh Verification Gap and Forward-Only reviewers.
+- It stated that recording Scoped Pass at the sixth planning check without a re-check is not how a verdict is recorded.
+
+**Correction to E9.** E9 records that the sixth check reported one low finding with a prescribed repair. The coordinator applied that repair and then recorded "planning Scoped Pass" without an independent re-check of the applied line. That record was not a valid verdict: an unresolved finding is not a Pass. E9 stays unedited as history. This entry corrects it.
+
+**Re-review pass 1** ran on the repair diff from `d4b84b4e` (evidence `blind-vg1.diff` and `full-vg1.diff`). It had three context-free reviewers:
+- **Verification Gap.** One patch: no test covered a missing-file target or a path above the repository root. Two record notes: a stale close note, and a stale owner line in `deferred-work.md`. It also audited the real tree read-only: 1,207 fragment links across 43 targets, none missing.
+- **Forward-Only.** Two violations, both patched: two link-extraction rules, and `<a name>` accepted as a second anchor form.
+- **Element-Free, with an added duty to re-check the planning line.**
+  - Duty 1: no engine change and not mis-tiered. D1-1 found that AC3 contradicted the repair; D1-2 and D1-3 found stale citations and records; D1-4 found that the triage entry was missing.
+  - Duty 2: items (a)–(c) pass, so the applied Design Notes 8 line is correct and `epics.md:4466` is unedited. Item (d) failed because the corrected text claimed the check "returned Fail", which E9 does not record. The text is reworded.
+
+The auditor also judged Blind Hunter and Edge Case Hunter in scope for this repair, because it adds new branching test code. Pass 2 therefore runs all five layers.
+
+**Repairs.**
+- The implementation owner's repairs are in E25: FO-1, FO-2, VG-a and the `deferred-work.md` owner line.
+- The coordinator made these contract edits:
+  - the Planning verdict line and the Spec Change Log entry, reworded;
+  - AC3 and its table row, now 7407 + 10 = 7417 with registration 821;
+  - the M6 (VG-1 repair) row, now citing E25;
+  - the Spec Change Log entry for D1-1 and FO-1;
+  - the Review Triage Log entry "VG-1 repair re-review, pass 1".
+- D1-3 (the Auto Run Result, the Status line and `TODO.md`) is updated after the final round on the tip.
+
+## E28 Coordinator: VG-1 re-review pass 2, ruling (a) and contract budget (26 November 2026)
+
+**Pass 2 reviewers.** Pass 2 ran on the diff from `d4b84b4e` (`blind-vg1-p2.diff`, `full-vg1-p2.diff`).
+- **Forward-Only:** Pass. Two borderline items were patched.
+- **Verification Gap:** two gaps, a fence-close test and a negative case for the existence rule. Also noted: the root-absolute regression and the rendered-text slugs.
+- **Element-Free:** Incomplete on records. The AC3 pointer and the M6 timing clause were patched. D1-3 is scheduled.
+- **Edge Case Hunter:** 13 items. ECH-1 escalated, 11 patched, 1 rejected.
+- **Blind Hunter:** stalled on a shell command at 04:32 with no output. The coordinator stopped it, and pass 3's fresh Blind Hunter supersedes it.
+
+**Coordinator ruling (a) on ECH-1, 26 November 2026.**
+- One existence rule now covers all 27 checked documents, and the broken links are repaired line-locally.
+- Quotations are skipped under one stated rule: straight-double-quoted spans and blockquote lines. The coordinator accepted it.
+- My first escalation also misreported `owner-decisions-2026-11-22.md:71` as a merge artefact. The coordinator and I both confirmed that the target exists at `37a259c9`. The link lacked one `../`.
+
+The implementation owner's repairs are in E27. They sit above E26 in this file because they were inserted there. E26 and this entry are coordinator entries.
+
+**Test count.** `ArchitectureDocsConsistencyTests` changed from 4 tests to 20: 17 added and 1 removed. AC3 now expects 7423 with registration 821.
+
+**Contract budget.** The contract reached 8,907 words, over the 8,000-word close budget. The contract now keeps a compact summary of the Review Triage Log for passes 5–8. The verbatim rows stay in git as the archive: `_bmad-output/implementation-artifacts/spec-doc-engine-status.md` at commit `d4b84b4e`, lines 418–468.
+
+## E29 VG-1 re-review pass 3 repairs (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24, E25 and E27 work, over `d4b84b4e`, for the coordinator's pass-3 rulings. Files edited: `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, `_bmad-output/implementation-artifacts/deferred-work.md`, this run log, and the document lines below. The contract is the coordinator's and was not edited.
+
+**Test file.**
+1. Quotation skips deleted (ruling A, F-1a/F-1b): `RelativeLinks` no longer skips blockquote lines or removes straight-double-quoted spans; a blockquote prefix is stripped only so that a quoted reference definition is still read. The `Quotation` regex is gone and the `FindLinkProblems` doc comment now says links are judged wherever GitHub renders them, blockquotes and quoted text included; only front matter, code fences and code spans are not checked. `TheLinkCheckIgnoresQuotations` is inverted and renamed `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`: a broken link in a quoted span (line 1) and one in a blockquote (line 2) are both reported.
+2. Tracked-tree existence ((a), Blind Hunter): `TrackedKinds(trackedFiles)` gives File for a tracked path, Directory for any proper prefix of one (and the root), Missing otherwise, by ordinal match. The real tree is `TrackedKinds(GitTrackedFiles())`, built once per test run (`Lazy`); `GitTrackedFiles` runs `git -C <root> ls-files -z` and throws `InvalidOperationException` with the command, exit code and stderr, or a "git must be on PATH" message, when git cannot run; nothing is skipped. `ReadRepositoryFile` reads only tracked files. The directory-listing seam of E27 (`FindEntry`, `ListRepositoryDirectory`) is deleted; `TheLinkCheckMatchesPathsCaseSensitively` now runs on `TrackedKinds`. New facts: `TheLinkCheckReportsALinkToAnUntrackedFile` (a readable local file outside the tracked list is reported) and `TheLinkCheckResolvesATrackedFileAndItsDirectory` (control).
+3. Slug unescaping ((b)): outside code spans, a backslash escape yields its character literally (so `\_bmad layout` gives `_bmad-layout`), and HTML entities are decoded (`Save &amp; load` gives `save--load`); both cases are added to `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`.
+4. Front matter ((c)): new fact `TheLinkCheckSkipsOnlyAClosedFrontMatter`. In a closed front matter a link and a heading-like line are ignored (the body link to `#heading` on line 5 is reported because the heading does not exist), and the first body line is checked. A first `---` with no closing `---` hides nothing: as on GitHub, where it renders as an ordinary line (a thematic break), the link on line 2 is checked and reported. The `Scan` doc comment states this.
+
+**Document lines changed** (before → after; deletion SHAs confirmed with `git log --diff-filter=D --format=%h`: `engine/PartArt.cs` `8f682f84`, `engine/PartAssistance.cs` `cf46eb99`, `parts/BallPart.cs` `8f682f84`, `parts/DominoPart.cs` `8f682f84`):
+- `docs/planning/elements/readiness/batch-i.md:133–137` (now `:133–139`): the blockquoted EL-242 proposal (five `>` lines, three of text and two empty) → the same three text lines and two blank lines inside a `markdown` code fence, without the `>` markers. Wording unchanged.
+- `batch-i.md:139` (now `:141`): the two quoted EL-072 texts → the same texts inside code spans, still within their double quotes. Wording unchanged.
+- `batch-i.md:3`: unchanged, now checked; its two links resolve.
+- `DESIGN.md:70`: "Imperative procedural C# mesh construction (`engine/PartArt.cs`) and hardcoded coordinate/collider tables in code are strictly deprecated and scheduled for complete deletion at `LEGACY-0`." → "Imperative procedural C# mesh construction (the former `engine/PartArt.cs`, removed at `8f682f84`) and hardcoded coordinate/collider tables in code are not permitted."
+- `DESIGN.md:104`: "legacy procedural C# primitives (`PartArt.cs`)" → "legacy procedural C# primitives (`engine/PartArt.cs`, removed at `8f682f84`)"; the conversion rule is unchanged.
+- `DESIGN.md:419`: "part geometry/materials (retired `engine/PartArt.cs`; procedural mesh generation deprecated in favor of declarative glTF 2.0 `.glb` assets; scheduled for deletion at `LEGACY-0`)" → "part geometry/materials (`engine/PartArt.cs`, removed at `8f682f84`; procedural mesh generation is deprecated in favor of declarative glTF 2.0 `.glb` assets)"; "assistance easing (retired `engine/PartAssistance.cs`)" → "assistance easing (`engine/PartAssistance.cs`, removed at `cf46eb99`)". No current owner of either was found.
+- `docs/planning/invest/current-consumers.md:137`: "(`parts/BallPart.cs` is retained as artwork that reads the declared material of either kind)" → "(`parts/BallPart.cs` was retained as artwork that read the declared material of either kind; deleted at `8f682f84`)".
+- `current-consumers.md:226`: "(the file remains artwork only)" → "(the file was then retained as artwork only; deleted at `8f682f84`)".
+- No other line of the 27 documents failed once the skips were gone: before the `batch-i.md` edits the real-tree test reported only `batch-i.md:137` (CAT-049) and `:139` (the two placeholder `…` links and CAT-050) (`arch-docs-e29-pre.log`); after them, 23/0/0 (`arch-docs-e29-pre2.log`).
+
+**deferred-work.md.** The VG-1 entry's owner and status cite E29, the tracked-tree rule and the new negatives (untracked file, blockquote and quoted-text links reported, front matter, slug escapes and entities).
+
+**Test count.** `ArchitectureDocsConsistencyTests` has 23 tests. Against `d4b84b4e` (4 tests): 1 removed (`EveryRelativeLinkInTheAuthorityDocsResolves`) and **20 added**: `EveryRelativeLinkInTheCheckedDocsResolves`, `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheLinkCheckReportsALinkToAMissingFile`, `TheLinkCheckReportsALinkAboveTheRepositoryRoot`, `TheLinkCheckReportsALinkToAnUntrackedFile`, `TheLinkCheckResolvesATrackedFileAndItsDirectory`, `TheFenceScanReportsAnUnclosedFenceAndClosesOnlyOnAMatchingMarker`, `TheLinkCheckSkipsOnlyAClosedFrontMatter`, `TheLinkCheckIgnoresCodeSpans`, `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`, `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`, `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`, `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`, `TheLinkCheckMatchesPathsCaseSensitively`. Unchanged in name: `AgentsLinksTheIsolationAuthority`, `NoAuthorityPresentsRetiredDesignAsCurrent`, `TheBanCheckRejectsAReinstatedPhrase`. Net: 4 → 23 (+20, −1); against E27's 20, +3 (`TheLinkCheckReportsALinkToAnUntrackedFile`, `TheLinkCheckResolvesATrackedFileAndItsDirectory`, `TheLinkCheckSkipsOnlyAClosedFrontMatter`) and one rename (`TheLinkCheckIgnoresQuotations` → `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`).
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e29/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e29`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e29-a.log`, `capture-e29-b.log`, `capture-e29-c.log` (preceded by a clean incremental test-project build, `tests-build-e29.log`).
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e29.log`.
+3. Registration check filter: **821/0/0**, unchanged; `registration-e29.log`.
+4. `git diff --check d4b84b4e`: `diff-check-e29.log`.
+5. `ArchitectureDocsConsistencyTests`, run last, after this entry: `arch-docs-e29-final.log`.
+
+## E30 VG-1 re-review pass 4: document lines (B) and Markdig (C) (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24 to E29 work, over `d4b84b4e`, for the coordinator's pass-4 document findings (B) and its latent-parsing ruling (C). Files edited: `DESIGN.md`, `docs/planning/elements/readiness/batch-i.md`, `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, `CuriousContraptions.tests/CuriousContraptions.tests.csproj` and this run log. The contract is the coordinator's and was not edited.
+
+**B. Document lines** (before → after; every claim checked in the repository first).
+- Evidence: `git ls-files parts` lists nothing; `git log --diff-filter=D --format=%h -- 'parts/*Part.cs'` gives `8f682f84` (eleven files including `BallPart.cs` and `DominoPart.cs`), `a7fb5d05` (`PipePart.cs`) and `cf46eb99` (41 files); `engine/PartArt.cs` and `engine/gpu/WorkshopPartKind.cs` were deleted at `8f682f84`, `engine/PartAssistance.cs` at `cf46eb99`; `git grep WorkshopPartKind -- '*.cs'` finds nothing. `git ls-files '*.glb'` lists nothing; all 14 named elements have a tracked scene (`elements/Ball/ball.tscn` … `elements/Battery/battery.tscn`). `sprint-status.yaml:98` (6.5d), `:100` (6.5e) and `:102` (6.5f) are `in-progress`; `vertical-delivery.md:190` is the LEGACY-PARTART-PURGE (6.5f) row. `ui/Workshop.cs:171-176` builds the workbench with `WorkshopArtwork.Box` and `.Sphere`, which create `BoxMesh` and `SphereMesh` (`ui/WorkshopArtwork.cs:20-27`), and `engine/Workbench.cs:11-14` holds the workbench coordinates. `epics.md:538` and `:933` record the 18 October 2026 owner decision that the element's own `.tscn` scene, not `.glb`, is the authored format. `git log -S` finds both EL-242 edits in `named-elements.md` (EL-072 at `:678`, worded "belong to", and EL-242 at `:2120`) in `daba83d0`.
+- `DESIGN.md:70`: "All 3D puzzle elements, fixtures, and tools are delivered in open-source, industry-standard **glTF 2.0 binary (`.glb`)** format. Imperative procedural C# mesh construction (the former `engine/PartArt.cs`, removed at `8f682f84`) and hardcoded coordinate/collider tables in code are not permitted." → "Every puzzle element is authored as its own Godot `.tscn` scene in its package, not as `.glb` (owner decision, 18 October 2026: `epics.md:538`, `:933`; no `.glb` file is tracked). Imperative procedural C# mesh construction and hardcoded coordinate/collider tables in code are not permitted: `engine/PartArt.cs` was removed at `8f682f84`, and the remaining procedural fixture art (the workbench's `BoxMesh` and `SphereMesh`, built through `ui/WorkshopArtwork.cs:20-27` from `ui/Workshop.cs:171-176`) and the workbench coordinate table (`engine/Workbench.cs:11-14`) are owned by LEGACY-PARTART-PURGE (Story 6.5f, in progress: `sprint-status.yaml:102`, `vertical-delivery.md:190`)." The section heading (glTF) is unchanged; no link targets it by slug (its explicit anchor is `technical-art-pipeline`).
+- `DESIGN.md:104`: "… must be converted forward from legacy procedural C# primitives (`engine/PartArt.cs`, removed at `8f682f84`) and hardcoded shape tables to self-contained glTF 2.0 (`.glb`) assets in `parts/models/`." → "… are converted forward from the legacy procedural C# primitives (`engine/PartArt.cs`, removed at `8f682f84`) and hardcoded shape tables to the element's own `.tscn` scene in its package, `elements/<Name>/*.tscn` (owner decision of 18 October 2026, `epics.md:538`). Each of the 14 has its scene today (for example `elements/Ball/ball.tscn`); the conversion stories 6.5d and 6.5e stay in progress until their addenda close (`sprint-status.yaml:98`, `:100`)." The scenes exist, but the owning stories are open, so the line states both rather than completed history.
+- `DESIGN.md:108`: "- Bespoke per-part C# scripts (`parts/*Part.cs`), procedural mesh generation in `engine/PartArt.cs`, hardcoded dimension resources, and closed part enums (`WorkshopPartKind`) must be completely deleted upon conversion. Strictly zero …" → "- No bespoke per-part C# scripts, procedural mesh generation, hardcoded dimension resources or closed part enums: the `parts/*Part.cs` scripts were deleted at `8f682f84`, `a7fb5d05` (`parts/PipePart.cs`) and `cf46eb99`, and `engine/PartArt.cs` and the closed `WorkshopPartKind` enum (`engine/gpu/WorkshopPartKind.cs`) at `8f682f84`. Strictly zero …" (the rest unchanged).
+- `DESIGN.md:419`: "part geometry/materials (`engine/PartArt.cs`, removed at `8f682f84`; procedural mesh generation is deprecated in favor of declarative glTF 2.0 `.glb` assets)" → "part geometry/materials (`engine/PartArt.cs`, removed at `8f682f84`; each element is its own `.tscn` scene, and the remaining procedural fixture code is owned by Story 6.5f, as the technical art pipeline above states)". `assistance easing (… removed at cf46eb99)` unchanged.
+- `batch-i.md:141` (now `:143`): "Until both edits are made, CAT-049 acceptance stays an open criterion of EL-072." → "Both edits were applied in `daba83d0` (`docs/planning/invest/named-elements.md:678` for EL-072, worded "the 45° angle and CAT-049 acceptance belong to EL-242", and `:2120` for EL-242), so CAT-049 acceptance is no longer an open criterion of EL-072."
+- `batch-i.md:133` (new line, then a blank line, before the fence): "The links in the fenced entry below are written relative to `docs/planning/invest/named-elements.md`, where the entry goes, not to this file." The fenced text is unchanged.
+
+**C. Markdig replaces the hand-written Markdown parsing.**
+- Dependency: `Markdig` `1.6.0` (published 4 November 2026, the current stable on nuget.org), an exact `PackageReference` in `CuriousContraptions.tests.csproj` only, in its own item group with a comment (not in the xunit group, whose comment pins packages identical with `tools/Coverage.Tests`). Restored from `https://api.nuget.org/v3/index.json` (`restore-markdig-e30.log`: content hash `rJEpDfPM8wrfXUgkNejjg2bJN9bciy44uVyRwKUI+92CnSmbaLeJTLPYcCdvgM4RFsKrhs8d2H2hO78yZpMl3g==`). Package-list guards: none applies. `CSharpStaticGateTests` pins analyzers by package (`PackageAnalyzers`), compiled package sources, compiler switches and the package-source config, but not a project's package list; Markdig ships no analyzer or compiled source, and the static-gate tests pass on the new binlogs. `tools/BundleElements.Tests/PackageReferenceTests.cs` covers element packages only, `tools/E2eRunner.Tests/FastSelectionTests.cs` tests test selection, and `tools/anvil/VerifyPolicy.cs` has no package check. No allow-list was edited.
+- Parsing: one pipeline, `UseYamlFrontMatter`, `UsePipeTables`, `UseAutoLinks`, `UseFootnotes`, `UseEmphasisExtras`, `UseTaskLists` and `UseAutoIdentifiers(AutoIdentifierOptions.GitHub)` (the GitHub-relevant subset of `UseAdvancedExtensions`, which would also register default-mode identifiers). Links are `LinkInline` nodes (images included; reference-style uses skipped, checked at their definition) and `LinkReferenceDefinition` nodes other than the heading and footnote definitions Markdig synthesises; lines are `Line + 1`. HTML `href`, `id` and `name` are read from `<a>` tags in `HtmlInline` tags and `HtmlBlock` lines with one attribute pattern. Anchors are `HeadingBlock.GetAttributes().Id` plus HTML `id` and `name`. The hand-written fence, front-matter, code-span, emphasis, escape, entity, setext, blockquote and slug code and its regexes are deleted.
+- Unclosed fence: kept as the typed `UnclosedFence` report, read from Markdig as a `FencedCodeBlock` with `ClosingFencedCharCount == 0`. CommonMark runs such a fence to the end of the document, so every later link silently leaves the rule; reporting it keeps the rule complete. The real tree has none.
+- Item 14: a destination is external only for `http`, `https` or `mailto`; anything else, including `name:digits`, is a relative path and is checked. `TODO.md` has no such destination today.
+- Item 16: a fragment on a directory target or of GitHub line form (`L10`, `L10-L20`, optionally with columns) is reported as `UnsupportedFragment`; the class summary documents the rule. Neither occurs in the 27 documents.
+- Item 18: the tracked-tree control now also links `su`, a non-boundary prefix of tracked `docs/sub/b.md`, which is reported missing.
+- Item 19: `PresentKinds` counts a tracked file that is not present as missing, so a tracked file deleted from the worktree is a `MissingTarget` (the real tree checks `File.Exists`; in memory, presence in the document set).
+- Item 20: `GitTrackedFiles` reads stdout and stderr with `ReadToEndAsync` concurrently, waits at most 60 s, and on timeout kills the process tree and throws `TimeoutException` naming the command.
+- Tests rewritten or removed with the hand parsers: `TheFenceScanReportsAnUnclosedFenceAndClosesOnlyOnAMatchingMarker` (fence-marker parsing; replaced by the outcome test `TheLinkCheckReportsAnUnclosedFence`); `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub` now runs its five cases (punctuation with a code span, a link, emphasis, an escape, an entity) through Markdig's anchors; `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget` keeps the `.sh` case, its directory case moving to `TheLinkCheckReportsUnsupportedFragments`; `TheLinkCheckResolvesATrackedFileAndItsDirectory` is renamed `TheLinkCheckResolvesATrackedFileAndDirectoryButNotAPartialName` (item 18). `TheFragmentCheckResolvesAnExplicitAnchor` adds an HTML `name` anchor. `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks` separates its four forms by blank lines, since in CommonMark a reference definition cannot interrupt a paragraph.
+
+**Test count.** `ArchitectureDocsConsistencyTests` has 26 tests. Against `d4b84b4e` (4 tests): 1 removed (`EveryRelativeLinkInTheAuthorityDocsResolves`) and **23 added**: `EveryRelativeLinkInTheCheckedDocsResolves`, `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheLinkCheckReportsALinkToAMissingFile`, `TheLinkCheckReportsALinkAboveTheRepositoryRoot`, `TheLinkCheckReportsALinkToAnUntrackedFile`, `TheLinkCheckReportsATrackedFileDeletedFromTheWorktree`, `TheLinkCheckResolvesATrackedFileAndDirectoryButNotAPartialName`, `TheLinkCheckReportsAnUnclosedFence`, `TheLinkCheckSkipsOnlyAClosedFrontMatter`, `TheLinkCheckIgnoresCodeSpans`, `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`, `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`, `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`, `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`, `TheLinkCheckReportsUnsupportedFragments`, `TheLinkCheckTreatsOnlyHttpHttpsAndMailtoAsExternal`, `TheLinkCheckMatchesPathsCaseSensitively`. Unchanged in name: `AgentsLinksTheIsolationAuthority`, `NoAuthorityPresentsRetiredDesignAsCurrent`, `TheBanCheckRejectsAReinstatedPhrase`. Net: 4 → 26 (+23, −1). Against E29's 23: +3 (`TheLinkCheckReportsATrackedFileDeletedFromTheWorktree`, `TheLinkCheckReportsUnsupportedFragments`, `TheLinkCheckTreatsOnlyHttpHttpsAndMailtoAsExternal`), one replaced (`TheFenceScanReportsAnUnclosedFenceAndClosesOnlyOnAMatchingMarker` → `TheLinkCheckReportsAnUnclosedFence`) and one renamed (`TheLinkCheckResolvesATrackedFileAndItsDirectory` → `TheLinkCheckResolvesATrackedFileAndDirectoryButNotAPartialName`). A first run on the new parser, before these records, was 26/0/0 (`arch-docs-e30-pre.log`).
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e30/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e30`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e30-a.log`, `capture-e30-b.log`, `capture-e30-c.log` (preceded by a clean incremental test-project build, `tests-build-e30.log`).
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e30.log`.
+3. Registration check filter: **821/0/0**, unchanged (it includes `CSharpStaticGateTests`); `registration-e30.log`.
+4. `git diff --check d4b84b4e`: `diff-check-e30.log`.
+5. `ArchitectureDocsConsistencyTests`, run last, after this entry: `arch-docs-e30-final.log`.
+
+## E31 Coordinator: VG-1 re-review passes 3 and 4, rulings, and contract budget (26 November 2026)
+
+**Pass 3.** Verification Gap, Forward-Only, Element-Free and Blind Hunter reported. The Edge Case Hunter stalled after 05:13, and the coordinator stopped it.
+- The Forward-Only finding F-1a/F-1b (the quotation skip was a second rule) reopened quoting, so I stopped and escalated.
+- The coordinator's rulings:
+  - (A) withdraw the quote rule, delete both skips and fence the `batch-i.md` proposals;
+  - patch tracked-tree existence, slug unescaping and the front-matter test;
+  - fix `DESIGN.md:70`, `:104`, `:419` and `current-consumers.md:137`, `:226`;
+  - cap convergence at pass 4.
+- The implementation owner's repairs are in E29.
+
+**Pass 4.** All five layers reported.
+- Forward-Only blocked on `DESIGN.md:108` and `:419`. Element-Free and Blind Hunter found further `DESIGN.md` and `batch-i.md` lines.
+- Twenty latent checker-parsing items, none occurring in the 27 documents, went to the coordinator as one list, as the cap requires.
+- The coordinator's ruling: deferral is not available for code the repair added, and patching items one by one does not converge. Replace the hand-written parsing with Markdig at a pinned version in the test project only; add the scheme allow-list and the unsupported-fragment report; patch items 18–20; patch every document line.
+- The implementation owner's repairs are in E30.
+
+**Records.** I updated AC3 (7429), its table row, the M6 row and the Spec Change Log, and the `deferred-work.md` VG-1 entry now cites E30 and Markdig.
+
+**Contract budget.** The contract reached 8,858 words, over the 8,000-word close budget. The VG-1 re-review pass 1–4 Review Triage Log entries move below verbatim, and the contract keeps a compact summary.
+
+### Verbatim: Review Triage Log, VG-1 repair re-review passes 1–4, moved from the contract
+
+#### 2026-11-26 — VG-1 repair re-review, pass 1 (Verification Gap, Forward-Only, Element-Free; repair diff from `d4b84b4e`; detail in run log E26)
+- **FO-1 (high, patch, fixed E25).** There were two link-extraction and resolution rules: the existing existence test and the new checker. Now one enumerator serves both.
+- **FO-2 (high, patch, fixed E25).** `<a name>` was accepted as a second anchor form. Now only `<a id>` is accepted.
+- **VG-a (patch, fixed E25).** No test covered a fragment link to a missing file or one above the repository root. Two in-memory negatives were added.
+- **D1-1 (patch, fixed).** AC3 contradicted the repair. It is amended (Spec Change Log).
+- **D1-2 (patch, fixed).** The M6 row cited a run taken before the last record edit. It now cites `arch-docs-e25-final.log`.
+- **D1-3 (patch).** The Auto Run Result, Status line and `TODO.md` were stale. They are updated with the final round on the tip.
+- **D1-4 (patch, fixed).** This entry now exists.
+- **Planning-line re-check (Element-Free auditor, duty 2).** Items (a)–(c) pass: Design Notes 8 carries `epics.md:4466`, it is consistent with M4, AC2, Verification and Concurrency, and `epics.md:4466` is unedited by this slice. Item (d) failed, because the corrected verdict text said "returned Fail", which E9 does not record. The text is reworded to what E9 supports, and run log E26 records the correction.
+- **Not filed:** setext headings and mixed fence characters. The Verification Gap reviewer checked that none occur in the 27 checked documents; a divergence would fail loudly.
+- **Re-review:** pass 2, by fresh reviewers, on the pass-1 repairs.
+
+#### 2026-11-26 — VG-1 repair re-review, pass 2 (Verification Gap, Forward-Only, Element-Free and Edge Case Hunter reported; Blind Hunter was launched and stalled with no output; diff from `d4b84b4e`; detail in run log E27)
+
+**Blind Hunter.** It stalled on a shell command at 04:32 and produced no output. The coordinator stopped it. Pass 3's fresh Blind Hunter on the repaired diff supersedes it.
+
+**Forward-Only.** Pass. FO-1 and FO-2 hold. Two borderline items are patched:
+- `AgentsLinksTheIsolationAuthority` now uses the one link enumerator;
+- the two file readers are collapsed into one.
+
+**Patches** (all fixed in E27 unless stated):
+- **Fences** (VG and ECH):
+  - a link after a closed fence is still checked;
+  - a fence closes only on a matching marker;
+  - a fence indented four or more spaces is not a fence;
+  - an unclosed fence is reported.
+- **Root-absolute targets** (VG and ECH): they resolve from the repository root. The FO-1 refactor had introduced this regression.
+- **Existence rule** (VG): it has a negative case.
+- **ECH-1** (coordinator ruling (a)): one existence rule now covers all 27 documents, and the broken links are repaired (Spec Change Log).
+- **Code spans** (ECH): they no longer yield links or anchors.
+- **Slugs** (ECH): rendered text is used. Link text replaces the link, and emphasis markers are removed.
+- **Duplicate-slug collision** (ECH): fixed with github-slugger's increment.
+- **Headings** (ECH): setext headings and headings inside blockquotes are recognised.
+- **Link forms** (ECH): titled links, angle-bracket links, reference definitions and `href` links are recognised.
+- **Non-Markdown fragment targets** (ECH): they are reported.
+- **Case-exact path match** (ECH).
+- **Element-Free record items**:
+  - the M6 row names all its tests;
+  - AC3 is measured on the repaired tip;
+  - `deferred-work.md` cites E24, E25 and E27;
+  - the Planning verdict states the verdict.
+
+**Rejected** (ECH): accepting `<a name>`, single-quoted anchors or attribute-first anchors. FO-2 fixed one current authoring form, `<a id="…">`, and any other form already fails loudly as a missing anchor.
+
+**Scheduled:** D1-3 runs before the final round on the tip, because it edits checked documents (pass-3 Element-Free finding 1). It covers:
+- frontmatter `status` and `review_loop_iteration`;
+- the Status line;
+- the Auto Run Result: the deferral count, VG-1, and the E23 figures;
+- `TODO.md`.
+
+#### 2026-11-26 — VG-1 repair re-review, pass 3 (Verification Gap, Forward-Only, Element-Free and Blind Hunter reported; Edge Case Hunter stalled after 05:13 and the coordinator stopped it; diff from `d4b84b4e`; detail in run log E29)
+
+**Blocking findings, all patched in E29:**
+- **F-1a, F-1b (Forward-Only, high).** The quotation and blockquote skip was a second rule. It hid four broken rendered links in `batch-i.md:137` and `:139` and handled `href` links and anchors inconsistently. Verification Gap and Blind Hunter agreed: the skip also hid `batch-i.md:3`, the document's own note. The coordinator withdrew the rule, so the skips are deleted and the proposal text becomes code.
+
+**Repair-affected, all patched in E29 by coordinator ruling:**
+- **Blind Hunter:**
+  - existence was checked against the working tree, not the tracked files;
+  - slugs did not handle backslash escapes or HTML entities;
+  - the front-matter skip had no test.
+- **Document text (Element-Free, Verification Gap and Blind Hunter):**
+  - `DESIGN.md:419` contradicted itself, and `:70` and `:104` still described `engine/PartArt.cs` as present;
+  - `current-consumers.md:137` and `:226` were in the present tense.
+
+**Records (Element-Free), fixed:**
+- D1-3 now runs before the final round;
+- a Spec Change Log entry for AC3 (7423);
+- the pass-2 header names the stalled Blind Hunter.
+
+**Pre-existing (Element-Free), patched by the coordinator:**
+- The compacted pass-5 count now gives the actual row tally.
+- The restitution deferral now leads with its pass-6 ID, VG6-1b.
+
+**Verification Gap:** the 17 tests are each discriminating, and the repaired links hide nothing that still exists.
+
+#### 2026-11-26 — VG-1 repair re-review, pass 4 (all five layers; diff from `d4b84b4e`; detail in run log E30)
+- **Verification Gap:** no gap. **Edge Case Hunter:** no claim falsified.
+- **Forward-Only (high, patched in E30):**
+  - `DESIGN.md:108` still described the deleted `parts/*Part.cs`, `engine/PartArt.cs` and `WorkshopPartKind` as present.
+  - `DESIGN.md:419` called procedural meshes "deprecated", while `:70` said "not permitted".
+- **Element-Free and Blind Hunter (patched in E30):**
+  - `DESIGN.md:70` had dropped the open owner, 6.5f.
+  - `DESIGN.md:70`, `:104` and `:419` still named `.glb`, against the owner's `.tscn` amendment.
+  - `DESIGN.md:104` placed an obligation on a deleted file.
+  - `batch-i.md:141` was stale (both edits were applied at `daba83d0`).
+  - `batch-i.md:134` needed a note saying which file its paths are relative to.
+  - The M6 row now names the `AgentsLinksTheIsolationAuthority` rewrite.
+- **Twenty latent checker-parsing items, none occurring in the 27 documents.** The coordinator ruled them out of deferral, since they are in code the repair added. Rather than patch them one by one, the checker's hand-written Markdown parsing is replaced by Markdig (Spec Change Log). That retires items 1–13, 15 and 17 at the source. Item 14 becomes the scheme allow-list, item 16 the unsupported-fragment report, and items 18–20 are patched.
+- **Re-review:** pass 5, by fresh reviewers, on the changed lines.
+
+## E32 VG-1 re-review pass 5: document lines and the ruled test-file items (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24 to E30 work, over `d4b84b4e`. Files edited: `DESIGN.md`, `docs/planning/elements/readiness/batch-i.md`, `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs`, `CuriousContraptions.tests/CuriousContraptions.tests.csproj` and this run log. The contract and `deferred-work.md` are the coordinator's and were not edited.
+
+**Correction to E29 and E30 (append-only).** They said `engine/PartArt.cs` was "removed" or "deleted" at `8f682f84`. `git log --diff-filter=D` reported it because it does not follow renames; `git show --name-status 8f682f84` records `R091 engine/PartArt.cs → ui/WorkshopArtwork.cs`, with `engine/PartArt.cs.uid` deleted and a new `ui/WorkshopArtwork.cs.uid` added. The file was renamed, and its procedural builders ship as `ui/WorkshopArtwork.cs`. The other deletions cited there (`engine/gpu/WorkshopPartKind.cs` and every `parts/*Part.cs`) are `D` entries and stand.
+
+**Verified.** `ui/WorkshopArtwork.cs:20-30` holds the `Box`, `Sphere`, `Cylinder` and torus `Ring` builders. `git grep` over `*.cs` finds their callers at `ui/Workshop.cs:171-176` (workbench), `ui/WorkshopConnections.cs:275`, `:289` (wire segments and knots), `engine/MachinePart.cs:139` (selection ring), `ui/WorkshopGuidance.cs:285` (snap ring) and `ui/RotationGizmo.cs:50`, plus direct `CylinderMesh`/`BoxMesh` construction in `ui/RotationGizmo.cs:54`, `:60`, `:105`, `:107` and an `ImmediateMesh` at `ui/PlacementShadows.cs:77`; no element package references `WorkshopArtwork`. `sprint-status.yaml:102` has 6.5f `in-progress` (`epics.md:993` still says Backlog; the sprint status is the authority cited). `git grep` finds no link to the old heading slugs of `DESIGN.md:68` or `:102` (only the explicit `technical-art-pipeline` anchor). Element scenes use `StandardMaterial3D` resources (for example `elements/Ball/ball.tscn`), and 36 element scenes carry `Loc_Port_` nodes. `named-elements.md:2119-2122` has `<a id="element-242">`, owner S361 and `sequence-task-800`, added at `daba83d0`; `:673` has `<a id="element-072">`.
+
+**Document lines** (before → after):
+- `DESIGN.md:68` heading: "Technical art pipeline — glTF 2.0 (.glb) standards" → "Technical art pipeline — element `.tscn` scene standards"; the `technical-art-pipeline` anchor on `:67` is kept.
+- `DESIGN.md:70`: the E30 text ("… Imperative procedural C# mesh construction and hardcoded coordinate/collider tables in code are not permitted: `engine/PartArt.cs` was removed at `8f682f84`, and the remaining procedural fixture art (the workbench's `BoxMesh` and `SphereMesh`, built through `ui/WorkshopArtwork.cs:20-27` from `ui/Workshop.cs:171-176`) and the workbench coordinate table … are owned by LEGACY-PARTART-PURGE …") → the `.tscn` sentence unchanged, then "For puzzle elements, fixtures and tools alike, imperative procedural C# mesh construction and hardcoded coordinate/collider tables in code are not permitted. The code that still does so is pending removal under LEGACY-PARTART-PURGE (Story 6.5f, in progress at `sprint-status.yaml:102`; its roadmap row, `vertical-delivery.md:190`, covers all procedural mesh building routines in C#): the procedural builder `ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`; its `Box`, `Sphere`, `Cylinder` and torus `Ring` builders at `:20-30`), as used for the workbench (`ui/Workshop.cs:171-176`), wire segments and knots (`ui/WorkshopConnections.cs:275`, `:289`) and the selection and snap rings (`engine/MachinePart.cs:139`, `ui/WorkshopGuidance.cs:285`); the rotation gizmo's own `CylinderMesh` and `BoxMesh` handles (`ui/RotationGizmo.cs`); the placement-shadow `ImmediateMesh` (`ui/PlacementShadows.cs:77`); and the workbench coordinate table (`engine/Workbench.cs:11-14`). No element package uses `ui/WorkshopArtwork.cs`."
+- `DESIGN.md:76`: "Standard export orientation: glTF 2.0 standard (+Y up, +Z forward / -Z forward standard glTF transform)." → "Orientation in the element's `.tscn` scene is Godot's: +Y up, -Z forward. Art made in Blender (+Z up) is converted to that orientation when Godot imports it, before it is placed in the scene."
+- `DESIGN.md:79`: "Standard glTF PBR metallic-roughness workflow (principled BSDF in Blender): …" → "PBR metallic-roughness materials, as the scene's `StandardMaterial3D` resources (Principled BSDF for art made in Blender before import): …" (values unchanged).
+- `DESIGN.md:82`: "co-located in the same `.glb` container alongside visual meshes" → "co-located in the element's `.tscn` scene alongside visual meshes".
+- `DESIGN.md:99`: "child node branches in the `.glb` scene" → "child node branches in the element's `.tscn` scene".
+- `DESIGN.md:102` heading: "Conversion of Existing Implementations to glTF Standards (Zero Backwards Compatibility)" → "Conversion of Existing Implementations to Element Scenes (Zero Backwards Compatibility)".
+- `DESIGN.md:104`: "(`engine/PartArt.cs`, removed at `8f682f84`)" → "(`engine/PartArt.cs`, renamed to `ui/WorkshopArtwork.cs` at `8f682f84` and no longer used by any element package)".
+- `DESIGN.md:108`: "and `engine/PartArt.cs` and the closed `WorkshopPartKind` enum (`engine/gpu/WorkshopPartKind.cs`) at `8f682f84`." → "and the closed `WorkshopPartKind` enum (`engine/gpu/WorkshopPartKind.cs`) at `8f682f84`; `engine/PartArt.cs` was renamed to `ui/WorkshopArtwork.cs` at `8f682f84`, and its procedural builders are pending removal under Story 6.5f (technical art pipeline above)."
+- `DESIGN.md:321`: "named locator nodes (`Loc_Port_<Id>`) embedded in the Blender/glTF rendering mesh hierarchy" → "… embedded in the element's `.tscn` scene hierarchy" (found by the `.glb|glTF` sweep).
+- `DESIGN.md:419`: "part geometry/materials (`engine/PartArt.cs`, removed at `8f682f84`; each element is its own `.tscn` scene, and the remaining procedural fixture code is owned by Story 6.5f, …)" → "part geometry/materials (each element's own `.tscn` scene; the procedural builder `ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`, and the other procedural builders are pending removal under Story 6.5f, as the technical art pipeline above states)".
+- `rg -n '\.glb|glTF' DESIGN.md` now gives only `:70` ("not as `.glb`", "no `.glb` file is tracked") and `:93` ("the Khronos `KHR_physics_rigid_bodies` glTF extension is a planned capability, not admitted today"), both true.
+- `batch-i.md:131`: "The number, S owner, requirement anchor and sequence-task are allocated by the cross-batch pass (EL-242 if unclaimed). Proposed entry, in the form of the EL-072 entry:" → "Applied at `daba83d0`: the cross-batch pass ledgered EL-242 (a real link to `../../invest/named-elements.md#element-242`) with owner S361, requirement anchor `element-242` and `sequence-task-800`. The entry as proposed, in the form of the EL-072 entry:".
+- `batch-i.md:136`, inside the fence (the one allowed change there): the "existing record" link destination `../../requirements.md#todo-199` → `../requirements.md#todo-199`, the applied form at `named-elements.md:2120`, so every link in the fence is relative to `named-elements.md` as the note on `:133` says.
+- `batch-i.md:143`: "Replace "`…CAT-049…`" with "`…`" Both edits were applied in `daba83d0` (`docs/planning/invest/named-elements.md:678` …, and `:2120` for EL-242), so …" → "At `daba83d0`, "`Also retains …CAT-049…, …CAT-050…`" in the EL-072 entry (a real link to `../../invest/named-elements.md#element-072`) was replaced by the form "`…`", worded there "the 45° angle and CAT-049 acceptance belong to EL-242", and EL-242 (a real link to `../../invest/named-elements.md#element-242`) was ledgered, so CAT-049 acceptance is no longer an open criterion of EL-072."
+
+**Test file and csproj (the coordinator's ruled items).**
+1. `<a id>` only: the HTML attribute pattern reads whole `href` and `id` names; `name` is withdrawn from the summaries, and the former `named-point` positive is now a negative in the new fact `TheFragmentCheckIgnoresNameAndDataIdAttributes` (an `<a name>` and a `data-id` define nothing).
+2. Autolinks: non-email `AutolinkInline` nodes are links, so `<ftp://…>` and `<TODO.md:13>` go through the scheme allow-list; added to `TheLinkCheckTreatsOnlyHttpHttpsAndMailtoAsExternal`.
+3. HTML: attributes are read only from `HtmlInline` and from whole `HtmlBlock` text (not per line), excluding `HtmlBlockType.Comment` blocks and blanking `<!-- … -->` comments in place so line numbers hold; values double- or single-quoted, decoded with `WebUtility.HtmlDecode`; an unquoted value, or `href`/`id` on an element other than `<a>`, is the new `LinkProblemKind.UnsupportedHtml`. Tests: `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks` gains a multi-line single-quoted `<a href>` inside a `<div>` HTML block, reported at the attribute's line 11; `TheFragmentCheckResolvesAnExplicitAnchor` gains a single-quoted `id`; new fact `TheLinkCheckReportsUnsupportedHtmlAnchorForms` (unquoted `href`, `id` on `<span>`); `TheLinkCheckIgnoresCodeSpans` is renamed `TheLinkCheckIgnoresCodeSpansAndHtmlComments` and gains a comment block and an inline comment holding links.
+4. Fences: `UnclosedFence` only when the fenced block's parent is the `MarkdownDocument`; new fact `TheLinkCheckDoesNotReportAFenceClosedByItsContainer` (a fence in a blockquote and in a list item, each ending with its container).
+5. Images: `TheLinkCheckReportsALinkToAMissingFile` gains an image link to `gone.png`, reported on line 2.
+6. `Message` has a named arm for every kind and throws `ArgumentOutOfRangeException` otherwise.
+7. Wording: `LinkProblem.Detail` is "the parsed destination"; line and directory fragments are "outside the supported subset", a policy.
+8. csproj: `Version="[1.6.0]"`, the exact-version range, with its comment saying so.
+9. The class summary states the supported subset (CommonMark plus pipe tables, footnotes, YAML front matter and GitHub heading identifiers via Markdig 1.6.0; links from inline, reference, autolink, image and HTML `<a href>`; anchors from headings and `<a id>`; external schemes `http`, `https`, `mailto` only), the typed reports for anything outside it, and the two named limits (Markdig's GitHub slugs can differ for combining marks, `\p{No}` characters, image alt text in headings and empty slugs; submodules and symbolic links are not modelled, and none exist).
+
+**Test count.** `ArchitectureDocsConsistencyTests` has 29 tests. Against `d4b84b4e` (4 tests): 1 removed (`EveryRelativeLinkInTheAuthorityDocsResolves`) and **26 added**: `EveryRelativeLinkInTheCheckedDocsResolves`, `TheFragmentCheckReportsAMissingAnchorWithItsFileAndLine`, `TheFragmentCheckReportsAMissingSameFileAnchor`, `TheFragmentCheckResolvesASameFileHeading`, `TheFragmentCheckResolvesTheNumberedSlugOfADuplicateHeading`, `TheFragmentCheckResolvesAnExplicitAnchor`, `TheFragmentCheckIgnoresNameAndDataIdAttributes`, `TheFragmentCheckSlugsPunctuatedHeadingsLikeGitHub`, `TheFragmentCheckIgnoresHeadingsInsideCodeFences`, `TheLinkCheckReportsALinkToAMissingFile`, `TheLinkCheckReportsALinkAboveTheRepositoryRoot`, `TheLinkCheckReportsALinkToAnUntrackedFile`, `TheLinkCheckReportsATrackedFileDeletedFromTheWorktree`, `TheLinkCheckResolvesATrackedFileAndDirectoryButNotAPartialName`, `TheLinkCheckReportsAnUnclosedFence`, `TheLinkCheckDoesNotReportAFenceClosedByItsContainer`, `TheLinkCheckSkipsOnlyAClosedFrontMatter`, `TheLinkCheckIgnoresCodeSpansAndHtmlComments`, `TheLinkCheckJudgesLinksInBlockquotesAndQuotedText`, `TheFragmentCheckResolvesSetextAndBlockquoteHeadings`, `TheLinkCheckReadsTitledAngleReferenceAndHrefLinks`, `TheLinkCheckReportsUnsupportedHtmlAnchorForms`, `TheFragmentCheckReportsAFragmentOnANonMarkdownTarget`, `TheLinkCheckReportsUnsupportedFragments`, `TheLinkCheckTreatsOnlyHttpHttpsAndMailtoAsExternal`, `TheLinkCheckMatchesPathsCaseSensitively`. Unchanged in name: `AgentsLinksTheIsolationAuthority`, `NoAuthorityPresentsRetiredDesignAsCurrent`, `TheBanCheckRejectsAReinstatedPhrase`. Net: 4 → 29 (+26, −1). Against E30's 26: +3 (`TheFragmentCheckIgnoresNameAndDataIdAttributes`, `TheLinkCheckReportsUnsupportedHtmlAnchorForms`, `TheLinkCheckDoesNotReportAFenceClosedByItsContainer`) and one rename (`TheLinkCheckIgnoresCodeSpans` → `TheLinkCheckIgnoresCodeSpansAndHtmlComments`). A first run before these records was 29/0/0 (`arch-docs-e32-pre.log`).
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e32/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e32`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e32-a.log`, `capture-e32-b.log`, `capture-e32-c.log` (preceded by a clean test-project build with restore, `tests-build-e32.log`).
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e32.log`.
+3. Registration check filter: **821/0/0**, unchanged; `registration-e32.log`.
+4. `git diff --check d4b84b4e`: `diff-check-e32.log`.
+5. `ArchitectureDocsConsistencyTests`, run last, after this entry: `arch-docs-e32-final.log`.
+
+## E33 VG-1 re-review pass 6 repairs and the 6.5c–6.5f roadmap rows (implementation owner, 26 November 2026)
+
+Repairs on top of the uncommitted E24 to E32 work, over `d4b84b4e`: the pass-6 present-day defects, the stated limits, and the coordinator's ruling (i) on `docs/planning/invest/vertical-delivery.md:187-190`. Files edited: `DESIGN.md`, `docs/planning/elements/readiness/batch-i.md`, `docs/planning/invest/vertical-delivery.md`, `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs` and this run log. The contract, `deferred-work.md` and `docs/planning/invest/decisions.md` were not edited.
+
+**Verified.** `ui/RotationGizmo.cs:47` calls `WorkshopArtwork.Ring` (the gizmo rings) and `:50` `WorkshopArtwork.Sphere` (the handles). `WorkshopArtwork.Line` is defined at `ui/WorkshopArtwork.cs:32-38`, and `git grep` over `*.cs` finds no caller (the only other `Line(` is `tools/E2eRunner/RunSummary.cs:41`, an unrelated method). No element scene has a `Collision` node: of the `col_*` `CollisionShape3D` nodes in `elements/*/*.tscn`, 229 have `parent="."` and the rest sit under `Visual/…` branches (for example `elements/Clutch/clutch.tscn:190`, `parent="Visual/InputShaft"`); `elements/Ball/ball.tscn:34` is `col_0_0` under the root; the bake recognises proxies by the `col_` name prefix (`tools/BundleElements/SceneGeometryExtractor.cs:28`), and no C# reads a `Collision/` path. The numbered item on `DESIGN.md:81` is bold text, not a heading, so it has no slug. The repository shows no element-facing convention, so the orientation line states only +Y up. `named-elements.md:2122` credits the EL-242 ledger entry to coordinator decision 27, and owner S361 and `sequence-task-800` to coordinator decision 24l.
+
+**Document lines** (before → after):
+- `DESIGN.md:70`, the builder clause: "its `Box`, `Sphere`, `Cylinder` and torus `Ring` builders at `:20-30`), as used for the workbench …, wire segments and knots … and the selection and snap rings …;" → "its `Box`, `Sphere`, `Cylinder`, torus `Ring` and `Line` builders at `:20-38`, of which `Line` has no caller), as used for the workbench (`ui/Workshop.cs:171-176`), wire segments and knots (`ui/WorkshopConnections.cs:275`, `:289`), the selection and snap rings (`engine/MachinePart.cs:139`, `ui/WorkshopGuidance.cs:285`) and the rotation gizmo's rings and sphere handles (`ui/RotationGizmo.cs:47`, `:50`);". The rest of the line is unchanged.
+- `DESIGN.md:76`: "Orientation in the element's `.tscn` scene is Godot's: +Y up, -Z forward. Art made in Blender (+Z up) is converted to that orientation when Godot imports it, before it is placed in the scene." → "Element scenes use Godot's axes, +Y up." (the forward direction and the import-conversion claim are dropped).
+- `DESIGN.md:81-82`: "3. **Co-Located Collision Meshes (`Collision/` Hierarchy):**" / "Simplified proxy geometry co-located in the element's `.tscn` scene alongside visual meshes." → "3. **Co-Located Collision Proxies (`col_*` nodes):**" / "… alongside visual meshes: `CollisionShape3D` nodes named `col_*`, each a direct child of the scene root (for example `elements/Ball/ball.tscn:34`) or a child of the `Visual/` branch whose transform it shares (for example `elements/Clutch/clutch.tscn:190`); there is no `Collision/` node."
+- `batch-i.md:131`: "Applied at `daba83d0`: the cross-batch pass ledgered EL-242 (link) with owner S361, requirement anchor `element-242` and `sequence-task-800`." → "Applied at `daba83d0`: EL-242 (link) was ledgered by coordinator decision 27, with owner S361 and `sequence-task-800` by coordinator decision 24l and requirement anchor `element-242`."
+- `vertical-delivery.md:187` (6.5c deliverable): "from instantiated `.glb` scene hierarchy" → "from instantiated `.tscn` scene hierarchy".
+- `vertical-delivery.md:188` (6.5d deliverable): "to `.glb` + generic `MachinePart`" → "to `.tscn` + generic `MachinePart`".
+- `vertical-delivery.md:189` (6.5e deliverable): "to `.glb` with co-located `col_*` proxies" → "to `.tscn` with co-located `col_*` proxies".
+- The three rows' titles still say "glTF" ("glTF asset-driven geometry", "conversion to glTF"); the ruling covered deliverable format words, so they are unchanged and are listed here for the coordinator.
+- `vertical-delivery.md:190` (6.5f): deliverable "Complete deletion of `engine/PartArt.cs`, `engine/gpu/WorkshopPartKind.cs`, and all procedural mesh building routines in C#" → "Complete deletion of all procedural mesh building routines in C#: `ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`) and the other builders listed in `DESIGN.md:70` (`engine/gpu/WorkshopPartKind.cs` was already deleted at `8f682f84`)"; legacy column "Procedural mesh generation in `PartArt.cs`, `WorkshopPartKind.cs`, hardcoded shape tables" → "Procedural mesh generation in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and the other C# builders, hardcoded shape tables"; acceptance "Reviewer grep confirms 0 occurrences of `PartArt` or `WorkshopPartKind`; clean build; …" → "0 procedural mesh builders in C#; clean build; …" (the rest unchanged). `WorkshopPartKind` stays only in the title and as the note that its file is already deleted; it is dropped from the deliverable target and the acceptance, since nothing of it remains.
+
+**Test file** (records and two extended facts; no new facts):
+- Class summary: "Anything outside the subset is reported as a typed problem" → "… is reported as a typed problem or named below as a limit"; the subset now names `UsePipeTables`, `UseFootnotes`, `UseYamlFrontMatter`, `UseAutoIdentifiers`, `UseAutoLinks`, `UseEmphasisExtras` and `UseTaskLists`; the named limits keep the GitHub-slug differences and submodules and symbolic links, and add the nine ruled limits (markup after a comment block's closing marker on the same line; unclosed raw HTML or comment blocks; attribute-like text or a `>` inside a quoted value; CDATA, processing instructions and declarations; a tag with two offending attributes reported twice; fences left open inside a list item or blockquote; `<img src>` and `srcset`; reference uses with no definition; `UseAutoLinks` linking bare text GitHub leaves as text), stated as having no occurrence in the checked documents.
+- `TheLinkCheckReportsUnsupportedHtmlAnchorForms` adds `<area href="b.md">` (an `href` on an element other than `<a>`, line 5) and `<a id=bare>` (an unquoted `id`, line 7), both reported as `UnsupportedHtml`.
+- `TheFragmentCheckResolvesAnExplicitAnchor` adds `<a id="a&amp;b">`, reached by the fragment `#a&b`; without `WebUtility.HtmlDecode` the anchor would be `a&amp;b` and the link would be reported.
+
+**Test count.** Unchanged from E32: `ArchitectureDocsConsistencyTests` has 29 tests; against `d4b84b4e` (4), +26 added and −1 removed (`EveryRelativeLinkInTheAuthorityDocsResolves`), the 26 names as listed in E32. A first run before these records was 29/0/0 (`arch-docs-e33-pre.log`).
+
+**Checks** (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e33/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e33`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e33-a.log`, `capture-e33-b.log`, `capture-e33-c.log` (preceded by a clean incremental test-project build, `tests-build-e33.log`).
+2. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e33.log`.
+3. Registration check filter: **821/0/0**, unchanged; `registration-e33.log`.
+4. `git diff --check d4b84b4e`: `diff-check-e33.log`.
+5. `ArchitectureDocsConsistencyTests`, run last, after this entry: `arch-docs-e33-final.log`.
+
+## E34 VG-1 pass-6 patch re-review: document repairs under ruling (A) (implementation owner, 26 November 2026)
+
+Line-local document repairs over `d4b84b4e`. Files edited: `DESIGN.md`, `docs/general-engine-design.md`, `docs/planning/invest/vertical-delivery.md`, `docs/planning/invest/decisions.md`, `docs/planning/invest/engine.md` and this run log. The test file, the contract and `deferred-work.md` were not edited by me this round.
+
+**Corrections to E33 (append-only).**
+- E33 said "229 have `parent="."`" of the `col_*` `CollisionShape3D` nodes. The `col_*` proxies are 263 nodes: 183 `CollisionShape3D` and 46 `MeshInstance3D` under the scene root (229 in all), and 32 `CollisionShape3D` and 2 `MeshInstance3D` under `Visual…` branches; 48 are `MeshInstance3D`, across 19 scenes.
+- E33 quoted half the bake rule: `tools/BundleElements/SceneGeometryExtractor.cs:27-28` admits a node as a proxy when it is a `CollisionShape3D` or when its name starts with `col_`.
+- E33 said the contract and `deferred-work.md` "were not edited". The coordinator edited both in that round; I did not.
+
+**Verified.** The proxy counts above (`git grep` of `[node name="col_…"` lines in `elements/*/*.tscn`, by type and parent); `elements/Pipe/pipe.tscn:53` is `col_shell`, a `MeshInstance3D` under the root; `elements/Clutch/clutch.tscn:190-191` puts `col_input_shaft` under `Visual/InputShaft` with its own `quaternion`. `tools/BundleElements/PackageValidator.cs:116-130`: a port on body 0 needs its locator under the scene root (`"."`); a port on body N > 0 needs it under `SceneBodies[N].Root`; the locator must lie within the anchor tolerance of the declared position. `elements/ImpactLever/impact_lever.tscn:96`, `:99` place `Loc_Port_TieA` and `Loc_Port_TieB` under `Visual/Beam`. `SceneGeometryExtractor.cs:111-113` refuses a `col_hull` (and `col_capsule`) proxy. Row 6.5b (`vertical-delivery.md:186`) states that Story 9A.14 retired the `.tres` catalogue scan for the build-time element bundle.
+
+**Document lines** (before → after):
+- `DESIGN.md:82`: "…alongside visual meshes: `CollisionShape3D` nodes named `col_*`, each a direct child of the scene root (…ball.tscn:34) or a child of the `Visual/` branch whose transform it shares (…clutch.tscn:190); there is no `Collision/` node." → "…alongside visual meshes. A proxy is a `CollisionShape3D` node or a node named with the `col_` prefix (`tools/BundleElements/SceneGeometryExtractor.cs:27-28`), such as the hollow pipe wall `col_shell`, a `MeshInstance3D` (`elements/Pipe/pipe.tscn:53`). It sits under the scene root (for example `elements/Ball/ball.tscn:34`) or under a `Visual…` branch and moves with that branch (for example `elements/Clutch/clutch.tscn:190`); there is no `Collision/` node."
+- `DESIGN.md:97`: "…(e.g. `Loc_Port_PowerIn`, `Loc_Port_ActivationIn`), as a child of the scene root at the declared anchor; the bundle build fails on any other name or position (Story 9A.17)." → "…(e.g. …), at the declared anchor and as a child of the node of the body its port declares: the scene root for body 0, otherwise that declared scene body's root node, such as `Visual/Beam` for the Impact Lever's `Loc_Port_TieA` and `Loc_Port_TieB` (`elements/ImpactLever/impact_lever.tscn:96`, `:99`). The bundle build fails on any other name, parent or position (Story 9A.17; `tools/BundleElements/PackageValidator.cs:116-130`)." This now agrees with `:101` (each secondary sub-tree carries its own socket locators).
+- `DESIGN.md:70`: "The code that still does so is pending removal under LEGACY-PARTART-PURGE (Story 6.5f, in progress at `…sprint-status.yaml:102`; its roadmap row, `…vertical-delivery.md:190`, covers all procedural mesh building routines in C#): the procedural builder `ui/WorkshopArtwork.cs` …" → "The element, fixture and tool art builders in `ui/WorkshopArtwork.cs` are pending removal under LEGACY-PARTART-PURGE (Story 6.5f, in progress at `…sprint-status.yaml:102`; roadmap row `…vertical-delivery.md:190`); whether runtime geometry drawn between player-chosen points (wire segments and knots, placement shadows) is in 6.5f's scope is open for 6.5f's story planning. The procedural mesh code in C# today: the procedural builder `ui/WorkshopArtwork.cs` …" (the factual list of builders and callers that follows is unchanged).
+- `DESIGN.md:108` (aligned with `:70`): "…and its procedural builders are pending removal under Story 6.5f…" → "…and its element, fixture and tool art builders are pending removal under Story 6.5f…".
+- `DESIGN.md:419` (aligned with `:70`): "…the procedural builder `ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`, and the other procedural builders are pending removal under Story 6.5f…" → "…the element, fixture and tool art builders in `ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`, are pending removal under Story 6.5f…".
+- `docs/general-engine-design.md:97`: "`Collision/` (or collision nodes): Contains non-rendered analytic and hollow proxy primitives used for physics (hulls are refused):" → "`col_*` proxy nodes (a `CollisionShape3D` or `MeshInstance3D` named with the `col_` prefix, under the scene root or under the `Visual` branch it moves with; there is no `Collision/` node): non-rendered analytic and hollow proxy primitives used for physics (hulls are refused):". Its `:102` bullet already states the full bake rule.
+- `vertical-delivery.md:187` (6.5c): column 2 "glTF asset-driven geometry & collider extraction" → "Element `.tscn` scene-driven geometry & collider extraction"; deliverable "Generic extraction of analytic shapes (`col_*`), convex hulls, and `Loc_Port_<Id>` socket anchors …" → "Generic extraction of analytic shapes (`col_*`) and `Loc_Port_<Id>` socket anchors …" (the "in `WorkshopPhysicsCompiler`" wording kept); legacy "… tables in `PartArt.cs` and physics compiler" → "… tables in `ui/WorkshopArtwork.cs` (formerly `engine/PartArt.cs`) and physics compiler".
+- `vertical-delivery.md:188` (6.5d) column 2: "… conversion to glTF" → "… conversion to element `.tscn` scenes".
+- `vertical-delivery.md:189` (6.5e) column 2: "… conversion to glTF" → "… conversion to element `.tscn` scenes".
+- `vertical-delivery.md:190` (6.5f): deliverable "Complete deletion of all procedural mesh building routines in C#: `ui/WorkshopArtwork.cs` (…) and the other builders listed in `DESIGN.md:70` (…)" → "Complete deletion of the element, fixture and tool art builders in `ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`), their art coming from `.tscn` scenes (`engine/gpu/WorkshopPartKind.cs` was already deleted at `8f682f84`)"; legacy "Procedural mesh generation in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and the other C# builders, hardcoded shape tables" → "Procedural element, fixture and tool art in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`), hardcoded shape tables"; acceptance "0 procedural mesh builders in C#; clean build; …" → "The element, fixture and tool art builders in `ui/WorkshopArtwork.cs` are deleted and their art comes from `.tscn` scenes; clean build; …" (the rest of the row, including the Chrome E2E clause, unchanged).
+- `vertical-delivery.md:197` (LEGACY-0d): legacy "procedural mesh generation in engine/PartArt.cs" → "procedural mesh generation in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`)"; acceptance "all elements defined via declarative .glb assets and catalog resources" → "all elements defined via their `.tscn` scenes and the build-time element bundle".
+- `vertical-delivery.md:236` (programme definition of done): "procedural mesh generation (`PartArt.cs`)" → "procedural mesh generation (`ui/WorkshopArtwork.cs`)".
+- `decisions.md:122` (the glTF architectural decision, `decision-gltf-element-assets`): "**Status:** Approved / Authoritative" → "**Status:** Superseded for format by the owner decision of 18 October 2026: the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`…epics.md:538`, `:933`). Its `KHR_physics_rigid_bodies` and compile-time-extraction content stands as written; those questions are still deferred." The decision body is unchanged.
+- `decisions.md:143`: "Imperative C# procedural mesh generation (`engine/PartArt.cs`) is deprecated…" → "… (`ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`) is deprecated…".
+- `engine.md:208`: "the new declarative `.glb` + `PartId` architecture" → "the new declarative `.tscn` + `PartId` architecture".
+- `engine.md:211` (6.5c): "from `.glb` scene trees" → "from `.tscn` scene trees".
+- `engine.md:212` (6.5d): "to self-contained `.glb` assets in `parts/models/`" → "to the element's own `.tscn` scene in its package (`elements/<Name>/`)".
+- `engine.md:213` (6.5e): "to `.glb` models with embedded `col_*` proxies" → "to `.tscn` scenes with embedded `col_*` proxies".
+- Not edited, for the coordinator: `engine.md:206` heading ("Existing Element Conversion to glTF & Zero-Remnant Legacy Purge") and `:214` (6.5f, "Permanently delete `engine/PartArt.cs`, `engine/gpu/WorkshopPartKind.cs`, and all procedural mesh building routines in C#"), and `decisions.md:155` ("Procedural mesh code in `PartArt.cs`"), all outside the ruled lines.
+
+**Checks** (pinned toolchain; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; no C# changed, so no rebuild):
+1. `git diff --check d4b84b4e`: `diff-check-e34.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this entry, on the E33 build: `arch-docs-e34-docs.log`.
+
+## E35 VG-1 final capped re-review: document repairs under ruling (A) (implementation owner, 26 November 2026)
+
+Line-local document repairs over `d4b84b4e`. Files edited: `DESIGN.md`, `docs/general-engine-design.md`, `docs/planning/invest/vertical-delivery.md`, `docs/planning/invest/decisions.md`, `docs/planning/invest/engine.md` and this run log. The test file, the contract and `deferred-work.md` were not edited by me.
+
+**Corrections to E34 (append-only).** `decisions.md:155` should read `:153` (the "Engine Codebase" bullet); `DESIGN.md:101` should read `:100` (each secondary sub-tree carries its own locators); the general-engine-design bake-rule bullet is at `:103`, not `:102`; the `PackageValidator` checks are `tools/BundleElements/PackageValidator.cs:89-97` (locator names: duplicates, tube mouths, undeclared sockets) and `:116-133` (parent by declared body, and position within the anchor tolerance), not `:116-130`. E34 also called the `decisions.md:122` section S257; S257 is the table section at `:8-10`, and `:122` is the status of `decision-gltf-element-assets`.
+
+**Verified.** `epics.md:992-1011` (Story 6.5f): `engine/PartArt.cs` and `engine/gpu/WorkshopPartKind.cs` permanently deleted, and "strictly zero procedural mesh building routines". `docs/engine-contracts.md:92`: the baked bundle "is then the compiler's only collider source". `tools/BundleElements/SceneGeometryExtractor.cs:111-114` refuses `col_capsule` and `col_hull`. `engine/PartArt.cs` was added at `ca84a4cb` as the same 32-line builder file and only renamed at `8f682f84` (`git log -- engine/PartArt.cs`, `git show ca84a4cb:engine/PartArt.cs`), so it never held coordinate or collider tables. `engine/gpu/WorkshopPhysicsCompiler.cs` builds colliders from declared descriptors (`:125-126`) and holds no collider dimension table, so it is dropped from 6.5c's legacy column; the coordinate table in C# today is the workbench's (`engine/Workbench.cs:11-14`). `git grep` finds no link to the old `engine.md:206` heading slug (its section is reached by the explicit `convert-existing-implementations` anchor).
+
+**Document lines** (before → after):
+- `DESIGN.md:70`: "… The element, fixture and tool art builders in `ui/WorkshopArtwork.cs` are pending removal under LEGACY-PARTART-PURGE (…; roadmap row …); whether runtime geometry drawn between player-chosen points (wire segments and knots, placement shadows) is in 6.5f's scope is open for 6.5f's story planning. The procedural mesh code in C# today: …" → "… `ui/WorkshopArtwork.cs` and every other procedural mesh building routine in C# are pending removal under LEGACY-PARTART-PURGE (Story 6.5f, in progress at `…sprint-status.yaml:102`; roadmap row `…vertical-delivery.md:190`). The procedural mesh code and tables in C# today: …"; in the caller list, "the rotation gizmo's own `CylinderMesh` and `BoxMesh` handles (`ui/RotationGizmo.cs`)" → "(`ui/RotationGizmo.cs:54`, `:60`, `:105`, `:107`)". The rest of the factual list (including the placement-shadow `ImmediateMesh` and the workbench table) is unchanged; nothing is said about what replaces the runtime geometry.
+- `DESIGN.md:97`: "(Story 9A.17; `tools/BundleElements/PackageValidator.cs:116-130`)" → "(Story 9A.17; `tools/BundleElements/PackageValidator.cs:89-97`, `:116-133`)".
+- `DESIGN.md:108`: "…and its element, fixture and tool art builders are pending removal under Story 6.5f…" → "…and it and every other procedural mesh building routine in C# are pending removal under Story 6.5f…".
+- `DESIGN.md:419`: "…the element, fixture and tool art builders in `ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`, are pending removal under Story 6.5f…" → "…`ui/WorkshopArtwork.cs`, renamed from `engine/PartArt.cs` at `8f682f84`, and every other procedural mesh building routine in C# are pending removal under Story 6.5f…".
+- `docs/general-engine-design.md:97`: "`col_*` proxy nodes (a `CollisionShape3D` or `MeshInstance3D` named with the `col_` prefix, …)" → "Collision proxy nodes (any `CollisionShape3D`, or any node named with the `col_` prefix, under the scene root or under the `Visual` branch it moves with; there is no `Collision/` node)".
+- `docs/general-engine-design.md:105`: "`Locators/` (or locator nodes): Empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points for electrical, activation, and mechanical connections." → "Locator nodes: empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points …, each at its declared anchor and under the scene root for a port on body 0, otherwise under that declared scene body's root node (`tools/BundleElements/PackageValidator.cs:116-133`); there is no `Locators/` group node." (as at `DESIGN.md:97`).
+- `vertical-delivery.md:187` (6.5c): deliverable "… from instantiated `.tscn` scene hierarchy in `WorkshopPhysicsCompiler`" → the same, then "(not current: the build-time element bundle is the compiler's only collider source, `docs/engine-contracts.md:92`; compiler-side extraction awaits the ENGINE-CORE-2d replanning)"; legacy "Hardcoded C# coordinate and collider dimension tables in `ui/WorkshopArtwork.cs` (formerly `engine/PartArt.cs`) and physics compiler" → "Hardcoded C# coordinate tables, today the workbench's (`engine/Workbench.cs:11-14`)".
+- `vertical-delivery.md:190` (6.5f), restoring the source acceptance: deliverable "Complete deletion of the element, fixture and tool art builders in `ui/WorkshopArtwork.cs` (…), their art coming from `.tscn` scenes (…)" → "`ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`) is deleted and no procedural mesh building routine remains in C# (`engine/gpu/WorkshopPartKind.cs` was already deleted at `8f682f84`)"; legacy "Procedural element, fixture and tool art in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`), hardcoded shape tables" → "Procedural mesh generation in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and the other procedural mesh code in C#, hardcoded shape tables"; acceptance "The element, fixture and tool art builders in `ui/WorkshopArtwork.cs` are deleted and their art comes from `.tscn` scenes; clean build; …" → "`ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`) is deleted and no procedural mesh building routine remains in C#; clean build; …" (the rest, including the Chrome clause, unchanged).
+- `decisions.md:122` (status of `decision-gltf-element-assets`): "Its `KHR_physics_rigid_bodies` and compile-time-extraction content stands as written; those questions are still deferred." → "Its compile-time extraction in `WorkshopPhysicsCompiler`, its `col_capsule` and `col_hull` proxies and its `.tres` catalogue are not current: the build-time element bundle is the compiler's only collider source (`docs/engine-contracts.md:92`), and both proxies are refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:111-114`). Whether `KHR_physics_rigid_bodies` and compile-time extraction stay planned is deferred to the ENGINE-CORE-2d replanning."
+- `decisions.md:153`: "Procedural mesh code in `PartArt.cs` and hardcoded collider dimension tables…" → "Procedural mesh code in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and hardcoded collider dimension tables…".
+- `engine.md:179`: "**ENGINE-CORE-2d (glTF Asset-Driven Geometry & Collider Extraction):** Extend `WorkshopPhysicsCompiler` to traverse instantiated `.glb` scene hierarchies and extract … from collision proxy nodes (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull`, and `KHR_physics_rigid_bodies`), compiling them … tables." → "**ENGINE-CORE-2d (Element `.tscn` Scene-Driven Geometry & Collider Extraction):** Extend `WorkshopPhysicsCompiler` to traverse instantiated `.tscn` scene hierarchies and extract … from collision proxy nodes (`col_box`, `col_sphere`, `col_cylinder`; `col_capsule` and `col_hull` are refused at bundle time, `…SceneGeometryExtractor.cs:111-114`, and `KHR_physics_rigid_bodies` is not admitted), compiling them … tables (not current: the build-time element bundle is the compiler's only collider source, `docs/engine-contracts.md:92`; compiler-side extraction awaits the ENGINE-CORE-2d replanning)."
+- `engine.md:202`: "…directly from the instantiated `.glb` scene hierarchy at compile-to-state time, converting analytic proxy primitives (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`), convex hulls (`col_hull`), and `KHR_physics_rigid_bodies` metadata into…" → "…directly from the instantiated `.tscn` scene hierarchy at compile-to-state time (not current: …; compiler-side extraction awaits the ENGINE-CORE-2d replanning), converting analytic proxy primitives (`col_box`, `col_sphere`, `col_cylinder`; `col_capsule` and convex hulls `col_hull` are refused at bundle time, `…SceneGeometryExtractor.cs:111-114`, and `KHR_physics_rigid_bodies` metadata is not admitted) into…".
+- `engine.md:206` heading: "Existing Element Conversion to glTF & Zero-Remnant Legacy Purge" → "Existing Element Conversion to Element `.tscn` Scenes & Zero-Remnant Legacy Purge" (the `convert-existing-implementations` anchor on `:205` is kept).
+- `engine.md:211` (6.5c): "…from `.tscn` scene trees in `WorkshopPhysicsCompiler`." → the same, then "(not current: the build-time element bundle is the compiler's only collider source, `docs/engine-contracts.md:92`; compiler-side extraction awaits the ENGINE-CORE-2d replanning)."
+- `engine.md:214` (6.5f): "Permanently delete `engine/PartArt.cs`, `engine/gpu/WorkshopPartKind.cs`, and all procedural mesh building routines in C#." → "Permanently delete `ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`) and all procedural mesh building routines in C# (`engine/gpu/WorkshopPartKind.cs` was already deleted at `8f682f84`)."
+- `engine.md:279` (LEGACY-0d): "Permanently delete procedural mesh generation in `engine/PartArt.cs` and hardcoded collider tables in C#, establishing `.glb` assets as the single authoritative geometry definition…" → "Permanently delete procedural mesh generation in `ui/WorkshopArtwork.cs` (formerly `PartArt.cs`) and hardcoded collider tables in C#, establishing the elements' `.tscn` scenes and the build-time element bundle as the single authoritative geometry definition…".
+
+**Checks** (pinned toolchain; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; no C# changed, so no rebuild):
+1. `git diff --check d4b84b4e`: `diff-check-e35.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this entry, on the E33 build: `arch-docs-e35-docs.log`.
+
+## E36 VG-1 closing capped re-review: line repairs and amendment notes (implementation owner, 26 November 2026)
+
+Line-local repairs over `d4b84b4e`, plus the amendment notes of ruling (i). Files edited: `docs/planning/invest/vertical-delivery.md`, `docs/planning/invest/engine.md`, `docs/general-engine-design.md`, `_bmad-output/planning-artifacts/epics.md`, `_bmad-output/planning-artifacts/prd.md` and this run log. The test file, the contract and `deferred-work.md` were not edited by me; no other `epics.md` or `prd.md` text was changed, and the retro and guide files are untouched.
+
+**Verified.** `epics.md:1006`: "codebase grep confirms 0 occurrences of `PartArt` or `WorkshopPartKind` across all active C# source files". `engine/gpu/WorkshopPhysicsCompiler.cs:125-126`: `AddGeometry` takes the declared `ColliderDescriptor` list. `epics.md:940` admits `col_box`, `col_sphere`, `col_cylinder` and the hollow tube, frustum and torus proxies and keeps `KHR_physics_rigid_bodies` as planned; `DESIGN.md:106` says "a planned capability, not admitted today"; `tools/BundleElements/SceneGeometryExtractor.cs:205-232` (`Hollow`) yields the `Tube`, `Frustum` and `Torus` kinds, as `docs/general-engine-design.md:101` names them. `tools/BundleElements/PackageValidator.cs:127` refuses a locator whose parent is not the expected node ("is not a child of the scene root"). Story 9A.14 retired the `.tres` catalogue: `_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md:17` ("The `.tres` catalogue, its loader and the static palette list are deleted") and `:24` (all 24 `parts/catalog/*.tres`); `git ls-files parts/catalog` lists nothing. The 18 October notes copy the form of `epics.md:933`, `:954` and `:975`.
+
+**Placement of the `epics.md` notes.** Each new note is appended, after a space, to the existing italic status or dependency line rather than added as a new paragraph, so `epics.md` keeps its line count (5,855) and every `epics.md:<line>` citation in the repository still points where it did (the lane 1 line `epics.md:4466` included). A first placement as separate paragraphs shifted 104 cited lines and was reverted before any check ran. `prd.md` has no line citations outside the archived implementation artifacts, so its note is a paragraph of its own.
+
+**Document lines** (before → after):
+- `vertical-delivery.md:190` (6.5f acceptance): "`ui/WorkshopArtwork.cs` (renamed from `engine/PartArt.cs` at `8f682f84`) is deleted and no procedural mesh building routine remains in C#; clean build; …" → "… is deleted and no procedural mesh building routine remains in C#; codebase grep confirms 0 occurrences of `PartArt` or `WorkshopPartKind`; clean build; …" (the story's grep clause restored; `:1005` and `:1007` not added).
+- `vertical-delivery.md:187` (6.5c legacy column): "Hardcoded C# coordinate tables, today the workbench's (`engine/Workbench.cs:11-14`)" → "Hardcoded C# collider tables (none remain in C#; colliders come from declared descriptors, `engine/gpu/WorkshopPhysicsCompiler.cs:125-126`)". The deliverable's qualifier is unchanged.
+- `engine.md:179`: "collision proxy nodes (`col_box`, `col_sphere`, `col_cylinder`; `col_capsule` and `col_hull` are refused at bundle time, `…SceneGeometryExtractor.cs:111-114`, and `KHR_physics_rigid_bodies` is not admitted)" → "collision proxy nodes (`col_box`, `col_sphere`, `col_cylinder` and the hollow Tube, Frustum and Torus kinds, `tools/BundleElements/SceneGeometryExtractor.cs:205-232`; `col_capsule` and `col_hull` are refused at bundle time, `:111-114`, and `KHR_physics_rigid_bodies` is planned, not admitted today)".
+- `engine.md:202`: "analytic proxy primitives (`col_box`, `col_sphere`, `col_cylinder`; `col_capsule` and convex hulls `col_hull` are refused at bundle time, `…:111-114`, and `KHR_physics_rigid_bodies` metadata is not admitted)" → "analytic proxy primitives (`col_box`, `col_sphere`, `col_cylinder` and the hollow Tube, Frustum and Torus kinds, `…SceneGeometryExtractor.cs:205-232`; `col_capsule` and convex hulls `col_hull` are refused at bundle time, `:111-114`, and `KHR_physics_rigid_bodies` metadata is planned, not admitted today)".
+- `general-engine-design.md:105`: "each at its declared anchor and under the scene root for a port on body 0, otherwise under that declared scene body's root node (`tools/BundleElements/PackageValidator.cs:116-133`)" → "each at its declared anchor and a direct child of the scene root for a port on body 0, otherwise of that declared scene body's root node (`tools/BundleElements/PackageValidator.cs:89-97` for names, `:116-133` for parent and position)".
+- `epics.md:911` (Story 6.5b status line), appended: "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`:538`, `:933`). The `.tres` part catalogue (`parts/catalog/`) named in the acceptance below was retired by Story 9A.14 in favour of the build-time element bundle (`…spec-9a-14-bundle-sole-catalogue-source.md:17`, `:24`).*"
+- `epics.md:954` (Story 6.5d's existing 18 October note), extended at its end: "… closes via Stories 9R.11–9R.14, 9R.18 and 9A.16. The `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle.*"
+- `epics.md:975` (Story 6.5e's existing 18 October note), extended at its end: "… closes via Stories 9R.8, 9R.15–9R.17, 9R.18, 9A.16 and 9A.17. The `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle.*"
+- `epics.md:995` (Story 6.5f dependency line), appended: "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.glb` + `PartId` clause below reads as "the element's own `.tscn` scene and its `PartId`".*" No acceptance clause changed.
+- `epics.md:1015` (Story 6.6, the CAT-048 dependency line), appended: "*Amended 18 Oct 2026 (…): the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`:538`, `:933`), and the `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle; the dependency above reads accordingly.*"
+- `epics.md:1161` (Story 7.4, LEGACY-0d, status line), appended: "*Amended 18 Oct 2026 (…): the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`:538`, `:933`), and the `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle; the acceptance clause naming `.glb` assets and `.tres` catalog resources reads as "the elements' own `.tscn` scenes and the build-time element bundle".*"
+- `prd.md:188` (new paragraph under §3.8's heading at `:186`): "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format is the element's own Godot `.tscn` scene, not `.glb` (`epics.md:538`, `:933`), and the `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle. The `.glb` and `.tres` references in this section read as "the element's own `.tscn` scene" and "the build-time element bundle".*"
+
+**Checks** (pinned toolchain; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; no C# changed, so no rebuild):
+1. `git diff --check d4b84b4e`: `diff-check-e36.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this entry, on the E33 build: `arch-docs-e36-docs.log`.
+
+## E37 notes-only pass findings: line repairs, note dates and `.tres` readings (implementation owner, 26 November 2026)
+
+Line-local repairs over `d4b84b4e` on the lines E36 changed. Files edited: `docs/planning/invest/vertical-delivery.md`, `docs/planning/invest/engine.md`, `docs/general-engine-design.md`, `_bmad-output/planning-artifacts/epics.md`, `_bmad-output/planning-artifacts/prd.md` and this run log. `epics.md` keeps 5,855 lines; every note stays on the line E36 put it on. No acceptance text changed; the test file, the contract and `deferred-work.md` were not edited by me.
+
+**Verified.**
+- `engine/gpu/WorkshopPhysicsCompiler.cs`: the workbench support plane is built from C# constants at `:95-103` (`var plane = identities.Plane;` at `:95` through `ColliderShapeKind.Plane` at `:103`; the height comes from `WorkshopConstruction.WorkbenchSurface`). The only other `colliders.Add` is `:136`, inside `AddGeometry` (`:125`), which every element body reaches with its declared descriptors (`:176`, `:217`, `:262`). The coordinator's range `:96-103` starts one line late; `:95-103` is used.
+- `tools/BundleElements/SceneGeometryExtractor.cs`: `Hollow` begins at `:205`; Tube returns at `:242`, Frustum at `:243`, and the method closes at `:244`.
+- `tools/BundleElements/PackageValidator.cs`: the locator loop opens at `:86`; the duplicate check is `:88-89` (`TryAdd` at `:88`, "appears more than once" at `:89`); the undeclared-name refusal ends at `:97`. The coordinator's `:87-97` starts on the loop's opening brace; `:88-97` is used.
+- `docs/general-engine-design.md:40`: `tools/BundleElements` discovers the packages at build time and writes one bundle, and the runtime loads only that bundle; `:65`: every element is defined through the declaration in its `elements/<Name>/` package, written into the element bundle.
+- `_bmad-output/implementation-artifacts/spec-9a-14-bundle-sole-catalogue-source.md:38`: "`PartRegistry.Load()` reads `res://elements/elements.bundle.json` only". `engine/PartRegistry.cs:16-24` agrees (loaded only from the generated element bundle; `BundlePath`).
+- `git show -s 0645f57d`: 2026-10-21, "make the element bundle the sole catalogue …" (Stories 9A.14, 9A.18).
+- `epics.md:538` is the 18 October owner decision on `.tscn`. `epics.md:964` and `:986` are the 6.5d and 6.5e `.tres` clauses. `prd.md:203` is the `.tres` scan and `:205` the "authoring its `.glb` model and `.tres` catalog resource" line (both moved by 2 after the E36 paragraph).
+
+**Document lines** (before → after):
+- `vertical-delivery.md:190`: "codebase grep confirms 0 occurrences of `PartArt` or `WorkshopPartKind`; clean build;" → "codebase grep confirms 0 occurrences of `PartArt` or `WorkshopPartKind` across all active C# source files; clean build;" (word for word as `epics.md:1006`).
+- `vertical-delivery.md:187` (6.5c legacy column): "Hardcoded C# collider tables (none remain in C#; colliders come from declared descriptors, `engine/gpu/WorkshopPhysicsCompiler.cs:125-126`)" → "Hardcoded C# collider tables: element colliders come from declared descriptors (`engine/gpu/WorkshopPhysicsCompiler.cs:125-126`); the one built-in collider is the workbench support plane (`:95-103`)".
+- `engine.md:179` and `:202`: "`tools/BundleElements/SceneGeometryExtractor.cs:205-232`" → "`tools/BundleElements/SceneGeometryExtractor.cs:205-244`"; nothing else on either line changed.
+- `general-engine-design.md:105`: "`tools/BundleElements/PackageValidator.cs:89-97` for names" → "`tools/BundleElements/PackageValidator.cs:88-97` for names".
+- `epics.md:911` (6.5b): "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): … not `.glb` (`:538`, `:933`). The `.tres` part catalogue (`parts/catalog/`) named in the acceptance below was retired by Story 9A.14 in favour of the build-time element bundle (`…:17`, `:24`).*" → "*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`. The `.tres` part catalogue (`parts/catalog/`) named in the acceptance below is retired (`…spec-9a-14-bundle-sole-catalogue-source.md:17`, `:24`); its discovery clauses read as "`PartRegistry.Load()` registers every element from the build-time element bundle without hardcoded path lists".*"
+- `epics.md:954` (6.5d, appended sentence only): "The `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle." → "The `.tres` part catalogue (`parts/catalog/`) is retired (Story 9A.14, 21 Oct 2026; noted 26 Nov 2026 by DOC-ENGINE-STATUS); the `.tres` clause below reads as "defined by its element package's declaration, which `tools/BundleElements` writes into the build-time element bundle"." The original 18 October note is unchanged.
+- `epics.md:975` (6.5e, appended sentence only): the same change as `:954`.
+- `epics.md:995` (6.5f): "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): the authored asset format …" → "*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`): the authored asset format …"; the rest of the note is unchanged and carries no `.tres` clause.
+- `epics.md:1015` (6.6, CAT-048 dependency): "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): … not `.glb` (`:538`, `:933`), and the `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle; the dependency above reads accordingly.*" → "*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the `.tres` catalog definition in the dependency above reads as "its element package declaration".*"
+- `epics.md:1161` (7.4, LEGACY-0d): "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): … was retired by Story 9A.14 in favour of the build-time element bundle; the acceptance clause … reads as "the elements' own `.tscn` scenes and the build-time element bundle".*" → "*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the `.tres` part catalogue (`parts/catalog/`) is retired; the acceptance clause naming `.glb` assets and `.tres` catalog resources reads as "the elements' own `.tscn` scenes and package declarations, written into the build-time element bundle".*"
+- `prd.md:188`: "*Amended 18 Oct 2026 (owner decision; Open scheduling item i): … (`epics.md:538`, `:933`), and the `.tres` part catalogue (`parts/catalog/`) was retired by Story 9A.14 in favour of the build-time element bundle. The `.glb` and `.tres` references in this section read as "the element's own `.tscn` scene" and "the build-time element bundle".*" → "*Amended 26 Nov 2026 (DOC-ENGINE-STATUS, applying the 18 Oct owner decision, `epics.md:538`, `:933`; `.tres` catalogue retired by Story 9A.14, 21 Oct 2026): the authored asset format is the element's own Godot `.tscn` scene, not `.glb`, and the `.tres` part catalogue (`parts/catalog/`) is retired. The `.glb` references in this section read as "the element's own `.tscn` scene"; the discovery scan at `:203` reads as "`PartRegistry.Load()` reads the build-time element bundle", and `:205` reads as "authoring its element package (declaration and `.tscn` scene)".*"
+
+**Corrections to E36.**
+- E36 cited the extractor's hollow branch as `SceneGeometryExtractor.cs:205-232`; the method runs to `:244` (Tube `:242`, Frustum `:243`).
+- E36 said `docs/general-engine-design.md:101` names the hollow kinds; it is `:102`.
+- E36 said `prd.md` had no line citations outside the archived implementation artifacts. That grep excluded the whole implementation-artifacts directory, which also holds the live `deferred-work.md`; its `prd.md:196–197` citation moved to `:198–199` with the E36 paragraph (the coordinator has corrected that record). The only other `prd.md` line citation is `spec-elements-visible-solid-remainder-b.md:90` (`prd.md:191`, `:195`), a done spec recording its own review-time lines, left unchanged as history.
+- E36's notes were stamped 18 October; E37 re-stamps the notes written by this slice with 26 November and dates the `.tres` retirement 21 October (`0645f57d`).
+
+**Checks** (pinned toolchain; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; no C# changed, so no rebuild):
+1. `git diff --check d4b84b4e`: `diff-check-e37.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this entry, on the E33 build: `arch-docs-e37-docs.log`.
+
+## E38 Coordinator: closing records, contract budget and verbatim Spec Change Log entries (26 November 2026)
+
+**Reviews after E31.** All were run by fresh context-free reviewers, and the findings are in the coordinator's reports to the lead coordinator.
+- Pass 5 (E32), pass 6 (E33) and the pass-6 patch re-review (E34) were followed by a final capped re-review (E35), a closing capped re-review (E36) and a notes-only pass (E37).
+- Each IN finding, meaning a false or contradictory changed line, was patched.
+- Each Forward-Only finding was repaired or ruled on.
+- Each OUT item went to `deferred-work.md` with an owner.
+- The lead coordinator's rulings:
+  - (i) for the `vertical-delivery.md` rows;
+  - (A) twice;
+  - (i) for the amendment notes;
+  - withdrawal of both 6.5f restatements, with the source acceptance restored;
+  - the hard cap.
+
+**The E36 placement deviation is accepted.** The notes are appended inline on existing `epics.md` lines, not added as new paragraphs, so the file keeps 5,855 lines and every `epics.md:<line>` citation in the repo, including lane 1's `:4466`, still lands. `prd.md` takes its note as its own paragraph. The one live citation it shifts is in `deferred-work.md`, corrected to `:198–199`. `spec-elements-visible-solid-remainder-b.md:90`, which cites `prd.md:191` and `:195`, is a done spec, so its numbers are history.
+
+**Contract budget.** The contract reached 8,574 words. The VG-1 Spec Change Log entries for passes 1–5 move here verbatim; the contract keeps the authorisation, the planning-verdict correction, a summary and the current pass-6 entry.
+
+### Verbatim: Spec Change Log, VG-1 passes 1–5, moved from the contract
+
+- 26 November 2026, VG-1 re-review pass 1 (finding D1-1, Element-Free). AC3 still said "no test is added or removed" and expected 7407, which contradicted the authorised repair. AC3 and its acceptance-table row now expect the base plus the ten M6 VG-1 tests (7417), with registration unchanged at 821. FO-1 refactored the existing file-existence test onto the checker's one link enumerator, in the same file. This is inside the amendment, because it removes a second link rule rather than adding a test. KEEP: zero failures, zero skipped, the 821 registration total and the gate with both canaries.
+- 26 November 2026, coordinator ruling (a) on VG-1 re-review pass 2, finding ECH-1. Fragment-less links in 21 of the 27 checked documents were never existence-checked. Thirteen were broken at the baseline, outside quotations, so the authorisation is widened.
+  - **One rule.** Every relative link in the 27 checked documents must resolve case-exactly to an existing file or directory, and a fragment link must also resolve its anchor. No separate authority-only existence rule remains.
+  - **Quotations.** Quoted text is skipped by one stated rule: a straight-double-quoted span or a blockquote line quotes another place, so its links are not this document's. Code spans and fences are also skipped. The coordinator accepted this rule. `batch-i.md:137` and `:139` stay unedited as verbatim quotations.
+  - **Document repairs.** The broken links are repaired line-locally: ten in `current-consumers.md`, two at `DESIGN.md:419`, and the wrong relative depth at `owner-decisions-2026-11-22.md:71`. Each points to its current home, or becomes plain text where there is none (run log E27). `owner-decisions:71` is re-checked at merge.
+  - KEEP: every other Never item, and test-only scope apart from these link lines.
+- 26 November 2026, VG-1 re-review pass 3 (Element-Free finding 2). The pass-2 repairs change AC3 from 7417 to 7423 (7407 + 17 − 1): `EveryRelativeLinkInTheAuthorityDocsResolves` is removed because the one link rule, `EveryRelativeLinkInTheCheckedDocsResolves`, replaces it. `AgentsLinksTheIsolationAuthority` is rewritten onto the shared enumerator, and its count is unchanged (run log E28). KEEP: registration 821, zero failures, zero skipped.
+- 26 November 2026, coordinator rulings on VG-1 re-review pass 3.
+  - **Quotation skip withdrawn (Forward-Only F-1a/F-1b).** GitHub renders links in blockquotes and in quoted text, so skipping them was a second rule. Both skips are deleted, and links there are judged by the one rule.
+    - The verbatim EL-242 and EL-072 proposal text in `batch-i.md:133–139` becomes a code fence and code spans. The wording is unchanged.
+    - This supersedes the quotation clause of the ruling-(a) entry above.
+  - **Checker.** Existence resolves against tracked files (`git ls-files`). Slugs unescape backslash escapes and decode HTML entities. The front-matter skip gets a test.
+  - **Document widening, about six lines beyond the link lines.**
+    - `DESIGN.md:70`, `:104` and `:419` say the procedural-art files were removed, with the deleting commits.
+    - `current-consumers.md:137` and `:226` are in the past tense, deleted at `8f682f84`.
+  - **Convergence cap.** Pass 4 reviews this patch. A further checker-parsing finding with no occurrence in the 27 checked documents goes to the coordinator as one list, not patched.
+  - **AC3 (E29).** The total becomes 7426: 7407 + 20 − 1. Three tests are added (an untracked-file negative, a tracked-file control and a front-matter test), and the quotation test is inverted and renamed.
+  - KEEP: every other Never item.
+- 26 November 2026, coordinator ruling on the VG-1 pass-4 latent-parsing list.
+  - **Why a parser.** Twenty latent items were found in code the repair added. Re-review scope does not allow deferring them, and patching them one by one does not converge.
+  - **Markdig replaces the hand-written Markdown parsing.** Markdig is a maintained CommonMark/GFM parser. It is added at an exact pinned version to `CuriousContraptions.tests` only, which is the one dependency this slice adds (run log E30).
+    - Links come from `LinkInline` and `LinkReferenceDefinition` nodes and from HTML `href`.
+    - Anchors come from GitHub auto-identifiers and from HTML `id` attributes. The ruling's `name` clause was withdrawn at pass 5 under FO-2 (entry below).
+    - The hand-written fence, code-span, emphasis, setext, blockquote and slug code is deleted with its tests. Behavioural tests of the checker's outcomes remain.
+  - **External links** are only those with a scheme on the allow-list `http`, `https`, `mailto`. Any other destination is a relative path.
+  - **Unsupported fragments.** GitHub line links (`#L10`) and directory-README fragments are reported as a typed unsupported form.
+  - **Patched as well:**
+    - a non-boundary path prefix is refused;
+    - a file that is tracked but deleted in the worktree gives a typed report;
+    - `git ls-files` reads stdout and stderr concurrently, with a bounded wait and a loud timeout.
+  - **Documents.** `DESIGN.md:70`, `:104`, `:108` and `:419` and `batch-i.md:134` and `:141` are made true to the current tree and the owners named for its work.
+  - **Known limit.** Where Markdig's CommonMark behaviour differs from GitHub's renderer in a case with no occurrence in the 27 checked documents, that is a limit of the chosen parser. It is recorded here and not patched.
+  - **AC3 (E30).** The total becomes 7429: 7407 + 23 − 1. Markdig 1.6.0 is restored from nuget.org.
+  - KEEP: zero skipped, registration 821, test project only.
+- 26 November 2026, coordinator rulings on VG-1 re-review pass 5.
+  - **`<a name>` withdrawn (FO5-1, under FO-2).** `<a id="…">` is the one HTML anchor form.
+  - **The checker's HTML reading.** It reads only Markdig's `HtmlInline` and `HtmlBlock` nodes and excludes comments. It matches only the whole attribute names `href` and `id`, accepts double- or single-quoted values, and decodes entities. An unquoted value, or `id` on another element, is reported as unsupported.
+  - **Other checker changes.**
+    - Autolinks go through the scheme allow-list.
+    - `UnclosedFence` is reported only for a fence at document level.
+    - Markdig is pinned exactly, `[1.6.0]`.
+    - AC3 becomes 7432 (7407 + 26 − 1), with three new tests (E32).
+  - **DESIGN.md.** It now states that `engine/PartArt.cs` was renamed to `ui/WorkshopArtwork.cs` at `8f682f84` (R091), not removed. It also names 6.5f as owner of every procedural builder.
+  - **Supported subset and limits.** The checker's class summary is the authority for the supported Markdown subset, its enabled Markdig extensions and its named limits.
+    - Links come from inline, reference, autolink, image and `<a href>` forms. Anchors come from headings and `<a id>`.
+    - A construct outside the subset is reported as a typed problem or named as a limit.
+    - The limits named include the GFM slug differences and submodules and symlinks; pass 6 added more. No named limit occurs in the 27 checked documents.
+  - **Pass 6.** It is the last review pass for checker code. A confirmed present-day defect or hard-rule break is patched, and that patch alone is re-reviewed. Any other zero-occurrence checker item becomes a stated limit of the subset.
+
+## E39 VG-1 last line repairs and final verification (implementation owner, 26 November 2026)
+
+Line repairs from the E37 re-review, over `d4b84b4e`, on lines this slice changed. Files edited: `docs/planning/invest/vertical-delivery.md`, `docs/planning/invest/engine.md`, `_bmad-output/planning-artifacts/epics.md` and this run log. `epics.md` keeps 5,855 lines and the CAT-048 note stays on `:1015`. `docs/engine-contracts.md:92` is not edited (deferred by the coordinator). The test file, the contract and `deferred-work.md` were not edited by me.
+
+**Verified.** The phrase "the build-time element bundle is the compiler's only collider source" occurred on exactly the four lines named: `vertical-delivery.md:187` (column 3) and `engine.md:179`, `:202`, `:211`; neither file has it after the edit. The workbench support plane is built from C# constants at `engine/gpu/WorkshopPhysicsCompiler.cs:95-103`, and element colliders come from declared descriptors through `AddGeometry` (`:125-126`), as E37 recorded. The CAT-048 dependency at `epics.md:1015` reads "CAT-048 is authored purely via declarative .glb asset and .tres catalog definition". `_bmad-output/implementation-artifacts/run-logs/spec-elements-visible-solid-remainder-b.md` cites `prd.md:191` at `:147` and `:203`, and `prd.md:196` at `:552`.
+
+**Same phrase outside the named lines (reported, not edited).** `docs/planning/invest/decisions.md:122`, a line this slice changed, says "the build-time element bundle is the compiler's only collider source (`docs/engine-contracts.md:92`)". `docs/general-engine-design.md:110`, unchanged from `d4b84b4e`, ends "baked into the bundle, which is then the compiler's only collider source". Both carry the same contradiction with the plane; they are left for the coordinator's ruling.
+
+**Document lines** (before → after):
+- `vertical-delivery.md:187`, column 3: "(not current: the build-time element bundle is the compiler's only collider source, `docs/engine-contracts.md:92`; …)" → "(not current: the build-time element bundle is the compiler's only element collider source, `docs/engine-contracts.md:92`; …)".
+- `vertical-delivery.md:187`, legacy column: "Hardcoded C# collider tables: element colliders come from declared descriptors (`engine/gpu/WorkshopPhysicsCompiler.cs:125-126`); the one built-in collider is the workbench support plane (`:95-103`)" → "Hardcoded C# collider tables: element colliders come from declared descriptors (`engine/gpu/WorkshopPhysicsCompiler.cs:125-126`); the workbench support plane built from C# constants (`:95-103`) is not an element collider, and its status is deferred to the ENGINE-CORE-2d replanning".
+- `engine.md:179`, `:202` and `:211`: "the build-time element bundle is the compiler's only collider source" → "the build-time element bundle is the compiler's only element collider source"; nothing else on those lines changed.
+- `epics.md:1015` (CAT-048 note, end): "… not `.glb`, and the `.tres` catalog definition in the dependency above reads as "its element package declaration".*" → "… not `.glb`, and the dependency's ".glb asset and .tres catalog definition" reads as "its element's own `.tscn` scene and its element package declaration".*".
+
+**Correction to E37.** E37 said the only other `prd.md` line citation was `spec-elements-visible-solid-remainder-b.md:90`. That slice's run log also cites `prd.md` at `:147` (`prd.md:191`), `:203` (`prd.md:191`) and `:552` (`prd.md:196`). All are history and are left unchanged.
+
+**Checks** (pinned toolchain; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`; no C# changed, so no rebuild; the full round waits for the coordinator):
+1. `git diff --check d4b84b4e`: `diff-check-e39.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this entry, on the E33 build: `arch-docs-e39-docs.log`.
+
+**Coordinator ruling on the two reported lines, and its repair.** Both checks above passed (`diff-check-e39.log` exit 0; `arch-docs-e39-docs.log` 29 passed, 0 failed, 0 skipped). The coordinator then ruled: `docs/planning/invest/decisions.md:122`, a changed line, is IN; `docs/general-engine-design.md:110`, unchanged from `d4b84b4e`, is OUT and joins the coordinator's deferral beside `docs/engine-contracts.md:92`, so it is not edited.
+- `decisions.md:122`: "the build-time element bundle is the compiler's only collider source (`docs/engine-contracts.md:92`)" → "the build-time element bundle is the compiler's only element collider source (`docs/engine-contracts.md:92`)"; nothing else on the line changed. After the edit the phrase "only collider source" remains only in `docs/engine-contracts.md:92` and `docs/general-engine-design.md:110`, the two deferred lines.
+
+Checks after this addition (the earlier logs are kept; no rebuild; no full round):
+1. `git diff --check d4b84b4e`: `diff-check-e39-b.log`.
+2. `ArchitectureDocsConsistencyTests`, run last, after this addition, on the E33 build: `arch-docs-e39-docs-b.log`.
+
+**Final diff scope item and final verification.** Both checks above passed (`diff-check-e39-b.log` exit 0; `arch-docs-e39-docs-b.log` 29 passed, 0 failed, 0 skipped). After the Final diff scope check passed, the coordinator directed one comment repair.
+- `CuriousContraptions.tests/ArchitectureDocsConsistencyTests.cs:17`, the class summary: "one link rule over the authority docs and every Markdown file the slice edited, within a" → "one link rule over the authority docs and every Markdown file the slice edited in <c>37a259c9..d4b84b4e</c>, within a". The range is the one the list's own doc comment gives at `:52` (`git diff --name-only 37a259c9 d4b84b4e -- '*.md'`). No other line of the file changed.
+
+Verification on this source (pinned toolchain, foreground, `caffeinate -i`; logs under `~/.local/share/tim-toolchain/logs/slice-doc-engine-status/`):
+1. Incremental test-project build after the comment edit: exit 0, 0 warnings, 0 errors; `tests-build-e39.log`.
+2. Capture builds (`docs/delivery-workflow.md:38-53`) into the fresh folder `binlogs-e39/` (physical path `/Users/aidan/.local/share/tim-toolchain/logs/slice-doc-engine-status/binlogs-e39`), HEAD `d4b84b4e`: playtest, solution, web, `CheckStagedTests.cs`, `VerifyPolicy.cs`; every step exit 0, 0 warnings, 0 errors; `capture-e39-a.log`, `capture-e39-b.log`, `capture-e39-c.log`.
+3. Maintainability gate: **PASS**, violations 0 (metrics 0, coupling 0), both canary PASS lines, `Coupling dependencies: contract=4670, model=4, intrusive=0; violations=0`; `maintainability-e39.log`.
+4. Registration check filter: **821/0/0** (WorkerAotGuard 17, BundleElements 195, Coverage 83, E2eRunner 97, CuriousContraptions.tests 429); `registration-e39.log`.
+5. Full local round (`CSHARP_STATIC_GATE_BINLOGS` = `binlogs-e39/`, the deferred-browser filter from `tools/E2eRunner` only, `RunConfiguration.TreatNoTestsAsError=true`): **7432 passed, 0 failed, `Skipped: 0`** (WorkerAotGuard 17, BundleElements 323, Coverage 132, E2eRunner 256, CuriousContraptions.tests 6704), exit 0, 08:14:11 to 08:22:29 AWST. The log opens with `HEAD d4b84b4ebab8535389888c7f4b91fca231d81be9` and the filter and closes with `HEAD-AFTER d4b84b4ebab8535389888c7f4b91fca231d81be9`; `full-round-e39.log`. 7432 is the expected AC3 total.
+
+The final link run and `git diff --check` wait for the coordinator's E40 and are not run here.
+
+## E40 Coordinator: VG-1 Final diff scope and close note (26 November 2026)
+
+**E37 re-review** (Verification Gap, Forward-Only and Element-Free, each fresh). Every IN finding was patched in E39:
+- "only element collider source", with the workbench support plane's status deferred;
+- the CAT-048 `.glb` reading;
+- `decisions.md:122`;
+- the record counts and pointers.
+
+`general-engine-design.md:110`, `engine-contracts.md:92` and `prd.md:196–197`, `:252` and `:260` are OUT and deferred to the ENGINE-CORE-2d replanning (`deferred-work.md`).
+
+**Final diff scope** (a fresh informed auditor, on the full repaired candidate `d4b84b4e` → worktree: 16 files, every hunk). Verdict: **Pass.**
+- **Kept.** Every hunk traces to one of:
+  - the authorised VG-1 repair;
+  - a ruling in the Spec Change Log;
+  - a record the contract names.
+
+  Further checks:
+  - Nothing is unrelated.
+  - Each widening has a recorded ruling.
+  - Each acceptance change has authority: AC3 is 7432, 6.5f is restored to its source story, and LEGACY-0d gets a format reading.
+  - The lane 1 lines are untouched, and `epics.md` keeps 5,855 lines.
+- **Removed:** nothing.
+- **Simplification:** no justified opportunity. Each piece of the test that is not Markdig covers something Markdig does not do: the scheme allow-list, HTML attribute reading, path resolution, the tracked-tree model and the bounded `git ls-files` call. Four cosmetic changes were considered and rejected as churn.
+- **The auditor's IN items,** all records, are patched:
+  - the review count is eleven;
+  - the M6 pointer is E39/E40;
+  - the 26-file set is qualified with `37a259c9..d4b84b4e`, in the contract, in `deferred-work.md` and in the test's class summary (E39).
+- **OUT.** The repair's own edits to `engine.md`, `decisions.md` and `prd.md` add no links and sit outside the checked set. Widening the set is left to the next slice that edits it (`deferred-work.md`).
+
+**Final verification** (E39, implementation owner):
+- capture builds `binlogs-e39/`, 0 warnings;
+- maintainability gate PASS, with both canaries;
+- registration 821/0/0;
+- full local round 7432/0/0, `Skipped: 0` (`full-round-e39.log`, HEAD and HEAD-AFTER `d4b84b4e`).
+
+That matches AC3.
+
+**Close note.**
+- VG-1 is resolved by a coordinator-authorised, test-only repair, widened by rulings to about 60 document lines. Its review closed under the coordinator's hard cap.
+- The contract is within its 8,000-word budget.
+- The last steps, after this entry, with no edit after them:
+  - `git diff --check d4b84b4e`, to `diff-check-final.log`;
+  - `ArchitectureDocsConsistencyTests` on the E39 build, to `arch-docs-final.log`;
+  - the commit, as a repair commit on top of `d4b84b4e` through the normal hooks.
+- The results of those three are in the coordinator's report.
+- Fetch, merge, push and SnapshotApproval wait for the publish token. The merge re-checks the lane 1 lines and `owner-decisions-2026-11-22.md:71`.

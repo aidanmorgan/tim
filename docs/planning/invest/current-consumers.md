@@ -9,7 +9,7 @@
 
 **Level(s) unlocked:** placed in first_principles, spring_forward, domino_effect, spring_signal, bumper_sidekick, bumper_depth, wall_and_bumper, conveyor_courier, belt_relay, reverse_belt, solar_motor, solar_shadow, delayed_signal, delayed_solar, clear_pipe, gentle_bend, quarter_bend, joined_pipe, two_deliveries, double_cold_start, grand_contraption, wind_then_release, saved_for_later, a_gentle_rebound, ready_to_rebound.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-001). **Requirements (Incomplete):** [CAT-001](../requirements.md#current-cat-001). **Legacy deleted at this element's slice:** [parts/BallPart.cs](../../../parts/BallPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-001). **Requirements (Incomplete):** [CAT-001](../requirements.md#current-cat-001). **Legacy deleted at this element's slice:** `parts/BallPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Free workshop Basketball falls/bounces on workbench; actual Remove and two-height control; first vertical card governs.
 
@@ -40,7 +40,7 @@
 
 **Level(s) unlocked:** placed in first_principles, air_mail, spring_forward, third_dimension, cold_start, bumper_sidekick, bumper_depth, wall_and_bumper, conveyor_courier, belt_relay, reverse_belt, clear_pipe, gentle_bend, quarter_bend, joined_pipe, two_deliveries, double_cold_start, wind_then_release, saved_for_later, a_gentle_rebound; inventory in ready_to_rebound.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-004). **Requirements (Incomplete):** [CAT-004](../requirements.md#current-cat-004). **Legacy deleted at this element's slice:** [parts/BasketPart.cs](../../../parts/BasketPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-004). **Requirements (Incomplete):** [CAT-004](../requirements.md#current-cat-004). **Legacy deleted at this element's slice:** `parts/BasketPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Default Free workshop Receiver captures Basketball with residence/speed/dwell and halo.
 
@@ -134,7 +134,7 @@
 
 **Level(s) unlocked:** placed in power_trip, cold_start, switched_motor, double_cold_start, grand_contraption; inventory in burst_of_motion.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-014). **Requirements (Incomplete):** [CAT-014](../requirements.md#current-cat-014). **Legacy deleted at this element's slice:** the untyped `parts/catalog/bowling.tres` parameter dictionary, the `BasketballMaterial`/`BasketballMaterialResource` single-kind naming and the hard-coded ball friction/bounce threshold in `WorkshopPhysicsCompiler` ([parts/BallPart.cs](../../../parts/BallPart.cs) is retained as artwork that reads the declared material of either kind). **Mode records:** Configuration=Fixed. *Delivery note (Story 6.1): implemented as `WorkshopBall` with `Kind = BowlingBall` and `BallMaterial.For(kind)`; Chrome proof `tools/e2e/cat-014.test.ts` (two lanes, rest/bounce, Receiver, Save/Load, Reset); terminal scoped Pass by the independent reviewer (Murdoch, 9 Oct 2026, two passes) for the original 0.38 m Bowling ball; the 0.28 m / 4 kg re-tune under every-contact rolling resistance (Story 6.1b, owner decision 9 Oct 2026) is covered by the 6.1b review.*
+[Exact D/I/V acceptance](../requirements.md#current-cat-014). **Requirements (Incomplete):** [CAT-014](../requirements.md#current-cat-014). **Legacy deleted at this element's slice:** the untyped `parts/catalog/bowling.tres` parameter dictionary, the `BasketballMaterial`/`BasketballMaterialResource` single-kind naming and the hard-coded ball friction/bounce threshold in `WorkshopPhysicsCompiler` (`parts/BallPart.cs` was retained as artwork that read the declared material of either kind; deleted at `8f682f84`). **Mode records:** Configuration=Fixed. *Delivery note (Story 6.1): implemented as `WorkshopBall` with `Kind = BowlingBall` and `BallMaterial.For(kind)`; Chrome proof `tools/e2e/cat-014.test.ts` (two lanes, rest/bounce, Receiver, Save/Load, Reset); terminal scoped Pass by the independent reviewer (Murdoch, 9 Oct 2026, two passes) for the original 0.38 m Bowling ball; the 0.28 m / 4 kg re-tune under every-contact rolling resistance (Story 6.1b, owner decision 9 Oct 2026) is covered by the 6.1b review.*
 
 **First visible interaction / minimum collaborators:** Bowling ball drops onto workbench and pushes an existing Domino.
 
@@ -145,7 +145,7 @@
 
 **Level(s) unlocked:** inventory in bumper_sidekick, bumper_depth, wall_and_bumper.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-015). **Requirements (Incomplete):** [CAT-015](../requirements.md#current-cat-015). **Legacy deleted at this element's slice:** [parts/BumperPart.cs](../../../parts/BumperPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-015). **Requirements (Incomplete):** [CAT-015](../requirements.md#current-cat-015). **Legacy deleted at this element's slice:** `parts/BumperPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball contacts Pinball bumper and is deflected away from the actual contact point.
 
@@ -212,7 +212,7 @@
 
 **Level(s) unlocked:** placed in wind_then_release, saved_for_later; inventory in delayed_signal, delayed_solar.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-022). **Requirements (Incomplete):** [CAT-022](../requirements.md#current-cat-022). **Legacy deleted at this element's slice:** [parts/DelayPart.cs](../../../parts/DelayPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-022). **Requirements (Incomplete):** [CAT-022](../requirements.md#current-cat-022). **Legacy deleted at this element's slice:** `parts/DelayPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Impact switch triggers Delay, then Signal lamp activates after the declared one-second delay.
 
@@ -223,7 +223,7 @@
 
 **Level(s) unlocked:** placed in domino_effect, grand_contraption; inventory in domino_effect, grand_contraption.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-023). **Requirements (Incomplete):** [CAT-023](../requirements.md#current-cat-023). **Legacy deleted at this element's slice:** the physics and tilt-sensor members of [parts/DominoPart.cs](../../../parts/DominoPart.cs) (the file remains artwork only). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-023). **Requirements (Incomplete):** [CAT-023](../requirements.md#current-cat-023). **Legacy deleted at this element's slice:** the physics and tilt-sensor members of `parts/DominoPart.cs` (the file was then retained as artwork only; deleted at `8f682f84`). **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball tips Domino into a second tile and its activation output is observed on Signal lamp. **Capability:** dynamic rigid Box body (mass, inertia; the local centre-of-mass offset is a deferred CAT-023 follow-up, re-deferred by CAT-014) plus an orientation-threshold sensor (angle from initial pose, emits once, rearms on Reset), both generic declarations. **Level:** domino_effect.
 
@@ -339,7 +339,7 @@
 
 **Level(s) unlocked:** placed in power_trip, domino_effect, spring_signal, counterweight, pulley_depth, delayed_signal, grand_contraption.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-035). **Requirements (Incomplete):** [CAT-035](../requirements.md#current-cat-035). **Legacy deleted at this element's slice:** [parts/LampPart.cs](../../../parts/LampPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-035). **Requirements (Incomplete):** [CAT-035](../requirements.md#current-cat-035). **Legacy deleted at this element's slice:** `parts/LampPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Impact switch ActivationOut connects to Signal lamp ActivationIn and contact lights it.
 
@@ -522,7 +522,7 @@
 
 **Level(s) unlocked:** inventory in first_principles, air_mail, two_deliveries, grand_contraption.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-054). **Requirements (Incomplete):** [CAT-054](../requirements.md#current-cat-054). **Legacy deleted at this element's slice:** [parts/RampPart.cs](../../../parts/RampPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-054). **Requirements (Incomplete):** [CAT-054](../requirements.md#current-cat-054). **Legacy deleted at this element's slice:** `parts/RampPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** First principles two rotated Ramps deliver Basketball into Receiver.
 
@@ -611,7 +611,7 @@
 
 **Level(s) unlocked:** placed in spring_signal, counterweight, pulley_depth, delayed_signal, delayed_solar, grand_contraption, wind_then_release, saved_for_later; inventory in power_trip, cold_start, switched_motor, double_cold_start.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-063). **Requirements (Incomplete):** [CAT-063](../requirements.md#current-cat-063). **Legacy deleted at this element's slice:** [parts/SwitchPart.cs](../../../parts/SwitchPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-063). **Requirements (Incomplete):** [CAT-063](../requirements.md#current-cat-063). **Legacy deleted at this element's slice:** `parts/SwitchPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball contact on Impact switch activates Signal lamp through ActivationOut.
 
@@ -644,7 +644,7 @@
 
 **Level(s) unlocked:** placed in solar_shadow; inventory in wall_and_bumper.
 
-[Exact D/I/V acceptance](../requirements.md#current-cat-066). **Requirements (Incomplete):** [CAT-066](../requirements.md#current-cat-066). **Legacy deleted at this element's slice:** [parts/WallPart.cs](../../../parts/WallPart.cs). **Mode records:** Configuration=Fixed.
+[Exact D/I/V acceptance](../requirements.md#current-cat-066). **Requirements (Incomplete):** [CAT-066](../requirements.md#current-cat-066). **Legacy deleted at this element's slice:** `parts/WallPart.cs`. **Mode records:** Configuration=Fixed.
 
 **First visible interaction / minimum collaborators:** Basketball contacts actual Wall panel at selected position/rotation/local dimensions.
 

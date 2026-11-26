@@ -94,7 +94,7 @@ All 3D puzzle elements, fixtures, and tools are authored as the element's own Go
 1. **Standard Node Structure of an Element Scene:**
    Every puzzle element scene follows a standardized declarative node hierarchy:
    - `Visual/` (or visual mesh nodes): Contains the renderable geometry with standard PBR metallic-roughness materials adhering to the project palette and sculptural style defined in [DESIGN.md](../DESIGN.md).
-   - `Collision/` (or collision nodes): Contains non-rendered analytic and hollow proxy primitives used for physics (hulls are refused):
+   - Collision proxy nodes (any `CollisionShape3D`, or any node named with the `col_` prefix, under the scene root or under the `Visual` branch it moves with; there is no `Collision/` node): non-rendered analytic and hollow proxy primitives used for physics (hulls are refused):
      - `col_box`: Analytic box half-extents.
      - `col_sphere`: Analytic sphere radius.
      - `col_capsule`: refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:111-114`, `:125-131`); no story admits a capsule.
@@ -102,7 +102,7 @@ All 3D puzzle elements, fixtures, and tools are authored as the element's own Go
      - Hollow kinds (Tube, Frustum, Torus): authoring rules in [hollow geometry](hollow-geometry-design.md#declaration-data).
      - A proxy is a `CollisionShape3D` node or a node named with the `col_` prefix; a name that carries `-col_` without that prefix is refused at bake.
      - `col_hull`: refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:111-114`, `:125-131`); a convex extruded profile is the `ENGINE-PROFILE-COLLIDER` target.
-   - `Locators/` (or locator nodes): Empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points for electrical, activation, and mechanical connections.
+   - Locator nodes: empty nodes named `Loc_Port_<Id>` specifying 3D socket attachment points for electrical, activation, and mechanical connections, each at its declared anchor and a direct child of the scene root for a port on body 0, otherwise of that declared scene body's root node (`tools/BundleElements/PackageValidator.cs:88-97` for names, `:116-133` for parent and position); there is no `Locators/` group node.
    - **Secondary Body Sub-Trees:** For composite or articulated parts (e.g. rotating motor shafts, springboard moving plates, lever arms), moving sub-components are organized under dedicated child node branches. Each secondary body branch contains its respective visual geometry, collision nodes (`col_*`), and locators, sharing local transforms dynamically during simulation.
 2. **Package Binding to the Scene:**
    The package declaration names its scene path. The declaration owns generic physical capabilities, port contracts and bindings; the scene owns the visual and collision geometry.
