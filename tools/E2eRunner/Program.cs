@@ -222,10 +222,21 @@ internal static class Program
         var soloLoad = serial.Files.Select(file => file.LoadAfter).OfType<double>().DefaultIfEmpty(idleAtStart).Max();
         var trials = new List<CalibrationTrial>();
         IReadOnlyDictionary<string, double>? baseline = null;
+        string? refusedTrial = null;
         foreach (var workers in Calibration.Candidates(cpus))
         {
-            var run = await Trial(FormattableString.Invariant($"trial-{workers}"),
-                SuiteCatalogue.All.Where(declaration => declaration.Timing == SuiteTiming.Parallel), workers, baseline).ConfigureAwait(false);
+            RunSummary run;
+            try
+            {
+                run = await Trial(FormattableString.Invariant($"trial-{workers}"),
+                    SuiteCatalogue.All.Where(declaration => declaration.Timing == SuiteTiming.Parallel), workers, baseline).ConfigureAwait(false);
+            }
+            catch (RunnerException refusal) when (refusal.Error == RunnerError.ServedIdentityMismatch)
+            {
+                // Its preview start was refused (a bundle change, or the preview not serving the bundle): nothing measured; report the trials so far.
+                refusedTrial = FormattableString.Invariant($"trial-{workers} refused: {refusal.Message}");
+                break;
+            }
             var trial = new CalibrationTrial(workers, (run.Finished - run.Started).TotalSeconds, run.Verdict == Verdict.Pass,
                 run.Files.Sum(file => file.Tap?.DebtFaults ?? 0), long.Parse(run.Header["peakRssBytes"], CultureInfo.InvariantCulture),
                 run.Files.ToDictionary(file => file.Label, file => file.DurationMs, StringComparer.Ordinal));
@@ -244,6 +255,7 @@ internal static class Program
             report.AppendLine(CultureInfo.InvariantCulture,
                 $"like-for-like serial baseline (Phase S + N=1 trial): {(serial.Finished - serial.Started).TotalSeconds + one.WallSeconds:F1} s; historical 26 min 17 s (1577 s)");
         report.AppendLine().Append(Calibration.Table(trials, memory)).AppendLine();
+        if (refusedTrial is not null) report.AppendLine(refusedTrial);
         report.AppendLine(CultureInfo.InvariantCulture, $"chosen N: {(chosen is { } n ? n.ToString(CultureInfo.InvariantCulture) : "none (N=1 failed)")}");
         if (chosen is { } workersChosen)
             report.AppendLine("MeasuredWorkers.Current = " + Calibration.MeasuredWorkersSource(new MeasuredWorkers(workersChosen, cpus, memory,

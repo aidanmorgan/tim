@@ -8,8 +8,8 @@ namespace CuriousContraptions.E2eRunner;
 /// <summary>A run's verdict. Exit codes: 0 Pass, 1 Fail, 2 any other verdict.</summary>
 internal enum Verdict { Pass = 1, Fail, Incomplete, IdentityChanged, Aborted }
 
-/// <summary>Why a run is Incomplete.</summary>
-internal enum IncompleteReason { ForeignChrome = 1, Contended, NotRun }
+/// <summary>Why a run is Incomplete. PreviewNotResponding: the end served check ran out of time, so the served bundle is unconfirmed.</summary>
+internal enum IncompleteReason { ForeignChrome = 1, Contended, NotRun, PreviewNotResponding }
 
 /// <summary>Phase S runs SerialAlone files alone; Phase P runs Parallel files on N workers.</summary>
 internal enum RunPhase { SerialAlone = 1, Parallel }

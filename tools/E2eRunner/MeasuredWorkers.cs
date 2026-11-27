@@ -16,11 +16,17 @@ internal sealed record MeasuredWorkers(int Workers, int LogicalCpus, long Memory
 
     public static int MachineCpus => Environment.ProcessorCount;
 
-    public static long MachineMemory()
+    /// <summary>The physical memory (sysctl hw.memsize), or a typed SystemQueryFailed refusal.</summary>
+    public static long MachineMemory() => MachineMemory(ChildProcess.Start);
+
+    /// <summary><see cref="MachineMemory()"/> through a given launcher.</summary>
+    internal static long MachineMemory(LaunchChild launch)
     {
-        var result = Processes.Run("sysctl", ["-n", "hw.memsize"]);
+        var result = Processes.Run(launch, ProcessLifecycle.Grace, "sysctl", ["-n", "hw.memsize"], null, Processes.DefaultLimit);
         return result.ExitCode == 0 && long.TryParse(result.Output.Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var bytes)
-            ? bytes : throw new InvalidOperationException("sysctl hw.memsize did not return the physical memory.");
+            ? bytes
+            : throw new RunnerException(RunnerError.SystemQueryFailed,
+                $"sysctl hw.memsize did not return the physical memory (exit {result.ExitCode}: '{result.Output.Trim()}' {result.Error.Trim()}).");
     }
 
     /// <summary>The worker count for a run: serial (1) when asked for or when nothing is calibrated, otherwise the calibrated N (or a

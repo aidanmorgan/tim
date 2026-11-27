@@ -17,8 +17,8 @@ public sealed class SuiteProcessTests
             Path.Combine(output, "evidence"));
         var launch = new SuiteLaunch(fixture, $"tools/E2eRunner.Tests/Fixtures/{fixture}.test.ts", TestRepository.Root, output, environment,
             wallLimit ?? TimeSpan.FromMinutes(2), Toolchain.ResolveTsxLoader(Home));
-        using var sampler = new ProcessSampler(TimeSpan.FromMilliseconds(500));
-        var run = SuiteProcess.RunAsync(launch, sampler, CancellationToken.None).GetAwaiter().GetResult();
+        using var sampler = new ProcessSampler(new ProcessTable(ChildProcess.Start, ProcessTable.SnapshotLimit), TimeSpan.FromMilliseconds(500));
+        var run = SuiteProcess.RunAsync(launch, sampler, ChildProcess.Start, ProcessLifecycle.Grace, CancellationToken.None).GetAwaiter().GetResult();
         try { return FileResult.Evaluate(run, output, fixture + ".test.ts", RunPhase.Parallel, 0); }
         finally { if (owned) Directory.Delete(output, true); }
     }

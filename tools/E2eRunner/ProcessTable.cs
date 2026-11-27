@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 
 namespace CuriousContraptions.E2eRunner;
@@ -6,22 +7,62 @@ namespace CuriousContraptions.E2eRunner;
 /// <summary>One row of the machine's process table.</summary>
 internal readonly record struct ProcessRow(int Pid, int ParentPid, long RssKilobytes, string Command);
 
-/// <summary>The machine's process table (ps), read at the process-listing boundary.</summary>
-internal static class ProcessTable
+/// <summary>What a kill of one survivor did.</summary>
+internal enum SurvivorKillResult { Killed = 1, Gone, Refused }
+
+/// <summary>The result of killing one survivor, with the cause when it was gone or refused.</summary>
+internal readonly record struct SurvivorKill(SurvivorKillResult Result, string Cause);
+
+/// <summary>The machine's process table: the snapshot every reader uses and the kill of one survivor.</summary>
+internal interface IProcessTable
 {
-    public static IReadOnlyList<ProcessRow> Snapshot()
+    /// <summary>Every process, or a typed refusal (ProcessTableUnreadable, or the short command's own refusal).</summary>
+    IReadOnlyList<ProcessRow> Snapshot();
+
+    /// <summary>Sends SIGKILL to one survivor.</summary>
+    SurvivorKill Kill(int pid);
+}
+
+/// <summary>The machine's process table (ps), read at the process-listing boundary with one short limit.</summary>
+internal sealed class ProcessTable(LaunchChild launch, TimeSpan limit) : IProcessTable
+{
+    /// <summary>The limit of every process-table read (the sampler, the survivor sweep, the foreign-Chrome wait).</summary>
+    public static readonly TimeSpan SnapshotLimit = TimeSpan.FromSeconds(10);
+
+    public IReadOnlyList<ProcessRow> Snapshot()
     {
-        var result = Processes.Run("ps", ["-A", "-ww", "-o", "pid=,ppid=,rss=,command="]);
-        if (result.ExitCode != 0) throw new InvalidOperationException($"ps exited {result.ExitCode}: {result.Error.Trim()}");
-        var rows = new List<ProcessRow>();
-        foreach (var line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        var result = Processes.Run(launch, ProcessLifecycle.Grace, "ps", ["-A", "-ww", "-o", "pid=,ppid=,rss=,command="], null, limit);
+        if (result.ExitCode != 0) throw Unreadable($"ps exited {result.ExitCode}: {result.Error.Trim()}");
+        return [.. result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(Row)];
+    }
+
+    private static ProcessRow Row(string line)
+    {
+        var fields = line.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
+        return fields.Length >= 3
+            && int.TryParse(fields[0], NumberStyles.None, CultureInfo.InvariantCulture, out var pid)
+            && int.TryParse(fields[1], NumberStyles.None, CultureInfo.InvariantCulture, out var parent)
+            && long.TryParse(fields[2], NumberStyles.None, CultureInfo.InvariantCulture, out var rss)
+            ? new ProcessRow(pid, parent, rss, fields.Length > 3 ? fields[3] : "")
+            : throw Unreadable($"ps printed a row that does not parse: '{line}'");
+    }
+
+    private static RunnerException Unreadable(string detail) =>
+        new(RunnerError.ProcessTableUnreadable, $"The process table could not be read: {detail}.");
+
+    /// <summary>Sends SIGKILL to one process seen in a runner-owned tree. A process already gone (its pid no longer resolves, or
+    /// its handle has no process) is Gone; a refused signal is Refused.</summary>
+    public SurvivorKill Kill(int pid)
+    {
+        try
         {
-            var fields = line.Split(' ', 4, StringSplitOptions.RemoveEmptyEntries);
-            if (fields.Length < 3) continue;
-            rows.Add(new ProcessRow(int.Parse(fields[0], CultureInfo.InvariantCulture), int.Parse(fields[1], CultureInfo.InvariantCulture),
-                long.Parse(fields[2], CultureInfo.InvariantCulture), fields.Length > 3 ? fields[3] : ""));
+            using var process = Process.GetProcessById(pid);
+            process.Kill();
+            return new SurvivorKill(SurvivorKillResult.Killed, "");
         }
-        return rows;
+        catch (ArgumentException gone) { return new SurvivorKill(SurvivorKillResult.Gone, gone.Message); }
+        catch (InvalidOperationException gone) { return new SurvivorKill(SurvivorKillResult.Gone, gone.Message); }
+        catch (Win32Exception refused) { return new SurvivorKill(SurvivorKillResult.Refused, refused.Message); }
     }
 
     /// <summary>The root and every descendant of it in one snapshot.</summary>
@@ -41,47 +82,59 @@ internal static class ProcessTable
         return tree;
     }
 
-    /// <summary>The processes still running with the same pid and command as when they were seen (so a reused pid is never matched).</summary>
-    public static IReadOnlyList<ProcessRow> StillRunning(IReadOnlyDictionary<int, string> seen)
-    {
-        var current = Snapshot().ToDictionary(row => row.Pid);
-        return [.. seen.Where(entry => current.TryGetValue(entry.Key, out var row) && row.Command == entry.Value).Select(entry => current[entry.Key])];
-    }
+    /// <summary>The 1-minute load average (sysctl vm.loadavg), or a typed SystemQueryFailed refusal.</summary>
+    public static double LoadAverage() => LoadAverage(ChildProcess.Start);
 
-    /// <summary>Sends SIGKILL to one process seen in a runner-owned tree; a process that already exited is ignored.</summary>
-    public static void KillOwned(int pid)
+    /// <summary><see cref="LoadAverage()"/> through a given launcher.</summary>
+    internal static double LoadAverage(LaunchChild launch)
     {
-        try
-        {
-            using var process = System.Diagnostics.Process.GetProcessById(pid);
-            process.Kill();
-        }
-        catch (ArgumentException) { return; } // already exited
-        catch (InvalidOperationException) { return; } // already exited
-        catch (Win32Exception) { return; } // exited between the check and the signal
-    }
-
-    /// <summary>The 1-minute load average (sysctl vm.loadavg).</summary>
-    public static double LoadAverage()
-    {
-        var result = Processes.Run("sysctl", ["-n", "vm.loadavg"]);
+        var result = Processes.Run(launch, ProcessLifecycle.Grace, "sysctl", ["-n", "vm.loadavg"], null, Processes.DefaultLimit);
         var fields = result.Output.Trim().Trim('{', '}').Split(' ', StringSplitOptions.RemoveEmptyEntries);
         return result.ExitCode == 0 && fields.Length > 0 && double.TryParse(fields[0], NumberStyles.Float, CultureInfo.InvariantCulture, out var load)
-            ? load : throw new InvalidOperationException("sysctl vm.loadavg did not return a load average.");
+            ? load
+            : throw new RunnerException(RunnerError.SystemQueryFailed,
+                $"sysctl vm.loadavg did not return a load average (exit {result.ExitCode}: '{result.Output.Trim()}' {result.Error.Trim()}).");
     }
 }
 
+/// <summary>One survivor the sweep could not kill (its pid), or a refused table read (no pid).</summary>
+internal sealed record SweepFailure(int? Pid, string Cause);
+
+/// <summary>What one survivor sweep did: the survivors it killed and every failure.</summary>
+internal sealed record SurvivorSweep(IReadOnlyList<ProcessRow> Killed, IReadOnlyList<SweepFailure> Failures);
+
 /// <summary>Samples every registered runner-owned process tree every interval: the pids (with commands) each tree ever held, and the
-/// peak summed resident memory of all registered trees.</summary>
+/// peak summed resident memory of all registered trees. A sample whose table read is refused is skipped and counted (its timer has no
+/// caller), keeping the first reason.</summary>
 internal sealed class ProcessSampler : IDisposable
 {
+    private readonly IProcessTable _table;
     private readonly Lock _gate = new();
     private readonly Dictionary<int, Dictionary<int, string>> _seen = [];
     private readonly Timer _timer;
+    private long _peakRssBytes;
+    private int _skipped;
+    private string? _firstSkipReason;
+    private int _sampling;
 
-    public ProcessSampler(TimeSpan interval) => _timer = new Timer(_ => Sample(), null, interval, interval);
+    public ProcessSampler(IProcessTable table, TimeSpan interval)
+    {
+        _table = table;
+        _timer = new Timer(_ => SampleOnTick(), null, interval, interval);
+    }
 
-    public long PeakRssBytes { get; private set; }
+    public long PeakRssBytes { get { lock (_gate) return _peakRssBytes; } }
+    public int SkippedSamples { get { lock (_gate) return _skipped; } }
+    public string? FirstSkipReason { get { lock (_gate) return _firstSkipReason; } }
+
+    /// <summary>The timer's sample: a tick that finds the previous tick's sample still reading the table returns at once, so a slow
+    /// read never stacks samples.</summary>
+    internal void SampleOnTick()
+    {
+        if (Interlocked.Exchange(ref _sampling, 1) == 1) return;
+        try { Sample(); }
+        finally { Volatile.Write(ref _sampling, 0); }
+    }
 
     public void Register(int root)
     {
@@ -89,24 +142,19 @@ internal sealed class ProcessSampler : IDisposable
         Sample();
     }
 
-    /// <summary>Stops tracking a tree and returns every process it was seen to hold.</summary>
-    public IReadOnlyDictionary<int, string> Unregister(int root)
-    {
-        Sample();
-        lock (_gate)
-        {
-            var seen = _seen.GetValueOrDefault(root) ?? [];
-            _seen.Remove(root);
-            return seen;
-        }
-    }
-
     public void Sample()
     {
         IReadOnlyList<ProcessRow> rows;
-        try { rows = ProcessTable.Snapshot(); }
-        catch (InvalidOperationException) { return; }
-        catch (Win32Exception) { return; }
+        try { rows = _table.Snapshot(); }
+        catch (RunnerException refusal)
+        {
+            lock (_gate)
+            {
+                _skipped++;
+                _firstSkipReason ??= refusal.Message;
+            }
+            return;
+        }
         lock (_gate)
         {
             long total = 0;
@@ -116,8 +164,36 @@ internal sealed class ProcessSampler : IDisposable
                     seen.TryAdd(row.Pid, row.Command);
                     total += row.RssKilobytes * 1024;
                 }
-            PeakRssBytes = Math.Max(PeakRssBytes, total);
+            _peakRssBytes = Math.Max(_peakRssBytes, total);
         }
+    }
+
+    /// <summary>Stops tracking a tree, as its first act under the lock (so no later sample adds to it: after the root has ended its pid
+    /// may be reused), and kills, one by one, every process it was seen to hold other than its root (the root is the stop's alone) that
+    /// still runs with the same pid and command (so a reused pid is never matched). A survivor already gone is neither a failure nor
+    /// killed; each refused kill, and a refused table read, is a failure.</summary>
+    public SurvivorSweep Sweep(int root)
+    {
+        Dictionary<int, string> seen;
+        lock (_gate)
+            seen = _seen.Remove(root, out var walked) ? walked : [];
+        IReadOnlyList<ProcessRow> current;
+        try { current = _table.Snapshot(); }
+        catch (RunnerException refusal) { return new SurvivorSweep([], [new SweepFailure(null, refusal.Message)]); }
+        var killed = new List<ProcessRow>();
+        var failures = new List<SweepFailure>();
+        foreach (var survivor in current.Where(row => row.Pid != root && seen.TryGetValue(row.Pid, out var command) && command == row.Command))
+        {
+            var kill = _table.Kill(survivor.Pid);
+            switch (kill.Result)
+            {
+                case SurvivorKillResult.Killed: killed.Add(survivor); break;
+                case SurvivorKillResult.Gone: break;
+                case SurvivorKillResult.Refused: failures.Add(new SweepFailure(survivor.Pid, kill.Cause)); break;
+                default: throw new InvalidOperationException($"Unknown survivor kill result {kill.Result}.");
+            }
+        }
+        return new SurvivorSweep(killed, failures);
     }
 
     public void Dispose() => _timer.Dispose();
