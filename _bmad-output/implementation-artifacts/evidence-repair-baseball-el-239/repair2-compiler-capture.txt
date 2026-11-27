@@ -1,0 +1,396 @@
+Terminal color escapes removed from captured compiler stdout/stderr.
+
+compiler_log_path=/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK
+DOTNET_ROOT=/Users/aidan/.local/share/tim-toolchain/dotnet-10.0.403
+$ node --version
+v26.12.1
+exit=0 elapsed=0s
+$ dotnet --version
+10.0.403
+exit=0 elapsed=0s
+$ dotnet workload list
+
+Workload version: 10.0.403
+
+Installed Workload Id      Manifest Version       Installation Source
+---------------------------------------------------------------------
+wasm-tools                 10.0.114/10.0.100      SDK 10.0.400
+
+Use `dotnet workload search` to find additional workloads to install.
+
+exit=0 elapsed=0s
+$ dotnet restore CuriousContraptions.slnx --nologo --disable-parallel -noAutoResponse
+  Determining projects to restore...
+  Restored /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.csproj (in 71 ms).
+  71 of 72 projects are up-to-date for restore.
+exit=0 elapsed=1s
+$ dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -p:PlaytestDiagnostics=true -noAutoResponse -bl:/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK/playtest.binlog
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Preview/bin/Debug/net10.0/Preview.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Battery/bin/Debug/net10.0/Battery.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Counter/bin/Debug/net10.0/Counter.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  Motor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Motor/bin/Debug/net10.0/Motor.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  Clutch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Clutch/bin/Debug/net10.0/Clutch.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Weight -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Weight/bin/Debug/net10.0/Weight.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  Trampoline -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Trampoline/bin/Debug/net10.0/Trampoline.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  Pulley -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Pulley/bin/Debug/net10.0/Pulley.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  WoundSpring -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/WoundSpring/bin/Debug/net10.0/WoundSpring.dll
+  TennisBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/TennisBall/bin/Debug/net10.0/TennisBall.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  Windmill -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Windmill/bin/Debug/net10.0/Windmill.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  ReverseTransmission -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ReverseTransmission/bin/Debug/net10.0/ReverseTransmission.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Domino/bin/Debug/net10.0/Domino.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Fan -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Fan/bin/Debug/net10.0/Fan.dll
+  Cannon -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Cannon/bin/Debug/net10.0/Cannon.dll
+  RopeAnchor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/RopeAnchor/bin/Debug/net10.0/RopeAnchor.dll
+  LinearPusher -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/LinearPusher/bin/Debug/net10.0/LinearPusher.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Conveyor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Conveyor/bin/Debug/net10.0/Conveyor.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  Baseball -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Baseball/bin/Debug/net10.0/Baseball.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Wall/bin/Debug/net10.0/Wall.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  ImpactLever -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ImpactLever/bin/Debug/net10.0/ImpactLever.dll
+  CuriousContraptions.Core -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Core/bin/Debug/net10.0/CuriousContraptions.Core.dll
+  Balloon -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Balloon/bin/Debug/net10.0/Balloon.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  [   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+  [   0% ] first_scan_filesystem | Scanning file structure...
+  [  16% ] first_scan_filesystem | Loading global class names...
+  [  33% ] first_scan_filesystem | Verifying GDExtensions...
+  [  50% ] first_scan_filesystem | Creating autoload scripts...
+  [  66% ] first_scan_filesystem | Initializing plugins...
+  [  83% ] first_scan_filesystem | Starting file scan...
+  [ DONE ] first_scan_filesystem
+
+  [   0% ] update_scripts_classes | Started Registering global classes... (51 steps)
+  [   0% ] update_scripts_classes |
+  [   1% ] update_scripts_classes |
+  [   3% ] update_scripts_classes |
+  [   5% ] update_scripts_classes |
+  [   7% ] update_scripts_classes |
+  [   9% ] update_scripts_classes |
+  [  11% ] update_scripts_classes |
+  [  13% ] update_scripts_classes |
+  [  15% ] update_scripts_classes |
+  [  17% ] update_scripts_classes |
+  [  19% ] update_scripts_classes |
+  [  21% ] update_scripts_classes |
+  [  23% ] update_scripts_classes |
+  [  25% ] update_scripts_classes |
+  [  26% ] update_scripts_classes |
+  [  28% ] update_scripts_classes |
+  [  30% ] update_scripts_classes |
+  [  32% ] update_scripts_classes |
+  [  34% ] update_scripts_classes |
+  [  36% ] update_scripts_classes |
+  [  38% ] update_scripts_classes |
+  [  40% ] update_scripts_classes |
+  [  42% ] update_scripts_classes |
+  [  44% ] update_scripts_classes |
+  [  46% ] update_scripts_classes |
+  [  48% ] update_scripts_classes |
+  [  50% ] update_scripts_classes |
+  [  51% ] update_scripts_classes |
+  [  53% ] update_scripts_classes |
+  [  55% ] update_scripts_classes |
+  [  57% ] update_scripts_classes |
+  [  59% ] update_scripts_classes |
+  [  61% ] update_scripts_classes |
+  [  63% ] update_scripts_classes |
+  [  65% ] update_scripts_classes |
+  [  67% ] update_scripts_classes |
+  [  69% ] update_scripts_classes |
+  [  71% ] update_scripts_classes |
+  [  73% ] update_scripts_classes |
+  [  75% ] update_scripts_classes |
+  [  76% ] update_scripts_classes |
+  [  78% ] update_scripts_classes |
+  [  80% ] update_scripts_classes |
+  [  82% ] update_scripts_classes |
+  [  84% ] update_scripts_classes |
+  [  86% ] update_scripts_classes |
+  [  88% ] update_scripts_classes |
+  [  90% ] update_scripts_classes |
+  [  92% ] update_scripts_classes |
+  [  94% ] update_scripts_classes |
+  [  96% ] update_scripts_classes |
+  [ DONE ] update_scripts_classes
+
+  [   0% ] _update_scan_actions | Started Scanning actions... (27 steps)
+  [   0% ] _update_scan_actions | icon.svg
+  [   3% ] _update_scan_actions | icon.svg
+  [   7% ] _update_scan_actions | icon.svg
+  [  10% ] _update_scan_actions | icon.svg
+  [  14% ] _update_scan_actions | icon.svg
+  [  17% ] _update_scan_actions | icon.svg
+  [  21% ] _update_scan_actions | icon.svg
+  [  25% ] _update_scan_actions | icon.svg
+  [  28% ] _update_scan_actions | icon.svg
+  [  32% ] _update_scan_actions | icon.svg
+  [  35% ] _update_scan_actions | icon.svg
+  [  39% ] _update_scan_actions | icon.svg
+  [  42% ] _update_scan_actions | icon.svg
+  [  46% ] _update_scan_actions | icon.svg
+  [  50% ] _update_scan_actions | icon.svg
+  [  53% ] _update_scan_actions | icon.svg
+  [  57% ] _update_scan_actions | icon.svg
+  [  60% ] _update_scan_actions | icon.svg
+  [  64% ] _update_scan_actions | icon.svg
+  [  67% ] _update_scan_actions | icon.svg
+  [  71% ] _update_scan_actions | icon.svg
+  [  75% ] _update_scan_actions | icon.svg
+  [  78% ] _update_scan_actions | icon.svg
+  [  82% ] _update_scan_actions | icon.svg
+  [  85% ] _update_scan_actions | icon.svg
+  [  89% ] _update_scan_actions | icon.svg
+  [  92% ] _update_scan_actions | icon.svg
+  [ DONE ] _update_scan_actions
+
+  [   0% ] loading_editor_layout | Started Loading editor (5 steps)
+  [   0% ] loading_editor_layout | Loading editor layout...
+  [  16% ] loading_editor_layout | Loading docks...
+  [ DONE ] loading_editor_layout
+
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (45 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/elements.bundle.json (45 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK/playtest.binlog
+
+Time Elapsed 00:00:29.43
+exit=0 elapsed=30s
+$ dotnet build CuriousContraptions.slnx -c Debug --nologo --no-restore --no-incremental -noAutoResponse -bl:/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK/solution.binlog
+  WorkerAotGuard -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard/bin/Debug/net10.0/WorkerAotGuard.dll
+  WorkerAotGuard.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll
+  WireContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WireContract/bin/Debug/net10.0/WireContract.dll
+  Preview -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Preview/bin/Debug/net10.0/Preview.dll
+  TraceAllocations -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/TraceAllocations/bin/Debug/net10.0/TraceAllocations.dll
+  CuriousContraptions.FlatBuffers -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.FlatBuffers/bin/Debug/net10.0/CuriousContraptions.FlatBuffers.dll
+  Ownership -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Ownership/bin/Debug/net10.0/Ownership.dll
+  CuriousContraptions.Abstractions -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions/bin/Debug/net10.0/CuriousContraptions.Abstractions.dll
+  CuriousContraptions.Abstractions.Fluid -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Fluid/bin/Debug/net10.0/CuriousContraptions.Abstractions.Fluid.dll
+  CuriousContraptions.Abstractions.Mechanical -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Mechanical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Mechanical.dll
+  CuriousContraptions.Abstractions.Signal -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Signal/bin/Debug/net10.0/CuriousContraptions.Abstractions.Signal.dll
+  CuriousContraptions.Abstractions.Electrical -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Abstractions.Electrical/bin/Debug/net10.0/CuriousContraptions.Abstractions.Electrical.dll
+  CuriousContraptions.Animation -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Animation/bin/Debug/net10.0/CuriousContraptions.Animation.dll
+  Springboard -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Springboard/bin/Debug/net10.0/Springboard.dll
+  SignalLamp -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/SignalLamp/bin/Debug/net10.0/SignalLamp.dll
+  DelayBox -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/DelayBox/bin/Debug/net10.0/DelayBox.dll
+  Counter -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Counter/bin/Debug/net10.0/Counter.dll
+  HoldTimer -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/HoldTimer/bin/Debug/net10.0/HoldTimer.dll
+  Battery -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Battery/bin/Debug/net10.0/Battery.dll
+  ElectricalNor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalNor/bin/Debug/net10.0/ElectricalNor.dll
+  Fan -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Fan/bin/Debug/net10.0/Fan.dll
+  BothGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BothGate/bin/Debug/net10.0/BothGate.dll
+  ElectricalNand -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalNand/bin/Debug/net10.0/ElectricalNand.dll
+  SystemClock -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/SystemClock/bin/Debug/net10.0/SystemClock.dll
+  ElectricalOr -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalOr/bin/Debug/net10.0/ElectricalOr.dll
+  Bumper -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Bumper/bin/Debug/net10.0/Bumper.dll
+  StateLatch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/StateLatch/bin/Debug/net10.0/StateLatch.dll
+  WoundSpring -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/WoundSpring/bin/Debug/net10.0/WoundSpring.dll
+  E2eRunner -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner/bin/Debug/net10.0/E2eRunner.dll
+  ElectricalXor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ElectricalXor/bin/Debug/net10.0/ElectricalXor.dll
+  LinearPusher -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/LinearPusher/bin/Debug/net10.0/LinearPusher.dll
+  PoweredGate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PoweredGate/bin/Debug/net10.0/PoweredGate.dll
+  CuriousContraptions.Bundle -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Bundle/bin/Debug/net10.0/CuriousContraptions.Bundle.dll
+  Ramp -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Ramp/bin/Debug/net10.0/Ramp.dll
+  Windmill -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Windmill/bin/Debug/net10.0/Windmill.dll
+  TennisBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/TennisBall/bin/Debug/net10.0/TennisBall.dll
+  Balloon -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Balloon/bin/Debug/net10.0/Balloon.dll
+  PressurePlate -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PressurePlate/bin/Debug/net10.0/PressurePlate.dll
+  RopeAnchor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/RopeAnchor/bin/Debug/net10.0/RopeAnchor.dll
+  ReverseTransmission -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ReverseTransmission/bin/Debug/net10.0/ReverseTransmission.dll
+  BallDetector -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BallDetector/bin/Debug/net10.0/BallDetector.dll
+  PipeBend45 -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PipeBend45/bin/Debug/net10.0/PipeBend45.dll
+  Receiver -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Receiver/bin/Debug/net10.0/Receiver.dll
+  Funnel -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Funnel/bin/Debug/net10.0/Funnel.dll
+  Pulley -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Pulley/bin/Debug/net10.0/Pulley.dll
+  Clutch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Clutch/bin/Debug/net10.0/Clutch.dll
+  Weight -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Weight/bin/Debug/net10.0/Weight.dll
+  ImpactLever -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ImpactLever/bin/Debug/net10.0/ImpactLever.dll
+  Motor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Motor/bin/Debug/net10.0/Motor.dll
+  Conveyor -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Conveyor/bin/Debug/net10.0/Conveyor.dll
+  Cannon -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Cannon/bin/Debug/net10.0/Cannon.dll
+  PipeBend90 -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/PipeBend90/bin/Debug/net10.0/PipeBend90.dll
+  Pipe -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Pipe/bin/Debug/net10.0/Pipe.dll
+  Ball -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Ball/bin/Debug/net10.0/Ball.dll
+  Wall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Wall/bin/Debug/net10.0/Wall.dll
+  BowlingBall -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/BowlingBall/bin/Debug/net10.0/BowlingBall.dll
+  ImpactSwitch -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/ImpactSwitch/bin/Debug/net10.0/ImpactSwitch.dll
+  Coverage -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage/bin/Debug/net10.0/Coverage.dll
+  E2eRunner.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll
+  Coverage.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll
+  CuriousContraptions.Core -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Core/bin/Debug/net10.0/CuriousContraptions.Core.dll
+  Domino -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Domino/bin/Debug/net10.0/Domino.dll
+  Trampoline -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Trampoline/bin/Debug/net10.0/Trampoline.dll
+  Baseball -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/Baseball/bin/Debug/net10.0/Baseball.dll
+  CuriousContraptions.Simulation -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Simulation/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Simulation.dll
+  CuriousContraptions.Animation.Worker -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.Animation.Worker/bin/Debug/net10.0/browser-wasm/CuriousContraptions.Animation.Worker.dll
+  CuriousContraptions -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/.godot/mono/temp/bin/Debug/CuriousContraptions.dll
+  CuriousContraptions.2dog -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.2dog/bin/Debug/net10.0/CuriousContraptions.2dog.dll
+  LifecycleContract -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/LifecycleContract/bin/Debug/net10.0/LifecycleContract.dll
+  Godot Engine (2dog) v4.7.2.stable.mono.2dog.161236340 (2026-09-24 19:51:42 UTC) - https://2dog.dev
+  BundleElements -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements/bin/Debug/net10.0/BundleElements.dll
+
+  [   0% ] first_scan_filesystem | Started Project initialization (5 steps)
+  [   0% ] first_scan_filesystem | Scanning file structure...
+  [  16% ] first_scan_filesystem | Loading global class names...
+  [  33% ] first_scan_filesystem | Verifying GDExtensions...
+  [  50% ] first_scan_filesystem | Creating autoload scripts...
+  [  66% ] first_scan_filesystem | Initializing plugins...
+  [  83% ] first_scan_filesystem | Starting file scan...
+  [ DONE ] first_scan_filesystem
+
+  [   0% ] update_scripts_classes | Started Registering global classes... (51 steps)
+  [   0% ] update_scripts_classes |
+  [   1% ] update_scripts_classes |
+  [   3% ] update_scripts_classes |
+  [   5% ] update_scripts_classes |
+  [   7% ] update_scripts_classes |
+  [   9% ] update_scripts_classes |
+  [  11% ] update_scripts_classes |
+  [  13% ] update_scripts_classes |
+  [  15% ] update_scripts_classes |
+  [  17% ] update_scripts_classes |
+  [  19% ] update_scripts_classes |
+  [  21% ] update_scripts_classes |
+  [  23% ] update_scripts_classes |
+  [  25% ] update_scripts_classes |
+  [  26% ] update_scripts_classes |
+  [  28% ] update_scripts_classes |
+  [  30% ] update_scripts_classes |
+  [  32% ] update_scripts_classes |
+  [  34% ] update_scripts_classes |
+  [  36% ] update_scripts_classes |
+  [  38% ] update_scripts_classes |
+  [  40% ] update_scripts_classes |
+  [  42% ] update_scripts_classes |
+  [  44% ] update_scripts_classes |
+  [  46% ] update_scripts_classes |
+  [  48% ] update_scripts_classes |
+  [  50% ] update_scripts_classes |
+  [  51% ] update_scripts_classes |
+  [  53% ] update_scripts_classes |
+  [  55% ] update_scripts_classes |
+  [  57% ] update_scripts_classes |
+  [  59% ] update_scripts_classes |
+  [  61% ] update_scripts_classes |
+  [  63% ] update_scripts_classes |
+  [  65% ] update_scripts_classes |
+  [  67% ] update_scripts_classes |
+  [  69% ] update_scripts_classes |
+  [  71% ] update_scripts_classes |
+  [  73% ] update_scripts_classes |
+  [  75% ] update_scripts_classes |
+  [  76% ] update_scripts_classes |
+  [  78% ] update_scripts_classes |
+  [  80% ] update_scripts_classes |
+  [  82% ] update_scripts_classes |
+  [  84% ] update_scripts_classes |
+  [  86% ] update_scripts_classes |
+  [  88% ] update_scripts_classes |
+  [  90% ] update_scripts_classes |
+  [  92% ] update_scripts_classes |
+  [  94% ] update_scripts_classes |
+  [  96% ] update_scripts_classes |
+  [ DONE ] update_scripts_classes
+
+  [   0% ] _update_scan_actions | Started Scanning actions... (27 steps)
+  [   0% ] _update_scan_actions | icon.svg
+  [   3% ] _update_scan_actions | icon.svg
+  [   7% ] _update_scan_actions | icon.svg
+  [  10% ] _update_scan_actions | icon.svg
+  [  14% ] _update_scan_actions | icon.svg
+  [  17% ] _update_scan_actions | icon.svg
+  [  21% ] _update_scan_actions | icon.svg
+  [  25% ] _update_scan_actions | icon.svg
+  [  28% ] _update_scan_actions | icon.svg
+  [  32% ] _update_scan_actions | icon.svg
+  [  35% ] _update_scan_actions | icon.svg
+  [  39% ] _update_scan_actions | icon.svg
+  [  42% ] _update_scan_actions | icon.svg
+  [  46% ] _update_scan_actions | icon.svg
+  [  50% ] _update_scan_actions | icon.svg
+  [  53% ] _update_scan_actions | icon.svg
+  [  57% ] _update_scan_actions | icon.svg
+  [  60% ] _update_scan_actions | icon.svg
+  [  64% ] _update_scan_actions | icon.svg
+  [  67% ] _update_scan_actions | icon.svg
+  [  71% ] _update_scan_actions | icon.svg
+  [  75% ] _update_scan_actions | icon.svg
+  [  78% ] _update_scan_actions | icon.svg
+  [  82% ] _update_scan_actions | icon.svg
+  [  85% ] _update_scan_actions | icon.svg
+  [  89% ] _update_scan_actions | icon.svg
+  [  92% ] _update_scan_actions | icon.svg
+  [ DONE ] _update_scan_actions
+
+  [   0% ] loading_editor_layout | Started Loading editor (5 steps)
+  [   0% ] loading_editor_layout | Loading editor layout...
+  [  16% ] loading_editor_layout | Loading docks...
+  [ DONE ] loading_editor_layout
+
+  TwoDog: Imported Godot project /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements/bin/Debug/net10.0/elements.bundle.json (45 elements)
+  Element bundle: /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/elements/elements.bundle.json (45 elements)
+  BundleElements.Tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll
+  CuriousContraptions.tests -> /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+BinaryLogger wrote to: /Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK/solution.binlog
+
+Time Elapsed 00:00:22.92
+exit=0 elapsed=23s

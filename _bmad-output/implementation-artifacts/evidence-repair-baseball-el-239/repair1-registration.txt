@@ -1,0 +1,24 @@
+CSHARP_STATIC_GATE_BINLOGS=/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair1.dTjLiK
+$ dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter "FullyQualifiedName~PartRegistryTests|FullyQualifiedName~BundleElementIdTests|FullyQualifiedName~BundlePortsTests|FullyQualifiedName~CatalogueIntegrationTests|FullyQualifiedName~PackageRuntimeParityTests|FullyQualifiedName~PalettePlacementTests|FullyQualifiedName~WorkbenchCapacityTests|FullyQualifiedName~WorkshopIntegrationHarnessTests|FullyQualifiedName~BasketballResourceTests|FullyQualifiedName~CSharpStaticGateTests|FullyQualifiedName~CurrentCatalogueTests|FullyQualifiedName~ElementManifestTests|FullyQualifiedName~BundleRoundTripTests|FullyQualifiedName~BundleValidatorTests|FullyQualifiedName~PackageReferenceTests|FullyQualifiedName~ChecksTests|FullyQualifiedName~SelectionTests|FullyQualifiedName~TimingDeclarationTests|FullyQualifiedName~CurrentCapabilityInputsTests|FullyQualifiedName~WorkshopIntegrationStartupTests|FullyQualifiedName~SolutionMembershipTests"
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 40 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   203, Skipped:     0, Total:   203, Duration: 955 ms - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    83, Skipped:     0, Total:    83, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:    97, Skipped:     0, Total:    97, Duration: 27 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   428, Skipped:     0, Total:   428, Duration: 52 s - CuriousContraptions.tests.dll (net10.0)
+dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build  --nologo  114.50s user 20.32s system 233% cpu 57.861 total
+registration exit=0

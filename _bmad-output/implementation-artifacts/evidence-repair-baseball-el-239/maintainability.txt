@@ -1,0 +1,16 @@
+CSHARP_STATIC_GATE_BINLOGS=/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/cand-2.2rWQ5V
+Reused web: /Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/cand-1/web.binlog
+Reused check-staged-tests: /Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/cand-1/check-staged-tests.binlog
+Reused verify-policy: /Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/cand-1/verify-policy.binlog
+$ dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4627, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability  "$PWD"  22.88s user 9.68s system 42% cpu 1:17.36 total
+exit=0

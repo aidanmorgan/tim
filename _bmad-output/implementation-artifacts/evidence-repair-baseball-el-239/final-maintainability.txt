@@ -1,0 +1,16 @@
+Candidate baseline: cb29a0763d2bba289e5018b82698e3a7f86478a3
+.NET SDK: 10.0.403
+Node: v26.12.1
+CSHARP_STATIC_GATE_BINLOGS=/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK
+$ dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability --project-root /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair
+PASS canary reported for every metric; test-project canary not reported
+PASS coupling canary reported every strength and rule; controls clean; test project excluded
+EXCLUDED test project CuriousContraptions.tests/CuriousContraptions.tests.csproj
+EXCLUDED test project tools/BundleElements.Tests/BundleElements.Tests.csproj
+EXCLUDED test project tools/Coverage.Tests/Coverage.Tests.csproj
+EXCLUDED test project tools/E2eRunner.Tests/E2eRunner.Tests.csproj
+EXCLUDED test project tools/WorkerAotGuard.Tests/WorkerAotGuard.Tests.csproj
+Coupling dependencies: contract=4627, model=4, intrusive=0; violations=0
+Maintainability gate (CA1505 index >= 20, CA1502 complexity <= 25, balanced coupling; test projects excluded): violations=0 (metrics=0, coupling=0). PASS
+dotnet run --file tools/anvil/VerifyPolicy.cs -- --maintainability  "$PWD"  21.97s user 9.21s system 38% cpu 1:21.68 total
+final maintainability exit=0

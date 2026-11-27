@@ -21,7 +21,7 @@
 Publication receipts not yet in their own run logs, recorded here from the publishing lanes' reports to the coordinator: S5b (`39aaba70`, SnapshotApproval Pass after record-only fails on `32e74a38` and `1fe9b784`; its run log ends at E36) and the S5c planning commit (`37a259c9`, Pass after one fail on `4785c900`, finding F1); part B2's receipt (`d37c0b98`) is in its run log E15 and DOC-ENGINE-STATUS's (`2c3a936d`) is in its run log E46.
 
 **Active lanes (owner decision 24m: one slice per lane, one publish token; the holder merges `origin/main` once, repeats the full round on the merged commit, gets SnapshotApproval on it and fast-forward pushes):**
-- **Lane 1, Baseball repair** (`spec-repair-baseball-el-239.md`, next after visible-solid part C `be9f7108`).
+- **Lane 1, Baseball repair** on `cb29a076`. The SA-1 evidence correction passed independent affected review and the refreshed 28-path final scope. The full-owned whitespace check passed, and the matching full round (7587/0/0) and final E9 apply. The independent approver checks the resulting exact SHA and normal-hook output. Browser and remote qualification remain unverified. [Contract](_bmad-output/implementation-artifacts/spec-repair-baseball-el-239.md) · [Run log](_bmad-output/implementation-artifacts/run-logs/spec-repair-baseball-el-239.md)
 - **Lane 2, S5c-1** (one schema file; candidate `3d9ed8ad` on `39aaba70`, merged with `origin/main` `36219d3a` for publication). Lane 2 next: S5c-2 (replanned from published `main` containing S5c-1 and `36219d3a`), S5c-3, S6, S6b–S6g.
 - **Lane 3:** idle after `36219d3a`.
 - **Lane 4:** idle until programme order 2.

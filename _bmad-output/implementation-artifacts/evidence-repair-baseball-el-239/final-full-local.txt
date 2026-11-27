@@ -1,0 +1,38 @@
+Candidate baseline: cb29a0763d2bba289e5018b82698e3a7f86478a3
+.NET SDK: 10.0.403
+Node: v26.12.1
+CSHARP_STATIC_GATE_BINLOGS=/Users/aidan/.local/share/tim-toolchain/logs/slice-baseball-repair/repair2.KEI8LK
+
+Workload version: 10.0.403
+
+Installed Workload Id      Manifest Version       Installation Source
+---------------------------------------------------------------------
+wasm-tools                 10.0.114/10.0.100      SDK 10.0.400
+
+Use `dotnet workload search` to find additional workloads to install.
+
+$ dotnet run --project tools/E2eRunner --no-build -c Debug -- deferred-filter
+FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed
+$ caffeinate -i dotnet test CuriousContraptions.slnx -c Debug -f net10.0 --no-build --no-restore --nologo -noAutoResponse --filter FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.EverySuiteAndSharedModuleTypeChecks\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.TypeCheckTests.ASuiteReadingADeletedAccessorFailsTheTypeCheck\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.EnvironmentIsScrubbed\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.HangIsTimedOutAndTheWholeTreeIsKilled\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FailingAssertionFailsTheFile\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CloseFindingInAfterHookFailsTheFile\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.FileWithoutTestsIsNoTests\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.CrashFailsTheFile\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.PassingFileIsPassAndCountsDriverSignals\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.SuiteProcessTests.ImportErrorFailsWithNoTests\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.UnchangedRunPasses\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedMidRunAbortsWithIdentityChanged\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.BundleChangedAndRestoredIsStillIdentityChanged\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.SuiteSourceChangedMidRunIsIdentityChanged\&FullyQualifiedName!=CuriousContraptions.E2eRunner.Tests.IdentityTests.EndRehashCatchesAChangeTheWatcherMissed -- RunConfiguration.TreatNoTestsAsError=true
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/E2eRunner.Tests/bin/Debug/net10.0/E2eRunner.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/Coverage.Tests/bin/Debug/net10.0/Coverage.Tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/WorkerAotGuard.Tests/bin/Debug/net10.0/WorkerAotGuard.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/CuriousContraptions.tests/bin/Debug/net10.0/CuriousContraptions.tests.dll (.NETCoreApp,Version=v10.0)
+Test run for /Users/aidan/dev/personal/tim/.claude/worktrees/slice-baseball-repair/tools/BundleElements.Tests/bin/Debug/net10.0/BundleElements.Tests.dll (.NETCoreApp,Version=v10.0)
+A total of 1 test files matched the specified pattern.
+A total of 1 test files matched the specified pattern.
+
+Passed!  - Failed:     0, Passed:    17, Skipped:     0, Total:    17, Duration: 44 ms - WorkerAotGuard.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   329, Skipped:     0, Total:   329, Duration: 1 s - BundleElements.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   132, Skipped:     0, Total:   132, Duration: 1 s - Coverage.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:   342, Skipped:     0, Total:   342, Duration: 42 s - E2eRunner.Tests.dll (net10.0)
+
+Passed!  - Failed:     0, Passed:  6767, Skipped:     0, Total:  6767, Duration: 8 m 28 s - CuriousContraptions.tests.dll (net10.0)
+caffeinate -i dotnet test CuriousContraptions.slnx -c Debug -f net10.0         637.94s user 70.28s system 137% cpu 8:34.08 total
+final full local exit=0

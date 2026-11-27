@@ -9,6 +9,19 @@ namespace CuriousContraptions.Tests;
 public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHelper output)
 {
     private static readonly PartId Baseball = new("baseball");
+    private static readonly PartId Basketball = new("ball");
+    private static readonly PartId TennisBall = new("tennis");
+
+    public enum Payload { Baseball, Basketball, TennisBall }
+
+    private static PartId PayloadPart(Payload payload) => payload switch
+    {
+        Payload.Baseball => Baseball,
+        Payload.Basketball => Basketball,
+        Payload.TennisBall => TennisBall,
+        _ => throw new ArgumentOutOfRangeException(nameof(payload))
+    };
+
     private static WorkshopGenericInstance Ball(float y = 3f) =>
         WorkshopInput.Generic(RuntimeTestServices.Bundle, Baseball, new(1), 0, y, 0, 0, 0, 0, 1);
     private static WorkshopConstruction Scene(params IWorkshopInstance[] instances) =>
@@ -19,17 +32,15 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
         return body.Body;
     }
     private static float Y(CanonicalBody body) => (body.Cell.Y + body.Local.Y) / 16f;
-    private static float X(CanonicalBody body) => (body.Cell.X + body.Local.X) / 16f;
-    private static float X(LawBody body) => body.Position.X;
 
     [Fact]
     public async Task IdenticalDropDistinguishesEveryRetainedPreset()
     {
         // Each uses the same centre release at 3 m above the same bench.
-        // A 15 cm peak separation is 30% of Baseball's diameter: visibly distinct,
+        // A 15 cm peak separation is 29% of Baseball's 0.52 m diameter: visibly distinct,
         // and enough to select a different catch height without pinning impact time.
         var peaks = new Dictionary<PartId, float>();
-        foreach (var id in new PartId[] { Baseball, new("ball"), new("bowling"), new("tennis") })
+        foreach (var id in new PartId[] { Baseball, Basketball, new("bowling"), TennisBall })
         {
             var instance = WorkshopInput.Generic(RuntimeTestServices.Bundle, id, new(1), 0, 3, 0, 0, 0, 0, 1);
             await using var h = await WorkshopIntegrationHarness.Running(Scene(instance));
@@ -61,48 +72,9 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
     }
 
     [Fact]
-    public void MatchedSizeImpactChangesPayloadRouteByMass()
-    {
-        // Target restitution 1 times striker restitution .35 gives pair e=.35.
-        // At 2 m/s, central collision with e=.35 and a .5 kg target gives
-        // v_target=(1+.35)*m/(m+.5)*2: 1.526 versus 1.112 m/s.
-        // A receiver entrance at x=1.3 m after one second therefore distinguishes
-        // the masses with 10 cm clearance, allowing the declared 4%/s drag.
-        var heavy = Impact(Baseball, .65f, 2f, 0);
-        var light = Impact(new("tennis"), .35f, 2f, 0);
-        var matched = Impact(new("tennis"), .65f, 2f, 0);
-        Assert.True(X(heavy) > 1.4f);
-        Assert.True(X(light) < 1.2f);
-        Assert.InRange(MathF.Abs(X(heavy) - X(matched)), 0, .02f);
-        Assert.InRange(MathF.Abs(X(Impact(Baseball, .65f, 0, 0))), 0, .01f);
-        Assert.InRange(MathF.Abs(X(Impact(Baseball, .65f, -2, 0))), 0, .01f);
-        Assert.InRange(MathF.Abs(X(Impact(Baseball, .65f, 2, 1))), 0, .01f);
-        output.WriteLine($"One-second payload x: Baseball {X(heavy)} m; light control {X(light)} m; mass-matched control {X(matched)} m");
-    }
-
-    private static LawBody Impact(PartId striker, float mass, float speed, float miss)
-    {
-        var parameters = striker == Baseball ? null : new InstanceParameterCollection([
-            new(new("mass"), mass), new(new("radius"), .25f), new(new("bounce"), .35f),
-            new(new("drag"), .04f), new(new("buoyancy"), 0f)]);
-        var first = WorkshopInput.Generic(RuntimeTestServices.Bundle, striker, new(1), -.51f, 10, miss, 0, 0, 0, 1, parameters);
-        var target = TennisBallTests.Ball(2, 0, 10, mass: .5f, bounce: 1f);
-        var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, Scene(first, target), new(1, 2));
-        // Velocity is the typed production physics input; geometry, inertia and materials
-        // are all from the real package compiler. Both bodies fall together in free flight.
-        var scene = new PhysicsSceneDeclaration(compiled.Document, compiled.NextIdentity,
-            compiled.Bodies.ToArray().Select(body => body.Id == new GpuBodyId(1)
-                ? body with { Velocity = new(speed, 0, 0) } : body).ToArray(),
-            compiled.Colliders, compiled.Materials, compiled.Sensors, compiled.Guides, ambientLoads: compiled.AmbientLoads);
-        var world = new LawWorld(scene, PhysicsGpuAbi.Admission(scene, new(1),
-            new(SimulationCadence.Hz120, PhysicalStepProfile.Canonical480Hz, new(1))), SimulationCadence.Hz120);
-        return world.Step(120)[new(2)];
-    }
-
-    [Fact]
     public async Task UnpoweredDropSettlesWithoutFreeRebound()
     {
-        foreach (var release in new[] { 3f, WorkshopConstruction.WorkbenchSurface.Value + .25f })
+        foreach (var release in new[] { 3f, WorkshopConstruction.WorkbenchSurface.Value + .26f })
         {
             await using var h = await WorkshopIntegrationHarness.Running(Scene(Ball(release)));
             for (var tick = 0; tick < 1200; tick++)
@@ -112,17 +84,16 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
                 // A 1 cm upward excursion beyond release would be a visible free launch.
                 Assert.True(Y(body) <= release + .01f);
                 if (tick < 960) continue;
-                // Final two seconds: 1 mm support alignment and 5 cm/s exclude
-                // visible sinking, floating or continued bouncing.
-                Assert.InRange(Y(body) - (WorkshopConstruction.WorkbenchSurface.Value + .25f), -.001f, .001f);
-                Assert.InRange(MathF.Abs(body.Velocity.Y), 0, .05f);
-                Assert.InRange(MathF.Abs(X(body)), 0, .001f);
+                // In the last two seconds, 1 mm of vertical support alignment and
+                // 5 cm/s of total speed exclude sinking, floating or continuing to move.
+                Assert.InRange(Y(body) - (WorkshopConstruction.WorkbenchSurface.Value + .26f), -.001f, .001f);
+                Assert.InRange(new Vector3(body.Velocity.X, body.Velocity.Y, body.Velocity.Z).Length(), 0, .05f);
             }
         }
     }
 
     [Fact]
-    public void SceneAndIconExposeSeamedSphereMatchingContactGeometry()
+    public void SceneAndIconExposeBandedSphereMatchingContactGeometry()
     {
         var registry = new PartRegistry(RuntimeTestServices.Core.Presentation, RuntimeTestServices.Bundle);
         registry.Load();
@@ -131,17 +102,21 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
         {
             godot.Tree.Root.AddChild(part); part.EnsureConstructed();
             var sphere = Assert.IsType<SphereMesh>(part.GetNode<MeshInstance3D>("Visual/Sphere").Mesh);
-            Assert.Equal(.25f, sphere.Radius); Assert.Equal(.5f, sphere.Height);
+            Assert.Equal(.26f, sphere.Radius); Assert.Equal(.52f, sphere.Height);
             Assert.NotNull(WorkshopIcons.Element(part.Definition.IconPath));
-            foreach (var name in new[] { "SeamLeft", "SeamRight" })
-            {
-                var seam = part.GetNode<MeshInstance3D>($"Visual/{name}");
-                Assert.IsType<TorusMesh>(seam.Mesh);
-                Assert.Equal(.125f, MathF.Abs(seam.Position.X));
-            }
-            var collider = Assert.Single(TestBundle.Entry(Baseball).Colliders);
-            Assert.Equal(CuriousContraptions.Abstractions.ColliderShapeKind.Sphere, collider.ShapeKind);
-            Assert.Equal(.25f, collider.HalfExtents.X);
+            var band = Assert.IsType<TorusMesh>(part.GetNode<MeshInstance3D>("Visual/Band").Mesh);
+            Assert.Equal(.242f, band.InnerRadius); Assert.Equal(.27f, band.OuterRadius);
+            var visualChildren = part.GetNode("Visual").GetChildren().OfType<MeshInstance3D>()
+                .Select(node => node.Name.ToString()).Order().ToArray();
+            Assert.Equal(["Band", "Sphere"], visualChildren);
+            var colliders = TestBundle.Entry(Baseball).Colliders;
+            Assert.Equal(2, colliders.Count);
+            var sphereCollider = Assert.Single(colliders, value => value.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Sphere);
+            var torusCollider = Assert.Single(colliders, value => value.ShapeKind == CuriousContraptions.Abstractions.ColliderShapeKind.Torus);
+            Assert.Equal(.26f, sphereCollider.HalfExtents.X);
+            Assert.Equal((.242f + .27f) * .5f, torusCollider.Radius);
+            Assert.Equal((.27f - .242f) * .5f, torusCollider.HalfExtents.Y);
+            Assert.Equal(sphereCollider.Material, torusCollider.Material);
             Assert.Empty(TestBundle.Entry(Baseball).Presentation.Bodies);
             Assert.Empty(godot.Errors.Drain());
         }
@@ -194,15 +169,22 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
         var authored = Scene(Ball());
         var compiled = WorkshopPhysicsCompiler.Compile(RuntimeTestServices.Core, RuntimeTestServices.Bundle, authored, new(1, 2));
         var body = Assert.Single(compiled.Bodies.ToArray(), value => value.Id == new GpuBodyId(1));
-        Assert.Equal(.65f, body.Mass.Value);
+        Assert.Equal(.15f, body.Mass.Value);
         // Solid-sphere inertia is a local mathematical contract: 0.01% rejects
         // a wrong mass/radius exponent without asserting a simulated trajectory.
         foreach (var moment in new[] { body.MassProperties.X, body.MassProperties.Y, body.MassProperties.Z })
-            Assert.InRange(MathF.Abs(moment.Moment - .4f * .65f * .25f * .25f), 0, .000001625f);
-        var collider = Assert.Single(compiled.Colliders.ToArray(), value => value.Body == body.Id);
-        Assert.Equal(.25f, collider.Radius.Value);
-        var material = Assert.Single(compiled.Materials.ToArray(), value => value.Id == collider.Material);
-        Assert.Equal(.35f, material.Restitution.Value); Assert.Equal(.3f, material.Friction.Value);
+            Assert.InRange(MathF.Abs(moment.Moment - .4f * .15f * .26f * .26f), 0, 4.056e-7f);
+        var colliders = compiled.Colliders.ToArray().Where(value => value.Body == body.Id).ToArray();
+        Assert.Equal(2, colliders.Length);
+        var sphereCollider = Assert.Single(colliders, value => value.Shape == CuriousContraptions.Gpu.ColliderShapeKind.Sphere);
+        var torusCollider = Assert.Single(colliders, value => value.Shape == CuriousContraptions.Gpu.ColliderShapeKind.Torus);
+        Assert.Equal(.26f, sphereCollider.Radius.Value);
+        Assert.Equal(sphereCollider.Material, torusCollider.Material);
+        var material = Assert.Single(compiled.Materials.ToArray(), value => value.Id == sphereCollider.Material);
+        Assert.Equal(.35f, material.Restitution.Value);
+        Assert.Equal(.3f, material.Friction.Value);
+        Assert.Equal(.03f, material.RollingResistance.Value);
+        Assert.Equal(.1f, material.BounceThreshold.Value);
         Assert.Equal(.04f, Assert.Single(compiled.AmbientLoads.ToArray()).LinearDrag);
         // The Baseball is declared a capture-target payload.
         Assert.True(DeclaredPhysics.IsPayload(new PartId("baseball")));
@@ -257,5 +239,124 @@ public sealed class BaseballTests(NativeSceneFixture godot, Xunit.ITestOutputHel
             Assert.Equal(3f, Y(Body(h))); Assert.Equal(0f, Body(h).Velocity.Y);
             await h.Run(); await h.Advance(30); Assert.True(Y(Body(h)) < 2.8f);
         }
+    }
+
+    [Fact]
+    public async Task TheFanMovesTheBaseballMoreThanTheTennisBallAndTheBasketball()
+    {
+        var speeds = new Dictionary<PartId, float>();
+        foreach (var id in new[] { Baseball, TennisBall, Basketball })
+        {
+            var cargo = WorkshopInput.Generic(RuntimeTestServices.Bundle, id, new(2), 3, 5, 0, 0, 0, 0, 1);
+            await using var h = await WorkshopIntegrationHarness.Running(
+                TennisBallTests.Scene(FanIntegrationTests.Fan(powered: true), cargo));
+            await h.Advance(12);
+            Assert.True(h.Committed.Bodies.TryGet(cargo.Id, out var read));
+            var forwardSpeed = read.Body.Velocity.X;
+            Assert.True(float.IsFinite(forwardSpeed) && forwardSpeed > 0,
+                $"{id}: the powered Fan must produce finite forward motion, observed {forwardSpeed} m/s.");
+            speeds.Add(id, forwardSpeed);
+            output.WriteLine($"{id}: velocity X after 12 ticks = {forwardSpeed} m/s");
+        }
+        Assert.True(speeds[Baseball] >= 1.5f * speeds[TennisBall]);
+        Assert.True(speeds[Baseball] >= 3f * speeds[Basketball]);
+    }
+
+    [Theory]
+    [InlineData(.5f, Payload.Baseball, 1, false)]
+    [InlineData(.5f, Payload.Baseball, 2, false)]
+    [InlineData(.5f, Payload.TennisBall, 2, true)]
+    [InlineData(.25f, Payload.Baseball, 2, true)]
+    [InlineData(.25f, Payload.Baseball, 1, false)]
+    [InlineData(.1f, Payload.Baseball, 1, true)]
+    public async Task TwoBaseballsLeaveADefaultPlateOff(float minimumMass, Payload payload, int count, bool expected)
+    {
+        var payloadId = PayloadPart(payload);
+        var plateY = WorkshopConstruction.WorkbenchSurface.Value + .22f;
+        var parts = new List<IWorkshopInstance> { PlacedParts.Plate(new(1), 0, plateY, 0, minimumMass) };
+        for (var i = 0; i < count; i++)
+            parts.Add(WorkshopInput.Generic(RuntimeTestServices.Bundle, payloadId, new((ulong)i + 2),
+                count == 1 ? 0 : i == 0 ? -.5f : .5f, plateY + .34f, 0, 0, 0, 0, 1));
+        await using var h = await WorkshopIntegrationHarness.Running(TennisBallTests.Scene(parts.ToArray()));
+        var loaded = false;
+        for (var tick = 0; tick < 2400 && !loaded; tick++)
+        {
+            await h.Advance(1);
+            var state = Assert.Single(Enumerable.Range(0, h.Committed.Activations.Count).Select(i => h.Committed.Activations[i]),
+                activation => activation.Owner == new GpuBodyId(1));
+            loaded = state.Phase == ActivationPhase.Latched;
+        }
+        Assert.Equal(expected, loaded);
+        if (!expected)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                Assert.True(h.Committed.Bodies.TryGet(new((ulong)i + 2), out var ball));
+                Assert.InRange(Y(ball.Body) - (WorkshopConstruction.WorkbenchSurface.Value + .56f), -.001f, .001f);
+                Assert.InRange(new System.Numerics.Vector3(ball.Body.Velocity.X, ball.Body.Velocity.Y, ball.Body.Velocity.Z).Length(), 0, .05f);
+            }
+        }
+    }
+
+    [Theory]
+    [InlineData(Payload.Basketball, true)]
+    [InlineData(Payload.Baseball, false)]
+    public async Task BaseballNeverSeatsInTheCannon(Payload payload, bool expectedSeated)
+    {
+        var q = System.Numerics.Quaternion.CreateFromAxisAngle(System.Numerics.Vector3.UnitZ, MathF.PI / 2f);
+        var cannon = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("cannon"), new(1), 0, 3, 0, q.X, q.Y, q.Z, q.W);
+        var ball = WorkshopInput.Generic(RuntimeTestServices.Bundle, PayloadPart(payload), new(2), 0, 5f, 0, 0, 0, 0, 1);
+        var clock = PlacedParts.Clock(new(3), -4, 3, 0, 0, 0, 0, 1, 2f);
+        var battery = PlacedParts.Battery(new(4), -7, 3, 0);
+        var wires = new WorkshopConnection[]
+        {
+            new(new(4), PortId.Supply, new(3), PortId.PowerIn, WorkshopConnectionDomain.Electrical),
+            new(new(3), PortId.ActivationOut, new(1), PortId.ActivationIn, WorkshopConnectionDomain.Activation),
+            new(new(4), PortId.Supply, new(1), PortId.PowerIn, WorkshopConnectionDomain.Electrical)
+        };
+        var construction = new WorkshopConstruction(new(2), WorkshopCadenceSettings.Default(),
+            new(cannon, ball, clock, battery), Connections: new(wires));
+        await using var h = await WorkshopIntegrationHarness.Running(construction);
+        var everSeated = false;
+        for (var tick = 0; tick < 600; tick++)
+        {
+            await h.Advance(1);
+            everSeated |= h.Committed.ChamberRegions[0].Phase == ChamberPhase.Seated;
+        }
+        Assert.Equal(expectedSeated, everSeated);
+        if (!expectedSeated)
+        {
+            Assert.Equal(ChamberPhase.Loading, h.Committed.ChamberRegions[0].Phase);
+            Assert.Equal(1u, h.Committed.ChamberRegions[0].Occupancy);
+        }
+    }
+
+    [Theory]
+    [InlineData(0f, true)]
+    [InlineData(3f, false)]
+    public async Task AnAlignedBaseballIsCapturedAndAShiftedOneIsNot(float x, bool expected)
+    {
+        var payload = WorkshopInput.Generic(RuntimeTestServices.Bundle, Baseball, new(1), x, 1.1f, 0, 0, 0, 0, 1);
+        var receiver = WorkshopInput.Generic(RuntimeTestServices.Bundle, new("basket"), new(2), 0, 1, 0, 0, 0, 0, 1);
+        await using var h = await WorkshopIntegrationHarness.Running(Scene(payload, receiver));
+        await h.Advance(240);
+
+        var captures = h.Committed.Captures;
+        var latched = Enumerable.Range(0, captures.Count).Select(index => captures[index])
+            .Any(capture => capture.Target == payload.Id && capture.Phase == CaptureLatchPhase.Latched);
+        Assert.Equal(expected, latched);
+
+        var events = h.Records.Where(record => record.Kind == SimulationEventKind.Captured);
+        if (!expected)
+        {
+            Assert.Empty(events);
+            return;
+        }
+
+        var captured = Assert.Single(events);
+        Assert.Equal(new GpuEventSourceId(receiver.Id.Value), captured.Source);
+        Assert.Equal(payload.Id, new GpuBodyId(captured.Other));
+        const ulong minimumDwellTicks = 42; // The default 0.35 s dwell at 120 Hz.
+        Assert.True(captured.Tick >= minimumDwellTicks, $"Capture at tick {captured.Tick} bypassed the 0.35 s dwell.");
     }
 }

@@ -10,20 +10,20 @@ roughness = 0.48
 
 [sub_resource type="SphereMesh" id="Sphere"]
 material = SubResource("Cream")
-radius = 0.25
-height = 0.5
+radius = 0.26
+height = 0.52
 radial_segments = 24
 rings = 12
 
-[sub_resource type="TorusMesh" id="Stitch"]
+[sub_resource type="TorusMesh" id="Band"]
 material = SubResource("Seam")
-inner_radius = 0.213
-outer_radius = 0.219
+inner_radius = 0.242
+outer_radius = 0.27
 rings = 32
 ring_segments = 8
 
 [sub_resource type="SphereShape3D" id="Contact"]
-radius = 0.25
+radius = 0.26
 
 [node name="baseball" type="Node3D"]
 
@@ -32,16 +32,15 @@ radius = 0.25
 [node name="Sphere" type="MeshInstance3D" parent="Visual"]
 mesh = SubResource("Sphere")
 
-[node name="SeamLeft" type="MeshInstance3D" parent="Visual"]
-position = Vector3(-0.125, 0, 0)
-rotation = Vector3(0, 0, 1.5707963)
-mesh = SubResource("Stitch")
-
-[node name="SeamRight" type="MeshInstance3D" parent="Visual"]
-position = Vector3(0.125, 0, 0)
-rotation = Vector3(0, 0, 1.5707963)
-mesh = SubResource("Stitch")
+[node name="Band" type="MeshInstance3D" parent="Visual"]
+quaternion = Quaternion(0, 0, -0.3007058, 0.95371695)
+mesh = SubResource("Band")
 
 [node name="col_sphere" type="CollisionShape3D" parent="."]
 visible = false
 shape = SubResource("Contact")
+
+[node name="col_visual_band" type="MeshInstance3D" parent="."]
+visible = false
+quaternion = Quaternion(0, 0, -0.3007058, 0.95371695)
+mesh = SubResource("Band")

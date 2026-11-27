@@ -789,6 +789,7 @@ development_status:
   named-el-237: backlog # element-237
   named-el-238: backlog # element-238
   named-el-239: done # element-239; native full7294/0/0, independent pass2 and final scope/E9 passed; exact-SHA approver checks candidate/hooks
+  repair-baseball-el-239: done # SA-1 affected review and final scope passed. Full local 7587/0/0 applies. Approver checks the exact SHA and normal hooks.
   named-el-240: backlog # element-240
   named-el-241: backlog # element-241
   named-el-138: backlog # element-138

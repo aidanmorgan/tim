@@ -408,7 +408,7 @@ The 25 identities ledgered on 21 November 2026 (EL-217 to EL-241, [campaign-taug
 
 | Identity | Name | Spec | Refines CAT | Spec status |
 | --- | --- | --- | --- | --- |
-| [EL-239](../invest/named-elements.md#element-239) | Baseball | [EL-239-baseball](EL-239-baseball.md) | none | delivered on main (`fa86969f`) at 0.65 kg, radius 0.25 m; the Baseball repair (0.15 kg, radius 0.26 m, one proud band; coordinator decision 36) runs before the engine programme (owner decisions 22 and 24g) |
+| [EL-239](../invest/named-elements.md#element-239) | Baseball | [EL-239-baseball](EL-239-baseball.md) | none | implemented; browser qualification pending |
 
 ### Campaign-taught parts: EL-217 to EL-241 (24)
 

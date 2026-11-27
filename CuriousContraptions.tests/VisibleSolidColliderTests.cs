@@ -139,6 +139,7 @@ public sealed class VisibleSolidColliderTests
         // Every other element package, classified the same way.
         // The seam is the drawn full torus of its hollow collider on the ball's dynamic body.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),
+        [new PartId("baseball")] = new(["Visual/Sphere"], ["Visual/Band"], [], [], []),
         [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], []),
         // The seam is printed flush with no collider (owner decision 24i), as owner decision 11 rules for the planned Pool ball's stripe.
         [new PartId("tennis")] = new(["Visual/Felt"], null, [], ["Visual/Seam"], []),
