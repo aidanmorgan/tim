@@ -2,7 +2,9 @@
 
 **State (27 November 2026): work paused by the owner.** Published `origin/main` is `2c3a936d`. Three lane slices are stopped mid-flight in their worktrees, unpublished; the next session resumes them from the records below. No slice holds the publish token.
 
-**Published since part A (`37fbd3a4`), each a fast-forward with a full local round on the pushed SHA (`Skipped: 0`) and SnapshotApproval Pass on it; remote build, artifact and deployment unverified (owner instruction of 29 October):**
+**Earlier, after part A (`37fbd3a4`):** `5f1c4d4a` lane planning records (owner decisions 24m, 24n); `3a80c6a8` S3, the remaining per-package lists derived (SnapshotApproval Pass on that SHA; its merged round 7317/0/0 ran on `2d61fe05`); `2ce73eed` lettered level ids (7332/0/0, SnapshotApproval Pass on that SHA); `b64e1453` content housekeeping planning records.
+
+**Published since `b64e1453`, each a fast-forward with a full local round on the pushed SHA (`Skipped: 0`) and SnapshotApproval Pass on it; remote build, artifact and deployment unverified (owner instruction of 29 October):**
 - `51529148` content housekeeping (lane 3; owner decision 24o): 7339/0/0.
 - `66c1c200` policy-tool fixes, then `51d46f7b` role-card handoff lessons (lane 4): 7339 and 7363/0/0.
 - `77e2b6aa` S5, C# wire accessors generated in the build from the pinned, digest-checked `flatc` 25.2.10 (lane 2): 7363/0/0.
