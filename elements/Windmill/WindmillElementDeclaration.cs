@@ -34,7 +34,7 @@ public sealed class WindmillElementDeclaration : IHingeElement, IRotaryAirflowCa
         [new(new(1), new(0), new(CoordinateKind.Revolute, 0),
             [new(new(-.12f, .42f, 0), .25f), new(new(-.12f, -.42f, 0), .25f),
              new(new(-.12f, 0, .42f), .25f), new(new(-.12f, 0, -.42f), .25f)],
-            [new(new(0), new(0)), new(new(0), new(1)), new(new(0), new(2)), new(new(0), new(3)),
+            [new(new(0), new(0)), new(new(0), new(1)), new(new(0), new(2)), new(new(0), new(3)), new(new(0), new(4)),
              new(new(1), new(0)), new(new(1), new(1)), new(new(1), new(2)), new(new(1), new(3)), new(new(1), new(4))],
             MechanicalValue.Fixed(.4f), MechanicalValue.FromParameter("radians_per_force"),
             MechanicalValue.Fixed(.05f), MechanicalValue.Fixed(12))];

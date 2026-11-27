@@ -51,7 +51,7 @@ All of this is L12 a applied to one cylinder; there is no cork rule. Water is 16
 - **A dry cork gives no lift.** With no liquid there is no submerged volume: on the vessel floor it is a 0.15 kg disc.
 - **Displacement (L4).** Unloaded it displaces 0.0094 m³: 0.0075 m of level in a Catch basin.
 - **Bobbing.** Stiffness 156.96 × 0.503 = 78.9 N/m; unloaded frequency √(78.9 / 0.15) = 22.9 rad/s; immersion damping 1.0 × 0.0094 / 0.0754 = 0.12 s⁻¹ (L12 a). c = 1.0 s⁻¹ is a starting value that `ENGINE-LIQUID` sets for a damping ratio near 0.5 at a floating draught (L12 a).
-- **Release from depth.** Held under and let go, the law gives (1.21 − 0.15) × 9.81 / 0.15 = 69 m/s² upward; the force-region acceleration clamp of 64 m/s² (`docs/gpu-f32-physics.md:149`, which lists fluid buoyancy) caps it. No row measures this rise.
+- **Release from depth.** Held under and let go, the law gives (1.21 − 0.15) × 9.81 / 0.15 = 69 m/s² upward; the force-region acceleration clamp of 64 m/s² (`docs/gpu-f32-physics.md:153`, which lists fluid buoyancy) caps it. No row measures this rise.
 
 ## Engine capabilities
 

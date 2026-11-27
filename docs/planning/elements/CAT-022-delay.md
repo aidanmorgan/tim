@@ -82,7 +82,7 @@ Physics reads no art node. The bindings read the committed timer state of node `
 | The output reaches the wired part | signal-network rule: a pulse output delivers each occurrence to the inputs wired to it | ports `ActivationIn`, `ActivationOut`, kind Pulse |
 | The hand turns once and the indicator changes colour | committed-timer presentation bindings (progress to rotation; phase to state colours) | 0 to −2π rad; three state colours |
 
-**Performance fitness.** The body is static. Seven primitive colliders, no sensor, no store. The timer is one node in the signal network's flat node table and costs nothing proportional to the scene. Tunnelling is excluded by the engine's general means (`docs/gpu-f32-physics.md:192`–`195`, `:224`); the package adds no check of its own. No engine gap is recorded.
+**Performance fitness.** The body is static. Seven primitive colliders, no sensor, no store. The timer is one node in the signal network's flat node table and costs nothing proportional to the scene. Tunnelling is excluded by the engine's general means (`docs/gpu-f32-physics.md:210`–`213`, `:242`); the package adds no check of its own. No engine gap is recorded.
 
 **Engine search.** No engine code names the package, its id or its class (audit of 22 November 2026). No residue is recorded against this spec.
 

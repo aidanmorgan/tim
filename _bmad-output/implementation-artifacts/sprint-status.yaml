@@ -585,7 +585,7 @@ development_status:
   # Repair part D (coordinator decisions 33 and 37) runs after the programme (owner decision 22).
   elements-visible-solid-remainder-d: backlog # drafted: spec-elements-visible-solid-remainder-d.md, status blocked on the engine programme
   # Engine programme (owner decision 3a), orders 1-10 including 8a and 8b (owner decision 24k) and 8c (coordinator decision 40), before any further element delivery:
-  doc-engine-status: backlog
+  doc-engine-status: done # lane 4 (owner decision 24q); spec-doc-engine-status.md; documents only
   engine-spatial-queries: backlog
   engine-contact-observations: backlog
   engine-sensor-volumes: backlog

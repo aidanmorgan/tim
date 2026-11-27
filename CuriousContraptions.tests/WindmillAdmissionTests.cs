@@ -242,6 +242,27 @@ public sealed class WindmillAdmissionTests
         Assert.NotEmpty(BundleValidator.Validate([new("malformed capture", entry)]));
     }
 
+    /// <summary>C6 (visible-solid remainder, part C): in the compiled scene of a Fan and a Windmill, the Windmill's capture exempts
+    /// exactly the colliders of its own two bodies, the base's output wheel included, ten in all, and none of the Fan's. The expected set
+    /// is taken from the compiled colliders by body, not from the declaration. That the exemption keeps the rear airflow turning the
+    /// Windmill is proven unchanged by <c>WindmillIntegrationTests.ActualSourcePoseAndSignedExposureDetermineDrive</c> (a rear Fan's ray to
+    /// a sample crosses the wheel), and that a solid not exempted occludes by
+    /// <c>RotaryAirflowRuntimeTests.FourActualPoseSamplesLoseOnlyOccludedWeight</c>.</summary>
+    [Fact]
+    public void TheCaptureExemptsEveryColliderOfItsOwnWindmill()
+    {
+        var windmill = WindmillIntegrationTests.Windmill();
+        var construction = TennisBallTests.Scene(FanIntegrationTests.Fan(), windmill);
+        var scene = CompiledSceneFixture.Compile(construction);
+        var rotor = construction.Instances.Identities[windmill.Id].Hinges[0].Body;
+        var own = scene.Physics.Colliders.ToArray().Where(c => c.Body == windmill.Id || c.Body == rotor).Select(c => c.Id).ToHashSet();
+        Assert.Equal(10, own.Count);
+        var capture = Assert.Single(scene.Physics.RotaryAirflowCaptures.ToArray());
+        Assert.True(own.SetEquals(capture.InternalOccluders),
+            $"the capture exempts colliders {string.Join(", ", capture.InternalOccluders.Select(id => id.Value))}, not its Windmill's " +
+            string.Join(", ", own.Select(id => id.Value)));
+    }
+
     [Theory]
     [InlineData(.1f, true)]
     [InlineData(4f, true)]

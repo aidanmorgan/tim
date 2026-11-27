@@ -4,13 +4,13 @@ using System.Buffers.Binary;
 namespace CuriousContraptions.Gpu;
 
 /// <summary>
-/// Lock-free zero-copy triple-buffered SharedArrayBuffer pose ring layout and codecs. Each of the three slots has a 16-byte header
+/// Lock-free SharedArrayBuffer pose ring layout and codecs; each committed slot is copied into the ring. Each of the three slots has a 16-byte header
 /// followed by one 64-byte record per moving body. Story 9R.5b: the ring's body capacity is its own length (no fixed capacity);
 /// bootstrap reserves sixteen bodies. Installation prepares default-or-grown backing before commit; logical population remains actual.
 /// </summary>
 public static class WorkshopPoseRing
 {
-    /// <summary>Triple buffering (AGENTS.md: "triple-buffered pose ring"): structural, not a population.</summary>
+    /// <summary>Three fixed slots, structural, not a population; a depth derived from tick rate and render delay is ENGINE-WIRE-ABI's target.</summary>
     public const int SlotCount = 3;
     public const int DefaultBodyCapacity = 16;
     public const int HeaderBytes = 16;

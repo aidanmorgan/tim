@@ -89,7 +89,7 @@ Read from each scene, declaration and baked entry on `8d1d68aa`; nothing was run
 |---|---|---|---|
 | `trampoline` | back plate, four sides, four posts, four feet | `Visual_Bed`: moved by a binding (the elastic surface is a declared surface, not a collider) | none |
 | `impact_lever` | base, fulcrum, two stops; `Beam/Visual_Beam` on the hinge body | none | `Beam/Visual_Inset` and `Visual_Mark_0`–`3`: raised 8–10 mm above the beam face |
-| `tennis` | `Visual/Felt` | none | `Visual/Seam`: a torus 3 mm proud of the felt |
+| `tennis` | `Visual/Felt` | none | `Visual/Seam`: a torus 3 mm proud of the felt. Repaired by part B2 (owner decision 24i): an open band printed flush, 0.40–0.43 mm outside the felt at the default size, with no collider |
 | `balloon` | `Envelope` (drawn radius follows the committed gas radius; it equals the collider at authored state) | `Neck`: moved by a binding; `Carrier`: inside the envelope | `String`: a 0.85 m rod below the envelope |
 | `rope_anchor` | `Visual_Mount` | none | `Visual_Eye`: a torus in front of the mount |
 | `pulley` | `Visual_Mount`; `Wheel/Visual_WheelBody` | `Wheel/Visual_Rim`, `Visual_Spoke`, `Visual_Marker`: under the binding-turned wheel | `Visual_Post` |

@@ -40,15 +40,15 @@ flowchart TD
     end
 
     subgraph WORKER_SIM ["Dedicated Web Worker (WASM SIMD128)"]
-        PG["2. Physics Graph (Execution Core)<br/>(Flat SoA Tables, Quad-BVH, TGS Soft Solver @ 120 Hz / 480 Hz)"]
+        PG["2. Physics Graph (Execution Core)<br/>(TGS Soft Solver @ 120 Hz / 480 Hz; target: Flat SoA Tables, Quad-BVH)"]
     end
 
     subgraph WORKER_ANIM ["Dedicated Animation Worker (WASM)"]
-        AG["Secondary Animation Graph<br/>(Cosmetic Procedural Curves, Squash/Stretch @ 60 Hz)"]
+        AG["Secondary Animation Graph<br/>(Cosmetic Procedural Curves, Scale @ 60 Hz)"]
     end
 
-    subgraph PRESENTATION ["Main Thread Presentation (WebGL 2 / WebGPU)"]
-        RG["3. Rendering Graph<br/>(Universal Instanced GPU Batches @ 30-60 FPS)"]
+    subgraph PRESENTATION ["Main Thread Presentation (WebGL 2; WebGPU as target)"]
+        RG["3. Rendering Graph<br/>(WebGL 2 @ 30-60 FPS; target: WebGPU, Instanced GPU Batches)"]
     end
 
     MG -->|"Compile-to-State at Run"| PG
@@ -60,16 +60,16 @@ flowchart TD
 ```
 
 ### 1. Logical Scene / Machine Graph (Main Thread)
-Hierarchical authoring representation manipulated by the player in build mode. C# objects manage entity trees, sockets, wiring, placement bounding boxes, and JSON serialization. When the player clicks **Run**, this graph compiles atomically into a flat, contiguous, SIMD-aligned state snapshot.
+Hierarchical authoring representation manipulated by the player in build mode. C# objects manage entity trees, sockets, wiring, placement bounding boxes, and JSON serialization. When the player clicks **Run**, this graph compiles atomically into a state snapshot of byte-record tables (flat, contiguous, SIMD-aligned tables are the `ENGINE-SOA-SIMD` target).
 
 ### 2. Physics Graph (Dedicated Simulation Worker)
 A single homogeneous scene record executing in WebAssembly SIMD128 (`wasm-simd128`) on a dedicated Web Worker at 120 Hz (4 sub-steps of rational $h = 1/480\text{ s}$). Advanced by **one generic solver**. No puzzle element possesses its own solver, kernel branch, or per-tick loop. New elements are added purely via declaration data.
 
 ### 3. Secondary Animation Graph (Dedicated Animation Worker)
-Cosmetic evaluators running at 60 Hz on an independent WebAssembly Web Worker, evaluating procedural curves, squashes, stretches, and light transitions. Fed one-way by two channels that never substitute for each other: one-shot occurrences from the event ring, each consumer with its own cursor, and level states (activation level, latch memory, timer phase, electrical level) read from committed state. It never writes back into physical authority.
+Cosmetic evaluators running at 60 Hz on an independent WebAssembly Web Worker, evaluating procedural curves, one scale value per binding (applied uniformly or to its declared axis) and light transitions. Fed one-way by two channels that never substitute for each other: one-shot occurrences from the event ring, each consumer with its own cursor, and level states (activation level, latch memory, timer phase, electrical level) read from committed state. It never writes back into physical authority.
 
 ### 4. Rendering Graph (Browser Main Thread)
-Samples read-only committed poses from a lock-free pre-allocated multi-buffered `SharedArrayBuffer` pose ring (depth derived from tick rate and render delay) using shortest-arc quaternion Slerp interpolation. Issues instanced draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) grouped by `(MeshID, PipelineID)`. Eliminates GPU readback stalls (`mapAsync` is completely eradicated).
+Today it interpolates the committed motion pieces of the posted read (`engine/gpu/PhysicsMotionRead.cs:132-185` via `engine/gpu/WorkshopPoseHistory.cs:285-303`) and moves one node transform per body, with no GPU readback (`mapAsync`). Target ([Current status](../../docs/architecture/element-package-isolation.md#current-status)): the poses come from a lock-free pre-allocated multi-buffered `SharedArrayBuffer` pose ring (depth derived from tick rate and render delay; `ENGINE-WIRE-ABI`), and it issues instanced draw calls (`gl.drawElementsInstanced` in WebGL 2, `renderPass.drawIndexed` in WebGPU) grouped by `(MeshID, PipelineID)` (`ENGINE-INSTANCED-RENDERING`).
 
 ---
 
@@ -88,22 +88,22 @@ Samples read-only committed poses from a lock-free pre-allocated multi-buffered 
 ### AD-03 — Jolt-Inspired Modern Engine Architectural Patterns
 - **Binds:** Physics Graph execution core.
 - **Prevents:** O(N^2) collision bottlenecks, discrete tunneling at high velocities, solver jitter, solver non-determinism, and GC pressure.
-- **Rule:** The in-engine physics core implements:
+- **Rule:** The in-engine physics core implements these patterns as its target. Today 3 (with a margin over relative speed and spin reach), 4, 5 (keyed by contact feature identity) and 8 run; 1, 2 and 9 are owned by `ENGINE-SPATIAL-QUERIES`, 6 by `ENGINE-ISLANDS-SLEEP`, 7 by `ENGINE-TICK-ALLOCATION`, and 10 and SIMD contact evaluation by `ENGINE-SOA-SIMD`, each listed in [Current status](../../docs/architecture/element-package-isolation.md#current-status):
   1. **4-Wide SIMD Quad-BVH:** Transposed child AABBs evaluated concurrently via `f32x4` min/max and bitmask extraction ($O(\log_4 N)$ traversal).
   2. **Dual-Tree Broadphase:** Separate Static Quad-BVH (zero per-tick refits) and Dynamic Quad-BVH (velocity-fattened AABBs).
-  3. **Speculative Contacts CCD:** High-speed anti-tunneling via speculative margin $d_{\text{spec}} = |\mathbf{v}_{\text{rel}} \cdot \mathbf{n}| \, h + s_{\text{slop}}$ and target velocity absorption $v_{\text{target}} = -g/h$, avoiding expensive continuous swept tests.
-  4. **4-Point Area-Maximizing Manifold Reduction:** Constant-size 4-point contact manifolds (deepest point, furthest point, and two points maximizing quad area) for deterministic SIMD evaluation.
-  5. **Unified Compliant Soft Constraints (TGS Soft):** Box2D v3 Temporal Gauss-Seidel Soft Step with compliance $\gamma$, softness $\beta$, effective mass $M_{\text{eff}}$, and packed 32-bit `FeatureId` warm-starting.
+  3. **Speculative Contacts CCD:** High-speed anti-tunneling via speculative margin $d_{\text{spec}} = 0.004\text{ m} + (|\Delta\mathbf{v}| + \text{spin reach})\,h$ (`CuriousContraptions.Simulation/WorkshopPhysicsEngine.cs:1112-1117`) and target velocity absorption $v_{\text{target}} = -g/h$, avoiding expensive continuous swept tests.
+  4. **4-Point Area-Maximizing Manifold Reduction:** Contact points reduced into normal blocks of at most four points each, demand-sized with no global cap (deepest point, furthest point, and two points maximizing quad area) for deterministic SIMD evaluation.
+  5. **Unified Compliant Soft Constraints (TGS Soft):** Box2D v3 Temporal Gauss-Seidel Soft Step with compliance $\gamma$, softness $\beta$, effective mass $M_{\text{eff}}$, and warm-starting keyed by `ContactFeatureIdentity` (`CuriousContraptions.Simulation/WorkshopFrictionSolver.cs:9-10`).
   6. **Disjoint Set Union (DSU) Island Partitioning & Sleeping:** Independent simulation islands; islands sleep when linear speed $< 0.01\text{ m/s}$ and angular speed $< 0.02\text{ rad/s}$ for $> 0.5\text{ s}$ (0 ms cost).
   7. **Zero-Allocation TempAllocator:** All per-substep contact pairs and manifold points allocate from pre-allocated linear bump memory reset per tick. Zero Web Worker garbage collection.
-  8. **Symplectic Euler Multi-Substepping:** 480 Hz integration (4 substeps of $h = 1/480\text{ s}$) with per-substep quaternion normalization via fast inverse square root.
-  9. **Deterministic Pair Sorting:** Contact pairs sorted strictly by $(\min(A, B), \max(A, B), \text{FeatureId})$ guaranteeing bitwise identical outcomes regardless of worker scheduling.
+  8. **Symplectic Euler Multi-Substepping:** 480 Hz integration (8, 4 or 2 substeps of $h = 1/480\text{ s}$ per 60, 120 or 240 Hz tick) with per-substep quaternion normalization by `Quaternion.Normalize`.
+  9. **Deterministic Pair Sorting:** Contact pairs sorted strictly by $(\min(A, B), \max(A, B), \text{FeatureId})$, a canonical evaluation order independent of worker scheduling.
   10. **64-Byte Cache-Line Aligned Memory:** Contiguous flat Structure-of-Arrays (SoA) layout aligned to 64-byte boundaries.
 
-### AD-04 — Universal Web Graphics Authority (WebGL 2 and WebGPU)
+### AD-04 — Universal Web Graphics Authority (WebGL 2; WebGPU as Target)
 - **Binds:** Presentation pipeline.
 - **Prevents:** Fragmentation across browser versions, dependence on bleeding-edge GPU shader flags (e.g. `shader-f16`), platform lockout.
-- **Rule:** The game runs universally on both WebGL 2 and WebGPU. Simulation resides in WASM SIMD, completely independent of the GPU graphics pipeline. Instanced draw batches draw hundreds of puzzle elements in 1–2 GPU draw calls.
+- **Rule:** The game runs on WebGL 2 today (`project.godot:17-18`); WebGPU is the `ENGINE-INSTANCED-RENDERING` target. Simulation resides in WASM SIMD, completely independent of the GPU graphics pipeline. Target (`ENGINE-INSTANCED-RENDERING`, [Current status](../../docs/architecture/element-package-isolation.md#current-status)): instanced draw batches draw hundreds of puzzle elements in 1–2 GPU draw calls.
 
 ### AD-05 — Forward-Only Refactoring & Zero Backwards Compatibility
 - **Binds:** `all`
@@ -148,7 +148,7 @@ Samples read-only committed poses from a lock-free pre-allocated multi-buffered 
 - **Binds:** Visual meshes, collision geometry, socket anchors, and catalogue loading.
 - **Prevents:** Hardcoded C# geometry tables, procedural mesh generation, a second catalogue authority, manual part registration.
 - **Rule:**
-  1. **The element's `.tscn` scene (owner decision, 18 Oct 2026):** Every puzzle element authors its visual meshes (PBR materials per DESIGN.md) and its physical collision proxies in its own Godot `.tscn` scene inside its `elements/<Name>/` package. Visual nodes and collider nodes are separate. Collider nodes are dedicated physics proxies (`col_box`, `col_sphere`, `col_capsule`, `col_cylinder`, `col_hull`) whose rendering is suppressed. Collider extraction reads only the dedicated proxy nodes, with zero element branching; under Story 9A.16 it runs at build time and its output is baked into the bundle.
+  1. **The element's `.tscn` scene (owner decision, 18 Oct 2026):** Every puzzle element authors its visual meshes (PBR materials per DESIGN.md) and its physical collision proxies in its own Godot `.tscn` scene inside its `elements/<Name>/` package. Visual nodes and collider nodes are separate. Collider nodes are dedicated physics proxies (`col_box`, `col_sphere`, `col_cylinder`, and the hollow kinds authored as in [hollow geometry](../../docs/hollow-geometry-design.md#declaration-data)) whose rendering is suppressed; `col_capsule` and `col_hull` are refused at bundle time (`tools/BundleElements/SceneGeometryExtractor.cs:103-106`, `:117-123`). Collider extraction reads only the dedicated proxy nodes, with zero element branching; under Story 9A.16 it runs at build time and its output is baked into the bundle.
   2. **Socket Locators (`Loc_Port_<Id>`):** Authored as empty locator nodes in the scene, named exactly by the declared typed socket. Wires and cables snap to these locators, tracking articulated child transforms automatically.
   3. **The element bundle is the sole catalogue source:** `tools/BundleElements` discovers every `elements/*` package at build time and writes one bundle with one schema and no version field ([bundle schema contract](../../docs/engine-contracts.md#element-bundle-schema-contract)). At start-up `PartRegistry` loads only that bundle; a missing or structurally invalid bundle stops start-up with an explicit message. Generic `MachinePart` entities are instantiated from bundle entries without per-element code. The retired catalogue and its replacement stories are listed in the [isolation authority's Current status](../../docs/architecture/element-package-isolation.md#current-status).
   4. **No code-defined geometry:** Procedural mesh generation and hardcoded collider tables are forbidden; the remaining collider tables are deleted by Story 9A.16.
@@ -166,7 +166,7 @@ Samples read-only committed poses from a lock-free pre-allocated multi-buffered 
 - **Prevents:** Parallel design routes, end states described as already true, legacy that survives its replacement.
 - **Rule:** The [element package isolation authority](../../docs/architecture/element-package-isolation.md) is the sole design authority. The only permitted design is:
   1. **Project per element:** each `elements/<Name>/` package is its element's only declaration and references only the Abstractions;
-  2. **Command/query:** every mutation is a typed, sequenced command with a receipt through `WorkshopCommandRouter`; reads are the committed read model (`WorkshopRead`), the pose ring and typed queries;
+  2. **Command/query:** every mutation is a typed, sequenced command with a receipt through `WorkshopCommandRouter`; reads are the committed read model (`WorkshopRead`), the pose ring (from `ENGINE-WIRE-ABI`) and typed queries;
   3. **Event disruptor:** one-shot occurrences travel only on the single-producer, multi-consumer event ring; level states are committed-state queries.
 
   The owner rules bind every story: no fixed capacities (every table is sized from the scene); no wire, save, trace or bundle format versioning (structural validation rejects bad input); each story deletes the old code it supersedes in the same story; and every candidate passes the [verification tiers](autonomous-development-guide.md#verification-tiers). The authority's **Target invariants** state the design; its **Current status** is the only place that lists where the tree falls short, with each finding's owning story.
@@ -179,14 +179,14 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 
 ### 1. Data-Driven Element Declaration Pipeline
 - **Authoring Layer (Main Thread):** Each puzzle element declares its parameters, scene, typed sockets and transform frames in its own `elements/<Name>/` package; the main thread instantiates them from the element bundle (AD-11).
-- **Compiler Layer (`WorkshopPhysicsCompiler.cs`):** At Run, transforms the machine graph into flat Structure-of-Arrays (SoA) capability tables:
+- **Compiler Layer (`WorkshopPhysicsCompiler.cs`):** At Run, transforms the machine graph into capability tables (byte records today; flat Structure-of-Arrays (SoA) tables are the `ENGINE-SOA-SIMD` target):
   - `RigidBodyTable`: Positions, orientations (quaternions), linear/angular velocities, inverse masses, inverse 3x3 inertia tensors.
-  - `ColliderTable`: Dynamic/Static shapes (spheres, boxes, cylinders, tori, convex hulls, hollow meshes).
+  - `ColliderTable`: Dynamic/Static shapes (spheres, boxes, cylinders, planes and the hollow tube, frustum and torus; convex hulls are refused at bundle time).
   - `ConstraintTable`: 1D sliders, revolute joints, springs, ropes, and contact manifolds.
   - `ForceRegionTable`: Spatial acceleration and velocity fields (fans, gravity fields, receiver guides).
   - `SensorTable`: Endpoint-sampled apertures, residence volumes, and load switches.
-  - `NetworkTable`: Directed graphs for activation pulses, electrical DC power, and optical/acoustic paths.
-- **Physics Core (`CuriousContraptions.Core`, hosted by the `CuriousContraptions.Simulation` worker):** Evaluates mathematical algorithms (Quad-BVH, SAT, TGS Soft, speculative contacts) without any knowledge of game-specific element identities.
+  - `NetworkTable`: Directed graphs for activation pulses and electrical supply routes; optical and acoustic paths are the `ENGINE-OPTICAL` and Story 14.0 targets.
+- **Physics Core (`CuriousContraptions.Core`, hosted by the `CuriousContraptions.Simulation` worker):** Evaluates mathematical algorithms (a binary BVH, with the Quad-BVH as `ENGINE-SPATIAL-QUERIES` target; SAT, TGS Soft, speculative contacts) without any knowledge of game-specific element identities.
 
 ### 2. Activation & Discrete Logic Subsystem
 - **Execution Domain:** Simulation Web Worker at 120 Hz tick boundaries.
@@ -237,7 +237,7 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 | :--- | :--- |
 | **Numeric Floating Point** | Canonical IEEE-754 single-precision float (`f32` / `float`) across authoring, solver, and presentation. |
 | **Vector Mathematics** | 128-bit SIMD (`v128` / `Vector128<float>`) packed 4-wide (`f32x4`). |
-| **Memory Structures** | Flat Structure-of-Arrays (SoA) contiguous tables aligned to 64 bytes. Zero heap allocation during simulation tick. |
+| **Memory Structures** | Target: flat Structure-of-Arrays (SoA) contiguous tables aligned to 64 bytes (`ENGINE-SOA-SIMD`) and no heap allocation during the simulation tick (`ENGINE-TICK-ALLOCATION`). |
 | **Worker Interop** | Lock-free `SharedArrayBuffer` rings sized from the compiled scene, with atomic sequence counters (`Atomics.load` / `Atomics.store`). No fixed table capacities: memory is the only bound. |
 | **Coordinate Systems** | Standard right-handed Cartesian coordinate system: $+X$ right, $+Y$ up, $+Z$ forward. |
 | **Persistence Schema** | One FlatBuffers schema per bundle, with no version field, serializing canonical `f32` bits, bundle-issued element ids, and connection socket references. Structural validation (verifier, sizes, defined enums, finite ranged values, resolving references) rejects bad input with a player-visible message; nothing is migrated. |
@@ -253,8 +253,8 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 | **Core Platform** | .NET 10 / C# 13 | Main thread machine graph, compiler, tools, domain logic |
 | **Simulation Runtime** | WebAssembly with `wasm-simd128` | High-performance SIMD physics solver on dedicated Web Worker |
 | **Presentation Engine** | Godot Engine v4.7.2.stable.mono (2dog) | Editor, scene tree, rendering host, UI infrastructure |
-| **Web Graphics API** | WebGL 2.0 / WebGPU | Universal hardware-accelerated instanced mesh rendering |
-| **Web Worker Bridge** | JavaScript / TypeScript / SharedArrayBuffer | Cross-origin isolated zero-copy lock-free ring buffer |
+| **Web Graphics API** | WebGL 2.0 (WebGPU: `ENGINE-INSTANCED-RENDERING` target) | Universal hardware-accelerated mesh rendering (instanced batches: `ENGINE-INSTANCED-RENDERING` target) |
+| **Web Worker Bridge** | JavaScript / TypeScript / SharedArrayBuffer | Cross-origin isolated lock-free ring buffer (zero-copy: `ENGINE-WASM-THREADS` target) |
 | **End-to-End Automation**| Playwright / pure TypeScript | Automated browser testing in actual Chrome via the Playwright connector, run by `tools/E2eRunner` under the verification tiers |
 | **Static Code Quality** | Anvil Linter (`anvil check --changed`) | Fast multi-language linting and code hygiene (0 warnings required) |
 | **Agile AI Framework** | BMAD Method v6.12.1 (core, bmm) | Autonomous agile planning, epics, sprint status, and paired development |
@@ -310,13 +310,13 @@ Curious Contraptions decouples gameplay elements into pure declarative capabilit
 | **Wire and Save Codec** | `engine/gpu/WorkshopWireFlatBuffers.cs`, `engine/gpu/WorkshopSaveCodec.cs`, `CuriousContraptions.FlatBuffers/` | AD-05, AD-08, AD-09 |
 | **Physics Graph Compilation** | `engine/gpu/WorkshopPhysicsCompiler.cs` | AD-01, AD-06, AD-08, AD-11, AD-12 |
 | **Collider & Socket Extraction** | `engine/gpu/GltfPhysicsBodyExtractor.cs` (moves to build time in Story 9A.16) | AD-06, AD-11 |
-| **Quad-BVH Broadphase** | `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
+| **BVH Broadphase (Quad-BVH: target)** | `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
 | **TGS Soft Constraint Solver**| `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
 | **Speculative Contacts CCD** | `CuriousContraptions.Simulation/` (WASM SIMD) | AD-02, AD-03, AD-07 |
-| **Pose Ring Buffer** | `engine/gpu/WorkshopPoseRing.cs` (layout owner), `CuriousContraptions.Simulation/wwwroot/worker.js` (`writePoseRing`), `CuriousContraptions.web/wwwroot/workshop-client.js` (reader) | AD-01, AD-03, AD-04 |
+| **Pose Ring Buffer** | `engine/gpu/WorkshopPoseRing.cs` (layout owner), `CuriousContraptions.web/wwwroot/pose-ring.ts` (`publish`, called from `CuriousContraptions.Simulation/wwwroot/worker.ts:290`); a `PoseReader` is constructed (`CuriousContraptions.web/wwwroot/workshop-client.ts:152`, `:256-257`) but never read (the reader is an `ENGINE-WIRE-ABI` item) | AD-01, AD-03, AD-04 |
 | **Session Clock** | `CuriousContraptions.Simulation/wwwroot/clock-master.js`, `CuriousContraptions.web/wwwroot/clock-ring.js`, `engine/gpu/WorkshopClockWire.cs` | AD-01 |
 | **Animation Worker** | `CuriousContraptions.Animation.Worker/` | AD-01, AD-06 |
-| **Instanced Presentation** | `CuriousContraptions/ui/`, Godot RenderingServer | AD-01, AD-04, AD-07 |
+| **Presentation** | `engine/MachinePart.cs` node transforms today; instanced batches through Godot RenderingServer are the `ENGINE-INSTANCED-RENDERING` target | AD-01, AD-04, AD-07 |
 | **E2E Playwright Suite** | `tools/e2e/` | AD-10 |
 
 ---
@@ -335,5 +335,5 @@ The [isolation authority's Current status](../../docs/architecture/element-packa
 
 1. **Hardware Timing Budget Qualification (P0-034):** Target thresholds (e.g. $\le 2.5\text{ ms}$ tick p95, zero clock debt over 20 runs) are tracked as advisory telemetry during incremental functional slices; full formal multi-device qualification occurs at the P0-034 gate.
 2. **Post-Authoring Campaign Expansion:** Authorship of all 150 progressive campaign levels occurs across dedicated CAMPAIGN slices following core engine and catalogue component completion.
-3. **ECS Entity Framework:** Explicitly deferred per owner decision; current scene-independent C# extraction and SoA tables meet all performance and modularity goals.
+3. **ECS Entity Framework:** Explicitly deferred per owner decision; scene-independent C# extraction and compiled tables (Structure-of-Arrays tables under `ENGINE-SOA-SIMD`) are the chosen path.
 

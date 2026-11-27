@@ -76,7 +76,7 @@ Physics reads no art node. The bindings read the committed level of node `signal
 | The level is solved | objective evaluation reads the indicator's committed state for the named target | the level's goal, not the package |
 | The bulb glows | committed-activation presentation binding | six bindings, 0.16 s smoothstep |
 
-**Performance fitness.** The body is static. Three primitive colliders, no sensor, no store. The indicator is one node in the signal network's flat node table. Tunnelling is excluded by the engine's general means (`docs/gpu-f32-physics.md:192`–`195`, `:224`); the package adds no check of its own.
+**Performance fitness.** The body is static. Three primitive colliders, no sensor, no store. The indicator is one node in the signal network's flat node table. Tunnelling is excluded by the engine's general means (`docs/gpu-f32-physics.md:210`–`213`, `:242`); the package adds no check of its own.
 
 **Inert data to delete (point 1).** The electrical node `lamp_bulb`, the `IElectricalElement` implementation and the Electrical domain flag are declaration data that no behaviour reads. The Delay box is the precedent for `ISignalElement` without `IElectricalElement`.
 

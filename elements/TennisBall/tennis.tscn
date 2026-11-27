@@ -13,10 +13,13 @@ height = 0.5
 albedo_color = Color(0.9098039, 0.8627451, 0.79607844, 1)
 roughness = 1.0
 
-[sub_resource type="TorusMesh" id="Seam"]
+[sub_resource type="CylinderMesh" id="Seam"]
 material = SubResource("Cream")
-inner_radius = 0.245
-outer_radius = 0.253
+top_radius = 0.2504
+bottom_radius = 0.2504
+height = 0.008
+cap_top = false
+cap_bottom = false
 
 [sub_resource type="SphereShape3D" id="Collision"]
 radius = 0.25

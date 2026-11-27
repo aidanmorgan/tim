@@ -268,3 +268,11 @@ Coordinator message (two documents still claiming a kinematic body); uncommitted
   - `:221` and `:227` entry citations: E5 holds part B's receipt and the S3/S5 status lines; E20 to E24 hold ruling 5.
   - Registration 829 on the merged commit (`registration-merge.log`, 17 + 203 + 83 + 97 + 429; E27) is not stated in the Auto Run Result; no edit.
 - Nothing else in the Auto Run Result is wrong.
+
+## E30 Publication receipt (recorded by visible-solid part B2, 25 November 2026)
+
+- Published as `466ff4ca360c6ce0879f053f6c646f244bfd7bd5`, a fast-forward from `37a259c9`: slice `819940be`, ruling 5 `dce23e3a`, merge `39cefe41`, records `b6022276`, `db40573b` and `466ff4ca`.
+- On the published commit: full local round 7415/0/0 (`Skipped: 0`); registration 829; `VerifyPolicy.cs` 78/0/0; `--bmad-check --self-test` 37/0/0; maintainability gate PASS.
+- SnapshotApproval Pass on `466ff4ca` after two record-only fails (E28, E29).
+- Remote build, artifact and deployment unverified (owner instruction of 29 October).
+- Source: the lane 1 coordinator's dispatch of part B2; recorded in part B2's candidate (its run log, Handled owner messages).

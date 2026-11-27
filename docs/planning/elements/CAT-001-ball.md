@@ -83,7 +83,7 @@ No presentation binding exists, so nothing is animated; the art only follows the
 
 **Collider count above one.** The torus exists because the seam is a visible solid standing 1 cm proud (visible = solid; rolling over a 1 cm band is accepted, owner, 21 November 2026). It is not cosmetic: it changes contact.
 
-**Performance fitness.** Two primitives on one body. Tunnelling is excluded by the engine's speculative sphere contact and the committed speed limit of 64 m/s (`docs/gpu-f32-physics.md:370`), proven at 40 m/s; nothing in the package checks for it. The part has no sensor or region and asks for no per-tick work beyond its own body and contacts. Engine gap, not an element fault: island sleeping is not implemented (`docs/gpu-f32-physics.md:273` specifies it; no sleep state exists under `CuriousContraptions.Simulation` or `engine/gpu`); a resting body is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`.
+**Performance fitness.** Two primitives on one body. Tunnelling is excluded by the engine's speculative sphere contact and the committed speed limit of 64 m/s (`docs/gpu-f32-physics.md:391`), proven at 40 m/s; nothing in the package checks for it. The part has no sensor or region and asks for no per-tick work beyond its own body and contacts. Engine gap, not an element fault: island sleeping is not implemented (`docs/gpu-f32-physics.md:292` specifies it; no sleep state exists under `CuriousContraptions.Simulation` or `engine/gpu`); a resting body is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`.
 
 ## 4. Legacy harvest
 

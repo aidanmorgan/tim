@@ -51,7 +51,7 @@ Colours as EL-071: shell pale grey `#ccd9df` (`DESIGN.md:248`), collars cream `#
 
 ### Behaviour and numbers
 
-- **Law.** Gravity and contact only; direction changes come from the bore wall. Pair laws are product restitution and geometric-mean friction (`docs/gpu-f32-physics.md:147`). Nothing adds speed: a ball leaves no faster than √(2·g·Δh) above its entry speed.
+- **Law.** Gravity and contact only; direction changes come from the bore wall. Pair laws are product restitution and geometric-mean friction (`docs/gpu-f32-physics.md:151`). Nothing adds speed: a ball leaves no faster than √(2·g·Δh) above its entry speed.
 - **Bore 0.65 m, centreline 2.4 m.** Unchanged from the clear bend, so mouths snap to every delivered tube mouth (equal bores within 1e-6 m, `CuriousContraptions.tests/TubeMouthSnapTests.cs:269`) and the Basketball (0.35 m) turns with 0.30 m of clearance. Arc length 2.4 × π/4 = 1.885 m.
 - **Material.** Restitution 0.3 and friction 0.2, starting values (D1), equal to EL-071 and EL-072 so a metal route is one material from end to end. Reasons are in EL-071 section 2.
 - **Seams.** A seam is two snapped mouths: the stubs of both parts are straight for 0.09 m either side, so the bore is continuous. "Conserved" means every ball that enters a mouth leaves the other mouth exactly once, none passes through a wall and none is duplicated.
@@ -84,7 +84,7 @@ Nothing is missing or narrower. The two untested rows are the row's own outcome;
 - **Layers.** Colliders: 1 Torus segment, 2 Tube stubs, 2 Torus collars (hidden `col_` proxies). Visuals: the eight opaque shell segments, stubs, collars and printed bands, none used as a collider. Animation: none; no art node moves. Visible = solid: the shell segments draw the arc collider, stubs and collars have their hollow colliders, and the bands are printed flat.
 - **One-way flow and typing.** Nothing reads art. Values are f32; the part declares no string-keyed behaviour.
 - **Flat state.** 1 static body, 5 colliders (3 Torus, 2 Tube), 0 joints, 0 drives, 0 sensors, 0 domain nodes, 0 stores, 0 bindings; 2 tube mouths as build-time snap data.
-- **Performance.** Five primitive hollow colliders, the same as the delivered clear 45° bend. Fast cargo is kept in by the engine's general 480 Hz substeps and speculative margins (`docs/gpu-f32-physics.md:375`), not by a per-part check. No island sleeping exists today; a queued or jammed ball at rest costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
+- **Performance.** Five primitive hollow colliders, the same as the delivered clear 45° bend. Fast cargo is kept in by the engine's general 480 Hz substeps and speculative margins (`docs/gpu-f32-physics.md:396`), not by a per-part check. No island sleeping exists today; a queued or jammed ball at rest costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
 - **Tests are scenarios.** Rows C1 to C11 run the production simulation on placed parts.
 
 ## 4. Sources and legacy
