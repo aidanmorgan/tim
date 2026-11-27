@@ -128,7 +128,7 @@ public sealed class GameFloatGuardTests
         Assert.Contains("CuriousContraptions.Abstractions/PhysicalTime.cs", expected);
         var covered = new HashSet<string>(StringComparer.Ordinal);
         var hits = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var compilation in CSharpStaticGateTests.MatchingCompilations())
+        foreach (var compilation in CSharpStaticGateTests.MatchingCompiles().Select(compile => compile.Compilation))
         foreach (var tree in compilation.SyntaxTrees)
         {
             var path = Path.GetRelativePath(root, tree.FilePath).Replace('\\', '/');

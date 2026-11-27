@@ -39,11 +39,11 @@ public sealed class WorkshopWireFlatBuffersTests
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, construction);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 2);
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value,
-            WorkshopSaveCodec.Identifier);
+        CuriousContraptions.Wire.SavedConstruction.FinishSizePrefixedSavedConstructionBuffer(builder,
+            CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder));
         var bytes = builder.SizedByteArray();
         Assert.InRange(bytes.Length, 8000, 10000);
-        var verified = WorkshopWireFlatBuffers.OpenFrame(bytes, WorkshopSaveCodec.Identifier,
+        var verified = WorkshopWireFlatBuffers.OpenFrame(bytes, CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction,
             CuriousContraptions.Wire.SavedConstructionVerify.Verify);
         var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(verified);
         Assert.Equal(1001, saved.Construction!.Value.InstancesLength);

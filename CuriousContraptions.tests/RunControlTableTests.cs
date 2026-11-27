@@ -408,7 +408,7 @@ public sealed class RunControlTableTests
         W.WorkshopCommand.AddProjection(builder, command.Projection.Value);
         W.WorkshopCommand.AddRunControl(builder, W.RunControlCommandRecord.CreateRunControlCommandRecord(builder, owner, control, scalar,
             valueKind, (W.ElectricalEnable)enabled));
-        builder.FinishSizePrefixed(W.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
+        builder.FinishSizePrefixed(W.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(W.WireRootIdentifier.WorkshopCommand));
         return builder.SizedByteArray();
     }
 }

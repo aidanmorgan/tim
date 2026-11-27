@@ -124,6 +124,7 @@ public sealed class DeclaredContactLoadTests
     // missing declared parameters. Both are typed OutOfRange refusals at both boundaries (evidence-c-clock/candidate old-save
     // outcomes); no record loads. C-Memory deleted target_count (8-field table): the plate's old slot 7 is now the parameters offset, so
     // its float bits read as an offset the verifier refuses, at both boundaries, in every one of these saves; still no record loads.
+    // S5c: the verifier refuses any vtable entry beyond the current table, present or zero, so each save refuses VerifierRejected.
     private const string PlainSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAAA/AAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
     private const string PlainCommand = "HAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMwAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAYAAAAFAA8ADQAMAAAACQAGAAIAAAABAAUAAAAAAAAPwAAAAAAAAAAAAAAAAAAgD8AAAAA4XokPgAAAAAAAAAA/P///wAAAAAMAAAAAQAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAABAAAAABAAAAAAAAAAIAAAAAAAAA";
     private const string TwoKgSave = "zAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAABAAAAAAAAAAAAAAAAAAACAPwAAAADheiQ+AAAAAAAAAAD8////AAAAABAAAAABAAAAAAAAAAAAAAAOAAAAcHJlc3N1cmVfcGxhdGUAAA==";
@@ -149,7 +150,7 @@ public sealed class DeclaredContactLoadTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        var refusal = SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
+        var refusal = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.False(string.IsNullOrWhiteSpace(refusal.Message));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);

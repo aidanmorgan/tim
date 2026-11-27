@@ -108,7 +108,8 @@ public sealed class DeclaredOscillatorTests
     // the 9-field table (a bare Basketball's empty vector included). Each refusal is typed at both boundaries; none is migrated.
     // C-Memory's 8-field table (no target_count): a clock's threshold slot 7 is now the parameters offset, so the verifier refuses every
     // clock save; a lone counter's target (old slot 8) is beyond the table and the generic counter it decodes as has no declared target
-    // (OutOfRange, before the beyond-the-table check); the cat-017 bench and the bare Basketball keep their refusals.
+    // (OutOfRange, before the beyond-the-table check); the cat-017 bench and the bare Basketball keep their refusals. S5c: the verifier
+    // refuses a vtable entry beyond the current table, present or zero, so every one of these saves now refuses VerifierRejected.
     private const string Clock01Save = "xAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAADNzMw9AAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAABAAAAAAAAAAAAAAAFAAAAY2xvY2sAAAA=";
     private const string Clock01Command = "FAEAACQAAABDQ1dDHABEADgANAAoACAAHAAYABAACAAAAAAAAAAEABwAAABMAAAAAQAAAAAAAAABAAAAAAAAAMQAAAACAAAAAQAAAAAAAAABAAAAAAAAAAAAAAABAAAAAQAAAAAAAAAAAAAADAAoACAACAAAAAQADAAAACQAAAACAAAAAQAAAAIAAAACAAAAPAAAAAEAAAACAAAAAAAAAAEAAAAYAAAAFAA8ADQAMAAAACQAGAAIAAAABAAUAAAAzczMPQAAAAAAAAAAAAAAAAAAgD8AAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAMAAAAAQAAAAAAAAAFAAAAY2xvY2sAAAAQAAAAAQAAAAAAAAACAAAAAAAAAA==";
     private const string Clock12Save = "xAAAABQAAABDQ1dTAAAAAAgAFAAIAAQACAAAABwAAAALAAAAAAAAAAAAAAAMACgAIAAIAAAABAAMAAAAJAAAAAIAAAABAAAAAgAAAAIAAAA8AAAAAQAAAAIAAAAAAAAAAQAAABgAAAAUAEAANAAwAAAAJAAYAAgAAAAEABQAAAAAAEBBAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAABAAAAABAAAAAAAAAAAAAAAFAAAAY2xvY2sAAAA=";
@@ -150,7 +151,7 @@ public sealed class DeclaredOscillatorTests
             _ => throw new ArgumentOutOfRangeException(nameof(name))
         };
         var (saveBytes, commandBytes) = (Convert.FromBase64String(save), Convert.FromBase64String(command));
-        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message));
+        Assert.False(string.IsNullOrWhiteSpace(SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));

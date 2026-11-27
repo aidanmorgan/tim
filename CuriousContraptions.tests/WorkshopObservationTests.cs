@@ -397,7 +397,7 @@ public sealed class WorkshopObservationTests
         var identity = new byte[16]; new RuntimeSessionId(101, 206).WriteTo(identity);
         var session = W.WorkshopObservationBatch.CreateSessionVector(builder, identity);
         var batch = W.WorkshopObservationBatch.CreateWorkshopObservationBatch(builder, session, (uint)WorkshopRuntimeRole.Simulation, records);
-        builder.FinishSizePrefixed(batch.Value, WorkshopWireFlatBuffers.ObservationIdentifier);
+        builder.FinishSizePrefixed(batch.Value, WorkshopWireFlatBuffers.FileIdentifier(W.WireRootIdentifier.WorkshopObservationBatch));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeObservations(builder.SizedByteArray()));
     }
 
@@ -552,7 +552,7 @@ public sealed class WorkshopObservationTests
         var identity = new byte[16]; batch.Session.WriteTo(identity);
         var root = W.WorkshopObservationBatch.CreateWorkshopObservationBatch(builder,
             W.WorkshopObservationBatch.CreateSessionVector(builder, identity), (uint)batch.Role, records);
-        builder.FinishSizePrefixed(root.Value, WorkshopWireFlatBuffers.ObservationIdentifier);
+        builder.FinishSizePrefixed(root.Value, WorkshopWireFlatBuffers.FileIdentifier(W.WireRootIdentifier.WorkshopObservationBatch));
         if (admitted) Assert.Equal(count, Assert.IsType<WorkshopCaptureDiagnostic>(Assert.Single(WorkshopWireFlatBuffers.DecodeObservations(builder.SizedByteArray()).Records)).Count);
         else Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeObservations(builder.SizedByteArray()));
     }

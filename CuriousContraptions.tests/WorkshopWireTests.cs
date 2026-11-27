@@ -757,7 +757,7 @@ public sealed class WorkshopWireTests
         CuriousContraptions.Wire.WorkshopResponse.AddSession(builder, session);
         CuriousContraptions.Wire.WorkshopResponse.AddPhysicalCommit(builder,
             CuriousContraptions.Wire.PhysicalCommitRevisionRecord.CreatePhysicalCommitRevisionRecord(builder, 0));
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopResponse));
         var binary = builder.SizedByteArray();
         Assert.Equal(admitted, Record.Exception(() => WorkshopWireFlatBuffers.DecodeResponse(binary)) is null);
         if (!admitted) Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(binary));

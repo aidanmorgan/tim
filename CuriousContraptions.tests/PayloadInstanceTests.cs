@@ -322,8 +322,9 @@ public sealed class PayloadInstanceTests
     // slot 8 parameters). Old ball: its bounce (slot 8) now sits in the parameters slot, so the verifier refuses the buffer (at 9A.32 its
     // drag in slot 9 did; at 2065d3c5 radius and mass landed in typed fields: OutOfRange). Old Domino: likewise its bounce (slot 8) is
     // read as the parameters vector and the verifier refuses it (at 9A.32 its mass and bounce landed in threshold and target_count,
-    // typed fields: OutOfRange; at 2065d3c5 MissingField). Old pipe: its length lies beyond the table, so it reads the schema's 0. Old
-    // resized Ramp: its parameters are beyond the table, so its declared parameters are missing.
+    // typed fields: OutOfRange; at 2065d3c5 MissingField). Old pipe: its length lies beyond the table. Old resized Ramp: its parameters
+    // are beyond the table. S5c: the verifier refuses any vtable entry beyond the current table, so the Domino, pipe and Ramp records,
+    // whose vtables reach past it, are VerifierRejected too.
     [Fact]
     public void PreConversionRecordsAreRefusedWithTheTypedSaveRefusal()
     {
@@ -331,9 +332,9 @@ public sealed class PayloadInstanceTests
         {
             ("ball", PreConversionBall("ball", .340087890625f, 1, .5498046875f), WorkshopSaveRejection.VerifierRejected),
             ("bowling", PreConversionBall("bowling", .280029296875f, 4, .1400146484375f), WorkshopSaveRejection.VerifierRejected),
-            ("domino", PreConversionDomino(), WorkshopSaveRejection.OutOfRange),
-            ("pipe", PreConversionPipe(), WorkshopSaveRejection.OutOfRange),
-            ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.OutOfRange)
+            ("domino", PreConversionDomino(), WorkshopSaveRejection.VerifierRejected),
+            ("pipe", PreConversionPipe(), WorkshopSaveRejection.VerifierRejected),
+            ("ramp", PreConversionResizedRamp(), WorkshopSaveRejection.VerifierRejected)
         })
         {
             var refusal = Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
@@ -355,8 +356,11 @@ public sealed class PayloadInstanceTests
                 ParameterRecord.CreateParameterRecord(builder, builder.CreateString(p.Key), p.Value)).ToArray());
         if (unknownField)
         {
-            builder.StartTable(8); // Current InstanceRecord owns slots 0-6; slot7 must be refused.
-            builder.AddFloat(7, 1f, 0f);
+            // One entry past the current InstanceRecord's declared fields (from the schema), which the verifier refuses.
+            var fields = WireSchemaLayout.FieldCount(
+                WireSchemaText.Read(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas", "workshop_wire.fbs")), nameof(InstanceRecord));
+            builder.StartTable(fields + 1);
+            builder.AddFloat(fields, 1f, 0f);
         }
         else InstanceRecord.StartInstanceRecord(builder);
         if (parameterVector is { } vector) InstanceRecord.AddParameters(builder, vector);

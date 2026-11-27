@@ -46,17 +46,18 @@ public sealed class PreConversionLaunchSaveTests
     // rows on the 9-field table: every reason is unchanged.) C-Memory's 8-field table (no target_count; slot 7 is the parameters
     // offset): the old Domino's bounce float in slot 7 now reads as that offset and the verifier refuses the buffer; the old Counter is
     // a generic counter (its target still beyond the table) whose missing declared target is refused OutOfRange. Every other reason is
-    // unchanged in that historical stage. Current saves additionally require atmosphere: structurally readable old records now refuse MissingField.
+    // unchanged in that historical stage. S5c: the verifier refuses a vtable entry beyond the current table, present or zero, so these
+    // old records now refuse VerifierRejected before their missing atmosphere is reached.
     [Theory]
-    [InlineData("bumper strength 8", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("bumper strength 0", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("spring default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("spring charged", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper strength 8", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper strength 0", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring default", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("spring charged", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery default", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("switch threshold", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("resized ramp", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("switch threshold", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("resized ramp", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
     public void APreConversionRecordIsRefusedWithATypedReasonAtBothBoundaries(string name, WorkshopSaveRejection save,
         WireFaultReason command)
     {
@@ -76,21 +77,22 @@ public sealed class PreConversionLaunchSaveTests
     // count reads beyond its old slot, so it is missing. Every parameterised generic: its parameters lie beyond the table, so its
     // declared parameters are missing. (C-Clock re-ran these rows on the 9-field table: every reason is unchanged.)
     // C-Memory's 8-field table: the old Domino's bounce in slot 7 is now the parameters offset (VerifierRejected), and the old Counter
-    // is a generic counter missing its declared target. Current saves require atmosphere, so these structurally readable old records now refuse MissingField.
+    // is a generic counter missing its declared target. S5c: the verifier refuses a vtable entry beyond the current table, present or
+    // zero, so these old records now refuse VerifierRejected before their missing atmosphere is reached.
     [Theory]
-    [InlineData("battery_default", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_disabled", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_default", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_disabled", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_120_30_half", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("battery_custom_disabled_zero", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("counter", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("impact_switch", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("ramp", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("bumper", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("receiver", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("springboard", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("wall", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("hold_timer", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("counter", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("impact_switch", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("ramp", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("bumper", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("receiver", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("springboard", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("wall", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("hold_timer", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
     public void APreSourceStoreRecordIsRefusedWithATypedReasonAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {

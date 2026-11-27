@@ -204,14 +204,14 @@ public sealed class WireFaultTests
         CuriousContraptions.Wire.WorkshopResponse.AddSequence(builder, 10);
         CuriousContraptions.Wire.WorkshopResponse.AddPhysicalCommit(builder,
             CuriousContraptions.Wire.PhysicalCommitRevisionRecord.CreatePhysicalCommitRevisionRecord(builder, 0));
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.ResponseIdentifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopResponse));
         Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(builder.SizedByteArray())).Reason);
 
         builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.WorkshopCommand.StartWorkshopCommand(builder);
         CuriousContraptions.Wire.WorkshopCommand.AddSequence(builder, 1);
         CuriousContraptions.Wire.WorkshopCommand.AddKind(builder, CuriousContraptions.Wire.CommandKind.Run);
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopCommand));
         Assert.Equal(WireFaultReason.MissingField, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(builder.SizedByteArray())).Reason);
     }
 

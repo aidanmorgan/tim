@@ -12,11 +12,8 @@ public interface ICommandCodec
     byte[] ReadIdentity(WorkshopResponse response);
     byte[] EncodeResponse(WorkshopResponse response);
     WorkshopResponse DecodeResponse(ReadOnlySpan<byte> bytes);
-    string CommandIdentifier { get; }
-    string ResponseIdentifier { get; }
     byte[] EncodeObservations(WorkshopObservationBatch batch);
     WorkshopObservationBatch DecodeObservations(ReadOnlySpan<byte> bytes);
-    string ObservationIdentifier { get; }
     IWorkshopResponseEncoder CreateResponseEncoder();
 }
 

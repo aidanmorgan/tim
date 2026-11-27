@@ -93,9 +93,9 @@ public sealed class WorkshopWireTypeScriptTests
         Directory.GetFiles(wireDirectory, "*", SearchOption.AllDirectories)
             .ToDictionary(path => Path.GetRelativePath(wireDirectory, path).Replace('\\', '/'), File.ReadAllText, StringComparer.Ordinal);
 
-    /// <summary>The enum, struct, table and union names the schema files in a directory declare.</summary>
+    /// <summary>The enum, struct and table names the one schema file in a directory, workshop_wire.fbs, declares.</summary>
     internal static HashSet<string> SchemaTypes(string schemaDirectory) => CSharpStaticGateTests
-        .SchemaTypesIn(Directory.GetFiles(schemaDirectory, "*.fbs").Select(File.ReadAllText)).Keys.ToHashSet(StringComparer.Ordinal);
+        .SchemaTypesIn(File.ReadAllText(Path.Combine(schemaDirectory, "workshop_wire.fbs"))).Keys.ToHashSet(StringComparer.Ordinal);
 
     /// <summary>The names the generated entry module re-exports, in the one export form T1 admits.</summary>
     internal static string[] EntryExports(string entry) => [.. EntryExport.Matches(entry).Select(match => match.Groups[1].Value)];

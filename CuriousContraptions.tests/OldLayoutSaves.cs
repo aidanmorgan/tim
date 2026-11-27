@@ -42,7 +42,7 @@ internal static class OldLayoutSaves
         Wire.WorkshopCommand.AddCadence(builder, 1);
         Wire.WorkshopCommand.AddProjection(builder, 1);
         builder.AddOffset(11, record.Value, 0);
-        builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
+        builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(WireRootIdentifier.WorkshopCommand));
         return builder.SizedByteArray();
     }
 

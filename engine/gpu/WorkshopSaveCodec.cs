@@ -10,12 +10,11 @@ namespace CuriousContraptions.Gpu;
 public readonly record struct WorkshopSavedConstruction(WorkshopConstruction Construction, GpuBodyId NextBodyId);
 
 /// <summary>Construction-only storage boundary; shares the one construction record codec with GPU admission. The game and its save
-/// ship in one bundle with one schema (owner decision, 21 Oct 2026): a save is one size-prefixed "CCWS" FlatBuffers root, and
-/// stored bytes that are not an admissible save of this schema are refused structurally, never migrated.</summary>
+/// ship in one bundle with one schema (owner decision, 21 Oct 2026): a save is one size-prefixed FlatBuffers root of the schema's
+/// root type, carrying the <see cref="WireRootIdentifier.SavedConstruction"/> identifier, and stored bytes that are not an
+/// admissible save of this schema are refused structurally, never migrated.</summary>
 public static class WorkshopSaveCodec
 {
-    public const string Identifier = "CCWS";
-
     public static byte[] Encode(ISupplyQueries supply, IBundleServices bundle, WorkshopSavedConstruction save)
     {
         // The committed construction is valid by invariant: a failure here is a defect, never a refusal.
@@ -26,7 +25,7 @@ public static class WorkshopSaveCodec
         SavedConstruction.StartSavedConstruction(builder);
         SavedConstruction.AddNextBodyId(builder, save.NextBodyId.Value);
         SavedConstruction.AddConstruction(builder, record);
-        builder.FinishSizePrefixed(SavedConstruction.EndSavedConstruction(builder).Value, Identifier);
+        SavedConstruction.FinishSizePrefixedSavedConstructionBuffer(builder, SavedConstruction.EndSavedConstruction(builder));
         return builder.SizedByteArray();
     }
 
@@ -41,24 +40,22 @@ public static class WorkshopSaveCodec
         return Decode(codec, supply, bundle, elements, bytes.AsSpan(0, length));
     }
 
-    /// <summary>Untrusted stored bytes. Structural pre-validation runs first, against the loaded bundle's
-    /// <paramref name="elements"/>, then the refusal of any instance record field beyond the current table; these are the only
-    /// refusals (<see cref="WorkshopSaveRejectedException"/>). Domain construction then runs on an admitted record, and any exception
-    /// it raises is a defect that escapes as itself.</summary>
+    /// <summary>Untrusted stored bytes. The save frame (size prefix, identifier and the verifier, which refuses a field the schema
+    /// does not define in any table) and then structural pre-validation, against the loaded bundle's <paramref name="elements"/>,
+    /// are the only refusals (<see cref="WorkshopSaveRejectedException"/>). Domain construction then runs on an admitted record,
+    /// and any exception it raises is a defect that escapes as itself.</summary>
     public static WorkshopSavedConstruction Decode(ICommandCodec codec, ISupplyQueries supply, IBundleServices bundle, IReadOnlySet<PartId> elements, ReadOnlySpan<byte> bytes)
     {
         var saved = Open(codec, bytes);
         WorkshopSavePrevalidation.Check(supply, saved, elements);
-        if (WorkshopAuthoringFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopAuthoringFlatBuffers.SavedConstructionSlot))
-            throw new WorkshopSaveRejectedException(WorkshopSaveRejection.OutOfRange,
-                "This save cannot be loaded: an instance record holds a field the current record does not define.");
         return Construct(supply, bundle, saved);
     }
 
-    /// <summary>The verified save root: a frame fault is the save's typed refusal, naming the same reason.</summary>
+    /// <summary>The verified save root. Core's frame boundary admits the frame through <see cref="ICommandCodec.ValidateSaveFrame"/>,
+    /// and a frame fault is the save's typed refusal naming the same reason; the root is then read from the size-stripped buffer.</summary>
     internal static SavedConstruction Open(ICommandCodec codec, ReadOnlySpan<byte> bytes)
     {
-        try { return SavedConstruction.GetRootAsSavedConstruction(WorkshopAuthoringFlatBuffers.OpenFrame(codec, bytes, Identifier)); }
+        try { codec.ValidateSaveFrame(bytes); }
         catch (WireFaultException fault)
         {
             var reason = fault.Reason switch
@@ -71,6 +68,7 @@ public static class WorkshopSaveCodec
             };
             throw new WorkshopSaveRejectedException(reason, "This save cannot be loaded: " + fault.Message, fault);
         }
+        return SavedConstruction.GetRootAsSavedConstruction(ByteBufferUtil.RemoveSizePrefix(new ByteBuffer(bytes.ToArray())));
     }
 
     /// <summary>Domain construction of a pre-validated save. Nothing here is a refusal: the domain's argument guards are

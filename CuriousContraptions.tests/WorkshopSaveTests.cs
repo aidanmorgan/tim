@@ -394,12 +394,15 @@ public sealed class WorkshopSaveTests
         Assert.Equal(empty, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, empty)));
     }
 
+    /// <summary>A foreign root identifier word ("XXXX" read little-endian), which names no root.</summary>
+    private const uint Foreign = 0x58585858;
+
     [Theory]
-    [InlineData("XXXX", 7UL, true, WorkshopSaveRejection.UnknownIdentifier)]
-    [InlineData(WorkshopSaveCodec.Identifier, 0UL, true, WorkshopSaveRejection.InvalidAllocator)]
-    [InlineData(WorkshopSaveCodec.Identifier, 2UL, true, WorkshopSaveRejection.InvalidAllocator)]
-    [InlineData(WorkshopSaveCodec.Identifier, 7UL, false, WorkshopSaveRejection.MissingField)]
-    public void UnknownHeaderCannotBeLoaded(string identifier, ulong nextBodyId, bool includeConstruction, WorkshopSaveRejection reason)
+    [InlineData((CuriousContraptions.Wire.WireRootIdentifier)Foreign, 7UL, true, WorkshopSaveRejection.UnknownIdentifier)]
+    [InlineData(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction, 0UL, true, WorkshopSaveRejection.InvalidAllocator)]
+    [InlineData(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction, 2UL, true, WorkshopSaveRejection.InvalidAllocator)]
+    [InlineData(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction, 7UL, false, WorkshopSaveRejection.MissingField)]
+    public void UnknownHeaderCannotBeLoaded(CuriousContraptions.Wire.WireRootIdentifier identifier, ulong nextBodyId, bool includeConstruction, WorkshopSaveRejection reason)
     {
         var builder = new Google.FlatBuffers.FlatBufferBuilder(512);
         Google.FlatBuffers.Offset<CuriousContraptions.Wire.ConstructionRecord>? crOffset = includeConstruction
@@ -408,7 +411,7 @@ public sealed class WorkshopSaveTests
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, nextBodyId);
         if (crOffset.HasValue) CuriousContraptions.Wire.SavedConstruction.AddConstruction(builder, crOffset.Value);
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, identifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(identifier));
         SaveFixture.Refused(reason, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,builder.SizedByteArray()));
     }
 

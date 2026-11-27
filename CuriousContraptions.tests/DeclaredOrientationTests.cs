@@ -85,8 +85,8 @@ public sealed class DeclaredOrientationTests
     // These pinned historical commands retain a retired identifier; generated current malformed frames below still reach verification.
     [Theory]
     [InlineData("domino", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
-    [InlineData("plate", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
-    [InlineData("clock", WorkshopSaveRejection.MissingField, WireFaultReason.UnknownIdentifier)]
+    [InlineData("plate", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
+    [InlineData("clock", WorkshopSaveRejection.VerifierRejected, WireFaultReason.UnknownIdentifier)]
     public void ABaseEncoderSaveWhoseSlotsMovedIsRefusedTypedAtBothBoundaries(string name,
         WorkshopSaveRejection save, WireFaultReason command)
     {
@@ -106,9 +106,11 @@ public sealed class DeclaredOrientationTests
     {
         var saveBytes = Convert.FromBase64String(PipeSave);
         var commandBytes = Convert.FromBase64String(PipeCommand);
-        // Historical scalar length is not a current declared parameter; the authored command envelope is also unsupported.
-        Assert.Equal("This save cannot be loaded: The save has no atmosphere selection.",
-            SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
+        // The historical instance records' vtables reach beyond the current table (the scalar length and parameter slots), so the
+        // verifier refuses the save; the authored command envelope is also unsupported.
+        Assert.Equal("This save cannot be loaded: The FlatBuffers verifier refused a " +
+            WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction) + " buffer.",
+            SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, saveBytes)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(commandBytes));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
     }
@@ -119,13 +121,14 @@ public sealed class DeclaredOrientationTests
 
     // The 2065d3c5 layout's parameters vector sits in slot 13, beyond the current 7-field table, so its decoder would never see it:
     // a zero-parameter package's record carrying an undeclared parameter there (and any record with that field, the base encoder's
-    // empty vector included) remains refused. Missing atmosphere is the current save refusal; the obsolete command envelope refuses structurally.
+    // empty vector included) remains refused. The verifier refuses the record's vtable beyond the current table at both
+    // boundaries, before the save's missing atmosphere is reached.
     [Theory]
     [MemberData(nameof(PreDominoRecordNames))]
     public void HistoricalRecordWithAnExtraFieldIsRefusedAtBothBoundaries(string name)
     {
         var record = OldLayoutSaves.PreDominoRecords().Single(value => value.Name == name);
-        SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, record.Save()));
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, record.Save()));
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
     }
 
@@ -134,10 +137,8 @@ public sealed class DeclaredOrientationTests
     [Fact]
     public void ACurrentSaveRefusesTheFirstUnknownInstanceFieldAndItsValidControlLoads()
     {
-        // schemas/workshop_authoring.fbs: InstanceRecord holds id, part_id, locked, cell, local, rotation and parameters in fields 0-6, so
-        // slot 7 is the first undefined slot (stated here, not read from the rule's own constant).
         var invalid = PayloadInstanceTests.GenericSave("domino", unknownField: true);
-        SaveFixture.Refused(WorkshopSaveRejection.OutOfRange, () => WorkshopSaveCodec.Decode(
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(
             RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, invalid));
         // Structural authored-table validation belongs to the save boundary. Worker commands carry compiled scenes.
         var control = PayloadInstanceTests.GenericSave("domino");
@@ -151,11 +152,10 @@ public sealed class DeclaredOrientationTests
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(historical, "domino", [])));
     }
 
-    // Controls and the pinned walk: current-encoder records (a zero-parameter domino and lamp, a parametered Ramp whose parameters fill
-    // the last slot, a pipe, a counter) hold nothing beyond the table and load at both boundaries; the slots the rule walks reach the
-    // same instance tables as the generated accessors.
+    // Controls: current-encoder records (a zero-parameter domino and lamp, a parametered Ramp whose parameters fill the last slot, a
+    // pipe, a counter) are admitted by the verifier's unknown-field rule and load at both boundaries, with their owners intact.
     [Fact]
-    public void CurrentRecordsHoldNothingBeyondTheTableAndTheWalkReachesTheGeneratedInstances()
+    public void CurrentRecordsRoundTripThroughTheSaveAndTheCommand()
     {
         var bench = Bench([PlacedParts.Domino(new(1), 0, (float)(Upright), 0, 0, 0, 0, 1), PlacedParts.Lamp(new(2), 3, 1, 0, 0, 0, 0, 1),
             WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("ramp"), new(3), -3, 1, 0, 0, 0, 0, 1), WorkshopInput.Generic(RuntimeTestServices.Bundle, new PartId("pipe"),new(4), 6, 1, 0, 0, 0, 0, 1),
@@ -165,23 +165,11 @@ public sealed class DeclaredOrientationTests
             Session: new(1, 2), Cadence: new(1), Projection: new(1)));
         Assert.Equal(bench, WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save).Construction);
         Assert.Equal(bench.Instances.Select(instance => instance.Id), WorkshopWireFlatBuffers.DecodeCommand(command).Scene!.Owners);
-        var saved = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, save);
-        Assert.False(WorkshopAuthoringFlatBuffers.HoldsFieldBeyondTheInstanceTable(saved.ByteBuffer, WorkshopAuthoringFlatBuffers.SavedConstructionSlot));
-        var bb = saved.ByteBuffer;
-        var root = new Google.FlatBuffers.Table(bb.GetInt(bb.Position) + bb.Position, bb);
-        var construction = new Google.FlatBuffers.Table(root.__indirect(root.__offset(WorkshopAuthoringFlatBuffers.SavedConstructionSlot) + root.bb_pos), bb);
-        var instances = construction.__offset(WorkshopAuthoringFlatBuffers.ConstructionInstancesSlot);
-        Assert.Equal(bench.Instances.Count, construction.__vector_len(instances));
-        for (var i = 0; i < bench.Instances.Count; i++)
-        {
-            var walked = new CuriousContraptions.Wire.InstanceRecord().__assign(construction.__indirect(construction.__vector(instances) + i * 4), bb);
-            var generated = saved.Construction!.Value.Instances(i)!.Value;
-            Assert.Equal((generated.Id, generated.PartId), (walked.Id, walked.PartId));
-        }
     }
 
-    // A base-encoder record that uses only slots 0-5 (the latch) loads identically; every base-encoder generic record wrote its
-    // parameters vector in slot 13 and is refused by the rule above (evidence-9a-32/candidate/capture/old-save-outcomes.txt).
+    // A base-encoder record that uses only slots 0-5 (the latch) holds nothing beyond the current table, but its save has no
+    // atmosphere and is refused MissingField (DeclaredMemoryTests.HistoricalLatchIsRefused…); every base-encoder generic record
+    // wrote its parameters vector in slot 13 and is refused by the rule above (evidence-9a-32/candidate/capture/old-save-outcomes.txt).
 
     // Each wired tile compiles its own sensor (the admitted scene holds them in identity order); an unwired tile between them
     // compiles neither a sensor nor a node.

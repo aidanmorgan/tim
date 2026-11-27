@@ -83,8 +83,9 @@ public sealed class DeclaredMemoryTests
     // counter's target there is read as an offset, which the verifier refuses for every target except 4 and 8, which pass it as an
     // offset to an empty vector and leave the generic counter without its declared target. A base-encoder generic record wrote its
     // (empty) parameters vector in slot 8, beyond the table. Every refusal is typed at both boundaries; nothing is migrated. A latch
-    // record held only its pose and lock. Current saves additionally require atmosphere, so historical saves now refuse MissingField.
-    private const string MissingAtmosphere = "This save cannot be loaded: The save has no atmosphere selection.";
+    // record held only its pose and lock. Current saves additionally require atmosphere, so a historical save that holds nothing beyond
+    // the current tables (the latch) refuses MissingField; S5c: the verifier refuses a vtable entry beyond the current table, so every
+    // other historical save here refuses VerifierRejected first.
 
     private static readonly Dictionary<string, (string Save, string Command)> OldSaves = new()
     {
@@ -137,7 +138,7 @@ public sealed class DeclaredMemoryTests
     public void ARecordPathCounterSaveIsRefusedTypedAtBothBoundaries(string name)
     {
         var (save, command) = Bytes(name);
-        var rejected = SaveFixture.Refused(WorkshopSaveRejection.MissingField,
+        var rejected = SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected,
             () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save));
         Assert.False(string.IsNullOrWhiteSpace(rejected.Message));
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
@@ -145,12 +146,15 @@ public sealed class DeclaredMemoryTests
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));
     }
 
-    // A base-encoder parameterless generic record (the lamp) wrote an empty parameters vector in slot 8, beyond the 8-field table.
+    // A base-encoder parameterless generic record (the lamp) wrote an empty parameters vector in slot 8, beyond the current table,
+    // which the verifier refuses.
     [Fact]
-    public void ARecordPathParameterlessGenericSaveIsRefusedForMissingAtmosphere()
+    public void ARecordPathParameterlessGenericSaveIsRefusedForItsFieldBeyondTheTable()
     {
         var (save, command) = Bytes("generic_lamp");
-        Assert.Equal(MissingAtmosphere, SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
+        Assert.Equal("This save cannot be loaded: The FlatBuffers verifier refused a " +
+            WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction) + " buffer.",
+            SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, save)).Message);
         var fault = Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(command));
         Assert.Equal(WireFaultReason.UnknownIdentifier, fault.Reason);
         Assert.False(string.IsNullOrWhiteSpace(fault.Message));

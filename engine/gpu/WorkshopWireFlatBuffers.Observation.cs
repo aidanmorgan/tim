@@ -8,8 +8,6 @@ namespace CuriousContraptions.Gpu;
 
 public static partial class WorkshopWireFlatBuffers
 {
-    public const string ObservationIdentifier = "CCWO";
-
     public static byte[] EncodeObservations(WorkshopObservationBatch batch)
     {
         batch.Session.Validate();
@@ -22,7 +20,7 @@ public static partial class WorkshopWireFlatBuffers
         var session = W.WorkshopObservationBatch.CreateSessionVector(builder, identity);
         var incomplete = batch.Incomplete is { } detail ? builder.CreateString(detail) : default;
         var root = W.WorkshopObservationBatch.CreateWorkshopObservationBatch(builder, session, (uint)batch.Role, records, incomplete);
-        builder.FinishSizePrefixed(root.Value, ObservationIdentifier);
+        builder.FinishSizePrefixed(root.Value, FileIdentifier(W.WireRootIdentifier.WorkshopObservationBatch));
         return builder.SizedByteArray();
     }
 
@@ -31,7 +29,7 @@ public static partial class WorkshopWireFlatBuffers
         try
         {
             var root = W.WorkshopObservationBatch.GetRootAsWorkshopObservationBatch(
-                OpenFrame(bytes, ObservationIdentifier, W.WorkshopObservationBatchVerify.Verify));
+                OpenFrame(bytes, W.WireRootIdentifier.WorkshopObservationBatch, W.WorkshopObservationBatchVerify.Verify));
             var session = RuntimeSessionCodec.Read(root.GetSessionArray());
             var role = ObservationEnum<WorkshopRuntimeRole>(root.Role);
             var records = ImmutableArray.CreateBuilder<WorkshopDiagnostic>(root.RecordsLength);

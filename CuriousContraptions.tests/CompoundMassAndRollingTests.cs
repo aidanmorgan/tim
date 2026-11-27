@@ -893,11 +893,11 @@ public sealed class CurrentPuzzleShapeTests
         Wire.ConstructionRecord.AddPuzzle(builder, puzzle);
         var construction = Wire.ConstructionRecord.EndConstructionRecord(builder);
         var saved = Wire.SavedConstruction.CreateSavedConstruction(builder, 1, construction);
-        builder.FinishSizePrefixed(saved.Value, WorkshopSaveCodec.Identifier);
+        Wire.SavedConstruction.FinishSizePrefixedSavedConstructionBuffer(builder, saved);
         var bytes = builder.SizedByteArray();
-        // The vendored verifier deliberately permits unknown fields. The current
-        // game schema must refuse them before interpreting any shifted scalar.
-        Assert.True(new Verifier(new ByteBuffer(bytes)).VerifyBuffer(WorkshopSaveCodec.Identifier, true, Wire.SavedConstructionVerify.Verify));
+        // The vendored verifier itself refuses the unknown field (S5c), before any shifted scalar could be interpreted.
+        Assert.False(new Verifier(new ByteBuffer(bytes)).VerifyBuffer(
+            WorkshopWireFlatBuffers.FileIdentifier(Wire.WireRootIdentifier.SavedConstruction), true, Wire.SavedConstructionVerify.Verify));
         SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 }

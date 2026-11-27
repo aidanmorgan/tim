@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Modified by the Curious Contraptions project: Story 9A.45's checked vtable positions; S5c's unknown-field rule (a
+ * per-table record of the highest vtable offset the generated Verify checked, and the refusal in VerifyTableEnd of a
+ * longer vtable). See THIRD-PARTY-NOTICES.md.
+ */
 using System;
 using System.Reflection;using System.Collections.Generic;
 using System.IO;
@@ -92,6 +97,9 @@ namespace Google.FlatBuffers
     private Options verifier_options = null;
     private int depth_cnt = 0;
     private int num_tables_cnt = 0;
+    // Local patch (S5c): for each table being verified, innermost last, the highest vtable offset its generated Verify
+    // has passed to a per-field method. Cleared by VerifyBuffer.
+    private readonly List<int> verified_field_offsets = new List<int>();
 
     public const int SIZE_BYTE = 1;
     public const int SIZE_INT = 4;
@@ -444,6 +452,8 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyTableStart(uint tablePos)
     {
+      // Local patch (S5c): a table's record starts at the vtable header's last entry, admitting a vtable of no field.
+      verified_field_offsets.Add(SIZE_V_OFFSET);
       // Starting new table verification increases complexity of structure
       depth_cnt++;
       num_tables_cnt++;
@@ -462,7 +472,24 @@ namespace Google.FlatBuffers
     public bool VerifyTableEnd(uint tablePos)
     {
       depth--;
-      return true;
+      // Local patch (S5c): every generated Verify checks each field of its table in slot order, so the highest offset it
+      // checked is the table's last field. A longer vtable holds an entry the schema does not define, present or zero:
+      // the table is refused.
+      int innermost = verified_field_offsets.Count - 1;
+      int highest = verified_field_offsets[innermost];
+      verified_field_offsets.RemoveAt(innermost);
+      uint vtable = (uint)(tablePos - ReadSOffsetT(verifier_buffer, Convert.ToInt32(tablePos)));
+      return ReadVOffsetT(verifier_buffer, Convert.ToInt32(vtable)) <= highest + SIZE_V_OFFSET;
+    }
+
+    /// <summary> Local patch (S5c): records a field offset the generated Verify checks for the innermost table. </summary>
+    private void RecordField(short vtableOffset)
+    {
+      int innermost = verified_field_offsets.Count - 1;
+      if (vtableOffset > verified_field_offsets[innermost])
+      {
+        verified_field_offsets[innermost] = vtableOffset;
+      }
     }
 
     /// <summary> Verifiy static/inlined data area field </summary>
@@ -475,6 +502,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyField(uint tablePos, short offsetId, ulong elementSize, ulong align, bool required)
     {
+      RecordField(offsetId);
       uint offset = GetVOffset(tablePos, offsetId);
       if (offset != 0)
       {
@@ -491,6 +519,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyString(uint tablePos, short vOffset, bool required)
     {
+      RecordField(vOffset);
       var offset = GetVOffset(tablePos, vOffset);
       if (offset == 0)
       {
@@ -513,6 +542,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyVectorOfData(uint tablePos, short vOffset, ulong elementSize, bool required)
     {
+      RecordField(vOffset);
       var offset = GetVOffset(tablePos, vOffset);
       if (offset == 0)
       {
@@ -534,6 +564,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyVectorOfStrings(uint tablePos, short offsetId, bool required)
     {
+      RecordField(offsetId);
       var offset = GetVOffset(tablePos, offsetId);
       if (offset == 0)
       {
@@ -556,6 +587,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyVectorOfTables(uint tablePos, short offsetId, VerifyTableAction verifyAction, bool required)
     {
+      RecordField(offsetId);
       var offset = GetVOffset(tablePos, offsetId);
       if (offset == 0)
       {
@@ -578,6 +610,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyTable(uint tablePos, short offsetId, VerifyTableAction verifyAction, bool required)
     {
+      RecordField(offsetId);
       var offset = GetVOffset(tablePos, offsetId);
       if (offset == 0)
       {
@@ -599,6 +632,7 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyNestedBuffer(uint tablePos, short offsetId, VerifyTableAction verifyAction, bool required)
     {
+      RecordField(offsetId);
       var offset = GetVOffset(tablePos, offsetId);
       if (offset == 0)
       {
@@ -657,6 +691,8 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyUnion(uint tablePos, short typeIdVOffset, short valueVOffset, VerifyUnionAction verifyAction, bool required)
     {
+      RecordField(typeIdVOffset);
+      RecordField(valueVOffset);
       // Check the union type index
       var offset = GetVOffset(tablePos, typeIdVOffset);
       if (offset == 0)
@@ -695,6 +731,8 @@ namespace Google.FlatBuffers
     // (this method is used internally by generated verification functions)
     public bool VerifyVectorOfUnion(uint tablePos, short typeOffsetId, short offsetId, VerifyUnionAction verifyAction, bool required)
     {
+      RecordField(typeOffsetId);
+      RecordField(offsetId);
       // type id offset must be valid
       var offset = GetVOffset(tablePos, typeOffsetId);
       if (offset == 0)
@@ -783,6 +821,7 @@ namespace Google.FlatBuffers
       // Reset counters - starting verification from beginning
       depth = 0;
       numTables = 0;
+      verified_field_offsets.Clear();
 
       var start = (uint)(verifier_buffer.Position);
       if (sizePrefixed)

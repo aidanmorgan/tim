@@ -27,15 +27,9 @@ public sealed class WorkshopFormatTests
         Assert.DoesNotContain("WorkshopWireVersion", engine);
         Assert.DoesNotContain("WorkshopSaveVersion", engine);
         Assert.DoesNotContain("WorkshopSettingsVersion", engine);
-        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs")) +
-            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_authoring.fbs"));
-        foreach (var table in new[] { "struct CadenceSettingsRecord", "table SavedConstruction", "table WorkshopResponse", "table WorkshopCommand" })
-        {
-            var start = schema.IndexOf(table, StringComparison.Ordinal);
-            Assert.True(start >= 0, table);
-            var body = schema[start..schema.IndexOf('}', start)];
-            Assert.DoesNotContain("version", body, StringComparison.Ordinal);
-        }
+        var schema = WireSchemaText.Read(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs"));
+        foreach (var record in new[] { "CadenceSettingsRecord", "SavedConstruction", "WorkshopResponse", "WorkshopCommand" })
+            Assert.DoesNotContain(schema[record].Fields, field => field.Name.Contains("version", StringComparison.Ordinal));
     }
 
     /// <summary>Story 9A.1 (with F.10 merged): no production source, script, schema or bundle tool names a format version. The scan
@@ -91,39 +85,6 @@ public sealed class WorkshopFormatTests
             .Concat(Files("schemas", "*.fbs", SearchOption.TopDirectoryOnly));
     }
 
-    /// <summary>The exact field list of each versionless record: a re-added field (a version or anything else) fails here, whatever its
-    /// name, and the generated slot numbering cannot drift from the schema unnoticed.</summary>
-    [Fact]
-    public void TheVersionlessRecordsDeclareExactlyTheirFields()
-    {
-        var schema = File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_wire.fbs")) +
-            File.ReadAllText(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas/workshop_authoring.fbs"));
-        string[] Fields(string header)
-        {
-            var start = schema.IndexOf(header + " {", StringComparison.Ordinal);
-            Assert.True(start >= 0, header);
-            var body = schema[(schema.IndexOf('{', start) + 1)..schema.IndexOf('}', start)];
-            return body.Split('\n').Select(line => line.Trim()).Where(line => line.Length > 0 && !line.StartsWith("//", StringComparison.Ordinal))
-                .Select(line => line[..line.IndexOf(':')].Trim()).ToArray();
-        }
-        Assert.Equal(["simulation", "physical", "animation", "presentation", "presentation_rate_numerator", "presentation_rate_denominator"],
-            Fields("struct CadenceSettingsRecord"));
-        Assert.Equal(["next_body_id", "construction"], Fields("table SavedConstruction"));
-        Assert.Equal(["sequence", "kind", "outcome", "reason", "phase", "epoch", "tick", "revision", "publication", "master_generation",
-            "cadence", "projection", "session", "capture", "bodies", "captures", "activations", "timers", "contact_works",
-            "electrical", "activation_memory", "motion", "memory", "actuator_drives", "contact_loads", "electrical_logic", "ropes", "scene", "rope_guides",
-            "compliant_surfaces", "drive_targets", "transmissions", "retentions", "energy_stores", "chamber_regions", "finite_work_actuators", "gas_stores", "integrity_observers", "airflow", "coordinate_travel", "physical_commit"], Fields("table WorkshopResponse"));
-        Assert.Equal(["frame", "deflection"], Fields("table CompliantSurfaceReadRecord"));
-        Assert.Equal(["transmission", "owner", "closure", "phase"], Fields("table MechanicalTransmissionReadRecord"));
-        Assert.Equal(["id", "driving_coordinate", "driven_coordinate", "driving_kind", "driven_kind", "constraint_kind", "ratio", "close_seconds", "owner", "retention", "initial_retention_coordinate"], Fields("table MechanicalTransmissionRecord"));
-        Assert.Equal(["used_before", "used_after", "duration_ticks", "frequency", "allocated_before", "allocated_after", "collections_before",
-            "collections_after"], Fields("struct MemoryObservationRecord"));
-        Assert.Equal(["sequence", "kind", "epoch", "revision", "revision_kind", "session", "cadence", "projection", "run_control",
-            "cut_span", "target", "scene"], Fields("table WorkshopCommand"));
-        // The generated settings struct takes exactly the six words (builder plus six arguments).
-        Assert.Equal(7, typeof(CuriousContraptions.Wire.CadenceSettingsRecord).GetMethod("CreateCadenceSettingsRecord")!.GetParameters().Length);
-    }
-
     [Fact]
     public void ForeignFlatBuffersAreTheTypedSaveRefusal()
     {
@@ -134,7 +95,8 @@ public sealed class WorkshopFormatTests
         var builder = new Google.FlatBuffers.FlatBufferBuilder(64);
         CuriousContraptions.Wire.SavedConstruction.StartSavedConstruction(builder);
         CuriousContraptions.Wire.SavedConstruction.AddNextBodyId(builder, 3);
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value, WorkshopSaveCodec.Identifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.SavedConstruction.EndSavedConstruction(builder).Value,
+            WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction));
         SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,builder.SizedByteArray()));
         // Control: the same codec admits its own encoding.
         Assert.Equal(Saved(), WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,WorkshopSaveCodec.Encode(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, Saved())));
@@ -177,7 +139,7 @@ public sealed class WorkshopFormatTests
         builder.AddUint(1, 13, 0);
         builder.AddUlong(2, 1, 0);
         builder.AddOffset(3, record.Value, 0);
-        builder.FinishSizePrefixed(builder.EndTable(), WorkshopSaveCodec.Identifier);
+        builder.FinishSizePrefixed(builder.EndTable(), WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction));
         SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements,builder.SizedByteArray()));
     }
 

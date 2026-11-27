@@ -78,8 +78,7 @@ public sealed class GoalSignalSelectorTests
         Assert.True(construction.Instances.Identities.TryIntegrity(goal.Integrity!.Value, out _));
         // Decode the actual canonical save frame separately from the installed catalogue's unchanged lesson settings.
         var bytes = SaveFixture.Forged(construction, 100);
-        var frame = WorkshopAuthoringFlatBuffers.OpenFrame(RuntimeTestServices.Core.Codecs.Commands, bytes, WorkshopSaveCodec.Identifier);
-        var record = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(frame).Construction!.Value;
+        var record = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value;
         Assert.Equal(goal, WorkshopAuthoringFlatBuffers.MapConstructionRecord(record).Puzzle.Goal);
         foreach (var invalid in new[] { 0, 999 })
         {

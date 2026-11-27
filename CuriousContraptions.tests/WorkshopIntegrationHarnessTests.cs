@@ -140,7 +140,7 @@ public sealed class WorkshopIntegrationHarnessTests
             CuriousContraptions.Wire.WorkshopCommand.AddCadence(builder, command.Cadence.Value);
             CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, command.Projection.Value);
             builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value,
-                WorkshopWireFlatBuffers.CommandIdentifier);
+                WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopCommand));
             return builder.SizedByteArray();
         }
         Assert.Equal(WireFaultReason.UnknownCommand, Assert.Throws<WireFaultException>(() =>

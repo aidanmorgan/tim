@@ -196,7 +196,7 @@ public sealed class CompiledSceneBoundaryTests
         CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 1);
         CuriousContraptions.Wire.WorkshopCommand.AddScene(builder, installation);
         builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value,
-            WorkshopWireFlatBuffers.CommandIdentifier);
+            WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopCommand));
         var bytes = builder.SizedByteArray();
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
@@ -612,7 +612,7 @@ public sealed class CompiledSceneBoundaryTests
         CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 1);
         CuriousContraptions.Wire.WorkshopCommand.AddScene(builder, installation);
         builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value,
-            WorkshopWireFlatBuffers.CommandIdentifier);
+            WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopCommand));
         return builder.SizedByteArray();
     }
 

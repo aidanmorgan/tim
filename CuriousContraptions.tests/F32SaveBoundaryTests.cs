@@ -9,8 +9,9 @@ public sealed class F32SaveBoundaryTests
 {
     private static WorkshopConstruction DecodeAuthoring(byte[] bytes)
     {
-        var buffer = WorkshopAuthoringFlatBuffers.OpenFrame(RuntimeTestServices.Core.Codecs.Commands, bytes, "CCWS");
-        var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(buffer);
+        RuntimeTestServices.Core.Codecs.Commands.ValidateSaveFrame(bytes);
+        var saved = CuriousContraptions.Wire.SavedConstruction.GetRootAsSavedConstruction(
+            Google.FlatBuffers.ByteBufferUtil.RemoveSizePrefix(new Google.FlatBuffers.ByteBuffer(bytes)));
         return WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, saved.Construction!.Value);
     }
 
@@ -45,7 +46,8 @@ public sealed class F32SaveBoundaryTests
         return changed;
     }
 
-    private const string VerifierExplanation = "This save cannot be loaded: The FlatBuffers verifier refused a CCWS buffer.";
+    private static readonly string VerifierExplanation = "This save cannot be loaded: The FlatBuffers verifier refused a " +
+        WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.SavedConstruction) + " buffer.";
 
     [Fact]
     public void AHalfPrecisionEraLessonSaveIsAVerifierRefusalAtBothBoundaries()

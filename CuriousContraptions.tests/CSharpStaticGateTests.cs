@@ -113,7 +113,7 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string> VendoredFiles = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         [".gdignore"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        ["CuriousContraptions.FlatBuffers.csproj"] = "4ddd4b96d72e001481b29eb57d495f4873b0df2ae5f7f4d141c8934e29fe2c47",
+        ["CuriousContraptions.FlatBuffers.csproj"] = "0ccee6e566d7a566c5e7dffab5a2fe38303377757f5011b9e5bd1c7e60f5ca28",
         ["Directory.Build.props"] = "fbe5b5fc68e5fdb2444d929055a2e193231f88ee039e96d06b2a0aeec8173b92",
     }.Concat(VendoredFlatBuffersIdentityTests.Pinned).ToDictionary(StringComparer.Ordinal);
 
@@ -367,8 +367,16 @@ public sealed class CSharpStaticGateTests
     private static readonly Lazy<List<CscRun>> CscRuns = new(() =>
         Directory.EnumerateFiles(BinlogDirectory, "*.binlog").Order(StringComparer.Ordinal).SelectMany(ReplayCscRuns).ToList());
 
+    /// <summary>One replayed compile: its project, its project directory (which its relative command-line paths resolve
+    /// against), its command line as the compiler's own parser reads it, and the compilation built from that.</summary>
+    internal sealed record MatchingCompile(string ProjectName, string ProjectDirectory, CSharpCommandLineArguments Arguments,
+        CSharpCompilation Compilation)
+    {
+        public string Resolve(string path) => Path.GetFullPath(Path.Combine(ProjectDirectory, path));
+    }
+
     // Shared semantic seam: use the same real Csc sources, references, defines and options as the static gate.
-    internal static IEnumerable<CSharpCompilation> MatchingCompilations()
+    internal static IEnumerable<MatchingCompile> MatchingCompiles()
     {
         foreach (var run in CscRuns.Value)
         {
@@ -377,7 +385,8 @@ public sealed class CSharpStaticGateTests
                 .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), arguments.ParseOptions, path));
             var references = arguments.MetadataReferences.Select(reference =>
                 MetadataReference.CreateFromFile(run.Resolve(reference.Reference), reference.Properties));
-            yield return CSharpCompilation.Create(run.ProjectName, trees, references, arguments.CompilationOptions);
+            yield return new(run.ProjectName, run.ProjectDirectory, arguments,
+                CSharpCompilation.Create(run.ProjectName, trees, references, arguments.CompilationOptions));
         }
     }
 
@@ -498,25 +507,21 @@ public sealed class CSharpStaticGateTests
     private static string[] DefinesOf(CscRun run) =>
         run.Values("define").SelectMany(value => value.Split([';', ','], StringSplitOptions.RemoveEmptyEntries)).ToArray();
 
-    /// <summary>The kinds of declaration a schema file makes; each generates one C# type of its name.</summary>
-    public enum SchemaKind { Enum, Struct, Table, Union }
+    /// <summary>Every type the schema declares, by name, read by the one schema reader from the one file the vendored project
+    /// generates from.</summary>
+    private static readonly Lazy<Dictionary<string, WireDeclarationKind>> SchemaTypes = new(() =>
+        SchemaTypesIn(File.ReadAllText(Path.Combine(Root, "schemas", "workshop_wire.fbs"))));
 
-    private static readonly Regex SchemaDeclaration = new(@"^\s*(enum|struct|table|union)\s+(\w+)", RegexOptions.Multiline);
-
-    /// <summary>Every type the schemas declare, by name, from the same files the vendored project generates from.</summary>
-    private static readonly Lazy<Dictionary<string, SchemaKind>> SchemaTypes = new(() =>
-        SchemaTypesIn(Directory.GetFiles(Path.Combine(Root, "schemas"), "*.fbs").Order(StringComparer.Ordinal).Select(File.ReadAllText)));
-
-    internal static Dictionary<string, SchemaKind> SchemaTypesIn(IEnumerable<string> schemas) => schemas
-        .SelectMany(text => SchemaDeclaration.Matches(text))
-        .ToDictionary(match => match.Groups[2].Value, match => Enum.Parse<SchemaKind>(match.Groups[1].Value, ignoreCase: true), StringComparer.Ordinal);
+    /// <summary>The declarations of one complete schema text, read by <see cref="WireSchemaText"/>, by name and kind.</summary>
+    internal static Dictionary<string, WireDeclarationKind> SchemaTypesIn(string schema) => WireSchemaText.Parse(schema).Declarations
+        .ToDictionary(declaration => declaration.Name, declaration => declaration.Kind, StringComparer.Ordinal);
 
     /// <summary>S5 (M6): the rule for the sources one compile receives from a build output directory other than the SDK's and
     /// xUnit's own files. Only the vendored project may receive any, only from its own generation folder, each with the
-    /// compiler's header, declaring only schema types and the Verify classes of schema tables and unions, together declaring
-    /// every schema type, and compiled without the Span accessor define.</summary>
+    /// compiler's header, declaring only schema types and the Verify classes of schema tables, together declaring every schema
+    /// type, and compiled without the Span accessor define.</summary>
     internal static IEnumerable<string> GeneratedWireViolations(string project, string generationDirectory, IReadOnlyCollection<string> defines,
-        IReadOnlyCollection<(string Path, string Text)> sources, IReadOnlyDictionary<string, SchemaKind> schemaTypes)
+        IReadOnlyCollection<(string Path, string Text)> sources, IReadOnlyDictionary<string, WireDeclarationKind> schemaTypes)
     {
         if (project != VendoredProject)
         {
@@ -540,17 +545,18 @@ public sealed class CSharpStaticGateTests
             {
                 if (schemaTypes.ContainsKey(name)) declared.Add(name);
                 else if (!IsVerifyClassOf(name, schemaTypes))
-                    yield return $"{Display(path)}: declares {name}, which is neither a schema type nor the Verify class of a schema table or union";
+                    yield return $"{Display(path)}: declares {name}, which is neither a schema type nor the Verify class of a schema table";
             }
         }
         foreach (var missing in schemaTypes.Keys.Where(name => !declared.Contains(name)).Order(StringComparer.Ordinal))
             yield return $"{project}: no generated wire source declares the schema type {missing}";
     }
 
-    // The pinned flatc writes a static {Name}Verify class for every table and every union, and none for a struct or an enum.
-    private static bool IsVerifyClassOf(string name, IReadOnlyDictionary<string, SchemaKind> schemaTypes) =>
+    // The pinned flatc writes a static {Name}Verify class for every table, and none for a struct or an enum (the schema reader
+    // refuses a union).
+    private static bool IsVerifyClassOf(string name, IReadOnlyDictionary<string, WireDeclarationKind> schemaTypes) =>
         name.EndsWith("Verify", StringComparison.Ordinal) && schemaTypes.TryGetValue(name[..^"Verify".Length], out var kind) &&
-        kind is SchemaKind.Table or SchemaKind.Union;
+        kind == WireDeclarationKind.Table;
 
     /// <summary>The SDK's and xUnit's generated sources and the generated wire accessors among the logged compiles' sources
     /// (full paths).</summary>
@@ -980,28 +986,27 @@ public sealed class CSharpStaticGateTests
 
     public enum GeneratedWireCase
     {
-        SchemaEqual, UnionVerify, ExtraType, MissingSchemaType, OutsideGenerationFolder, OtherProject, SpanAccessorDefine,
+        SchemaEqual, ExtraType, MissingSchemaType, OutsideGenerationFolder, OtherProject, SpanAccessorDefine,
         MissingHeader, StructVerify, EnumVerify, UnknownVerify,
     }
 
-    /// <summary>S5 (M6): the rule on synthetic source sets for a schema of one enum, one struct and one table. The union case
-    /// adds a union to the schema with the source the pinned flatc writes for it (its enum and its Verify class) and is
-    /// admitted. Each refused set differs from the admitted one in one way, and its violation names that difference.</summary>
+    /// <summary>S5 (M6): the rule on synthetic source sets for a complete schema text of one enum, one struct and one table.
+    /// Each refused set differs from the admitted one in one way, and its violation names that difference.</summary>
     [Theory]
     [InlineData(GeneratedWireCase.SchemaEqual, null)]
-    [InlineData(GeneratedWireCase.UnionVerify, null)]
     [InlineData(GeneratedWireCase.ExtraType, "declares Extra,")]
     [InlineData(GeneratedWireCase.MissingSchemaType, "declares the schema type Pair")]
     [InlineData(GeneratedWireCase.OutsideGenerationFolder, "/s5/obj/Other/Pair.cs from a build output directory outside its generation folder")]
     [InlineData(GeneratedWireCase.OtherProject, "CuriousContraptions.Core/CuriousContraptions.Core.csproj compiles /s5/obj/WireAccessors/")]
     [InlineData(GeneratedWireCase.SpanAccessorDefine, "with ENABLE_SPAN_T defined")]
     [InlineData(GeneratedWireCase.MissingHeader, "/s5/obj/WireAccessors/CuriousContraptions/Wire/Pair.cs: generated wire source without the FlatBuffers compiler's header")]
-    [InlineData(GeneratedWireCase.StructVerify, "declares PairVerify, which is neither a schema type nor the Verify class of a schema table or union")]
-    [InlineData(GeneratedWireCase.EnumVerify, "declares KindVerify, which is neither a schema type nor the Verify class of a schema table or union")]
-    [InlineData(GeneratedWireCase.UnknownVerify, "declares GhostVerify, which is neither a schema type nor the Verify class of a schema table or union")]
+    [InlineData(GeneratedWireCase.StructVerify, "declares PairVerify, which is neither a schema type nor the Verify class of a schema table")]
+    [InlineData(GeneratedWireCase.EnumVerify, "declares KindVerify, which is neither a schema type nor the Verify class of a schema table")]
+    [InlineData(GeneratedWireCase.UnknownVerify, "declares GhostVerify, which is neither a schema type nor the Verify class of a schema table")]
     public void TheGeneratedWireRuleAdmitsOnlySchemaTypes(GeneratedWireCase which, string? expected)
     {
-        var schemaText = "enum Kind : uint32 { A, B }\nstruct Pair { x: float; }\ntable Holder { pair: Pair; }\n";
+        const string schemaText = "namespace CuriousContraptions.Wire;\nattribute \"authoring\";\nenum Kind : uint32 { A, B }\n" +
+            "struct Pair { x: float; }\ntable Holder { pair: Pair; }\nroot_type Holder;\nfile_identifier \"TEST\";\n";
         const string header = "// <auto-generated>\n//  " + WireAccessorHeader + "\n// </auto-generated>\n\n";
         const string folder = "/s5/obj/WireAccessors";
         var sources = new List<(string Path, string Text)>
@@ -1019,16 +1024,12 @@ public sealed class CSharpStaticGateTests
             case GeneratedWireCase.OutsideGenerationFolder: sources[1] = ("/s5/obj/Other/Pair.cs", sources[1].Text); break;
             case GeneratedWireCase.OtherProject: project = "CuriousContraptions.Core/CuriousContraptions.Core.csproj"; break;
             case GeneratedWireCase.SpanAccessorDefine: defines = [.. defines, SpanAccessorDefine]; break;
-            case GeneratedWireCase.UnionVerify:
-                schemaText += "union Choice { Holder }\n";
-                sources.Add((folder + "/CuriousContraptions/Wire/Choice.cs", header + "namespace W { public enum Choice : byte { NONE, Holder } static public class ChoiceVerify { } }"));
-                break;
             case GeneratedWireCase.MissingHeader: sources[1] = (sources[1].Path, "namespace W { public struct Pair { } }"); break;
             case GeneratedWireCase.StructVerify: sources[1] = (sources[1].Path, header + "namespace W { public struct Pair { } static public class PairVerify { } }"); break;
             case GeneratedWireCase.EnumVerify: sources[0] = (sources[0].Path, header + "namespace W { public enum Kind : uint { A, B } static public class KindVerify { } }"); break;
             case GeneratedWireCase.UnknownVerify: sources.Add((folder + "/CuriousContraptions/Wire/GhostVerify.cs", header + "namespace W { static public class GhostVerify { } }")); break;
         }
-        var violations = GeneratedWireViolations(project, folder, defines, sources, SchemaTypesIn([schemaText])).ToArray();
+        var violations = GeneratedWireViolations(project, folder, defines, sources, SchemaTypesIn(schemaText)).ToArray();
         if (expected is null) Assert.Empty(violations);
         else Assert.Contains(violations, violation => violation.Contains(expected, StringComparison.Ordinal));
     }

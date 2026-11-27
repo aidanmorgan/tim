@@ -357,7 +357,7 @@ public sealed class TypedTransportCommandTests
         CuriousContraptions.Wire.WorkshopCommand.AddSession(builder, sessionVector);
         CuriousContraptions.Wire.WorkshopCommand.AddCadence(builder, 2);
         CuriousContraptions.Wire.WorkshopCommand.AddProjection(builder, 3);
-        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.CommandIdentifier);
+        builder.FinishSizePrefixed(CuriousContraptions.Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(CuriousContraptions.Wire.WireRootIdentifier.WorkshopCommand));
         var executed = 0;
         var router = new WorkshopCommandRouter(_ => { executed++; return Task.FromResult(Array.Empty<byte>()); });
         var fault = Assert.Throws<WireFaultException>(() => router.Dispatch(builder.SizedByteArray()));

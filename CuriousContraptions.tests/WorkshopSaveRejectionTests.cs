@@ -39,7 +39,7 @@ public sealed class WorkshopSaveRejectionTests
     internal sealed record Link(ulong Source, ulong Target, uint Domain, uint From, uint To);
 
     internal sealed record Save(Instance[] Instances, Link[] Links, ulong NextBodyId = 100, ulong Revision = 1, bool Settings = true,
-        uint Simulation = uint.MaxValue, bool HasConstruction = true, string Identifier = WorkshopSaveCodec.Identifier);
+        uint Simulation = uint.MaxValue, bool HasConstruction = true, WireRootIdentifier Identifier = WireRootIdentifier.SavedConstruction);
 
     private static Offset<InstanceRecord> Write(FlatBufferBuilder builder, Instance instance)
     {
@@ -101,7 +101,7 @@ public sealed class WorkshopSaveRejectionTests
         SavedConstruction.StartSavedConstruction(builder);
         SavedConstruction.AddNextBodyId(builder, save.NextBodyId);
         if (save.HasConstruction) SavedConstruction.AddConstruction(builder, record);
-        builder.FinishSizePrefixed(SavedConstruction.EndSavedConstruction(builder).Value, save.Identifier);
+        builder.FinishSizePrefixed(SavedConstruction.EndSavedConstruction(builder).Value, WorkshopWireFlatBuffers.FileIdentifier(save.Identifier));
         return builder.SizedByteArray();
     }
 

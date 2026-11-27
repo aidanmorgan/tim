@@ -206,11 +206,10 @@ public sealed class BundleElementIdTests
     [Fact]
     public void NoSchemaFieldCarriesANumericPartId()
     {
-        var schema = File.ReadAllText(Path.Combine(Root, "schemas", "workshop_authoring.fbs"));
-        var fields = Regex.Matches(schema, @"^\s*([a-z_][a-z0-9_]*)\s*:\s*([A-Za-z0-9_\[\]]+)\s*;", RegexOptions.Multiline)
-            .Select(match => (Name: match.Groups[1].Value, Type: match.Groups[2].Value)).ToArray();
-        var elementFields = fields.Where(field => Regex.IsMatch(field.Name, @"(^|_)(part|element)(_|$)")).ToArray();
+        var schema = WireSchemaText.Read(Path.Combine(Root, "schemas", "workshop_wire.fbs"));
+        var elementFields = schema.Declarations.SelectMany(declaration => declaration.Fields)
+            .Where(field => Regex.IsMatch(field.Name, @"(^|_)(part|element)(_|$)")).ToArray();
         Assert.Equal(["part_id", "inventory_part"], elementFields.Select(field => field.Name));
-        Assert.All(elementFields, field => Assert.Equal("string", field.Type));
+        Assert.All(elementFields, field => Assert.Equal(new WireType(WireTypeKind.String, null, null, false), field.Type));
     }
 }

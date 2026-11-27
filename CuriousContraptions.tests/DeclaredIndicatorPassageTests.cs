@@ -174,18 +174,13 @@ public sealed class DeclaredIndicatorPassageTests
     };
 
     // 9A.32 removed four InstanceRecord fields and renumbered the later slots, so the wired save's counter target count (slot 12 at
-    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 8 since C-Memory). C-Memory made the counter a generic instance, so its
-    // record has no current atmosphere and is refused MissingField at the save boundary. Its isolated counter record still lacks
-    // the declared target_count and is independently refused by the current instance decoder.
+    // 54ffd9f0) now lies beyond the table (10 fields at 9A.32, 8 since C-Memory). S5c: the verifier refuses a vtable entry beyond the
+    // current table, so the save is VerifierRejected at the save boundary.
     [Fact]
     public void TheWiredRecordPathSaveIsRefusedAfterTheSlotRenumbering()
     {
         var bytes = Convert.FromBase64String(WiredSave);
-        Assert.Equal("This save cannot be loaded: The save has no atmosphere selection.",
-            SaveFixture.Refused(WorkshopSaveRejection.MissingField, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes)).Message);
-        var counter = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value.Instances(3)!.Value;
-        Assert.Equal("counter", counter.PartId);
-        Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.MapInstance(counter)).Reason);
+        SaveFixture.Refused(WorkshopSaveRejection.VerifierRejected, () => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, bytes));
     }
 
     [Theory]

@@ -14,16 +14,25 @@ namespace CuriousContraptions.Gpu;
 /// <see cref="WireFaultException"/> naming why. Nothing else decodes these messages.</summary>
 public static partial class WorkshopWireFlatBuffers
 {
-
-    public const string CommandIdentifier = "CWCM";
-    public const string ResponseIdentifier = "CWRM";
     private const int IdentifierOffset = FlatBufferConstants.SizePrefixLength + sizeof(int);
     private const int FrameHeaderBytes = IdentifierOffset + FlatBufferConstants.FileIdentifierLength;
 
-    /// <summary>The one decode boundary: the size prefix must cover the buffer exactly, the root identifier must be the expected one
-    /// and the FlatBuffers verifier must admit the root. Returns the buffer positioned at its root.</summary>
-    internal static ByteBuffer OpenFrame(ReadOnlySpan<byte> bytes, string identifier, VerifyTableAction verify)
+    /// <summary>The one conversion of a root identifier: the schema's <see cref="WireRootIdentifier"/> value is the identifier's
+    /// four bytes read as a little-endian uint32, so its four bytes in that order are the identifier the FlatBuffers runtime
+    /// writes and verifies. Total over uint32: a value that names no member converts too.</summary>
+    internal static string FileIdentifier(WireRootIdentifier root)
     {
+        Span<byte> bytes = stackalloc byte[FlatBufferConstants.FileIdentifierLength];
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes, (uint)root);
+        return System.Text.Encoding.Latin1.GetString(bytes);
+    }
+
+    /// <summary>The one decode boundary: the size prefix must cover the buffer exactly, the root identifier must be the expected one
+    /// and the FlatBuffers verifier, which refuses a field the schema does not define in any table, must admit the root. Returns
+    /// the buffer positioned at its root.</summary>
+    internal static ByteBuffer OpenFrame(ReadOnlySpan<byte> bytes, WireRootIdentifier root, VerifyTableAction verify)
+    {
+        var identifier = FileIdentifier(root);
         if (bytes.Length < FlatBufferConstants.SizePrefixLength)
             throw new WireFaultException(WireFaultReason.Truncated, $"A {identifier} buffer is shorter than its size prefix.");
         var declared = (long)BinaryPrimitives.ReadUInt32LittleEndian(bytes) + FlatBufferConstants.SizePrefixLength;
@@ -42,52 +51,7 @@ public static partial class WorkshopWireFlatBuffers
         { throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.", failure); }
         if (!verified)
             throw new WireFaultException(WireFaultReason.VerifierRejected, $"The FlatBuffers verifier refused a {identifier} buffer.");
-        var fieldCount = identifier switch { CommandIdentifier => 12, ResponseIdentifier => 41, _ => 0 };
-        if (fieldCount != 0)
-        {
-            var root = checked(FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength));
-            var vtable = checked(root - buffer.GetInt(root));
-            if (buffer.GetUshort(vtable) > 4 + fieldCount * 2)
-                throw new WireFaultException(WireFaultReason.OutOfRange, "Runtime record contains undefined fields.");
-        }
-        if (fieldCount != 0) ValidateBindingShapes(buffer, identifier == CommandIdentifier ? 11 : 27);
         return ByteBufferUtil.RemoveSizePrefix(buffer);
-    }
-
-
-    // Current nested binding shape: undefined appended fields are refused after structural verification.
-    private static void ValidateBindingShapes(ByteBuffer buffer, int sceneField)
-    {
-        var root = FlatBufferConstants.SizePrefixLength + buffer.GetInt(FlatBufferConstants.SizePrefixLength);
-        var scene = TableTarget(buffer, root, sceneField);
-        if (scene == 0) return;
-        var vector = TableTarget(buffer, scene, 29);
-        if (vector == 0) return;
-        var count = buffer.GetInt(vector);
-        for (var i = 0; i < count; i++)
-        {
-            var element = vector + sizeof(int) + i * sizeof(int);
-            var track = element + buffer.GetInt(element);
-            var trackVtable = track - buffer.GetInt(track);
-            if (buffer.GetUshort(trackVtable) > 4 + 17 * 2)
-                throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation track contains undefined fields.");
-            var binding = TableTarget(buffer, track, 5);
-            if (binding == 0) continue;
-            var vtable = binding - buffer.GetInt(binding);
-            if (buffer.GetUshort(vtable) > 4 + 20 * 2)
-                throw new WireFaultException(WireFaultReason.OutOfRange, "Presentation binding contains undefined fields.");
-        }
-    }
-
-    private static int TableTarget(ByteBuffer buffer, int table, int field)
-    {
-        var vtable = table - buffer.GetInt(table);
-        var index = 4 + field * 2;
-        if (index >= buffer.GetUshort(vtable)) return 0;
-        var offset = buffer.GetUshort(vtable + index);
-        if (offset == 0) return 0;
-        var location = table + offset;
-        return location + buffer.GetInt(location);
     }
 
     // Runtime roots contain compiled capability rows and nested presentation descriptors; authoring roots
@@ -149,13 +113,13 @@ public static partial class WorkshopWireFlatBuffers
             Wire.WorkshopCommand.AddTarget(builder, CommandIdentityRecord.CreateCommandIdentityRecord(builder,
                 identity.Sequence.Value, identity.Epoch.Value, identity.Revision.Value, identity.Cadence.Value, identity.Projection.Value));
         if (scene is { } record) Wire.WorkshopCommand.AddScene(builder, record);
-        builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, CommandIdentifier);
+        builder.FinishSizePrefixed(Wire.WorkshopCommand.EndWorkshopCommand(builder).Value, FileIdentifier(WireRootIdentifier.WorkshopCommand));
         return builder.SizedByteArray();
     }
 
     public static WorkshopCommand DecodeCommand(ReadOnlySpan<byte> bytes)
     {
-        var fb = Wire.WorkshopCommand.GetRootAsWorkshopCommand(OpenFrame(bytes, CommandIdentifier, WorkshopCommandVerify.Verify));
+        var fb = Wire.WorkshopCommand.GetRootAsWorkshopCommand(OpenFrame(bytes, WireRootIdentifier.WorkshopCommand, WorkshopCommandVerify.Verify));
         var session = RequiredSession(fb.GetSessionArray());
 
         var revisionKind = (ExpectedRevisionKind)fb.RevisionKind;
@@ -564,7 +528,7 @@ public static partial class WorkshopWireFlatBuffers
             Wire.WorkshopResponse.AddMemory(builder, MemoryObservationRecord.CreateMemoryObservationRecord(builder, observed.UsedBefore,
                 observed.UsedAfter, observed.DurationTicks, observed.Frequency, observed.AllocatedBefore, observed.AllocatedAfter,
                 observed.CollectionsBefore, observed.CollectionsAfter));
-        builder.FinishSizePrefixed(Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, ResponseIdentifier);
+        builder.FinishSizePrefixed(Wire.WorkshopResponse.EndWorkshopResponse(builder).Value, FileIdentifier(WireRootIdentifier.WorkshopResponse));
         return builder.SizedByteArray();
     }
 
@@ -579,7 +543,7 @@ public static partial class WorkshopWireFlatBuffers
 
     private static WorkshopResponse DecodeResponseRecord(ReadOnlySpan<byte> bytes)
     {
-        var fb = Wire.WorkshopResponse.GetRootAsWorkshopResponse(OpenFrame(bytes, ResponseIdentifier, WorkshopResponseVerify.Verify));
+        var fb = Wire.WorkshopResponse.GetRootAsWorkshopResponse(OpenFrame(bytes, WireRootIdentifier.WorkshopResponse, WorkshopResponseVerify.Verify));
         var session = RequiredSession(fb.GetSessionArray());
 
         var sequence = new CommandSequence(fb.Sequence);

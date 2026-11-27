@@ -934,3 +934,11 @@ Executor: fresh implementation owner on `7ba5dc1979668e8656f13d752ab8c7cc001cb9e
 
 - Round on the records commit `1fe9b7842665bc0de326cceb80e34e47c7d50760` (`final-round-pub2.log`, `binlogs-pub2/`): HEAD and HEAD-AFTER that SHA, clean status; 7,429 passed, 0 failed, `Skipped: 0`; registration 829; gate PASS; VerifyPolicy 78/0/0; self-test 37/0/0; structural findings 0; the round prints its deferral filter.
 - SnapshotApproval (`a624049d58c43cf8a`, fresh, independent): Fail on one records finding; findings A and B of E35 resolved, and the round, revert, merge and hard rules passed. Finding: `TODO.md`'s lane 3 line said lane 3 is idle until the engine programme, contradicting the owner decision that the E2E runner process lifecycle slice runs there straight after S5b. Fixed in a records-only commit: the lane 3 line names that slice as next. The round reruns on that commit before a fresh SnapshotApproval.
+
+## E37 Publication receipt (26 November 2026, recorded by S5c's coordinator)
+
+- Published as `39aaba70`, a fast-forward from `466ff4ca`: slice `7ba5dc19`, narrowing `61d3a0cb`, records `e398c7a6` and `7d9af19f`, merge `32e74a38` (with `origin/main` `466ff4ca`), records `1fe9b784` and `39aaba70`.
+- Full local round 7429 passed, 0 failed, `Skipped: 0`; registration 829; `VerifyPolicy.cs` 78/0/0; `--bmad-check --self-test` 37/0/0; maintainability gate PASS.
+- SnapshotApproval Pass on `39aaba70`, after two fails on record findings (E35, E36).
+- Published under the owner's decision of 26 November 2026 (E35): the runner hang and crash findings are owned by the "E2E runner process lifecycle" slice (lane 3).
+- Remote build, artifact and deployment unverified (owner instruction of 29 October). Browser qualification of the generated TypeScript stays pending with the browser phase.

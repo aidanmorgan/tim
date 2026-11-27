@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+/*
+ * Modified by the Curious Contraptions project: Story 9A.45's checked vtable positions. See THIRD-PARTY-NOTICES.md.
+ */
 
 using System;
 using System.Text;

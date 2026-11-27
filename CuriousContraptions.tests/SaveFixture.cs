@@ -4,7 +4,8 @@ using Google.FlatBuffers;
 
 namespace CuriousContraptions.Tests;
 
-/// <summary>Hand-built stored saves, framed exactly as the save codec frames one (size-prefixed "CCWS" root), and the typed
+/// <summary>Hand-built stored saves, framed exactly as the save codec frames one (the generated size-prefixed finisher of the
+/// schema's root, which writes the WireRootIdentifier.SavedConstruction identifier), and the typed
 /// assertion of a save's refusal with the reason that refused it.</summary>
 internal static class SaveFixture
 {
@@ -19,7 +20,7 @@ internal static class SaveFixture
         SavedConstruction.StartSavedConstruction(builder);
         SavedConstruction.AddNextBodyId(builder, nextBodyId);
         SavedConstruction.AddConstruction(builder, record);
-        builder.FinishSizePrefixed(SavedConstruction.EndSavedConstruction(builder).Value, WorkshopSaveCodec.Identifier);
+        SavedConstruction.FinishSizePrefixedSavedConstructionBuffer(builder, SavedConstruction.EndSavedConstruction(builder));
         return builder.SizedByteArray();
     }
 
