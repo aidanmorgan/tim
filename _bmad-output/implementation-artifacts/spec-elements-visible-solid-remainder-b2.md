@@ -146,7 +146,7 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
   - `low` `patch` EFE-R2a: `batch-d.md:17` Prerequisites still says "part B2 after part B".
   - `false` `reject` EFE-R2b: `delivery-batches.md:246–247` say B2 stays queued — those are parts A and B's delivery records; B2's current state is its own row `:248` and `TODO.md`.
   - `low` `patch` EFE-R3: `completion-ledger.md:227` names audit B2-2 as current — name audit 5.
-  - `low` `patch` EFE-R4: `deferred-work.md:381` count (137 in 100) has no reproducible command, and "the Tennis ball's two element documents … were refreshed" has nothing to refresh — state the command and its count; drop the claim.
+  - `low` `patch` EFE-R4: `deferred-work.md:422` count (137 in 100) has no reproducible command, and "the Tennis ball's two element documents … were refreshed" has nothing to refresh — state the command and its count; drop the claim.
   - `low` `patch` EFE-R5: contract `:51` "no test has run" and Design Note 8 "unexecuted tests" are stale (coordinator corrected both); run log E5 says E8 not triggered — owner appends the correction.
   - `low` `patch` EFE-R6: records cite `.tools/` files (ignored) as evidence — state the results inline as the record and label `.tools/` files as transient review inputs (`role-cards.md:15`); no further `cp`.
   - `low` `patch` EFE evidence limit (orientation): grouped with IA1.
@@ -160,8 +160,8 @@ Counts in AC1 and AC4 are baseline + delta, counted on the slice's baseline at s
   - `low` `patch` BH2-2: the tolerance comment names "a band turned 1° off its great circle", but a tilted band through the centre is still on a great circle; the check excludes a seam drawn off its authored 45° great circle — correct the comment.
   - `false` `reject` FO2-O1: `CAT-064-tennis.md:50` and `EL-189-tennis-ball.md:55` say "like the Pool ball's stripe" — they restate owner decision 24i's own words, and owner decision 11 does rule that stripe printed flush (`owner-decisions-2026-11-22.md:23`, `:62`); true as a decision record.
   - `low` `patch` EFE2-F1: `completion-ledger.md:227` status cell still says "`draft`; Scoped Pass after repair (:47)" — state the contract's status at the candidate commit (`done`, set at Finalize) and point at the planning verdict `:51`.
-  - `low` `patch` EFE2-F2: `deferred-work.md:381` counts only the `VisibleSolidColliderTests.cs:N` form — say so and name the continuation (`, :N`) and range-end forms that also move.
-  - `low` `patch` EFE2-F3: contract Code Map `:82` still quotes the pre-repair comment, and the Code Map and task 4 point at `deferred-work.md:376` for the line then at `:377` (`:381` after part C) — corrected by the coordinator in this pass.
+  - `low` `patch` EFE2-F2: `deferred-work.md:422` counts only the `VisibleSolidColliderTests.cs:N` form — say so and name the continuation (`, :N`) and range-end forms that also move.
+  - `low` `patch` EFE2-F3: contract Code Map `:82` still quotes the pre-repair comment, and the Code Map and task 4 point at `deferred-work.md:376` for the line then at `:377` (`:422` after part C's merge with DOC-ENGINE-STATUS) — corrected by the coordinator in this pass.
 
 ### 2026-11-25 — Review pass 3 (re-review of repair 2: Blind Hunter, Edge Case Hunter, Verification Gap, Forward-Only, Element-Free Engine; Re-review scope applies; run log E11)
 - verdicts: 4 findings — high 0, medium 0, low 2, false 2, maybe-false 0

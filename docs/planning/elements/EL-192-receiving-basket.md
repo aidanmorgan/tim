@@ -52,7 +52,7 @@ Probe of 22 November 2026. "Opened" means the test body was read for this spec; 
 | Event-driven feedback on the halo, cleared by Reset | present | `PresentationDriver.Event` | `BasketballResourceTests.ReceiverHaloFollowsTheDeclaredCaptureBlendAndRestsOnItsNeutralPalette` |
 | Parameter-driven uniform scale of an art node (the halo repair) | present | `PresentationParameterBinding` (`CuriousContraptions.Abstractions/ElementPresentation.cs:119`) | `VisibleSolidColliderTests.EverySolidArtPartHasItsColliderAndNoColliderReachesBeyondTheArt` (Weight row) |
 | Residence and guide on a **moving** frame body | narrower | position is read in the frame's pose (`WorkshopPhysicsEngine.cs:909`–`:912`), speed in the world frame (`:933`; the guide likewise, `:1071`) | `ENGINE-SENSOR-VOLUMES` |
-| Residence sampled at each substep endpoint (`docs/gpu-f32-physics.md:150`) | narrower | sampled once per committed tick, after all substeps (`WorkshopPhysicsEngine.cs:348`, `:358`) | `ENGINE-SENSOR-VOLUMES` (evaluation inside the tick) |
+| Residence sampled at each substep endpoint (`docs/gpu-f32-physics.md:154`) | narrower | sampled once per committed tick, after all substeps (`WorkshopPhysicsEngine.cs:348`, `:358`) | `ENGINE-SENSOR-VOLUMES` (evaluation inside the tick) |
 | Further goal kinds and several goals per level | missing | one goal per level today | [ENGINE-GOALS](../../../_bmad-output/planning-artifacts/epics.md#story-engine-goals-declared-goal-kinds-and-ordered-objectives), in five slices (the fifth is `engine-goal-count-window-hold`; owner decision, 22 November 2026); required by the Goal identities, not by this row |
 
 Counts: 8 present, 0 untested, 2 narrower, 1 missing.

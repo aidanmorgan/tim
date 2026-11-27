@@ -112,7 +112,7 @@ Against the owner's conformance addendum of 22 November 2026 (element-free engin
 3. **Layers.** Colliders: one hidden `col_0_0` sphere; the seam is printed flush and has none (owner decision 24i). Visuals: `Visual/Felt` and `Visual/Seam`, never used as colliders. Animation: none.
 4. **One-way flow and typing.** Nothing reads art or presentation; parameters are typed f32 with typed units; the id is a typed `PartId` at the bundle boundary.
 5. **Flat state.** 1 dynamic body; 1 sphere collider; 0 joints, drives, sensors, domain nodes, stores and ports; 1 airflow receiver with 4 samples; 1 ambient load; 1 geometry-scale binding. All fixed at compile time.
-6. **Performance.** One primitive collider; the printed seam adds none. Island sleeping is not implemented (`docs/gpu-f32-physics.md:273` describes it); a resting ball is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`; nothing in this part works around its absence. Its smallest admitted radius is 1/16 m; tunnelling of a small fast ball is excluded by the engine's speculative contacts (Story 1.5), not by a check in this part.
+6. **Performance.** One primitive collider; the printed seam adds none. Island sleeping is not implemented (`docs/gpu-f32-physics.md:292` describes it); a resting ball is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`; nothing in this part works around its absence. Its smallest admitted radius is 1/16 m; tunnelling of a small fast ball is excluded by the engine's speculative contacts (Story 1.5), not by a check in this part.
 7. **Tests are scenarios.** Every row of section 6 runs the production simulation through the Workshop harness.
 
 ## Appendix: Historical evidence

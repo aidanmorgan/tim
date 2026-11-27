@@ -79,7 +79,7 @@ No presentation binding exists, so nothing is animated. The hand table agrees (`
 
 **Collider count.** One, the minimum.
 
-**Performance fitness.** One primitive on one body. Tunnelling is excluded by the engine's speculative sphere contact (`AdvanceSpeculativeSphereContact`, `WorkshopCollisionKernels.cs:1940`) and the committed speed limit of 64 m/s (`docs/gpu-f32-physics.md:370`), proven for both ball kinds at 40 m/s by `PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels`. The part has no sensor or region. Engine gap, not an element fault: island sleeping is not implemented (`docs/gpu-f32-physics.md:273` specifies it; see [CAT-001 §3](CAT-001-ball.md#engine-conformance)); a resting body is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`.
+**Performance fitness.** One primitive on one body. Tunnelling is excluded by the engine's speculative sphere contact (`AdvanceSpeculativeSphereContact`, `WorkshopCollisionKernels.cs:1940`) and the committed speed limit of 64 m/s (`docs/gpu-f32-physics.md:391`), proven for both ball kinds at 40 m/s by `PayloadInstanceTests.APayloadDrivenIntoTheBenchAtFortyMetresPerSecondNeverTunnels`. The part has no sensor or region. Engine gap, not an element fault: island sleeping is not implemented (`docs/gpu-f32-physics.md:292` specifies it; see [CAT-001 §3](CAT-001-ball.md#engine-conformance)); a resting body is still stepped. Owned by `ENGINE-ISLANDS-SLEEP`.
 
 ## 4. Legacy harvest
 

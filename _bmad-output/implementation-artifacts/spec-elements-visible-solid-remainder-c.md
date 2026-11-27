@@ -29,7 +29,7 @@ deferred:
   - summary: >-
       Lane 2's draft S5c contract cites WindmillAdmissionTests.cs:281-289, which this slice moved to :302-310.
     evidence: |-
-      Review pass 2, EFE-R4. The file is lane 2's (spec-s5c-one-wire-schema-file.md); the shared-document rule (owner decision 24m) forbids editing another lane's file without reporting first. The deferred-work.md:381 carry-forward names the move; owner: lane 2 (S5c), retry condition: S5c re-reads its cited lines at dispatch; reported to the lane coordinator.
+      Review pass 2, EFE-R4. The file is lane 2's (spec-s5c-one-wire-schema-file.md); the shared-document rule (owner decision 24m) forbids editing another lane's file without reporting first. The deferred-work.md:422 carry-forward names the move; owner: lane 2 (S5c), retry condition: S5c re-reads its cited lines at dispatch; reported to the lane coordinator.
     location: >-
       _bmad-output/implementation-artifacts/spec-s5c-one-wire-schema-file.md
     severity: low
@@ -192,7 +192,7 @@ Floating art is seated in repair part D (`spec-elements-visible-solid-remainder-
 4. `elements/Windmill/windmill.tscn` -- add `Shape_Output` and `col_output` after `col_guard`; `elements/Windmill/WindmillElementDeclaration.cs` -- add `new(new(0), new(4))` to the capture's internal occluders -- C5, C6.
 5. `CuriousContraptions.tests/VisibleSolidColliderTests.cs` -- add the three rows; add `Feature` members `CannonIndicator` and `WindmillOutput` with their `Drop` arms to part B's low-restitution theory, and bring the `Feature` and theory summaries (`:582–585`, `:737–743`) up to date; correct XB-04's comments `:87`, `:126`, `:147`, `:179` and the same kind at `:134`, `:142` to state current truth, leaving every row's classification unchanged -- C1, C5, C9, C11.
 6. `CuriousContraptions.tests/WindmillAdmissionTests.cs` -- add the fact `TheCaptureExemptsEveryColliderOfItsOwnWindmill` -- C6.
-7. The four element documents, `deferred-work.md`, `delivery-batches.md`, `completion-ledger.md`, `TODO.md` -- record each collider with size and pose, the sleeve's confirmation, the string's exception with owner decision 1, the counts of D5, the floating sockets, track and wheel as owned by repair part D (coordinator decision 39; no deferred-work entry), O1's outcome (C8's result added to the existing `first-committed-sample` entry, owner `ENGINE-ONE-WAY-INSTALL`; no second entry), XB-04's four comments corrected (BallDetector and PoweredGate stay open), and the remainder story as complete; refresh the element documents' stale citations and rewrite the lines delivery makes false (run log E2, E4); amend the `deferred-work.md:381` carry-forward for this slice's own `VisibleSolidColliderTests.cs` shift.
+7. The four element documents, `deferred-work.md`, `delivery-batches.md`, `completion-ledger.md`, `TODO.md` -- record each collider with size and pose, the sleeve's confirmation, the string's exception with owner decision 1, the counts of D5, the floating sockets, track and wheel as owned by repair part D (coordinator decision 39; no deferred-work entry), O1's outcome (C8's result added to the existing `first-committed-sample` entry, owner `ENGINE-ONE-WAY-INSTALL`; no second entry), XB-04's four comments corrected (BallDetector and PoweredGate stay open), and the remainder story as complete; refresh the element documents' stale citations and rewrite the lines delivery makes false (run log E2, E4); amend the `deferred-work.md:422` carry-forward for this slice's own `VisibleSolidColliderTests.cs` shift.
 
 **Acceptance Criteria:**
 

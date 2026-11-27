@@ -90,7 +90,7 @@ Laws: chamber seating, the paid finite-work release with its clearance check, th
 - **Finite.** 50 J gives six shots (48 J); the remaining 2 J cannot fill a seventh, so the actuator stays `Uncharged` until Reset. Six shots take at least 6 × 0.5 = 3 s of charging. The count holds for an energy-limited payload, one of at least 2 × 8/12² = 0.11 kg: a lighter ball reaches the 12 m/s target on less than 8 J, leaves the rest in the shot store and so gets more than six shots.
 - **Refusals.** Empty chamber, two occupants, an obstructed muzzle or an unfilled store each answer with the Cannon's typed result and spend nothing; a refused pulse is not queued.
 - **Tick order.** The pulse is routed in the tick it is published (signal routing is same-tick); the release is a physical request executed at the next physics boundary, as for the Cannon.
-- **Tunnelling.** 10.3 m/s is 0.021 m per substep against a 0.26 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:195`, `:258`).
+- **Tunnelling.** 10.3 m/s is 0.021 m per substep against a 0.26 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:213`, `:276`).
 
 ## 3. Engine capabilities
 
