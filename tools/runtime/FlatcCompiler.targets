@@ -1,0 +1,189 @@
+<Project TreatAsLocalProperty="WireSchemaPath;FlatcVersion;FlatcHostArchitecture;FlatcAsset;FlatcArchiveSha256;FlatcBinarySha256;FlatcCacheDirectory;FlatcPath;_FlatcCached;_FlatcDownloadDirectory;_FlatcArchive;_FlatcExtractDirectory;_FlatcExtractedCompiler;_FlatcShellExecutable;_FlatcShellSchema;_WireShellAccessorDirectory;_WireShellQuoteEscape;_FlatcTemporary;_FlatcCachedSha256;_FlatcArchiveSha256;_FlatcExtractedSha256;_FlatcReceivingStatus;_FlatcReceivingCheck;_WireAccessorOutputStatus;_WireAccessorOutputCheck;_WireIntermediatePath;_WireBaseIntermediatePath;_WireArtifactsRoot;_WireOwnedIntermediateRoot;_WireOwnedBaseIntermediateRoot;_WireAccessorPath;_WireAccessorDirectory;_WireAccessorStamp;_WireSchemaDeclarations;_WireDirectoryGuard">
+  <!-- Pinned FlatBuffers compiler (v25.2.10), the official google/flatbuffers release binary for the build host. The archive
+       is verified after download and the binary before every use, against these digests (recorded 21 November 2026; the
+       release publishes none). The verified binary is cached per user, outside every checkout; a compiler on PATH is never
+       used. -->
+  <PropertyGroup Label="FlatBuffers compiler">
+    <FlatcVersion>25.2.10</FlatcVersion>
+    <FlatcAsset />
+    <_FlatcTemporary />
+    <FlatcArchiveSha256 />
+    <FlatcBinarySha256 />
+    <FlatcCacheRoot>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify))</FlatcCacheRoot>
+  </PropertyGroup>
+  <PropertyGroup Label="FlatBuffers compiler for macOS" Condition="$([MSBuild]::IsOSPlatform('OSX')) And ('$(FlatcHostArchitecture)' == 'Arm64' Or '$(FlatcHostArchitecture)' == 'X64')">
+    <FlatcAsset>Mac.flatc.binary</FlatcAsset>
+    <FlatcArchiveSha256>eabd8e8c4d8b9381b7ea4c6324c629f9200d8bb73f94b6b28ef406efc8c06c62</FlatcArchiveSha256>
+    <FlatcBinarySha256>f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac</FlatcBinarySha256>
+  </PropertyGroup>
+  <PropertyGroup Label="FlatBuffers compiler for Linux" Condition="$([MSBuild]::IsOSPlatform('Linux')) And '$(FlatcHostArchitecture)' == 'X64'">
+    <FlatcAsset>Linux.flatc.binary.g++-13</FlatcAsset>
+    <FlatcArchiveSha256>6f01258d7475806f375d6da66a61df47add8016edd73f1774673f37b80b9a711</FlatcArchiveSha256>
+    <FlatcBinarySha256>79722d4ba7db479fa78dc966cbcf7cc601293d97c2776ab02847b5cad46357f8</FlatcBinarySha256>
+  </PropertyGroup>
+  <PropertyGroup>
+    <FlatcCacheDirectory>$(FlatcCacheRoot)/CuriousContraptions/flatc/$(FlatcVersion)/$(FlatcAsset)/</FlatcCacheDirectory>
+    <FlatcPath>$(FlatcCacheDirectory)flatc</FlatcPath>
+    <WireSchemaPath>$([MSBuild]::NormalizePath('$(MSBuildThisFileDirectory)', '..', '..', 'schemas', 'workshop_wire.fbs'))</WireSchemaPath>
+    <_WireIntermediatePath>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(IntermediateOutputPath)'))</_WireIntermediatePath>
+    <_WireBaseIntermediatePath>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(BaseIntermediateOutputPath)'))</_WireBaseIntermediatePath>
+    <_WireArtifactsRoot Condition="'$(ArtifactsPath)' != ''">$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(ArtifactsPath)'))</_WireArtifactsRoot>
+    <_WireArtifactsRoot Condition="'$(ArtifactsPath)' == ''">$(RuntimeTypeScriptRoot)</_WireArtifactsRoot>
+    <_WireOwnedIntermediateRoot>$(_WireArtifactsRoot)</_WireOwnedIntermediateRoot>
+    <_WireOwnedIntermediateRoot Condition="$(_WireIntermediatePath.StartsWith('$(RuntimeTypeScriptRoot)'))">$(RuntimeTypeScriptRoot)</_WireOwnedIntermediateRoot>
+    <_WireOwnedBaseIntermediateRoot>$(_WireArtifactsRoot)</_WireOwnedBaseIntermediateRoot>
+    <_WireOwnedBaseIntermediateRoot Condition="$(_WireBaseIntermediatePath.StartsWith('$(RuntimeTypeScriptRoot)'))">$(RuntimeTypeScriptRoot)</_WireOwnedBaseIntermediateRoot>
+    <_WireAccessorPath>$(IntermediateOutputPath)WireAccessors/</_WireAccessorPath>
+    <_WireAccessorDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '$(_WireAccessorPath)'))</_WireAccessorDirectory>
+    <_WireAccessorStamp>$(_WireAccessorDirectory).generated</_WireAccessorStamp>
+    <!-- Exec paths use shell single quotes. An apostrophe is emitted by a short double-quoted segment. -->
+    <_WireShellQuoteEscape>'"'"'</_WireShellQuoteEscape>
+    <_FlatcShellExecutable>$([System.Text.RegularExpressions.Regex]::Replace('$(FlatcPath)', '\x27', '$(_WireShellQuoteEscape)'))</_FlatcShellExecutable>
+    <_FlatcShellSchema>$([System.Text.RegularExpressions.Regex]::Replace('$(WireSchemaPath)', '\x27', '$(_WireShellQuoteEscape)'))</_FlatcShellSchema>
+    <_WireShellAccessorDirectory>$([System.Text.RegularExpressions.Regex]::Replace('$(_WireAccessorDirectory)', '\x27', '$(_WireShellQuoteEscape)'))</_WireShellAccessorDirectory>
+    <_WireDirectoryGuard><![CDATA[
+wire_directory() {
+  if [ -L "$1" ] || { [ -e "$1" ] && [ ! -d "$1" ]; }; then
+    printf '%s\n' "Linked or non-directory owned path: $1"
+    return 1
+  fi
+}
+wire_below() {
+  [ "$1" = "$wire_boundary" ] || { wire_below "${1%/*}" && wire_directory "$1"; }
+}
+wire_owned() {
+  wire_path=${1%/}
+  wire_boundary=${2%/}
+  wire_directory "$wire_boundary" || return 1
+  case "$wire_path" in
+    "$wire_boundary"/*) ;;
+    *) printf '%s\n' "Generated wire directory lies outside its owning root: $wire_path"; return 1 ;;
+  esac
+  wire_below "$wire_path"
+}
+wire_file() {
+  wire_owned "${1%/*}" "$2" || return 1
+  if [ -L "$1" ] || { [ -e "$1" ] && [ ! -f "$1" ]; }; then
+    printf '%s\n' "Linked or non-file owned path: $1"
+    return 1
+  fi
+}
+wire_files() {
+  wire_files_boundary=$1
+  wire_files_root=$2
+  shift 2
+  for wire_expected do wire_file "$wire_files_root$wire_expected" "$wire_files_boundary" || return 1; done
+}
+wire_tree() {
+  wire_owned "$1" "$2" || return 1
+  if [ -d "$wire_path" ]; then find -P "$wire_path" -type l -print; fi
+}
+    ]]></_WireDirectoryGuard>
+  </PropertyGroup>
+
+  <Target Name="DeriveWireDeclarations">
+    <Error Condition="!Exists('$(WireSchemaPath)')" Text="The canonical wire schema $(WireSchemaPath) is missing." />
+    <PropertyGroup>
+      <_WireSchemaDeclarations>$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText('$(WireSchemaPath)')), '\x22(?:\\.|[^\x22\\])*\x22|(?s:/\*.*?\*/)|//[^\r\n]*', ' '))</_WireSchemaDeclarations>
+    </PropertyGroup>
+    <ItemGroup>
+      <_WireDeclaration Include="$([MSBuild]::Unescape($([System.Text.RegularExpressions.Regex]::Replace('$(_WireSchemaDeclarations)', '(?s)\b(enum|table|struct|union)\s+([A-Za-z][A-Za-z0-9_]*)(?=\s*[:{(])|.', '$1 $2;').Replace(' ;', ''))))" />
+      <_WireSymbol Include="@(_WireDeclaration)">
+        <Kind>$([System.Text.RegularExpressions.Regex]::Replace('%(_WireDeclaration.Identity)', ' .+$', ''))</Kind>
+        <Name>$([System.Text.RegularExpressions.Regex]::Replace('%(_WireDeclaration.Identity)', '^.+ ', ''))</Name>
+      </_WireSymbol>
+    </ItemGroup>
+  </Target>
+
+  <Target Name="ValidateWireAccessorOutput" BeforeTargets="CoreClean" DependsOnTargets="DeriveWireDeclarations"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.FlatBuffers'">
+    <ItemGroup>
+      <_WireCSharpRelativeSource Include="@(_WireSymbol->'CuriousContraptions/Wire/%(Name).cs')" />
+      <_WireCSharpSource Include="@(_WireCSharpRelativeSource->'$(_WireAccessorDirectory)%(Identity)')" />
+    </ItemGroup>
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_TREE=$(_WireAccessorDirectory);WIRE_BOUNDARY=$(_WireOwnedIntermediateRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_tree &quot;$WIRE_TREE&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_files &quot;$WIRE_BOUNDARY&quot; &quot;$WIRE_TREE&quot; .generated @(_WireCSharpRelativeSource, ' ')">
+      <Output TaskParameter="ExitCode" PropertyName="_WireAccessorOutputStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_WireAccessorOutputCheck" />
+    </Exec>
+    <Error Condition="'$(_WireAccessorOutputStatus)' != '0' Or '$(_WireAccessorOutputCheck)' != ''"
+           Text="Cannot use linked or invalid generated C# wire output. $(_WireAccessorOutputCheck)" />
+  </Target>
+
+  <!-- Makes the verified compiler available at FlatcPath. Runs only from GenerateWireAccessors and GenerateWireTypeScript,
+       so a build that does not generate never needs the network or the cache. -->
+  <Target Name="ProvisionFlatBuffersCompiler">
+    <Error Condition="'$(FlatcAsset)' == ''"
+           Text="The pinned FlatBuffers compiler $(FlatcVersion) has no release asset for this build host ($([System.Runtime.InteropServices.RuntimeInformation]::OSDescription), $(FlatcHostArchitecture)). Supported build hosts: macOS (Arm64, X64) and Linux X64." />
+    <Error Condition="'$(FlatcCacheRoot)' == ''"
+           Text="The FlatBuffers compiler cache has no location: Environment.SpecialFolder.LocalApplicationData evaluated to an empty path (set HOME, or XDG_DATA_HOME on Linux)." />
+    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(FlatcCacheDirectory)', '[*?]'))"
+           Text="The FlatBuffers compiler cache path &quot;$(FlatcCacheDirectory)&quot; contains a wildcard character (* or ?). Wildcard characters are not supported in the compiler cache path, because MSBuild reads them as a file pattern; nothing was read or written there." />
+    <PropertyGroup>
+      <_FlatcDownloadDirectory>$(_WireIntermediatePath)flatc-download/</_FlatcDownloadDirectory>
+      <_FlatcArchive>$(_FlatcDownloadDirectory)$(FlatcAsset).zip</_FlatcArchive>
+      <_FlatcExtractDirectory>$(_FlatcDownloadDirectory)extracted/</_FlatcExtractDirectory>
+      <_FlatcExtractedCompiler>$(_FlatcExtractDirectory)flatc</_FlatcExtractedCompiler>
+    </PropertyGroup>
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="FLATC_TREE=$([MSBuild]::NormalizeDirectory('$(FlatcCacheDirectory)'));FLATC_FILE=$([MSBuild]::NormalizePath('$(FlatcPath)'));FLATC_ROOT=$([MSBuild]::NormalizeDirectory('$(FlatcCacheRoot)'));FLATC_DOWNLOAD=$(_FlatcDownloadDirectory);FLATC_ARCHIVE=$(_FlatcArchive);FLATC_EXTRACT=$(_FlatcExtractDirectory);FLATC_EXTRACTED_COMPILER=$(_FlatcExtractedCompiler);WIRE_BOUNDARY=$(_WireOwnedIntermediateRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_file &quot;$FLATC_FILE&quot; &quot;$FLATC_ROOT&quot; || exit 1&#10;wire_tree &quot;$FLATC_TREE&quot; &quot;$FLATC_ROOT&quot; || exit 1&#10;wire_tree &quot;$FLATC_DOWNLOAD&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_file &quot;$FLATC_ARCHIVE&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_owned &quot;$FLATC_EXTRACT&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_file &quot;$FLATC_EXTRACTED_COMPILER&quot; &quot;$WIRE_BOUNDARY&quot;">
+      <Output TaskParameter="ExitCode" PropertyName="_FlatcReceivingStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_FlatcReceivingCheck" />
+    </Exec>
+    <Error Condition="'$(_FlatcReceivingStatus)' != '0' Or '$(_FlatcReceivingCheck)' != ''"
+           Text="Cannot use linked or invalid FlatBuffers compiler receiving paths. $(_FlatcReceivingCheck)" />
+    <PropertyGroup>
+      <_FlatcTemporary>$(FlatcCacheDirectory)flatc.$([System.Guid]::NewGuid().ToString('N')).tmp</_FlatcTemporary>
+    </PropertyGroup>
+    <MakeDir Directories="$(FlatcCacheDirectory)" />
+    <ItemGroup>
+      <_FlatcTemporaryFile Include="$([MSBuild]::Escape('$(FlatcCacheDirectory)'))flatc.*.tmp" />
+      <_FlatcStaleTemporary Include="@(_FlatcTemporaryFile)"
+                            Condition="'%(_FlatcTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_FlatcTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $([System.DateTime]::UtcNow.AddMinutes(-60).Ticks)" />
+    </ItemGroup>
+    <Delete Files="@(_FlatcStaleTemporary)" />
+
+    <PropertyGroup>
+      <_FlatcCached>$([System.IO.File]::Exists('$(FlatcPath)'))</_FlatcCached>
+    </PropertyGroup>
+    <GetFileHash Condition="'$(_FlatcCached)' == 'true'" Files="$(FlatcPath)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcCachedSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' == 'true' And '$(_FlatcCachedSha256)' != '$(FlatcBinarySha256)'"
+           Text="The cached FlatBuffers compiler &quot;$(FlatcPath)&quot; has SHA-256 $(_FlatcCachedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). It was not run or replaced. Delete &quot;$(FlatcPath)&quot; to download the pinned release again." />
+
+    <Message Condition="'$(_FlatcCached)' != 'true'" Importance="high"
+             Text="Downloading the pinned FlatBuffers compiler $(FlatcVersion) ($(FlatcAsset).zip) into &quot;$(FlatcCacheDirectory)&quot;." />
+    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
+    <DownloadFile Condition="'$(_FlatcCached)' != 'true'" ContinueOnError="true"
+                  SourceUrl="https://github.com/google/flatbuffers/releases/download/v$(FlatcVersion)/$(FlatcAsset).zip"
+                  DestinationFolder="$(_FlatcDownloadDirectory)" />
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(MSBuildLastTaskResult)' != 'true'"
+           Text="The pinned FlatBuffers compiler archive $(FlatcAsset).zip (release v$(FlatcVersion), SHA-256 $(FlatcArchiveSha256)) could not be downloaded from github.com, so &quot;$(FlatcPath)&quot; cannot be placed. A first build on each machine needs network access to github.com." />
+    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcArchive)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcArchiveSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcArchiveSha256)' != '$(FlatcArchiveSha256)'"
+           Text="The downloaded FlatBuffers compiler archive &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcArchiveSha256.ToLowerInvariant()), but the pinned digest is $(FlatcArchiveSha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
+    <Unzip Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcArchive)" DestinationFolder="$(_FlatcExtractDirectory)" />
+    <Touch Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcExtractedCompiler)" />
+    <Copy Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcExtractedCompiler)" DestinationFiles="$(_FlatcTemporary)" />
+    <Exec Condition="'$(_FlatcCached)' != 'true'" EnvironmentVariables="FLATC_TEMP=$(_FlatcTemporary)"
+          Command="chmod 755 &quot;$FLATC_TEMP&quot; &amp;&amp; test -x &quot;$FLATC_TEMP&quot;" />
+    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcTemporary)" Algorithm="SHA256">
+      <Output TaskParameter="Hash" PropertyName="_FlatcExtractedSha256" />
+    </GetFileHash>
+    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcExtractedSha256)' != '$(FlatcBinarySha256)'"
+           Text="The FlatBuffers compiler extracted from &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcExtractedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
+    <Exec Condition="'$(_FlatcCached)' != 'true'" EnvironmentVariables="FLATC_TEMP=$(_FlatcTemporary);FLATC_FILE=$(FlatcPath)"
+          Command="mv -f &quot;$FLATC_TEMP&quot; &quot;$FLATC_FILE&quot;" />
+    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
+    <OnError ExecuteTargets="DeleteFlatcTemporary" />
+  </Target>
+
+  <Target Name="DeleteFlatcTemporary" Condition="'$(_FlatcTemporary)' != ''">
+    <Delete Files="$(_FlatcTemporary)" />
+  </Target>
+</Project>

@@ -2,12 +2,13 @@
   <!-- The Google FlatBuffers C# runtime, vendored from google/flatbuffers tag v25.2.10 (net/FlatBuffers,
        Apache-2.0, see LICENSE) so the one wire codec is built trim-annotated: the published Google.FlatBuffers
        package is not, which made every trimmable consumer report IL2125 (Story 9.4b). The wire accessors are build
-       output: every build that finds them absent or older than the one schema file, schemas/workshop_wire.fbs, or this file
-       generates them into this project's intermediate directory with the pinned compiler below, whose output asserts this exact runtime version
+       output: every build that finds them absent or older than the one schema file, schemas/workshop_wire.fbs,
+       either shared compiler import or this file generates them into this project's intermediate directory with
+       the compiler provisioned by tools/runtime/FlatcCompiler.targets, whose output asserts this exact runtime version
        (FLATBUFFERS_25_2_10). Upgrade by replacing every source file from a newer tag together with the compiler version
-       and its digests below. The bounded vtable offset corrections (Story 9A.45), the verifier's unknown-field rule (S5c) and
-       their exact integrity pins are documented in THIRD-PARTY-NOTICES.md; an upgrade re-applies both patches, and the
-       direct verifier tests fail if one is dropped. -->
+       and its digests in tools/runtime/FlatcCompiler.targets. The bounded vtable offset corrections (Story 9A.45), the
+       verifier's unknown-field rule (S5c) and their exact integrity pins are documented in THIRD-PARTY-NOTICES.md; an
+       upgrade re-applies both patches, and the direct verifier tests fail if one is dropped. -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>CuriousContraptions.FlatBuffers</AssemblyName>
@@ -17,114 +18,20 @@
     <ImplicitUsings>disable</ImplicitUsings>
   </PropertyGroup>
 
-  <!-- S5: the pinned FlatBuffers compiler, the official google/flatbuffers release binary for the build host. The archive
-       is verified after download and the binary before every use, against these digests (recorded 21 November 2026; the
-       release publishes none). The verified binary is cached per user, outside every checkout; a compiler on PATH is never
-       used. -->
-  <PropertyGroup Label="FlatBuffers compiler">
-    <FlatcVersion>25.2.10</FlatcVersion>
-    <FlatcHostArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</FlatcHostArchitecture>
-    <FlatcCacheRoot>$([System.Environment]::GetFolderPath(SpecialFolder.LocalApplicationData, SpecialFolderOption.DoNotVerify))</FlatcCacheRoot>
-  </PropertyGroup>
-  <PropertyGroup Label="FlatBuffers compiler for macOS" Condition="$([MSBuild]::IsOSPlatform('OSX')) And ('$(FlatcHostArchitecture)' == 'Arm64' Or '$(FlatcHostArchitecture)' == 'X64')">
-    <FlatcAsset>Mac.flatc.binary</FlatcAsset>
-    <FlatcArchiveSha256>eabd8e8c4d8b9381b7ea4c6324c629f9200d8bb73f94b6b28ef406efc8c06c62</FlatcArchiveSha256>
-    <FlatcBinarySha256>f004709c0334edb3cdc0430395b9de1dc071f3618fc4ba43674c3c61201037ac</FlatcBinarySha256>
-  </PropertyGroup>
-  <PropertyGroup Label="FlatBuffers compiler for Linux" Condition="$([MSBuild]::IsOSPlatform('Linux')) And '$(FlatcHostArchitecture)' == 'X64'">
-    <FlatcAsset>Linux.flatc.binary.g++-13</FlatcAsset>
-    <FlatcArchiveSha256>6f01258d7475806f375d6da66a61df47add8016edd73f1774673f37b80b9a711</FlatcArchiveSha256>
-    <FlatcBinarySha256>79722d4ba7db479fa78dc966cbcf7cc601293d97c2776ab02847b5cad46357f8</FlatcBinarySha256>
-  </PropertyGroup>
-  <PropertyGroup>
-    <FlatcCacheDirectory>$(FlatcCacheRoot)/CuriousContraptions/flatc/$(FlatcVersion)/$(FlatcAsset)/</FlatcCacheDirectory>
-    <FlatcPath>$(FlatcCacheDirectory)flatc</FlatcPath>
-  </PropertyGroup>
   <ItemGroup>
-    <WireSchema Include="../schemas/workshop_wire.fbs" />
+    <WireSchema Include="$(WireSchemaPath)" />
   </ItemGroup>
 
-  <!-- Makes the verified compiler available at FlatcPath. A cached binary is verified and never replaced; a missing one is
-       downloaded into the intermediate directory, verified, made executable, verified again and renamed into place from a
-       temporary file in the cache directory, so no build ever sees a partial file at FlatcPath and a temporary file is never
-       run. A failed build deletes its own GUID-named temporary file at once; a build killed before its rename cannot, so
-       every run first deletes the cache directory's temporary files last written more than 60 minutes ago. Placing one
-       takes seconds (touch, copy a 7 MB binary, chmod, hash, rename); only a build suspended for over 60 minutes while placing
-       can lose its file to another build's sweep, and it then fails at its hash or rename with nothing placed at FlatcPath.
-       An orphan costs only its disk space until it is swept. The extracted binary is touched before the copy,
-       because the archive entry's write time (February 2025) survives Unzip and Copy and would make a new temporary file
-       look stale. Runs only from GenerateWireAccessors and GenerateWireTypeScript, so a build that does not generate never
-       needs the network or the cache. -->
-  <Target Name="ProvisionFlatBuffersCompiler">
-    <Error Condition="'$(FlatcAsset)' == ''"
-           Text="The pinned FlatBuffers compiler $(FlatcVersion) has no release asset for this build host ($([System.Runtime.InteropServices.RuntimeInformation]::OSDescription), $(FlatcHostArchitecture)). Supported build hosts: macOS (Arm64, X64) and Linux X64." />
-    <Error Condition="'$(FlatcCacheRoot)' == ''"
-           Text="The FlatBuffers compiler cache has no location: Environment.SpecialFolder.LocalApplicationData evaluated to an empty path (set HOME, or XDG_DATA_HOME on Linux)." />
-    <Error Condition="$([System.Text.RegularExpressions.Regex]::IsMatch('$(FlatcCacheDirectory)', '[*?]'))"
-           Text="The FlatBuffers compiler cache path &quot;$(FlatcCacheDirectory)&quot; contains a wildcard character (* or ?). Wildcard characters are not supported in the compiler cache path, because MSBuild reads them as a file pattern; nothing was read or written there." />
-    <MakeDir Directories="$(FlatcCacheDirectory)" />
-    <!-- The directory is escaped, so this include never reads a ';' in the cache path as a separator (a wildcard is refused
-         above). With no temporary file MSBuild still evaluates the condition once, with an empty path, which its first
-         comparison skips. -->
-    <ItemGroup>
-      <_FlatcTemporaryFile Include="$([MSBuild]::Escape('$(FlatcCacheDirectory)'))flatc.*.tmp" />
-      <_FlatcStaleTemporary Include="@(_FlatcTemporaryFile)"
-                            Condition="'%(_FlatcTemporaryFile.FullPath)' != '' And $([System.IO.File]::GetLastWriteTime('%(_FlatcTemporaryFile.FullPath)').ToUniversalTime().Ticks) &lt; $([System.DateTime]::UtcNow.AddMinutes(-60).Ticks)" />
-    </ItemGroup>
-    <Delete Files="@(_FlatcStaleTemporary)" />
-    <PropertyGroup>
-      <_FlatcCached>$([System.IO.File]::Exists('$(FlatcPath)'))</_FlatcCached>
-      <_FlatcDownloadDirectory>$(IntermediateOutputPath)flatc-download/</_FlatcDownloadDirectory>
-      <_FlatcArchive>$(_FlatcDownloadDirectory)$(FlatcAsset).zip</_FlatcArchive>
-      <_FlatcTemporary>$(FlatcCacheDirectory)flatc.$([System.Guid]::NewGuid().ToString('N')).tmp</_FlatcTemporary>
-    </PropertyGroup>
-
-    <GetFileHash Condition="'$(_FlatcCached)' == 'true'" Files="$(FlatcPath)" Algorithm="SHA256">
-      <Output TaskParameter="Hash" PropertyName="_FlatcCachedSha256" />
-    </GetFileHash>
-    <Error Condition="'$(_FlatcCached)' == 'true' And '$(_FlatcCachedSha256)' != '$(FlatcBinarySha256)'"
-           Text="The cached FlatBuffers compiler &quot;$(FlatcPath)&quot; has SHA-256 $(_FlatcCachedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). It was not run or replaced. Delete &quot;$(FlatcPath)&quot; to download the pinned release again." />
-
-    <Message Condition="'$(_FlatcCached)' != 'true'" Importance="high"
-             Text="Downloading the pinned FlatBuffers compiler $(FlatcVersion) ($(FlatcAsset).zip) into &quot;$(FlatcCacheDirectory)&quot;." />
-    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
-    <DownloadFile Condition="'$(_FlatcCached)' != 'true'" ContinueOnError="true"
-                  SourceUrl="https://github.com/google/flatbuffers/releases/download/v$(FlatcVersion)/$(FlatcAsset).zip"
-                  DestinationFolder="$(_FlatcDownloadDirectory)" />
-    <Error Condition="'$(_FlatcCached)' != 'true' And '$(MSBuildLastTaskResult)' != 'true'"
-           Text="The pinned FlatBuffers compiler archive $(FlatcAsset).zip (release v$(FlatcVersion), SHA-256 $(FlatcArchiveSha256)) could not be downloaded from github.com, so &quot;$(FlatcPath)&quot; cannot be placed. A first build on each machine needs network access to github.com." />
-    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcArchive)" Algorithm="SHA256">
-      <Output TaskParameter="Hash" PropertyName="_FlatcArchiveSha256" />
-    </GetFileHash>
-    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcArchiveSha256)' != '$(FlatcArchiveSha256)'"
-           Text="The downloaded FlatBuffers compiler archive &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcArchiveSha256.ToLowerInvariant()), but the pinned digest is $(FlatcArchiveSha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
-    <Unzip Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcArchive)" DestinationFolder="$(_FlatcDownloadDirectory)extracted/" />
-    <Touch Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcDownloadDirectory)extracted/flatc" />
-    <Copy Condition="'$(_FlatcCached)' != 'true'" SourceFiles="$(_FlatcDownloadDirectory)extracted/flatc" DestinationFiles="$(_FlatcTemporary)" />
-    <Exec Condition="'$(_FlatcCached)' != 'true'" Command="chmod 755 &quot;$(_FlatcTemporary)&quot; &amp;&amp; test -x &quot;$(_FlatcTemporary)&quot;" />
-    <GetFileHash Condition="'$(_FlatcCached)' != 'true'" Files="$(_FlatcTemporary)" Algorithm="SHA256">
-      <Output TaskParameter="Hash" PropertyName="_FlatcExtractedSha256" />
-    </GetFileHash>
-    <Error Condition="'$(_FlatcCached)' != 'true' And '$(_FlatcExtractedSha256)' != '$(FlatcBinarySha256)'"
-           Text="The FlatBuffers compiler extracted from &quot;$(_FlatcArchive)&quot; has SHA-256 $(_FlatcExtractedSha256.ToLowerInvariant()), but the pinned digest is $(FlatcBinarySha256). Nothing was placed at &quot;$(FlatcPath)&quot;." />
-    <Exec Condition="'$(_FlatcCached)' != 'true'" Command="mv -f &quot;$(_FlatcTemporary)&quot; &quot;$(FlatcPath)&quot;" />
-    <RemoveDir Condition="'$(_FlatcCached)' != 'true'" Directories="$(_FlatcDownloadDirectory)" />
-    <OnError ExecuteTargets="DeleteFlatcTemporary" />
-  </Target>
-
-  <Target Name="DeleteFlatcTemporary">
-    <Delete Files="$(_FlatcTemporary)" />
-  </Target>
-
   <!-- Generates one C# source per schema type into WireAccessors/ under the intermediate directory, replacing the previous
-       output, whenever the stamp is absent or older than the one schema file or this file (a clean tree or a
-       no-incremental build has no stamp). -->
-  <Target Name="GenerateWireAccessors"
-          Inputs="@(WireSchema);$(MSBuildProjectFullPath)" Outputs="$(IntermediateOutputPath)WireAccessors/.generated">
+       output, whenever the stamp is absent or older than the schema, either shared compiler import or this project file.
+       A clean tree or a no-incremental build has no stamp. ProvisionFlatBuffersCompiler is imported through
+       Directory.Build.targets -> RuntimeTypeScript.targets -> FlatcCompiler.targets. -->
+  <Target Name="GenerateWireAccessors" DependsOnTargets="ValidateWireAccessorOutput"
+          Inputs="@(WireSchema);$(MSBuildProjectFullPath);$(_FlatcCompilerTargets);$(_WireTypeScriptTargets)" Outputs="$(_WireAccessorStamp);@(_WireCSharpSource)">
     <CallTarget Targets="ProvisionFlatBuffersCompiler" />
-    <RemoveDir Directories="$(IntermediateOutputPath)WireAccessors/" />
-    <Exec Command="&quot;$(FlatcPath)&quot; --csharp -o &quot;$(IntermediateOutputPath)WireAccessors&quot; @(WireSchema->'&quot;%(FullPath)&quot;', ' ')" />
-    <Touch Files="$(IntermediateOutputPath)WireAccessors/.generated" AlwaysCreate="true" />
+    <RemoveDir Directories="$(_WireAccessorDirectory)" />
+    <Exec Command="'$(_FlatcShellExecutable)' --csharp -o '$(_WireShellAccessorDirectory)' '$(_FlatcShellSchema)'" />
+    <Touch Files="$(_WireAccessorStamp)" AlwaysCreate="true" />
   </Target>
 
   <!-- The nullable ArraySegment byte accessors are the only wire surface. The generated sources also carry ENABLE_SPAN_T
@@ -138,65 +45,9 @@
   <!-- Every build compiles the generated sources and records them as its own outputs, so Clean and Rebuild remove them. -->
   <Target Name="CompileWireAccessors" BeforeTargets="BeforeCompile" DependsOnTargets="RefuseSpanAccessorDefine;GenerateWireAccessors">
     <ItemGroup>
-      <Compile Include="$(IntermediateOutputPath)WireAccessors/**/*.cs" />
-      <FileWrites Include="$(IntermediateOutputPath)WireAccessors/**/*.cs;$(IntermediateOutputPath)WireAccessors/.generated" />
+      <Compile Include="@(_WireCSharpSource)" />
+      <!-- Use SDK path identities for Clean bookkeeping, including when the checkout has a filesystem alias. -->
+      <FileWrites Include="$(_WireAccessorPath)**/*.cs;$(_WireAccessorPath).generated" />
     </ItemGroup>
-  </Target>
-
-  <!-- S5b: the TypeScript accessors the e2e suites import, generated by the same pinned compiler from the same inputs and the
-       same one schema file, @(WireSchema), as the C# accessors into tools/e2e/.wire/ of the tree being built (ignored; never
-       tracked; outside the output and intermediate directories, so Clean never deletes it and no FileWrites entry is made).
-       The one schema writes the entry module curious-contraptions/wire.ts, which re-exports every type it declares. The
-       compiler writes into .wire/.staging/; a file outside the wire namespace's module, or a missing entry module, is refused
-       there; each file gets the annotation normalisation of schemas/README.md (the optional string-accessor parameter is typed
-       flatbuffers.Encoding and the no-explicit-any suppression is removed); the schema file's name is recorded in schemas.txt,
-       which the e2e runner compares with the current schemas/*.fbs names; then the previous output is deleted, the per-type
-       files and the record move into place and the entry module moves last. Both the entry module and the record are the target's Outputs, so until the whole set is
-       in place an output is absent or older than an input and the next build regenerates. The C# generation stamp is an Input
-       too, so whatever regenerates the C# accessors (a clean tree, a no-incremental build, whose Clean deletes the stamp)
-       regenerates the TypeScript.
-       A refusal removes the staging folder and leaves the previous output as it was; a failure after the previous output is
-       deleted leaves no entry module, so the next build regenerates (and the e2e runner refuses to start meanwhile). One writer per
-       build graph: only the Debug instance generates. Every local graph (the capture builds, the hook's snapshot, the
-       maintainability gate, the build tests) builds one Debug instance of this project; CI's Release publish builds its
-       reference and worker instances in Release and one Debug instance, through the web host's editor-metadata build.
-       Declared after CompileWireAccessors, so the define refusal runs first. -->
-  <PropertyGroup>
-    <WireTypeScriptDirectory>$([MSBuild]::NormalizeDirectory('$(MSBuildProjectDirectory)', '..', 'tools', 'e2e', '.wire'))</WireTypeScriptDirectory>
-    <_WireTypeScriptStaging>$(WireTypeScriptDirectory).staging/</_WireTypeScriptStaging>
-  </PropertyGroup>
-  <Target Name="GenerateWireTypeScript" BeforeTargets="BeforeCompile" Condition="'$(Configuration)' == 'Debug'"
-          Inputs="@(WireSchema);$(IntermediateOutputPath)WireAccessors/.generated;$(MSBuildProjectFullPath)" Outputs="$(WireTypeScriptDirectory)curious-contraptions/wire.ts;$(WireTypeScriptDirectory)schemas.txt">
-    <CallTarget Targets="ProvisionFlatBuffersCompiler" />
-    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
-    <Exec Command="&quot;$(FlatcPath)&quot; --ts -o &quot;$(_WireTypeScriptStaging)&quot; @(WireSchema->'&quot;%(FullPath)&quot;', ' ')" />
-    <ItemGroup>
-      <_WireTypeScriptStray Include="$(_WireTypeScriptStaging)**/*" Exclude="$(_WireTypeScriptStaging)curious-contraptions/wire.ts;$(_WireTypeScriptStaging)curious-contraptions/wire/*.ts" />
-    </ItemGroup>
-    <Error Condition="'@(_WireTypeScriptStray)' != ''"
-           Text="The pinned FlatBuffers compiler wrote TypeScript outside the wire namespace's module (curious-contraptions/wire.ts and curious-contraptions/wire/): @(_WireTypeScriptStray->'%(RecursiveDir)%(Filename)%(Extension)', ', '). Every schema declares namespace CuriousContraptions.Wire; no TypeScript was replaced." />
-    <Error Condition="!Exists('$(_WireTypeScriptStaging)curious-contraptions/wire.ts')"
-           Text="The pinned FlatBuffers compiler wrote no TypeScript wire entry module curious-contraptions/wire.ts; no TypeScript was replaced." />
-    <ItemGroup>
-      <_WireTypeScriptFile Include="$(_WireTypeScriptStaging)**/*.ts" />
-      <_WireTypeScriptTypeFile Include="$(_WireTypeScriptStaging)**/*.ts" Exclude="$(_WireTypeScriptStaging)curious-contraptions/wire.ts" />
-    </ItemGroup>
-    <WriteLinesToFile File="%(_WireTypeScriptFile.FullPath)" Overwrite="true"
-                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_WireTypeScriptFile.FullPath)').Replace('optionalEncoding?:any', 'optionalEncoding?:flatbuffers.Encoding').Replace(', @typescript-eslint/no-explicit-any', ''))))" />
-    <WriteLinesToFile File="$(_WireTypeScriptStaging)schemas.txt" Lines="@(WireSchema->'%(Filename)%(Extension)')" Overwrite="true" />
-    <ItemGroup>
-      <_WireTypeScriptPrevious Include="$(WireTypeScriptDirectory)**/*" Exclude="$(_WireTypeScriptStaging)**/*" />
-    </ItemGroup>
-    <Delete Files="@(_WireTypeScriptPrevious)" />
-    <RemoveDir Directories="$(WireTypeScriptDirectory)curious-contraptions" />
-    <Move SourceFiles="@(_WireTypeScriptTypeFile)" DestinationFiles="@(_WireTypeScriptTypeFile->'$(WireTypeScriptDirectory)%(RecursiveDir)%(Filename)%(Extension)')" />
-    <Move SourceFiles="$(_WireTypeScriptStaging)schemas.txt" DestinationFiles="$(WireTypeScriptDirectory)schemas.txt" />
-    <Move SourceFiles="$(_WireTypeScriptStaging)curious-contraptions/wire.ts" DestinationFiles="$(WireTypeScriptDirectory)curious-contraptions/wire.ts" />
-    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
-    <OnError ExecuteTargets="RemoveWireTypeScriptStaging" />
-  </Target>
-
-  <Target Name="RemoveWireTypeScriptStaging">
-    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
   </Target>
 </Project>

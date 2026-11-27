@@ -6,7 +6,6 @@
     "strict": true,
     "noEmitOnError": true,
     "rootDir": ".",
-    "outDir": ".runtime-build",
     "lib": [
       "ES2022",
       "DOM",

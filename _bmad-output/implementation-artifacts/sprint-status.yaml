@@ -576,7 +576,7 @@ development_status:
   s5b-generate-typescript-wire-in-build: done # spec-s5b-generate-typescript-wire-in-build.md; lane 2, baseline 77e2b6aa; implemented as 7d9af19f (narrowed, coordinator decision B), published by its merge with 466ff4ca
   e2e-runner-process-lifecycle: done # spec-e2e-runner-process-lifecycle.md; lane 3, baseline 39aaba70; owner decisions 24r, 24s
   s5c-one-wire-schema-file: done # S5c-1 (coordinator ruling 26 Nov 2026 split S5c into S5c-1, S5c-2, S5c-3): spec-s5c-one-wire-schema-file.md; lane 2, baseline 39aaba70; after S5b (owner decision 24p)
-  s5c-2-wire-conformance-and-root-pin: backlog # drafted: spec-s5c-2-wire-conformance-and-root-pin.md; after S5c-1 and lane 3's runner lifecycle slice
+  s5c-2-wire-conformance-and-root-pin: done # spec-s5c-2-wire-conformance-and-root-pin.md, lane 2, original baseline cb29a076 and 24m integration b5ce3e0e. Final scope Pass and full local 7767/0/0 (E49–E50).
   s5c-3-remove-hand-schema-restatements: backlog # drafted: spec-s5c-3-remove-hand-schema-restatements.md; after S5c-2, before S6
   s6b-response-codec-read-family-table: backlog # drafted: spec-s6b-response-codec-read-family-table.md; after S5b and the first S6 slice
   s6c-presentation-route-tables: backlog # drafted: spec-s6c-presentation-route-tables.md; after S6b

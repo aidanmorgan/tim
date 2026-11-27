@@ -1,8 +1,13 @@
+using System.Collections;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
 using CuriousContraptions.Gpu;
+using Microsoft.Build.Framework;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -420,4 +425,604 @@ public sealed class WireSchemaGuards
                 ? LoadFromPath(path)
                 : null;
     }
+
+    // ----- S2: every flatc invocation reads only the one schema file, and TypeScript generates once per graph -----------
+
+    private const string AbstractionsProject = "CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj";
+    private const string VendoredProject = "CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj";
+    private const string CompilerTargets = "tools/runtime/FlatcCompiler.targets";
+    private static readonly string[] GraphLogs = ["playtest.binlog", "solution.binlog", "web.binlog"];
+
+    [Fact]
+    public void EveryCompilerRunReadsOnlyTheOneSchemaAndTypeScriptGeneratesOncePerGraph()
+    {
+        var directory = Environment.GetEnvironmentVariable("CSHARP_STATIC_GATE_BINLOGS") is { Length: > 0 } logs
+            ? logs
+            : throw new InvalidOperationException("CSHARP_STATIC_GATE_BINLOGS is required. Capture the five matching compiler-proof logs described in docs/delivery-workflow.md#local-test-authority.");
+        var schema = Path.Combine(Root, "schemas", OneSchema);
+        foreach (var log in GraphLogs)
+        {
+            var path = Path.Combine(directory, log);
+            Assert.True(File.Exists(path), $"{log}: missing (every gate build's binary log is required)");
+            Assert.Empty(CompilerGraphViolations(log, ReadCompilerRuns(path), schema));
+        }
+
+        var checkout = Path.Combine(Path.GetTempPath(), "checkout's with $space");
+        var canonical = Path.Combine(checkout, "schemas", OneSchema);
+        var foreign = Path.Combine(Path.GetTempPath(), "different checkout", "schemas", OneSchema);
+        var csharpPaths = ControlCompilerPaths(VendoredProject, canonical);
+        var paths = ControlCompilerPaths(AbstractionsProject, canonical);
+        var csharp = CaptureExec(VendoredProject, "GenerateWireAccessors", FlatcCommand(csharpPaths, canonical, BuildWork.CSharp), 5, csharpPaths)!;
+        var generation = FlatcCommand(paths, canonical, BuildWork.TypeScript);
+        var ts = CaptureExec(AbstractionsProject, "GenerateWireTypeScript", generation, 8, paths)!;
+        var runtime = CaptureExec(AbstractionsProject, "BuildRuntimeTypeScript", RuntimeCommand(paths.RuntimeOutput), 13, paths)!;
+        var extra = CaptureExec(AbstractionsProject, "UnexpectedTarget", generation, 14, paths)!;
+        var control = new CompilerRuns([csharp, ts, runtime],
+            [new(BuildWork.Clean, 1, 3), new(BuildWork.Stamp, 4, 6), new(BuildWork.CSharp, 4, 6), new(BuildWork.TypeScript, 7, 11),
+                new(BuildWork.Runtime, 12, 15), new(BuildWork.Reconcile, 16, 18)]);
+        Assert.Empty(CompilerGraphViolations("control", control, canonical));
+        var restores = ReplayRestoreControl();
+        var restore = Assert.Single(restores.Invocations);
+        Assert.Equal(BuildWork.Restore, restore.Work);
+        Assert.Equal(3, restore.At);
+        Assert.Equal(new WriterInterval(BuildWork.Restore, 1, 5), Assert.Single(restores.Writers));
+        Assert.Empty(RestoreViolations("canonical restore control", restores));
+        Assert.Contains(CompilerGraphViolations("missing restore interval control", restores with { Writers = [] }, canonical),
+            finding => finding.Contains("active npm restore Execs", StringComparison.Ordinal));
+        var missingOwner = ReplayRestoreControl(includeOwner: false);
+        Assert.Equal(BuildWork.Restore, Assert.Single(missingOwner.Invocations).Work);
+        Assert.Empty(missingOwner.Writers);
+        var missingOwnerViolations = CompilerGraphViolations("missing restore owner control", missingOwner, canonical);
+        Assert.Contains(missingOwnerViolations, finding => finding.Contains("unexpected npm restore owner", StringComparison.Ordinal));
+        Assert.Contains(missingOwnerViolations, finding => finding.Contains("active npm restore Execs", StringComparison.Ordinal));
+        var wrongOptions = ReplayRestoreControl("npm ci --no-fund");
+        Assert.Single(wrongOptions.Invocations);
+        Assert.Single(wrongOptions.Writers);
+        Assert.Contains(CompilerGraphViolations("incorrect restore options control", wrongOptions, canonical),
+            finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+        var wrongExecutable = ReplayRestoreControl("echo ci --ignore-scripts --no-audit --no-fund");
+        Assert.Equal(BuildWork.Restore, Assert.Single(wrongExecutable.Invocations).Work);
+        Assert.Single(wrongExecutable.Writers);
+        Assert.Contains(CompilerGraphViolations("wrong restore executable control", wrongExecutable, canonical),
+            finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+        var extraArgument = ReplayRestoreControl("npm ci --ignore-scripts --no-audit --no-fund ''");
+        Assert.Contains(RestoreViolations("extra empty restore argument", extraArgument),
+            finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+
+        var foreignInstall = ReplayRestoreControl("npm install --ignore-scripts", ownerTarget: "UnexpectedTarget");
+        Assert.Equal(BuildWork.Restore, Assert.Single(foreignInstall.Invocations).Work);
+        Assert.Empty(foreignInstall.Writers);
+        Assert.Contains(CompilerGraphViolations("unowned npm install control", foreignInstall, canonical),
+            finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+        var foreignAdd = ReplayRestoreControl("npm add flatbuffers", ownerTarget: "UnexpectedTarget");
+        Assert.Equal(BuildWork.Restore, Assert.Single(foreignAdd.Invocations).Work);
+        Assert.Empty(foreignAdd.Writers);
+        Assert.Contains(RestoreViolations("unowned npm add control", foreignAdd),
+            finding => finding.Contains("npm add flatbuffers", StringComparison.Ordinal));
+        var foreignAssigned = ReplayRestoreControl("CI=true npm ci", ownerTarget: "UnexpectedTarget");
+        Assert.Equal(BuildWork.Restore, Assert.Single(foreignAssigned.Invocations).Work);
+        Assert.Empty(foreignAssigned.Writers);
+        Assert.Contains(RestoreViolations("unowned assigned npm control", foreignAssigned),
+            finding => finding.Contains("CI=true npm ci", StringComparison.Ordinal));
+        var assigned = ReplayRestoreControl("CI=true npm ci --ignore-scripts --no-audit --no-fund");
+        Assert.Contains(RestoreViolations("assigned command in canonical owner", assigned),
+            finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+
+        string[] globalOptionsWithValues =
+        [
+            "--global --prefix \"foreign install root\" --loglevel=quiet", "--omit dev", "--fetch-retries 1", "--maxsockets 2",
+            "--script-shell /bin/sh", "--logs-dir \"logs with space\""
+        ];
+        foreach (var globalOption in globalOptionsWithValues)
+        foreach (var subcommand in new[] { "install", "ci" })
+        {
+            var globalOptions = ReplayRestoreControl($"npm {globalOption} {subcommand}", ownerTarget: "UnexpectedTarget");
+            Assert.Equal(BuildWork.Restore, Assert.Single(globalOptions.Invocations).Work);
+            Assert.Empty(globalOptions.Writers);
+            Assert.Contains(RestoreViolations("globally configured npm control", globalOptions),
+                finding => finding.Contains("unexpected npm restore owner or command", StringComparison.Ordinal));
+        }
+        AssertCompilerReplayControls(canonical);
+        var activeRestore = new CompilerRuns([.. control.Invocations, .. restores.Invocations], [.. control.Writers, .. restores.Writers]);
+        Assert.Contains(CompilerGraphViolations("restore overlap control", activeRestore, canonical),
+            finding => finding.Contains("Restore overlaps", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("two-schema control", control with
+        {
+            Invocations = [csharp, ts with { Arguments = [.. ts.Arguments, foreign] }, runtime]
+        }, canonical), finding => finding.Contains("2 schema inputs", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("foreign-schema control", control with
+        {
+            Invocations = [csharp, ts with { Arguments = [.. ts.Arguments[..^1], foreign] }, runtime]
+        }, canonical), finding => finding.Contains(foreign, StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("extra-owner control", control with
+        {
+            Invocations = [.. control.Invocations, extra]
+        }, canonical), finding => finding.Contains("unexpected flatc owner", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("zero-generator control", control with { Invocations = [csharp, runtime] }, canonical),
+            finding => finding.Contains("started 0 times", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("two-generator control", control with { Invocations = [.. control.Invocations, ts] }, canonical),
+            finding => finding.Contains("started 2 times", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("early-runtime control", control with
+        {
+            Invocations = [csharp, ts, runtime with { At = 10 }]
+        }, canonical), finding => finding.Contains("before TypeScript generation completed", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("overlap control", control with { Writers = [.. control.Writers, new(BuildWork.Clean, 9, 13)] }, canonical),
+            finding => finding.Contains("overlaps", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("reconcile overlap control", control with
+        {
+            Writers = [.. control.Writers, new(BuildWork.Reconcile, 14, 17)]
+        }, canonical), finding => finding.Contains("Reconcile overlaps", StringComparison.Ordinal));
+        var foreignRuntime = CaptureExec(AbstractionsProject, "UnexpectedTarget", "node /foreign/node_modules/typescript/bin/tsc -p tsconfig.runtime.json", 14)!;
+        Assert.Contains(CompilerGraphViolations("foreign compiler control", control with
+        {
+            Invocations = [.. control.Invocations, foreignRuntime]
+        }, canonical), finding => finding.Contains("unexpected runtime tsc", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("two runtime compilers control", control with
+        {
+            Invocations = [.. control.Invocations, runtime]
+        }, canonical), finding => finding.Contains("runtime tsc started 2 times", StringComparison.Ordinal));
+    }
+
+    private static void AssertCompilerReplayControls(string schema)
+    {
+        var paths = ControlCompilerPaths(AbstractionsProject, schema);
+        var runtime = RuntimeCommand(paths.RuntimeOutput);
+        var generation = FlatcCommand(paths, schema, BuildWork.TypeScript);
+        var replay = ReplayGenerationControl(schema, generation, runtime);
+        Assert.Equal(new[] { BuildWork.CSharp, BuildWork.TypeScript, BuildWork.Runtime, BuildWork.Reconcile },
+            replay.Writers.Select(writer => writer.Work));
+        Assert.Empty(CompilerGraphViolations("executing and skipped compiler visits", replay, schema));
+
+        var wrongTypeScript = ReplayGenerationControl(schema, generation.Replace("--gen-object-api ", "", StringComparison.Ordinal), runtime);
+        Assert.Contains(CompilerGraphViolations("noncanonical flatc arguments", wrongTypeScript, schema),
+            finding => finding.Contains("unexpected flatc owner or arguments", StringComparison.Ordinal));
+        var wrongRuntime = ReplayGenerationControl(schema, generation, runtime.Replace("node ", "node.exe ", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("noncanonical tsc executable", wrongRuntime, schema),
+            finding => finding.Contains("unexpected runtime tsc invocation", StringComparison.Ordinal));
+
+        var rawSchema = generation.Replace(QuoteShellPath(schema), $"\"{schema}\"", StringComparison.Ordinal);
+        var rawOutput = runtime.Replace(QuoteShellPath(paths.RuntimeOutput), $"\"{paths.RuntimeOutput}\"", StringComparison.Ordinal);
+        var expanded = ReplayGenerationControl(schema, rawSchema, rawOutput);
+        Assert.Equal(replay.Invocations.Select(invocation => string.Join(" ", invocation.Arguments)),
+            expanded.Invocations.Select(invocation => string.Join(" ", invocation.Arguments)));
+        Assert.Contains(CompilerGraphViolations("unprotected compiler paths", expanded, schema),
+            finding => finding.Contains("unexpected flatc owner or arguments", StringComparison.Ordinal));
+        Assert.Contains(CompilerGraphViolations("unprotected compiler paths", expanded, schema),
+            finding => finding.Contains("unexpected runtime tsc invocation", StringComparison.Ordinal));
+
+        var foreign = paths with { IntermediateOutput = Path.Combine(Path.GetTempPath(), "foreign intermediate") };
+        var foreignGeneration = ReplayGenerationControl(schema, FlatcCommand(foreign, schema, BuildWork.TypeScript), runtime);
+        Assert.Contains(CompilerGraphViolations("same-name foreign flatc output", foreignGeneration, schema),
+            finding => finding.Contains("unexpected flatc owner or arguments", StringComparison.Ordinal));
+        var csharp = ControlCompilerPaths(VendoredProject, schema) with { IntermediateOutput = foreign.IntermediateOutput };
+        var foreignCSharp = ReplayGenerationControl(schema, generation, runtime, csharpCommand: FlatcCommand(csharp, schema, BuildWork.CSharp));
+        Assert.Contains(CompilerGraphViolations("same-name foreign C# output", foreignCSharp, schema),
+            finding => finding.Contains("unexpected flatc owner or arguments", StringComparison.Ordinal));
+        var foreignRuntime = ReplayGenerationControl(schema, generation, RuntimeCommand(Path.Combine(foreign.IntermediateOutput, ".runtime-build")));
+        Assert.Contains(CompilerGraphViolations("same-name foreign tsc output", foreignRuntime, schema),
+            finding => finding.Contains("unexpected runtime tsc invocation", StringComparison.Ordinal));
+        var foreignCompiler = paths with { Flatc = Path.Combine(foreign.IntermediateOutput, "flatc") };
+        var wrongCompiler = ReplayGenerationControl(schema, FlatcCommand(foreignCompiler, schema, BuildWork.TypeScript), runtime);
+        Assert.Contains(CompilerGraphViolations("same-name foreign flatc executable", wrongCompiler, schema),
+            finding => finding.Contains("unexpected flatc owner or arguments", StringComparison.Ordinal));
+        foreach (var after in new[] { BuildWork.TypeScript, BuildWork.Runtime })
+        {
+            var late = ReplayGenerationControl(schema, generation, runtime, restoreAfter: after);
+            Assert.Contains(RestoreViolations("late canonical restore", late),
+                finding => finding.Contains("must finish before TypeScript generation and runtime tsc", StringComparison.Ordinal));
+        }
+    }
+
+    private static CompilerPaths ControlCompilerPaths(string project, string schema)
+    {
+        var checkout = Path.GetDirectoryName(Path.GetDirectoryName(schema))!;
+        return new(Path.Combine(checkout, project), "obj/Debug/net10.0", Path.Combine(checkout, "pinned compiler", "flatc"),
+            Path.Combine(checkout, ".runtime-build"));
+    }
+
+    private static string FlatcCommand(CompilerPaths paths, string schema, BuildWork work)
+    {
+        var switches = work == BuildWork.CSharp ? "--csharp" : "--ts --gen-object-api";
+        return $"{QuoteShellPath(paths.Flatc)} {switches} -o {QuoteShellPath(FlatcOutput(paths, work))} {QuoteShellPath(schema)}";
+    }
+
+    private static string RuntimeCommand(string output) =>
+        $"node ./node_modules/typescript/bin/tsc -p tsconfig.runtime.json --outDir {QuoteShellPath(output)}";
+
+    private static string QuoteShellPath(string path) => "'" + path.Replace("'", "'\"'\"'", StringComparison.Ordinal) + "'";
+
+    private static CompilerRuns ReplayGenerationControl(string schema, string generation, string runtime, string? csharpCommand = null,
+        BuildWork? restoreAfter = null) => ReplayCompilerRuns(raise =>
+    {
+        var csharp = ControlCompilerPaths(VendoredProject, schema);
+        var typescript = ControlCompilerPaths(AbstractionsProject, schema);
+        ReplayCompilerVisit(raise, VendoredProject, "GenerateWireAccessors", 1,
+            csharpCommand ?? FlatcCommand(csharp, schema, BuildWork.CSharp), csharp);
+        ReplayCompilerVisit(raise, AbstractionsProject, "GenerateWireTypeScript", 2, generation, typescript);
+        if (restoreAfter == BuildWork.TypeScript)
+            ReplayCompilerVisit(raise, AbstractionsProject, "RestoreRuntimeTypeScript", 5, string.Join(' ', RuntimeRestoreCommand));
+        ReplayCompilerVisit(raise, AbstractionsProject, "BuildRuntimeTypeScript", 3, runtime, typescript);
+        ReplayCompilerVisit(raise, AbstractionsProject, "ReconcileCompiledWireTypeScript", 4, command: null);
+        if (restoreAfter == BuildWork.Runtime)
+            ReplayCompilerVisit(raise, AbstractionsProject, "RestoreRuntimeTypeScript", 5, string.Join(' ', RuntimeRestoreCommand));
+    });
+
+    private static void ReplayCompilerVisit(Action<BuildEventArgs> raise, string project, string target, int context, string? command,
+        CompilerPaths? paths = null)
+    {
+        var active = new BuildEventContext(submissionId: 0, nodeId: 1, evaluationId: context, projectInstanceId: context,
+            projectContextId: context, targetId: 1, taskId: 1);
+        if (paths is not null)
+        {
+            raise(new ProjectEvaluationFinishedEventArgs
+            {
+                BuildEventContext = active,
+                ProjectFile = paths.ProjectFile,
+                Properties = new Hashtable
+                {
+                    ["IntermediateOutputPath"] = paths.IntermediateOutput,
+                    ["FlatcPath"] = paths.Flatc,
+                    ["_RuntimeTypeScriptOutput"] = paths.RuntimeOutput
+                }
+            });
+            raise(new ProjectStartedEventArgs("", "", paths.ProjectFile, target, Array.Empty<DictionaryEntry>(), Array.Empty<DictionaryEntry>())
+                { BuildEventContext = active });
+        }
+        raise(new TargetStartedEventArgs("", null, target, project, null) { BuildEventContext = active });
+        if (command is not null)
+        {
+            var reuse = new BuildEventContext(nodeId: 1, targetId: 1, projectContextId: context + 100, taskId: 1);
+            raise(new TargetStartedEventArgs("", null, target, project, null) { BuildEventContext = reuse });
+            raise(new TaskCommandLineEventArgs(command, "Exec", MessageImportance.Low) { BuildEventContext = active });
+            raise(new TargetFinishedEventArgs("", null, target, project, null, true) { BuildEventContext = reuse });
+        }
+        raise(new TargetFinishedEventArgs("", null, target, project, null, true) { BuildEventContext = active });
+    }
+
+    private static readonly string[] RuntimeRestoreCommand = ["npm", "ci", "--ignore-scripts", "--no-audit", "--no-fund"];
+
+    private static CompilerRuns ReplayRestoreControl(string command = "npm ci --ignore-scripts --no-audit --no-fund",
+        bool includeOwner = true, string ownerTarget = "RestoreRuntimeTypeScript") => ReplayCompilerRuns(raise =>
+    {
+        const string target = "RestoreRuntimeTypeScript";
+        var active = new BuildEventContext(nodeId: 1, targetId: 2, projectContextId: 3, taskId: 4);
+        var skipped = new BuildEventContext(nodeId: 1, targetId: 2, projectContextId: 5, taskId: 4);
+        if (includeOwner)
+            raise(new TargetStartedEventArgs("", null, ownerTarget, AbstractionsProject, null) { BuildEventContext = active });
+        raise(new TargetStartedEventArgs("", null, target, AbstractionsProject, null) { BuildEventContext = skipped });
+        raise(new TaskCommandLineEventArgs(command, "Exec", MessageImportance.Low)
+            { BuildEventContext = active });
+        raise(new TargetFinishedEventArgs("", null, target, AbstractionsProject, null, true) { BuildEventContext = skipped });
+        raise(new TargetFinishedEventArgs("", null, ownerTarget, AbstractionsProject, null, true) { BuildEventContext = active });
+    });
+
+    private enum BuildWork { CSharp, TypeScript, Runtime, Stamp, Clean, Reconcile, Restore }
+
+    private sealed record CompilerPaths(string ProjectFile, string IntermediateOutput, string Flatc, string RuntimeOutput);
+    private sealed record CompilerInvocation(BuildWork? Work, string Project, string Target, string[] Arguments, int At, CompilerPaths? Paths, bool UnprotectedDollar);
+    private sealed record WriterInterval(BuildWork Work, int Start, int End);
+    private sealed record CompilerRuns(List<CompilerInvocation> Invocations, List<WriterInterval> Writers);
+
+    private static List<string> RestoreViolations(string log, CompilerRuns runs)
+    {
+        var violations = new List<string>();
+        var activeRestores = runs.Invocations.Where(invocation => invocation.Work == BuildWork.Restore).ToArray();
+        foreach (var restore in activeRestores)
+            if (WorkOf(restore.Project, restore.Target) != BuildWork.Restore ||
+                !restore.Arguments.SequenceEqual(RuntimeRestoreCommand, StringComparer.Ordinal))
+                violations.Add($"{log}: unexpected npm restore owner or command in {restore.Project}:{restore.Target} [{string.Join(" ", restore.Arguments)}]");
+        var restoreWriters = runs.Writers.Where(writer => writer.Work == BuildWork.Restore).ToArray();
+        if (activeRestores.Length != restoreWriters.Length ||
+            activeRestores.Any(restore => restoreWriters.Count(writer => writer.Start < restore.At && restore.At < writer.End) != 1))
+            violations.Add($"{log}: {activeRestores.Length} active npm restore Execs must each have one writer interval (found {restoreWriters.Length})");
+        foreach (var restore in restoreWriters)
+            if (runs.Invocations.Any(invocation => invocation.Work is BuildWork.TypeScript or BuildWork.Runtime && invocation.At <= restore.End))
+                violations.Add($"{log}: npm restore must finish before TypeScript generation and runtime tsc");
+        return violations;
+    }
+
+    private static List<string> CompilerGraphViolations(string log, CompilerRuns runs, string expectedSchema)
+    {
+        var violations = RestoreViolations(log, runs);
+        var typescript = runs.Invocations.Count(invocation => invocation.Work == BuildWork.TypeScript);
+        if (typescript != 1)
+            violations.Add($"{log}: GenerateWireTypeScript in {AbstractionsProject} started {typescript} times, not exactly once");
+        if (!runs.Invocations.Exists(invocation => invocation.Work == BuildWork.CSharp))
+            violations.Add($"{log}: no C# schema compiler invocation in {VendoredProject}");
+        foreach (var invocation in runs.Invocations.Where(invocation => invocation.Work is not (BuildWork.Runtime or BuildWork.Restore)))
+        {
+            var owner = $"{invocation.Project}:{invocation.Target}";
+            if (!HasCanonicalFlatcArguments(invocation))
+                violations.Add($"{log}: unexpected flatc owner or arguments {owner}");
+            if (invocation.Work is { } work && runs.Writers.Count(writer => OwnsInvocation(writer, work, invocation.At)) != 1)
+                violations.Add($"{log}: {owner} did not run within one matching generation interval");
+            var schemas = invocation.Arguments.Where(argument => argument.EndsWith(".fbs", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (schemas.Length != 1 || !Path.IsPathFullyQualified(schemas[0]) ||
+                !string.Equals(Path.GetFullPath(schemas[0]), Path.GetFullPath(expectedSchema), StringComparison.Ordinal))
+                violations.Add($"{log}: {owner} passed {schemas.Length} schema inputs [{string.Join(", ", schemas)}], expected only {expectedSchema}");
+        }
+
+        var generation = runs.Writers.FirstOrDefault(writer => writer.Work == BuildWork.TypeScript &&
+            runs.Invocations.Exists(invocation => invocation.Work == BuildWork.TypeScript && OwnsInvocation(writer, BuildWork.TypeScript, invocation.At)));
+        var runtimeCompiles = runs.Invocations.Where(invocation => invocation.Work == BuildWork.Runtime).ToArray();
+        if (runtimeCompiles.Length != 1)
+            violations.Add($"{log}: runtime tsc started {runtimeCompiles.Length} times, expected exactly one compile");
+        foreach (var invocation in runtimeCompiles)
+        {
+            if (WorkOf(invocation.Project, invocation.Target) != BuildWork.Runtime ||
+                !HasCanonicalRuntimeArguments(invocation))
+                violations.Add($"{log}: unexpected runtime tsc invocation in {invocation.Project}:{invocation.Target}");
+            if (generation is null || invocation.At <= generation.End)
+                violations.Add($"{log}: runtime tsc ran before TypeScript generation completed or generation did not run");
+            var compile = runs.Writers.Find(writer => OwnsInvocation(writer, BuildWork.Runtime, invocation.At));
+            if (compile is null)
+                violations.Add($"{log}: runtime tsc did not run within the Abstractions compile interval");
+            else if (!runs.Writers.Exists(writer => writer.Work == BuildWork.Reconcile && writer.Start > compile.End))
+                violations.Add($"{log}: no emitted wire reconciliation interval after runtime compile");
+        }
+        int previousEnd = -1;
+        // C# generation writes a disjoint intermediate tree. Its invocation still needs its own interval.
+        foreach (var writer in runs.Writers.Where(writer => writer.Work != BuildWork.CSharp).OrderBy(writer => writer.Start))
+        {
+            if (writer.Start < previousEnd)
+                violations.Add($"{log}: {writer.Work} overlaps a wire writer");
+            previousEnd = Math.Max(previousEnd, writer.End);
+        }
+        return violations;
+    }
+
+    private static bool OwnsInvocation(WriterInterval writer, BuildWork work, int at) =>
+        writer.Work == work && writer.Start < at && at < writer.End;
+
+    private static bool HasCanonicalFlatcArguments(CompilerInvocation invocation)
+    {
+        if (invocation.UnprotectedDollar || invocation.Paths is not { } paths)
+            return false;
+        return invocation.Work switch
+        {
+            BuildWork.CSharp when invocation.Arguments is [var compiler, "--csharp", "-o", var destination, _] =>
+                SamePath(compiler, paths.Flatc) && SamePath(destination, FlatcOutput(paths, BuildWork.CSharp)),
+            BuildWork.TypeScript when invocation.Arguments is [var compiler, "--ts", "--gen-object-api", "-o", var destination, _] =>
+                SamePath(compiler, paths.Flatc) && SamePath(destination, FlatcOutput(paths, BuildWork.TypeScript)),
+            _ => false,
+        };
+    }
+
+    private static string FlatcOutput(CompilerPaths paths, BuildWork work) =>
+        Path.GetFullPath(Path.Combine(Path.GetDirectoryName(paths.ProjectFile)!,
+            paths.IntermediateOutput.Replace('\\', Path.DirectorySeparatorChar),
+            work == BuildWork.CSharp ? "WireAccessors" : "WireTypeScriptStaging"));
+
+    private static bool HasCanonicalRuntimeArguments(CompilerInvocation invocation) =>
+        !invocation.UnprotectedDollar && invocation.Paths is { } paths &&
+        invocation.Arguments is ["node", "./node_modules/typescript/bin/tsc", "-p", "tsconfig.runtime.json", "--outDir", var output] &&
+        SamePath(output, paths.RuntimeOutput);
+
+    private static bool SamePath(string actual, string expected) =>
+        Path.IsPathFullyQualified(actual) && Path.IsPathFullyQualified(expected) &&
+        string.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(actual)),
+            Path.TrimEndingDirectorySeparator(Path.GetFullPath(expected)), StringComparison.Ordinal);
+
+    private static BuildWork? WorkOf(string project, string target)
+    {
+        if (Path.IsPathFullyQualified(project))
+            project = Path.GetRelativePath(Root, project);
+        project = project.Replace('\\', '/');
+        if (project == VendoredProject && target == "GenerateWireAccessors")
+            return BuildWork.CSharp;
+        if (project != AbstractionsProject)
+            return null;
+        return target switch
+        {
+            "GenerateWireTypeScript" => BuildWork.TypeScript,
+            "BuildRuntimeTypeScript" => BuildWork.Runtime,
+            "ReconcileCompiledWireTypeScript" => BuildWork.Reconcile,
+            "StampWireTypeScriptInputs" => BuildWork.Stamp,
+            "CleanWireTypeScriptInputs" => BuildWork.Clean,
+            "RestoreRuntimeTypeScript" => BuildWork.Restore,
+            _ => null
+        };
+    }
+
+    private static CompilerInvocation? CaptureExec(string project, string target, string command, int ordinal, CompilerPaths? paths = null)
+    {
+        var (tokens, executableIndex, unprotectedDollar) = ShellCommandTokens(command);
+        var work = WorkOf(project, target);
+        var executable = executableIndex < 0 ? "" : Path.GetFileName(tokens[executableIndex].Replace('\\', '/'));
+        if (work == BuildWork.Restore || executable.ToLowerInvariant() is "npm" or "npm.cmd" or "npm.exe")
+            return new(BuildWork.Restore, project, target, tokens, ordinal, paths, unprotectedDollar);
+        if (string.Equals(executable, "flatc", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(executable, "flatc.exe", StringComparison.OrdinalIgnoreCase))
+            return new(work is BuildWork.CSharp or BuildWork.TypeScript ? work : null, project, target, tokens, ordinal, paths, unprotectedDollar);
+        var runsTypeScript = executable is "tsc" or "tsc.cmd" ||
+            (executable is "node" or "node.exe" && executableIndex + 1 < tokens.Length &&
+                Path.GetFileName(tokens[executableIndex + 1].Replace('\\', '/')) is "tsc" or "tsc.js" or "_tsc.js");
+        return runsTypeScript && !tokens.Contains("--version", StringComparer.Ordinal)
+            ? new(BuildWork.Runtime, project, target, tokens, ordinal, paths, unprotectedDollar) : null;
+    }
+
+    private static (string[] Tokens, int ExecutableIndex, bool UnprotectedDollar) ShellCommandTokens(string command)
+    {
+        var words = new List<string>();
+        var word = new StringBuilder();
+        var quote = '\0';
+        var wordStarted = false;
+        var unprotectedDollar = false;
+        var executableIndex = -1;
+        for (var index = 0; index < command.Length; index++)
+        {
+            var character = command[index];
+            if (!wordStarted && executableIndex < 0 && !char.IsWhiteSpace(character) &&
+                !StartsWithShellAssignment(command.AsSpan(index)))
+                executableIndex = words.Count;
+            // Canonical path arguments use single quotes. Double quotes still allow shell expansion.
+            if (character == '$' && quote != '\'')
+                unprotectedDollar = true;
+            if (character == quote)
+                quote = '\0';
+            else if (quote == '\0' && character is '\'' or '"')
+            {
+                quote = character;
+                wordStarted = true;
+            }
+            else if (quote != '\0' || !char.IsWhiteSpace(character))
+            {
+                word.Append(character);
+                wordStarted = true;
+            }
+            else if (wordStarted)
+            {
+                words.Add(word.ToString());
+                word.Clear();
+                wordStarted = false;
+            }
+        }
+        if (wordStarted)
+            words.Add(word.ToString());
+        return (words.ToArray(), executableIndex, unprotectedDollar);
+    }
+
+    private static bool StartsWithShellAssignment(ReadOnlySpan<char> word)
+    {
+        if (!char.IsAsciiLetter(word[0]) && word[0] != '_')
+            return false;
+        var nameEnd = 1;
+        while (nameEnd < word.Length && (char.IsAsciiLetterOrDigit(word[nameEnd]) || word[nameEnd] == '_'))
+            nameEnd++;
+        return nameEnd < word.Length && word[nameEnd] == '=';
+    }
+
+    private static CompilerRuns ReadCompilerRuns(string binlog) =>
+        ReplayCompilerRuns(handler => CSharpStaticGateTests.ReplayBuildLog(binlog, handler));
+
+    private static CompilerRuns ReplayCompilerRuns(Action<Action<BuildEventArgs>> replay)
+    {
+        var targets = new Dictionary<(int, int, int), (string Project, string Target, int Start)>();
+        var evaluations = new Dictionary<(int Node, int Evaluation), CompilerPaths>();
+        var projectEvaluations = new Dictionary<(int Node, int Project), int>();
+        var executing = new HashSet<(int, int, int)>();
+        var runs = new CompilerRuns([], []);
+        int ordinal = 0;
+        replay(raised =>
+        {
+            ordinal++;
+            if (raised.BuildEventContext is not { } context)
+                return;
+            var key = (context.NodeId, context.ProjectContextId, context.TargetId);
+            if (raised is ProjectEvaluationFinishedEventArgs evaluation && ReadCompilerPaths(evaluation) is { } paths)
+                evaluations[(context.NodeId, context.EvaluationId)] = paths;
+            else if (raised is ProjectStartedEventArgs)
+                projectEvaluations[(context.NodeId, context.ProjectContextId)] = context.EvaluationId;
+            else if (raised is TargetStartedEventArgs target)
+                targets.Add(key, (target.ProjectFile ?? "", target.TargetName, ordinal));
+            else if (raised is TaskCommandLineEventArgs { TaskName: "Exec" } exec)
+            {
+                var owner = targets.GetValueOrDefault(key);
+                var evaluationId = projectEvaluations.GetValueOrDefault((context.NodeId, context.ProjectContextId), -1);
+                var owningPaths = evaluations.GetValueOrDefault((context.NodeId, evaluationId));
+                var invocation = CaptureExec(owner.Project ?? exec.ProjectFile ?? "", owner.Target ?? "", exec.CommandLine, ordinal, owningPaths);
+                if (invocation is null)
+                    return;
+                runs.Invocations.Add(invocation);
+                if (invocation.Work is { } work && work == WorkOf(owner.Project ?? "", owner.Target ?? ""))
+                    executing.Add(key);
+            }
+            else if (raised is TargetFinishedEventArgs && targets.Remove(key, out var ended) &&
+                WorkOf(ended.Project, ended.Target) is { } writer)
+                TrackWriter(runs, writer, ended.Start, ordinal, executing.Remove(key));
+        });
+        return runs;
+    }
+
+    private static CompilerPaths? ReadCompilerPaths(ProjectEvaluationFinishedEventArgs evaluation)
+    {
+        if (evaluation.ProjectFile is not { } project || evaluation.Properties is not { } properties)
+            return null;
+        var paths = properties.Cast<DictionaryEntry>()
+            .Where(entry => entry.Key is "IntermediateOutputPath" or "FlatcPath" or "_RuntimeTypeScriptOutput")
+            .ToDictionary(entry => (string)entry.Key, entry => entry.Value as string, StringComparer.Ordinal);
+        return paths.GetValueOrDefault("IntermediateOutputPath") is { Length: > 0 } intermediate &&
+            paths.GetValueOrDefault("FlatcPath") is { Length: > 0 } compiler &&
+            paths.GetValueOrDefault("_RuntimeTypeScriptOutput") is { Length: > 0 } runtime
+            ? new(project, intermediate, compiler, runtime) : null;
+    }
+
+    private static void TrackWriter(CompilerRuns runs, BuildWork writer, int start, int end, bool invoked)
+    {
+        // Incremental compiler and restore target visits can have an interval without executing the command.
+        if (invoked || writer is not (BuildWork.CSharp or BuildWork.TypeScript or BuildWork.Runtime or BuildWork.Restore))
+            runs.Writers.Add(new(writer, start, end));
+    }
+
+    // ----- S12: the FlatBuffers TypeScript runtime is pinned once, at the root ------------------------------------------
+
+    [Fact]
+    public void TheFlatBuffersRuntimeIsPinnedAtTheRoot()
+    {
+        var version = Regex.Match(File.ReadAllText(Path.Combine(Root, CompilerTargets)), "<FlatcVersion>([^<]+)</FlatcVersion>").Groups[1].Value;
+        Assert.Matches(@"^\d+\.\d+\.\d+$", version);
+        var pins = new RootRuntimeManifests(
+            File.ReadAllText(Path.Combine(Root, "package.json")),
+            File.ReadAllText(Path.Combine(Root, "package-lock.json")),
+            File.Exists(Path.Combine(Root, "tools", "e2e", "package.json")),
+            File.Exists(Path.Combine(Root, "tools", "e2e", "package-lock.json")),
+            new Dictionary<string, string>(StringComparer.Ordinal)
+            {
+                ["tsconfig.runtime.json"] = File.ReadAllText(Path.Combine(Root, "tsconfig.runtime.json")),
+                ["tools/e2e/tsconfig.json"] = File.ReadAllText(Path.Combine(Root, "tools", "e2e", "tsconfig.json")),
+            });
+        Assert.Empty(RootRuntimePinViolations(pins, version));
+
+        // Controls: a version range, a tools/e2e/package.json naming flatbuffers, a version differing from <FlatcVersion>, and a paths mapping are each refused.
+        var pinned = $"\"flatbuffers\": \"{version}\"";
+        Assert.Contains($"package.json: devDependencies.flatbuffers is ^{version}, not exactly {version}",
+            RootRuntimePinViolations(pins with { RootManifest = pins.RootManifest.Replace(pinned, $"\"flatbuffers\": \"^{version}\"", StringComparison.Ordinal) }, version));
+        Assert.Contains("tools/e2e/package.json must be absent",
+            RootRuntimePinViolations(pins with { HasE2eManifest = true }, version));
+        Assert.Contains("package.json: devDependencies.flatbuffers is 25.2.10, not exactly 9.9.9",
+            RootRuntimePinViolations(pins, "9.9.9"));
+        Assert.Contains("tools/e2e/tsconfig.json: compilerOptions.paths maps flatbuffers to [\"/x\"]",
+            RootRuntimePinViolations(pins with { Tsconfigs = new(pins.Tsconfigs) { ["tools/e2e/tsconfig.json"] = """{ "compilerOptions": { "paths": { "flatbuffers": ["/x"] } } }""" } }, version));
+    }
+
+    internal sealed record RootRuntimeManifests(string RootManifest, string RootLock, bool HasE2eManifest, bool HasE2eLock, Dictionary<string, string> Tsconfigs);
+
+    private static readonly JsonDocumentOptions PinJsonOptions = new() { AllowTrailingCommas = true, CommentHandling = JsonCommentHandling.Skip };
+    private static readonly string[] LockedSourceFields = ["resolved", "integrity"];
+
+    internal static List<string> RootRuntimePinViolations(RootRuntimeManifests manifests, string version)
+    {
+        var violations = new List<string>();
+        using var rootManifest = JsonDocument.Parse(manifests.RootManifest, PinJsonOptions);
+        var declared = JsonText(rootManifest.RootElement, "devDependencies", "flatbuffers");
+        if (declared != version) violations.Add($"package.json: devDependencies.flatbuffers is {declared ?? "absent"}, not exactly {version}");
+        using var rootLock = JsonDocument.Parse(manifests.RootLock, PinJsonOptions);
+        var lockedRoot = JsonText(rootLock.RootElement, "packages", "", "devDependencies", "flatbuffers");
+        if (lockedRoot != version) violations.Add($"package-lock.json: root devDependencies.flatbuffers is {lockedRoot ?? "absent"}, not exactly {version}");
+        var locked = JsonText(rootLock.RootElement, "packages", "node_modules/flatbuffers", "version");
+        if (locked != version) violations.Add($"package-lock.json: node_modules/flatbuffers is {locked ?? "absent"}, not exactly {version}");
+        foreach (var field in LockedSourceFields.Where(f => string.IsNullOrEmpty(JsonText(rootLock.RootElement, "packages", "node_modules/flatbuffers", f))))
+            violations.Add($"package-lock.json: node_modules/flatbuffers has no {field}");
+        if (manifests.HasE2eManifest) violations.Add("tools/e2e/package.json must be absent");
+        if (manifests.HasE2eLock) violations.Add("tools/e2e/package-lock.json must be absent");
+        foreach (var (path, text) in manifests.Tsconfigs.OrderBy(e => e.Key, StringComparer.Ordinal))
+        {
+            using var ts = JsonDocument.Parse(text, PinJsonOptions);
+            if (JsonFind(ts.RootElement, "compilerOptions", "paths", "flatbuffers") is { } mapping)
+                violations.Add($"{path}: compilerOptions.paths maps flatbuffers to {mapping.GetRawText()}");
+        }
+        return violations;
+    }
+
+    private static JsonElement? JsonFind(JsonElement element, params string[] path)
+    {
+        foreach (var name in path)
+        {
+            if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out element)) return null;
+        }
+        return element;
+    }
+
+    private static string? JsonText(JsonElement element, params string[] path) =>
+        JsonFind(element, path) is { ValueKind: JsonValueKind.String } value ? value.GetString() : null;
 }

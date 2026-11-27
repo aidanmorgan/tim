@@ -604,43 +604,211 @@ public sealed class IdentityTests : IDisposable
         Assert.Contains("re-hash", summary.Detail, StringComparison.Ordinal);
     }
 
-    // S5b: the generated wire modules the suites import are ignored build output under tools/e2e/.wire/, so the suite digest reads
-    // them from the file system. A regenerated module and a changed schema record (.wire/schemas.txt) each change the digest;
-    // control: an unrelated ignored file under tools/e2e/ does not.
-    // Boundary: a deleted .wire/ folder changes the digest and the computation does not fail. A folder or file removed while the
-    // digest reads it (the race with a regenerating build) is handled the same way by source review; this test does not trigger it.
+    // The tracked npm manifests and generated modules are suite inputs. Ignored non-module files are irrelevant.
     [Fact]
     public void TheSuiteDigestCoversTheGeneratedWireModulesAndNoOtherIgnoredFile()
     {
         var root = _work.FullName;
         Processes.Git(root, "init", "-q");
         File.WriteAllText(Path.Combine(root, ".gitignore"), "tools/e2e/.wire/\n*.tmp\n");
-        Directory.CreateDirectory(Path.Combine(root, "tools", "e2e", ".wire", "m", "wire"));
-        File.WriteAllText(Path.Combine(root, "tools", "e2e", "a.test.ts"), "import { A } from './.wire/m/wire.ts';\n");
-        File.WriteAllText(Path.Combine(root, "tools", "e2e", ".wire", "m", "wire.ts"), "export { A } from './wire/a.js';\n");
-        var generated = Path.Combine(root, "tools", "e2e", ".wire", "m", "wire", "a.ts");
+        Directory.CreateDirectory(Path.Combine(root, "tools", "e2e", ".wire", "curious-contraptions", "wire"));
+        Directory.CreateDirectory(Path.Combine(root, "tools", "runtime"));
+        File.WriteAllText(Path.Combine(root, "tools", "e2e", "a.test.ts"), "import { A } from './.wire/curious-contraptions/wire.ts';\n");
+        var wireFrame = Path.Combine(root, "tools", "runtime", "wire-frame.ts");
+        File.WriteAllText(wireFrame, "export function openFrame() {}\n");
+        File.WriteAllText(Path.Combine(root, "tools", "e2e", ".wire", "curious-contraptions", "wire.ts"), "export { A } from './wire/a.js';\n");
+        var generated = Path.Combine(root, "tools", "e2e", ".wire", "curious-contraptions", "wire", "a.ts");
         File.WriteAllText(generated, "export class A {}\n");
-        var record = Path.Combine(root, "tools", "e2e", ".wire", "schemas.txt");
-        File.WriteAllText(record, "a.fbs\n");
         var unrelated = Path.Combine(root, "tools", "e2e", "notes.tmp");
         File.WriteAllText(unrelated, "one");
-        var first = SourceIdentity.SuiteSources(root);
+        var retired = Path.Combine(root, "tools", "e2e", ".wire", "schemas.txt");
+        File.WriteAllText(retired, "obsolete");
+        var manifest = Path.Combine(root, "package.json");
+        var packageLock = Path.Combine(root, "package-lock.json");
+        File.WriteAllText(manifest, "{}");
+        File.WriteAllText(packageLock, "{}");
+        Processes.Git(root, "add", "--", "package.json", "package-lock.json");
+        string[] admitted = ["tools/e2e/.wire/curious-contraptions/wire.ts", "tools/e2e/.wire/curious-contraptions/wire/a.ts"];
+        var first = SourceIdentity.SuiteSources(root, admitted);
 
         File.WriteAllText(unrelated, "two");
-        Assert.Equal(first, SourceIdentity.SuiteSources(root));
+        File.WriteAllText(retired, "other obsolete contents");
+        var unlisted = Path.Combine(Path.GetDirectoryName(generated)!, "unlisted.ts");
+        File.WriteAllText(unlisted, "export class Unlisted {}\n");
+        Processes.Git(root, "add", "-f", "--", unlisted);
+        Assert.Equal(first, SourceIdentity.SuiteSources(root, admitted));
+
+        File.WriteAllText(manifest, """{"private":true}""");
+        var manifestChanged = SourceIdentity.SuiteSources(root, admitted);
+        Assert.NotEqual(first, manifestChanged);
+        File.WriteAllText(packageLock, """{"lockfileVersion":3}""");
+        var lockChanged = SourceIdentity.SuiteSources(root, admitted);
+        Assert.NotEqual(manifestChanged, lockChanged);
 
         File.WriteAllText(generated, "export class A { b = 1; }\n");
-        var regenerated = SourceIdentity.SuiteSources(root);
-        Assert.NotEqual(first, regenerated);
+        var regenerated = SourceIdentity.SuiteSources(root, admitted);
+        Assert.NotEqual(lockChanged, regenerated);
 
-        File.WriteAllText(record, "a.fbs\nb.fbs\n");
-        var rerecorded = SourceIdentity.SuiteSources(root);
-        Assert.NotEqual(regenerated, rerecorded);
+        File.WriteAllText(wireFrame, "export function openFrame() { return 1; }\n");
+        var frameChanged = SourceIdentity.SuiteSources(root, admitted);
+        Assert.NotEqual(regenerated, frameChanged);
 
         Directory.Delete(Path.Combine(root, "tools", "e2e", ".wire"), recursive: true);
-        var removed = SourceIdentity.SuiteSources(root);
-        Assert.NotEqual(rerecorded, removed);
+        var removed = SourceIdentity.SuiteSources(root, admitted);
+        Assert.NotEqual(frameChanged, removed);
         Assert.NotEqual(first, removed);
+    }
+
+    [Theory]
+    [InlineData("package.json")]
+    [InlineData("package-lock.json")]
+    public void RetiredNestedNpmManifestChangesSuiteIdentityByPresence(string filename)
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        File.WriteAllText(Path.Combine(root, ".gitignore"), $"tools/e2e/{filename}\n");
+        var path = Path.Combine(Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName, filename);
+        var absent = SourceIdentity.SuiteSources(root, []);
+
+        File.WriteAllText(path, "first ignored retired content");
+        var present = SourceIdentity.SuiteSources(root, []);
+        Assert.NotEqual(absent, present);
+
+        File.WriteAllText(path, "different ignored retired content");
+        Assert.Equal(present, SourceIdentity.SuiteSources(root, []));
+
+        File.Delete(path);
+        Assert.Equal(absent, SourceIdentity.SuiteSources(root, []));
+    }
+
+    [Theory]
+    [InlineData("package.json")]
+    [InlineData("package-lock.json")]
+    public void GitListedRetiredNpmInputsContributePresenceOnly(string name)
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        var reserved = Path.Combine(Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName, name);
+        var absent = SourceIdentity.SuiteSources(root, []);
+        File.WriteAllText(reserved, "malformed retired npm input");
+        Processes.Git(root, "add", "--", reserved);
+
+        var present = SourceIdentity.SuiteSources(root, []);
+        Assert.NotEqual(absent, present);
+        File.WriteAllText(reserved, "changed retired contents");
+        Assert.Equal(present, SourceIdentity.SuiteSources(root, []));
+
+        File.Delete(reserved);
+        Assert.Equal(absent, SourceIdentity.SuiteSources(root, []));
+    }
+
+    [Theory]
+    [InlineData("package.json", "package.json")]
+    [InlineData("package-lock.json", "package-lock.json")]
+    [InlineData("package.json", "PACKAGE.JSON")]
+    [InlineData("package.json", "pac\u212Aage.json")]
+    public void GitListedChildrenLeaveARetiredDirectoryIdentityUnchanged(string name, string spelling)
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        var parent = Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName;
+        var absent = SourceIdentity.SuiteSources(root, []);
+        var directory = Directory.CreateDirectory(Path.Combine(parent, spelling));
+        var retired = Directory.Exists(Path.Combine(parent, name));
+        var empty = SourceIdentity.SuiteSources(root, []);
+        Assert.Equal(retired, absent != empty);
+
+        var tracked = Path.Combine(directory.FullName, "unread.txt");
+        File.WriteAllText(tracked, "first child contents");
+        TrackManifestSpelling(root, tracked);
+        var withChild = SourceIdentity.SuiteSources(root, []);
+        Assert.Equal(retired, empty == withChild);
+        File.WriteAllText(tracked, "changed child contents");
+        Assert.Equal(retired, withChild == SourceIdentity.SuiteSources(root, []));
+
+        File.Delete(tracked);
+        if (retired)
+            Assert.Equal(empty, SourceIdentity.SuiteSources(root, []));
+        Processes.Git(root, "rm", "--cached", "-f", "--", tracked);
+        Assert.True(Directory.Exists(directory.FullName));
+        Assert.Equal(empty, SourceIdentity.SuiteSources(root, []));
+
+        directory.Delete();
+        Assert.Equal(absent, SourceIdentity.SuiteSources(root, []));
+    }
+
+    [Theory]
+    [InlineData("package.json", "PACKAGE.JSON")]
+    [InlineData("package-lock.json", "PACKAGE-LOCK.JSON")]
+    [InlineData("package.json", "pac\u212Aage.json")]
+    public void GitListedManifestCaseVariantsFollowFilesystemIdentity(string name, string variant)
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        var directory = Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName;
+        var canonical = Path.Combine(directory, name);
+        var alternate = Path.Combine(directory, variant);
+        var absent = SourceIdentity.SuiteSources(root, []);
+        File.WriteAllText(alternate, "first case variant contents");
+        TrackManifestSpelling(root, alternate);
+
+        var aliasesCanonical = Path.Exists(canonical);
+        if (!aliasesCanonical)
+            File.WriteAllText(canonical, "distinct retired manifest");
+        var before = SourceIdentity.SuiteSources(root, []);
+        File.WriteAllText(alternate, "changed case variant contents");
+        var after = SourceIdentity.SuiteSources(root, []);
+
+        if (aliasesCanonical)
+        {
+            Assert.NotEqual(absent, before);
+            Assert.Equal(before, after);
+            File.Delete(alternate);
+            Assert.Equal(absent, SourceIdentity.SuiteSources(root, []));
+        }
+        else
+        {
+            Assert.NotEqual(before, after);
+        }
+    }
+
+    private static void TrackManifestSpelling(string root, string path)
+    {
+        Processes.Git(root, "config", "core.precomposeunicode", "false");
+        Processes.Git(root, "add", "--", path);
+        var listed = Processes.Git(root, "ls-files", "-z", "--cached").Split('\0');
+        Assert.Contains(Path.GetRelativePath(root, path).Replace('\\', '/'), listed);
+    }
+
+    [Fact]
+    public void AdjacentManifestBackupParticipatesInSuiteIdentity()
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        var directory = Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName;
+        var backup = Path.Combine(directory, "package.json.backup");
+        File.WriteAllText(backup, "first backup contents");
+        Processes.Git(root, "add", "--", backup);
+        var before = SourceIdentity.SuiteSources(root, []);
+
+        File.WriteAllText(backup, "changed backup contents");
+
+        Assert.NotEqual(before, SourceIdentity.SuiteSources(root, []));
+    }
+
+    [Fact]
+    public async Task RetiredManifestAppearingMidRunChangesIdentity()
+    {
+        var root = _work.FullName;
+        Processes.Git(root, "init", "-q");
+        var e2e = Directory.CreateDirectory(Path.Combine(root, "tools", "e2e")).FullName;
+        var summary = await RunWaitingAsync(Bundle("retired", "one"), async output =>
+        {
+            await File.WriteAllTextAsync(Path.Combine(e2e, "package.json"), "retired manifest appeared");
+            await File.WriteAllTextAsync(Path.Combine(output, "release"), "");
+        }, sources: () => SourceIdentity.SuiteSources(root, []));
+        Assert.Equal(Verdict.IdentityChanged, summary.Verdict);
+        Assert.Contains("suite sources changed", summary.Detail, StringComparison.Ordinal);
     }
 
     [Fact]

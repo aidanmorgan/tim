@@ -113,7 +113,7 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string> VendoredFiles = new Dictionary<string, string>(StringComparer.Ordinal)
     {
         [".gdignore"] = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-        ["CuriousContraptions.FlatBuffers.csproj"] = "0ccee6e566d7a566c5e7dffab5a2fe38303377757f5011b9e5bd1c7e60f5ca28",
+        ["CuriousContraptions.FlatBuffers.csproj"] = "c594f8e48dae4d8c2d98bf19ab7d21c3521b7ee6a53d7917584a729912d86fd5",
         ["Directory.Build.props"] = "fbe5b5fc68e5fdb2444d929055a2e193231f88ee039e96d06b2a0aeec8173b92",
     }.Concat(VendoredFlatBuffersIdentityTests.Pinned).ToDictionary(StringComparer.Ordinal);
 
@@ -414,8 +414,7 @@ public sealed class CSharpStaticGateTests
         var runs = new List<CscRun>();
         var commandLines = new Dictionary<(int, int, int), (string Project, string CommandLine)>();
         var sources = new Dictionary<(int, int, int), string[]>();
-        var replay = new Microsoft.Build.Logging.BinaryLogReplayEventSource();
-        replay.AnyEventRaised += (_, raised) =>
+        ReplayBuildLog(binlog, raised =>
         {
             if (raised.BuildEventContext is not { } context) return;
             var key = (context.NodeId, context.ProjectContextId, context.TaskId);
@@ -424,8 +423,7 @@ public sealed class CSharpStaticGateTests
             else if (raised is Microsoft.Build.Framework.TaskParameterEventArgs { ItemType: "Sources" } parameter &&
                      parameter.Kind == Microsoft.Build.Framework.TaskParameterMessageKind.TaskInput)
                 sources[key] = parameter.Items.Cast<Microsoft.Build.Framework.ITaskItem>().Select(item => item.ItemSpec).ToArray();
-        };
-        replay.Replay(binlog);
+        });
         foreach (var (key, (project, commandLine)) in commandLines)
         {
             var directory = Path.GetDirectoryName(project) ?? "";
@@ -433,6 +431,13 @@ public sealed class CSharpStaticGateTests
             runs.Add(new(binlog, project, CommandLineTokens(commandLine), compiled));
         }
         return runs;
+    }
+
+    internal static void ReplayBuildLog(string binlog, Action<Microsoft.Build.Framework.BuildEventArgs> visit)
+    {
+        var replay = new Microsoft.Build.Logging.BinaryLogReplayEventSource();
+        replay.AnyEventRaised += (_, raised) => visit(raised);
+        replay.Replay(binlog);
     }
 
     private sealed record CompileInputs(Dictionary<string, HashSet<string>> ByProject, List<string> Problems);
@@ -1335,9 +1340,31 @@ public sealed class CSharpStaticGateTests
     /// target, or adding one, fails until its pin changes in the same diff.</summary>
     private static readonly Dictionary<string, string> PinnedTargets = new(StringComparer.Ordinal)
     {
-        // Pinned strict TypeScript build: restore and generated runtime output; no Csc changes.
-        ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "31c65cfd3d114862701641af1a1379edd6e09d5d0f8037e19340902c182befed",
-        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "77084445c92a209d0d08b0703e7ab87b193ff21f8add2fd5d3d0399d368cdff3",
+        // Pinned wire compiler and strict TypeScript build.
+        ["tools/runtime/RuntimeTypeScript.targets:RestoreRuntimeTypeScript"] = "6a28c069615ca085a005e81630e4221edc7f4298bf2ebcc4ca082b6ab4b6d5f4",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateRootNodeModules"] = "f551e12d3de74dff45d210fe559473b2da8c774341d98ea736e84a3e07cd1b26",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateWireInputs"] = "556129db4d6aca08f3af070b741a249e725fe4f3ec97f3a3997cb5f897ee1fe4",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateRootRuntimeTypeScript"] = "412da565e0bcf86e9656351fde53251b712b005d51f31fd310c857036871b9b3",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateWireStampPath"] = "3e065520b2133cf4ede381e9ffce214d51cbc95507d25f3f78e5bfe51ec292d6",
+        ["tools/runtime/RuntimeTypeScript.targets:StampWireTypeScriptInputs"] = "32bbda4c453c0c0ba1e25d13983fcb698e75f677e76c6609ed7be8a961337c72",
+        ["tools/runtime/RuntimeTypeScript.targets:CleanWireTypeScriptInputs"] = "8d3e608b6d6ea33a1bb8fb2a5a787ef0d8f26c0d8cd1a7bca41dbce4e8334d2f",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateWireStagingPath"] = "d1c6ed3f4c46f46a422ec542887b930fedeaa93959ee7fb81567f645de4c5676",
+        ["tools/runtime/RuntimeTypeScript.targets:GenerateWireTypeScript"] = "e821ff0ae1e22926183935d0056d3d22bbdfccbbf9849570c8be03be05c2238a",
+        ["tools/runtime/RuntimeTypeScript.targets:DeriveWireTypeScriptPaths"] = "4a3f603790149e202e1fca0f631264e3e05337a1cf66ae19bffa95c1c5c3b90b",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateWirePublishedPaths"] = "32cf3827f2e9acde61a9748ed2aaf49d2489c5393d17cf82a035a6d14ff3b81d",
+        ["tools/runtime/RuntimeTypeScript.targets:_SelectStagedWireTypeScript"] = "776e0eacba1fe2ef4d64b8931d97a4032a56b7a40b528afc59197989e5b578d8",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateWireTypeScriptModules"] = "a34e96769822ad7b54524d418a9f05885cc1b79e638768c9b72d048789a20067",
+        ["tools/runtime/RuntimeTypeScript.targets:RequirePublishedWireTypeScript"] = "bfbdb5ae6c2d766f69953a0c7d420aa897f4a724d3975b10771c836d7011bb4d",
+        ["tools/runtime/RuntimeTypeScript.targets:AdmitRuntimeTypeScriptArtifacts"] = "482d93a47443ab3b9627dc7dab5312792ea37b65d614c4562a9dbe3aca25144a",
+        ["tools/runtime/RuntimeTypeScript.targets:RemoveWireTypeScriptStaging"] = "681ff100ee1379b40c539be0ef038962dc8d1cfacb8855e1e099bb0efe801ec4",
+        ["tools/runtime/RuntimeTypeScript.targets:RejectFlatBuffersShadow"] = "a59fa474ca9926c7f71e06320b992e9875f3567ab2d02739b96bd1ee79fcc329",
+        ["tools/runtime/RuntimeTypeScript.targets:ValidateRuntimeOutputPaths"] = "d6f38d10a5d7fe1b768201f64b0ba8721009dfa7d5127085e8bc1288a5d379e9",
+        ["tools/runtime/RuntimeTypeScript.targets:BuildRuntimeTypeScript"] = "8bd372a02511dc97dd8259a6ed17d318426ea1032e152b982673621f59ac8be2",
+        ["tools/runtime/RuntimeTypeScript.targets:ReconcileCompiledWireTypeScript"] = "9128ec75fbc42562399deb0f15a31859ca2ecbc5bc7a628a88216f8850487034",
+        ["tools/runtime/FlatcCompiler.targets:DeriveWireDeclarations"] = "ca416f403c442ee67aa10d9e72bd6b9a29c71310f304300ae954160129566199",
+        ["tools/runtime/FlatcCompiler.targets:ValidateWireAccessorOutput"] = "b2729fa445d102b097c1a4cdea27dadd0e46e720087937bcc2233b796717034b",
+        ["tools/runtime/FlatcCompiler.targets:ProvisionFlatBuffersCompiler"] = "0f5aa758bca20aead5d8b46c1859ed05ead0c8d0c51d64902e631dc1f56e1439",
+        ["tools/runtime/FlatcCompiler.targets:DeleteFlatcTemporary"] = "35489d0e128d31cb8ff5b8cff2a122f58a8756878c482059d787bc1e30a906a1",
         // The 2dog.xunit package-source analyzer exclusion (CA1711, CA1001).
         ["Directory.Build.targets:ExcludePackageCompileSourcesFromAnalyzers"] = "add02e050a6440638d100c9ae07e742391968e2d16e8c6bb8c6c120f58b12425",
         // The worker publish bundles and the web host's bundle assembly (no compile settings).
@@ -1369,6 +1396,7 @@ public sealed class CSharpStaticGateTests
     private static readonly Dictionary<string, string[]> PinnedImports = new(StringComparer.Ordinal)
     {
         ["Directory.Build.targets"] = ["tools/runtime/RuntimeTypeScript.targets"],
+        ["tools/runtime/RuntimeTypeScript.targets"] = ["FlatcCompiler.targets"],
         ["CuriousContraptions.web/Directory.Build.props"] = ["$(_TwoDogParentProps)"],
         ["CuriousContraptions.Simulation/CuriousContraptions.Simulation.csproj"] = ["../CuriousContraptions.Core/RuntimeSources.props", "../CuriousContraptions.web/WorkerAot.targets"],
         ["CuriousContraptions.Core/CuriousContraptions.Core.csproj"] = ["RuntimeSources.props"],

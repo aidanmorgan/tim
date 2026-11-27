@@ -1,6 +1,6 @@
 namespace CuriousContraptions.Wire;
 
-// Marks an authored-construction or save declaration (main assembly only). No runtime root reaches a marked declaration.
+// Marks an authored-construction or save declaration (main assembly only). Every declaration that references a marked declaration is itself marked; no runtime root reaches a marked declaration.
 attribute "authoring";
 
 enum SimulationPhase : uint8 {

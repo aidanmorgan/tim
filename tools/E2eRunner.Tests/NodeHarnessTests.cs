@@ -2,10 +2,8 @@ using Xunit;
 
 namespace CuriousContraptions.E2eRunner.Tests;
 
-/// <summary>The node harnesses for game runtime code (`tools/runtime/*.test.ts`: workers, rings, client lifecycle; no browser) run in every
-/// `dotnet test` of this project, one node process per file under a wall limit, judged by the runner's own pass rule: exit 0, a
-/// complete plan, at least one declared test, and no failed, cancelled, skipped or todo test. The `tools/runtime/*.test.ts` files of the
-/// Chrome suites' own support modules are on the BrowserDeferral list instead.</summary>
+/// <summary>Runs the discovered TypeScript game runtime harnesses as emitted JavaScript, one Node process per file.
+/// The shared TAP pass rule requires at least one declared test in each file.</summary>
 public sealed class NodeHarnessTests
 {
     private static readonly TimeSpan WallLimit = TimeSpan.FromMinutes(5);
@@ -21,11 +19,30 @@ public sealed class NodeHarnessTests
     [MemberData(nameof(Harnesses))]
     public void HarnessPasses(string harness)
     {
-        var executable = Path.Combine(".runtime-build", Path.ChangeExtension(harness, ".js"));
+        var (run, _, failures) = RunHarness(harness);
+        Assert.True(failures.Count == 0, $"{harness}: {string.Join(", ", failures)} (exit {run.ExitCode})\n{run.Output}{run.Error}");
+    }
+
+    [Fact]
+    public void EmittedModuleWithoutTestsIsRefused()
+    {
+        var (emptyRun, emptyTap, emptyFailures) = RunHarness("tools/runtime/worker-contracts.ts");
+        Assert.Equal(0, emptyRun.ExitCode);
+        Assert.Equal(0, emptyTap.Tests);
+        Assert.Equal([FileFailure.NoTests], emptyFailures);
+
+        var (_, oneTestTap, oneTestFailures) = RunHarness("tools/runtime/workshop-animation-output.test.ts");
+        Assert.Equal(1, oneTestTap.Tests);
+        Assert.Empty(oneTestFailures);
+    }
+
+    private static (ProcessResult Run, TapResult Tap, IReadOnlyList<FileFailure> Failures) RunHarness(string source)
+    {
+        var executable = Path.Combine(".runtime-build", Path.ChangeExtension(source, ".js"));
         Assert.True(File.Exists(Path.Combine(TestRepository.Root, executable)), $"Missing compiled runtime harness: {executable}");
         var run = Processes.Run("node", ["--experimental-vm-modules", "--test", "--test-reporter=tap", "--test-timeout=120000", executable],
             TestRepository.Root, WallLimit);
-        var failures = TapResult.Failures(run.ExitCode, TapResult.Parse(run.Output, Path.GetFileName(harness)));
-        Assert.True(failures.Count == 0, $"{harness}: {string.Join(", ", failures)} (exit {run.ExitCode})\n{run.Output}{run.Error}");
+        var tap = TapResult.Parse(run.Output, Path.GetFileName(executable));
+        return (run, tap, TapResult.Failures(run.ExitCode, tap));
     }
 }

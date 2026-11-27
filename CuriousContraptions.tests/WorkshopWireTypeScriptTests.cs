@@ -1,25 +1,20 @@
-using System.Text.Json;
 using System.Text.RegularExpressions;
-using Microsoft.Build.Framework;
 
 namespace CuriousContraptions.Tests;
 
 /// <summary>
-/// S5b: the TypeScript wire accessors the e2e suites import are build output of CuriousContraptions.FlatBuffers
-/// (GenerateWireTypeScript), written into the ignored tools/e2e/.wire/ by the same pinned compiler as the C# accessors. These
-/// facts read the real tree after the build: the generated module against the schemas (T1), the hand-written e2e modules (T5),
-/// the pinned TypeScript runtime (T7) and the compiler-log evidence that one build graph generates once (T8). Each checker is
-/// one function that the real-tree assertion and its synthetic controls both call.
+/// S5b / S5c-2: the TypeScript wire accessors are build output of CuriousContraptions.Abstractions
+/// (<c>GenerateWireTypeScript</c> in <c>tools/runtime/RuntimeTypeScript.targets</c>), written into the ignored
+/// <c>tools/e2e/.wire/</c> by the same pinned compiler as the C# accessors with <c>--gen-object-api</c>. These facts read
+/// the real tree after the build: the generated module against the schema (T1) and the hand-written e2e modules (T5). Each
+/// checker is one function that the real-tree assertion and its synthetic controls both call.
 /// </summary>
 public sealed class WorkshopWireTypeScriptTests
 {
     private const string E2eDirectory = "tools/e2e";
     private const string WireDirectory = E2eDirectory + "/.wire";
     private const string EntryModule = "curious-contraptions/wire.ts";
-    private const string SchemaRecord = "schemas.txt";
     private const string HelperModule = "workshop-wire.ts";
-    private const string VendoredProject = "CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj";
-    private const string GenerationTarget = "GenerateWireTypeScript";
 
     private static readonly string Root = twodog.Engine.ResolveProjectDir();
 
@@ -41,31 +36,20 @@ public sealed class WorkshopWireTypeScriptTests
         Assert.Equal("", Git("ls-files", "--", "tools/e2e/.wire").Output);
 
         // Control: a schema type missing from the module is named.
-        var missing = new Dictionary<string, string>(files, StringComparer.Ordinal) { [EntryModule] = files[EntryModule].Replace("export { Vec3f } from './wire/vec3f.js';\n", "", StringComparison.Ordinal) };
+        var missing = new Dictionary<string, string>(files, StringComparer.Ordinal) { [EntryModule] = files[EntryModule].Replace("export { Vec3f, Vec3fT } from './wire/vec3f.js';\n", "", StringComparison.Ordinal) };
         missing.Remove("curious-contraptions/wire/vec3f.ts");
         Assert.Contains("the entry module exports no Vec3f", GeneratedTypeScriptViolations(missing, schemas));
         // Boundary: a struct's file with a corrupted declaration, one with an unbalanced brace, and an `any` annotation.
-        var corrupted = Replaced(files, "curious-contraptions/wire/vec3f.ts", "export class Vec3f {", "export class Vec3 {");
+        var corrupted = Replaced(files, "curious-contraptions/wire/vec3f.ts", "export class Vec3f implements flatbuffers.IUnpackableObject<Vec3fT> {", "export class Vec3 implements flatbuffers.IUnpackableObject<Vec3T> {");
         Assert.Contains("curious-contraptions/wire/vec3f.ts declares [Vec3], not exactly Vec3f", GeneratedTypeScriptViolations(corrupted, schemas));
-        var unbalanced = Replaced(files, "curious-contraptions/wire/vec3f.ts", "export class Vec3f {", "export class Vec3f {{");
+        var unbalanced = Replaced(files, "curious-contraptions/wire/vec3f.ts", "export class Vec3f implements flatbuffers.IUnpackableObject<Vec3fT> {", "export class Vec3f implements flatbuffers.IUnpackableObject<Vec3fT> {{");
         Assert.Contains("curious-contraptions/wire/vec3f.ts has unbalanced braces (+1)", GeneratedTypeScriptViolations(unbalanced, schemas));
         var annotated = Replaced(files, "curious-contraptions/wire/puzzle-record.ts", "optionalEncoding?:flatbuffers.Encoding", "optionalEncoding?:any");
         Assert.Contains("curious-contraptions/wire/puzzle-record.ts has an any annotation or its suppression", GeneratedTypeScriptViolations(annotated, schemas));
         var suppressed = Replaced(files, EntryModule, "@typescript-eslint/no-unused-vars", "@typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any");
         Assert.Contains($"{EntryModule} has an any annotation or its suppression", GeneratedTypeScriptViolations(suppressed, schemas));
-        var duplicated = Replaced(files, EntryModule, "export { Vec3f } from './wire/vec3f.js';\n", "export { Vec3f } from './wire/vec3f.js';\nexport { Vec3f } from './wire/vec3f.js';\n");
+        var duplicated = Replaced(files, EntryModule, "export { Vec3f, Vec3fT } from './wire/vec3f.js';\n", "export { Vec3f, Vec3fT } from './wire/vec3f.js';\nexport { Vec3f, Vec3fT } from './wire/vec3f.js';\n");
         Assert.Contains("the entry module exports Vec3f more than once", GeneratedTypeScriptViolations(duplicated, schemas));
-        // Boundary: a schema record that lists a schema no longer in schemas/, and a missing record, are named.
-        var renamed = Replaced(files, SchemaRecord, "workshop_wire.fbs", "workshop_renamed.fbs");
-        var stale = Assert.Single(GeneratedTypeScriptViolations(renamed, schemas), violation => violation.StartsWith("schemas.txt records [", StringComparison.Ordinal));
-        Assert.Contains("], but schemas/ holds [", stale, StringComparison.Ordinal);
-        var sides = stale.Split("], but schemas/ holds [");
-        Assert.Contains("workshop_renamed.fbs", sides[0], StringComparison.Ordinal);
-        Assert.Contains("workshop_wire.fbs", sides[1], StringComparison.Ordinal);
-        Assert.DoesNotContain("workshop_renamed.fbs", sides[1], StringComparison.Ordinal);
-        var unrecorded = new Dictionary<string, string>(files, StringComparer.Ordinal);
-        unrecorded.Remove(SchemaRecord);
-        Assert.Contains("the schema record schemas.txt is missing", GeneratedTypeScriptViolations(unrecorded, schemas));
     }
 
     private static (int ExitCode, string Output) Git(params string[] arguments)
@@ -91,7 +75,8 @@ public sealed class WorkshopWireTypeScriptTests
     /// <summary>Every generated file under the wire directory, by its path relative to it (forward slashes).</summary>
     internal static Dictionary<string, string> ReadGeneratedTypeScript(string wireDirectory) =>
         Directory.GetFiles(wireDirectory, "*", SearchOption.AllDirectories)
-            .ToDictionary(path => Path.GetRelativePath(wireDirectory, path).Replace('\\', '/'), File.ReadAllText, StringComparer.Ordinal);
+            .ToDictionary(path => Path.GetRelativePath(wireDirectory, path).Replace('\\', '/'),
+                path => path.EndsWith(".ts", StringComparison.Ordinal) ? File.ReadAllText(path) : "", StringComparer.Ordinal);
 
     /// <summary>The enum, struct and table names the one schema file in a directory, workshop_wire.fbs, declares.</summary>
     internal static HashSet<string> SchemaTypes(string schemaDirectory) => CSharpStaticGateTests
@@ -100,55 +85,59 @@ public sealed class WorkshopWireTypeScriptTests
     /// <summary>The names the generated entry module re-exports, in the one export form T1 admits.</summary>
     internal static string[] EntryExports(string entry) => [.. EntryExport.Matches(entry).Select(match => match.Groups[1].Value)];
 
-    // The compiler's entry module re-exports one name per type file. A union would add its unionTo helpers to that line, which
-    // this form refuses, so a first union in the schemas fails here and its export form is decided then.
-    private static readonly Regex EntryExport = new(@"^export \{ (\w+) \} from '\./(wire/[a-z0-9-]+)\.js';$", RegexOptions.Multiline);
-    private static readonly Regex TypeDeclaration = new(@"^export (?:class|enum) (\w+) \{", RegexOptions.Multiline);
+    // With --gen-object-api, each entry line exports `<Name>` for an enum or `<Name>, <Name>T` for a table/struct.
+    private static readonly Regex EntryExport = new(@"^export \{ (\w+)(?:, (\w+))? \} from '\./(wire/[a-z0-9-]+)\.js';$", RegexOptions.Multiline);
+    private static readonly Regex ClassDeclaration = new(@"^export class (\w+) implements flatbuffers\.IUnpackableObject<(\w+)> \{", RegexOptions.Multiline);
+    private static readonly Regex ObjectApiDeclaration = new(@"^export class (\w+) implements flatbuffers\.IGeneratedObject \{", RegexOptions.Multiline);
+    private static readonly Regex EnumDeclaration = new(@"^export enum (\w+) \{", RegexOptions.Multiline);
     private static readonly Regex AnyAnnotation = new(@":\s*any\b|\bas\s+any\b|<any>|\bany\s*\[\]|no-explicit-any");
 
-    /// <summary>T1: the entry module exports exactly the schema types, each from its own file declaring exactly that class or
-    /// enum with balanced braces; the schema record schemas.txt lists exactly the schema file names in the directory; no other
-    /// file exists; no file has an `any` annotation or the no-explicit-any suppression.</summary>
+    /// <summary>T1: the entry module exports exactly the schema types (and their <c>T</c> object-API classes), each from its own
+    /// file declaring that class/enum with balanced braces; no other file exists; no file has an <c>any</c> annotation or the
+    /// <c>no-explicit-any</c> suppression.</summary>
     internal static List<string> GeneratedTypeScriptViolations(IReadOnlyDictionary<string, string> files, string schemaDirectory)
     {
         var schemaTypes = SchemaTypes(schemaDirectory);
         if (!files.TryGetValue(EntryModule, out var entry)) return [$"the entry module {EntryModule} is missing"];
         var violations = new List<string>();
-        var lines = EntryExport.Matches(entry).Select(match => (Name: match.Groups[1].Value, Path: $"curious-contraptions/{match.Groups[2].Value}.ts")).ToArray();
+        var lines = EntryExport.Matches(entry).Select(match => (Name: match.Groups[1].Value, ObjectApi: match.Groups[2].Value, Path: $"curious-contraptions/{match.Groups[3].Value}.ts")).ToArray();
         violations.AddRange(lines.GroupBy(line => line.Name, StringComparer.Ordinal).Where(group => group.Count() > 1).Select(group => group.Key)
             .Order(StringComparer.Ordinal).Select(name => $"the entry module exports {name} more than once"));
-        var exports = lines.DistinctBy(line => line.Name, StringComparer.Ordinal).ToDictionary(line => line.Name, line => line.Path, StringComparer.Ordinal);
+        var exports = lines.DistinctBy(line => line.Name, StringComparer.Ordinal).ToDictionary(line => line.Name, line => (line.Path, line.ObjectApi), StringComparer.Ordinal);
         violations.AddRange(schemaTypes.Where(type => !exports.ContainsKey(type)).Order(StringComparer.Ordinal).Select(type => $"the entry module exports no {type}"));
         violations.AddRange(exports.Keys.Where(name => !schemaTypes.Contains(name)).Order(StringComparer.Ordinal).Select(name => $"the entry module exports {name}, which no schema declares"));
-        foreach (var (name, path) in exports) violations.AddRange(TypeFileViolations(files, name, path));
-        violations.AddRange(SchemaRecordViolations(files, schemaDirectory));
-        violations.AddRange(files.Keys.Where(path => path != EntryModule && path != SchemaRecord && !exports.ContainsValue(path)).Order(StringComparer.Ordinal).Select(path => $"{path} is not exported by the entry module"));
+        foreach (var (name, info) in exports) violations.AddRange(TypeFileViolations(files, name, info.Path, info.ObjectApi));
+        violations.AddRange(files.Keys.Where(path => path != EntryModule && !exports.Values.Any(v => v.Path == path)).Order(StringComparer.Ordinal).Select(path => $"{path} is not exported by the entry module"));
         violations.AddRange(files.Where(file => AnyAnnotation.IsMatch(file.Value)).Select(file => file.Key).Order(StringComparer.Ordinal).Select(path => $"{path} has an any annotation or its suppression"));
         return violations;
     }
 
-    private static IEnumerable<string> SchemaRecordViolations(IReadOnlyDictionary<string, string> files, string schemaDirectory)
-    {
-        if (!files.TryGetValue(SchemaRecord, out var record))
-        {
-            yield return $"the schema record {SchemaRecord} is missing";
-            yield break;
-        }
-        var recorded = record.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries).Order(StringComparer.Ordinal).ToArray();
-        var current = Directory.GetFiles(schemaDirectory, "*.fbs").Select(path => Path.GetFileName(path)).Order(StringComparer.Ordinal).ToArray();
-        if (!recorded.SequenceEqual(current, StringComparer.Ordinal))
-            yield return $"{SchemaRecord} records [{string.Join(", ", recorded)}], but schemas/ holds [{string.Join(", ", current)}]";
-    }
-
-    private static IEnumerable<string> TypeFileViolations(IReadOnlyDictionary<string, string> files, string name, string path)
+    private static IEnumerable<string> TypeFileViolations(IReadOnlyDictionary<string, string> files, string name, string path, string objectApi)
     {
         if (!files.TryGetValue(path, out var text))
         {
             yield return $"{path}, which the entry module names for {name}, is missing";
             yield break;
         }
-        var declared = TypeDeclaration.Matches(text).Select(match => match.Groups[1].Value).ToArray();
-        if (declared is not [var only] || only != name) yield return $"{path} declares [{string.Join(", ", declared)}], not exactly {name}";
+        var enumNames = EnumDeclaration.Matches(text).Select(m => m.Groups[1].Value).ToArray();
+        var classMatches = ClassDeclaration.Matches(text);
+        var classNames = classMatches.Select(m => m.Groups[1].Value).ToArray();
+        var declared = enumNames.Concat(classNames).ToArray();
+        if (declared is not [var only] || only != name)
+            yield return $"{path} declares [{string.Join(", ", declared)}], not exactly {name}";
+        else if (enumNames.Length == 1)
+        {
+            if (!string.IsNullOrEmpty(objectApi)) yield return $"{path} is an enum, but entry module exports {objectApi}";
+        }
+        else
+        {
+            var expectedObjectApi = name + "T";
+            if (objectApi != expectedObjectApi) yield return $"{path} is a class, but entry module exports object API '{objectApi}' instead of {expectedObjectApi}";
+            if (classMatches[0].Groups[2].Value != expectedObjectApi) yield return $"{path} implements IUnpackableObject<{classMatches[0].Groups[2].Value}>, not {expectedObjectApi}";
+            var apiClasses = ObjectApiDeclaration.Matches(text).Select(m => m.Groups[1].Value).ToArray();
+            if (apiClasses is not [var apiOnly] || apiOnly != expectedObjectApi)
+                yield return $"{path} declares object-API [{string.Join(", ", apiClasses)}], not exactly {expectedObjectApi}";
+        }
         var balance = text.Count(character => character == '{') - text.Count(character => character == '}');
         if (balance != 0) yield return $"{path} has unbalanced braces ({balance:+0;-0})";
     }
@@ -394,164 +383,4 @@ public sealed class WorkshopWireTypeScriptTests
     private static IEnumerable<string> ListedNames(string list) => list.Split(',')
         .Select(entry => Regex.Replace(entry.Trim(), @"^type\s+", "").Split(' ', StringSplitOptions.RemoveEmptyEntries).FirstOrDefault() ?? "")
         .Where(name => name.Length > 0);
-
-    // ----- T7: the e2e TypeScript FlatBuffers runtime is the compiler's version, pinned once, in tools/e2e only ------------
-
-    [Fact]
-    public void TheFlatBuffersRuntimeIsPinnedToTheCompilerVersion()
-    {
-        var version = Regex.Match(File.ReadAllText(Path.Combine(Root, VendoredProject)), "<FlatcVersion>([^<]+)</FlatcVersion>").Groups[1].Value;
-        Assert.Matches(@"^\d+\.\d+\.\d+$", version);
-        var pins = new RuntimeManifests(
-            File.ReadAllText(Path.Combine(Root, E2eDirectory, "package.json")), File.ReadAllText(Path.Combine(Root, E2eDirectory, "package-lock.json")),
-            File.ReadAllText(Path.Combine(Root, "package.json")), File.ReadAllText(Path.Combine(Root, "package-lock.json")),
-            File.ReadAllText(Path.Combine(Root, E2eDirectory, "tsconfig.json")));
-        Assert.Empty(RuntimePinViolations(pins, version));
-
-        // Controls: a version range, a path mapping for the runtime and a root manifest that names it are each refused, naming
-        // file and value.
-        var pinned = $"\"flatbuffers\": \"{version}\"";
-        Assert.Contains($"tools/e2e/package.json: devDependencies.flatbuffers is ^{version}, not exactly {version}",
-            RuntimePinViolations(pins with { E2eManifest = Changed(pins.E2eManifest, pinned, $"\"flatbuffers\": \"^{version}\"") }, version));
-        var mapped = """{ "compilerOptions": { "paths": { "flatbuffers": ["/opt/homebrew/lib/node_modules/flatbuffers"] } } }""";
-        Assert.Contains("tools/e2e/tsconfig.json: compilerOptions.paths maps flatbuffers to [\"/opt/homebrew/lib/node_modules/flatbuffers\"]",
-            RuntimePinViolations(pins with { E2eTsconfig = mapped }, version));
-        var rootNamed = $$"""{ "name": "root", "devDependencies": { "flatbuffers": "{{version}}" } }""";
-        Assert.Contains($"package.json: names flatbuffers in devDependencies (\"{version}\"); the runtime belongs to tools/e2e/package.json",
-            RuntimePinViolations(pins with { RootManifest = rootNamed }, version));
-        var rootDependency = $$"""{ "name": "root", "dependencies": { "flatbuffers": "{{version}}" } }""";
-        Assert.Contains($"package.json: names flatbuffers in dependencies (\"{version}\"); the runtime belongs to tools/e2e/package.json",
-            RuntimePinViolations(pins with { RootManifest = rootDependency }, version));
-        var rootLocked = $$"""{ "packages": { "": { "name": "root" }, "node_modules/flatbuffers": { "version": "{{version}}" } } }""";
-        Assert.Contains("package-lock.json: locks node_modules/flatbuffers; the runtime belongs to tools/e2e/package-lock.json",
-            RuntimePinViolations(pins with { RootLock = rootLocked }, version));
-        // Boundary: the e2e lock file resolving another version.
-        Assert.Contains($"tools/e2e/package-lock.json: node_modules/flatbuffers is 0.0.1, not exactly {version}",
-            RuntimePinViolations(pins with { E2eLock = Changed(pins.E2eLock, $"\"version\": \"{version}\"", "\"version\": \"0.0.1\"") }, version));
-    }
-
-    private static string Changed(string text, string find, string replacement)
-    {
-        Assert.Contains(find, text, StringComparison.Ordinal);
-        return text.Replace(find, replacement, StringComparison.Ordinal);
-    }
-
-    /// <summary>The manifests and the e2e tsconfig T7 reads, as text.</summary>
-    internal sealed record RuntimeManifests(string E2eManifest, string E2eLock, string RootManifest, string RootLock, string E2eTsconfig);
-
-    private static readonly JsonDocumentOptions JsonOptions = new() { AllowTrailingCommas = true, CommentHandling = JsonCommentHandling.Skip };
-    private static readonly string[] LockedSourceFields = ["resolved", "integrity"];
-    private static readonly string[] DependencySections = ["dependencies", "devDependencies", "optionalDependencies", "peerDependencies"];
-
-    /// <summary>T7: flatbuffers is an exact devDependency of tools/e2e at the compiler version, locked there at that version with
-    /// its tarball and integrity; the root manifest and lock do not name it; no tsconfig path mapping supplies it.</summary>
-    internal static List<string> RuntimePinViolations(RuntimeManifests manifests, string version)
-    {
-        var violations = new List<string>();
-        using var manifest = JsonDocument.Parse(manifests.E2eManifest, JsonOptions);
-        var declared = Text(manifest.RootElement, "devDependencies", "flatbuffers");
-        if (declared != version) violations.Add($"tools/e2e/package.json: devDependencies.flatbuffers is {declared ?? "absent"}, not exactly {version}");
-        using var lockFile = JsonDocument.Parse(manifests.E2eLock, JsonOptions);
-        var lockedRoot = Text(lockFile.RootElement, "packages", "", "devDependencies", "flatbuffers");
-        if (lockedRoot != version) violations.Add($"tools/e2e/package-lock.json: the root devDependencies.flatbuffers is {lockedRoot ?? "absent"}, not exactly {version}");
-        var locked = Text(lockFile.RootElement, "packages", "node_modules/flatbuffers", "version");
-        if (locked != version) violations.Add($"tools/e2e/package-lock.json: node_modules/flatbuffers is {locked ?? "absent"}, not exactly {version}");
-        foreach (var field in LockedSourceFields.Where(field => string.IsNullOrEmpty(Text(lockFile.RootElement, "packages", "node_modules/flatbuffers", field))))
-            violations.Add($"tools/e2e/package-lock.json: node_modules/flatbuffers has no {field}");
-        using var rootManifest = JsonDocument.Parse(manifests.RootManifest, JsonOptions);
-        foreach (var section in DependencySections)
-            if (Find(rootManifest.RootElement, section, "flatbuffers") is { } named)
-                violations.Add($"package.json: names flatbuffers in {section} ({named.GetRawText()}); the runtime belongs to tools/e2e/package.json");
-        using var rootLock = JsonDocument.Parse(manifests.RootLock, JsonOptions);
-        if (Find(rootLock.RootElement, "packages") is { ValueKind: JsonValueKind.Object } packages)
-            foreach (var package in packages.EnumerateObject().Where(package => package.Name.EndsWith("node_modules/flatbuffers", StringComparison.Ordinal)))
-                violations.Add($"package-lock.json: locks {package.Name}; the runtime belongs to tools/e2e/package-lock.json");
-        using var tsconfig = JsonDocument.Parse(manifests.E2eTsconfig, JsonOptions);
-        if (Find(tsconfig.RootElement, "compilerOptions", "paths", "flatbuffers") is { } mapping)
-            violations.Add($"tools/e2e/tsconfig.json: compilerOptions.paths maps flatbuffers to {mapping.GetRawText()}");
-        return violations;
-    }
-
-    private static JsonElement? Find(JsonElement element, params string[] path)
-    {
-        foreach (var name in path)
-        {
-            if (element.ValueKind != JsonValueKind.Object || !element.TryGetProperty(name, out element)) return null;
-        }
-        return element;
-    }
-
-    private static string? Text(JsonElement element, params string[] path) =>
-        Find(element, path) is { ValueKind: JsonValueKind.String } value ? value.GetString() : null;
-
-    // ----- T8: one build graph runs the TypeScript compiler step once ----------------------------------------------
-
-    private static readonly string[] GraphLogs = ["playtest.binlog", "solution.binlog", "web.binlog"];
-
-    [Fact]
-    public void TheTypeScriptStepRunsExactlyOncePerBuildGraph()
-    {
-        var directory = Environment.GetEnvironmentVariable("CSHARP_STATIC_GATE_BINLOGS") is { Length: > 0 } logs
-            ? logs
-            : throw new InvalidOperationException("CSHARP_STATIC_GATE_BINLOGS is required. Capture the five matching compiler-proof logs described in docs/delivery-workflow.md#local-test-authority.");
-        foreach (var log in GraphLogs)
-        {
-            var path = Path.Combine(directory, log);
-            Assert.True(File.Exists(path), $"{log}: missing (every gate build's binary log is required)");
-            Assert.Null(OnceViolation(log, TypeScriptCompilerRuns(Replay(path))));
-        }
-
-        // Controls: a graph that never ran the step and one that ran it twice are each refused, naming the log and the count.
-        Assert.Equal("web.binlog: the compiler Exec of GenerateWireTypeScript started 0 times, not exactly once",
-            OnceViolation("web.binlog", TypeScriptCompilerRuns([Target(1, 1, GenerationTarget, VendoredProject), Task(1, 2, "Exec")])));
-        Assert.Equal("solution.binlog: the compiler Exec of GenerateWireTypeScript started 2 times, not exactly once",
-            OnceViolation("solution.binlog", TypeScriptCompilerRuns([
-                Target(1, 1, GenerationTarget, VendoredProject), Task(1, 1, "Exec"),
-                Target(2, 3, GenerationTarget, VendoredProject), Task(2, 3, "Exec"), Task(2, 3, "Touch"),
-                Target(1, 4, "GenerateWireAccessors", VendoredProject), Task(1, 4, "Exec"),
-                Target(1, 5, GenerationTarget, "CuriousContraptions.csproj"), Task(1, 5, "Exec")])));
-    }
-
-    /// <summary>T8: the Exec tasks that start inside the vendored project's GenerateWireTypeScript target, matched by the
-    /// node, project context and target of their build event context.</summary>
-    internal static int TypeScriptCompilerRuns(IEnumerable<BuildEventArgs> events)
-    {
-        var targets = new HashSet<(int, int, int)>();
-        var runs = 0;
-        foreach (var raised in events)
-        {
-            if (raised.BuildEventContext is not { } context) continue;
-            var key = (context.NodeId, context.ProjectContextId, context.TargetId);
-            if (raised is TargetStartedEventArgs { TargetName: GenerationTarget } target && IsVendoredProject(target.ProjectFile)) targets.Add(key);
-            else if (raised is TaskStartedEventArgs { TaskName: "Exec" } && targets.Contains(key)) runs++;
-        }
-        return runs;
-    }
-
-    internal static string? OnceViolation(string log, int runs) =>
-        runs == 1 ? null : $"{log}: the compiler Exec of {GenerationTarget} started {runs} times, not exactly once";
-
-    private static bool IsVendoredProject(string? projectFile) =>
-        projectFile is not null && projectFile.Replace('\\', '/').EndsWith("/" + VendoredProject, StringComparison.Ordinal);
-
-    // Only target starts and Exec starts are kept: the count needs nothing else from a log.
-    private static List<BuildEventArgs> Replay(string binlog)
-    {
-        var events = new List<BuildEventArgs>();
-        var replay = new Microsoft.Build.Logging.BinaryLogReplayEventSource();
-        replay.AnyEventRaised += (_, raised) =>
-        {
-            if (raised is TargetStartedEventArgs or TaskStartedEventArgs { TaskName: "Exec" }) events.Add(raised);
-        };
-        replay.Replay(binlog);
-        return events;
-    }
-
-    private static TargetStartedEventArgs Target(int node, int target, string name, string project) =>
-        new("", "", name, "/repository/" + project, "/repository/" + project) { BuildEventContext = Context(node, target) };
-
-    private static TaskStartedEventArgs Task(int node, int target, string name) =>
-        new("", "", "/repository/" + VendoredProject, "/repository/" + VendoredProject, name) { BuildEventContext = Context(node, target) };
-
-    private static BuildEventContext Context(int node, int target) => new(1, node, 1, 1, 1, target, 1);
 }

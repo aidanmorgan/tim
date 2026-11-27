@@ -1,35 +1,20 @@
-// Hand-written helpers over the FlatBuffers wire accessors: the frame checks, the authored-state dump and the mock encoders.
-// The accessors themselves are build output (S5b): CuriousContraptions.FlatBuffers generates them from schemas/*.fbs into the
+// Hand-written helpers over the FlatBuffers wire accessors: the authored-state dump and the mock encoders.
+// The accessors themselves are build output: CuriousContraptions.Abstractions generates them from schemas/workshop_wire.fbs into the
 // ignored tools/e2e/.wire/ (see schemas/README.md). Import a generated name from './.wire/curious-contraptions/wire.ts', never
 // from this module, which declares and re-exports none.
 import * as flatbuffers from 'flatbuffers';
 import {
     ActivationMemoryRecord, BodyRead, CaptureLatchRead, CommandIdentityRecord, ContactWorkStoreRecord, ElectricalEnable,
     ElectricalSourceRecord, EnergyStoreReadRecord, PhysicalCommitRevisionRecord, RunControlCommandRecord, RunControlValueKind,
-    SavedConstruction, WorkshopCommand, WorkshopResponse,
-    type CommandKind, type CommandOutcome, type InstanceRecord, type ResponseKind, type SimulationPhase,
+    SavedConstruction, WireRootIdentifier, WorkshopCommand, WorkshopResponse,
+    type CommandKind, type CommandOutcome, type ConstructionRecord, type InstanceRecord, type ResponseKind, type SimulationPhase,
 } from './.wire/curious-contraptions/wire.ts';
+import { openFrame, rootIdentifier } from '../runtime/wire-frame.ts';
 
-// Story 9A.2: every Workshop buffer is size-prefixed and carries its root's identifier, exactly as the C# codec frames it.
-export const COMMAND_IDENTIFIER = 'CWCM';
-export const RESPONSE_IDENTIFIER = 'CWRM';
-export const SAVE_IDENTIFIER = 'CCWS';
-
-/** The buffer positioned at its root, after the same frame checks as the C# decoder: the size prefix covers the buffer exactly
- * and the root identifier is the expected one. */
-function openFrame(data: Buffer | Uint8Array, identifier: string): flatbuffers.ByteBuffer {
-    const bytes = data instanceof Uint8Array ? data : new Uint8Array(data);
-    if (bytes.length < 12) throw new Error(`a ${identifier} buffer is shorter than its frame`);
-    const declared = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength).getUint32(0, true) + 4;
-    if (declared !== bytes.length) throw new Error(`a ${identifier} buffer declares ${declared} of its ${bytes.length} bytes`);
-    const bb = new flatbuffers.ByteBuffer(bytes);
-    bb.setPosition(flatbuffers.SIZE_PREFIX_LENGTH);
-    if (!bb.__has_identifier(identifier)) throw new Error(`not a ${identifier} buffer`);
-    return bb;
-}
+// Every Workshop buffer is size-prefixed and carries its WireRootIdentifier, checked by wire-frame.ts.
 
 export function decodeWorkshopResponse(data: Buffer | Uint8Array): WorkshopResponse {
-    return WorkshopResponse.getRootAsWorkshopResponse(openFrame(data, RESPONSE_IDENTIFIER));
+    return WorkshopResponse.getRootAsWorkshopResponse(openFrame(data, WireRootIdentifier.WorkshopResponse));
 }
 
 /** Resolve an exact compiled reservoir identity; array order is not its identity. */
@@ -71,13 +56,18 @@ export function contactHits(responses: readonly WorkshopResponse[], slot = 0): {
 }
 
 export function decodeWorkshopCommand(data: Buffer | Uint8Array): WorkshopCommand {
-    return WorkshopCommand.getRootAsWorkshopCommand(openFrame(data, COMMAND_IDENTIFIER));
+    return WorkshopCommand.getRootAsWorkshopCommand(openFrame(data, WireRootIdentifier.WorkshopCommand));
+}
+
+function readSavedConstruction(data: Buffer | Uint8Array): { saved: SavedConstruction; construction: ConstructionRecord } {
+    const saved = SavedConstruction.getRootAsSavedConstruction(openFrame(data, WireRootIdentifier.SavedConstruction));
+    const construction = saved.construction();
+    if (!construction) throw new Error('a SavedConstruction save without its construction');
+    return { saved, construction };
 }
 
 export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstruction {
-    const saved = SavedConstruction.getRootAsSavedConstruction(openFrame(data, SAVE_IDENTIFIER));
-    if (!saved.construction()) throw new Error('a CCWS construction save without its construction');
-    return saved;
+    return readSavedConstruction(data).saved;
 }
 
 /** One declared generic parameter of a saved instance, by its key; a missing key fails the suite. */
@@ -89,9 +79,8 @@ export function parameter(instance: InstanceRecord, key: string): number {
     throw new Error(`Instance ${instance.id()} has no declared parameter '${key}'`);
 }
 
-export function dumpAuthored(saved: SavedConstruction): object {
-    const cr = saved.construction();
-    if (!cr) return { nextBodyId: String(saved.nextBodyId()), construction: null };
+export function authoredState(bytes: Uint8Array | Buffer): object {
+    const { saved, construction: cr } = readSavedConstruction(bytes);
     const instances = [];
     for (let i = 0; i < cr.instancesLength(); i++) {
         const inst = cr.instances(i)!;
@@ -144,11 +133,6 @@ export function dumpAuthored(saved: SavedConstruction): object {
         instances,
         connections,
     };
-}
-
-export function authoredState(bytes: Uint8Array | Buffer): object {
-    const saved = decodeSavedConstruction(bytes);
-    return dumpAuthored(saved);
 }
 
 export interface MockResponseParams {
@@ -313,7 +297,7 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
     WorkshopResponse.addPhysicalCommit(builder, PhysicalCommitRevisionRecord.createPhysicalCommitRevisionRecord(builder, params.physicalRevision));
     const end = WorkshopResponse.endWorkshopResponse(builder);
-    builder.finishSizePrefixed(end, RESPONSE_IDENTIFIER);
+    builder.finishSizePrefixed(end, rootIdentifier(WireRootIdentifier.WorkshopResponse));
     return Buffer.from(builder.asUint8Array());
 }
 
@@ -376,6 +360,6 @@ export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
         WorkshopCommand.addTarget(builder, targetOffset);
     }
     const end = WorkshopCommand.endWorkshopCommand(builder);
-    builder.finishSizePrefixed(end, COMMAND_IDENTIFIER);
+    builder.finishSizePrefixed(end, rootIdentifier(WireRootIdentifier.WorkshopCommand));
     return Buffer.from(builder.asUint8Array());
 }

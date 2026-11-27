@@ -1,10 +1,30 @@
-<Project>
+<Project TreatAsLocalProperty="RuntimeTypeScriptRoot;FlatcHostArchitecture;WireTypeScriptDirectory;AdmittedWireSourceCount;_WireTypeScriptNamespace;_WireTypeScriptEntry;_WireValidationDirectory;_RuntimeTypeScriptOutput;_CompiledWireDirectory;_WireTypeScriptTargets;_FlatcCompilerTargets;_WireTypeScriptStaging;_WireShellTypeScriptStaging;_RuntimeTypeScriptShellOutput;_WireTypeScriptStamp;_RuntimeRestoreMarker;_WirePublishedStatus;_WirePublishedError;_WireValidationNamespace;_WireValidationEntry;_WireEntryCode;_NodeModulesCheckStatus;_NodeModulesCheckOutput;_WireSourceCheckStatus;_LinkedWireSource;_RootToolPathStatus;_RootToolPathError;_FlatBuffersPins;_FlatBuffersLoadResult;_FlatBuffersResolved;_TypeScriptPin;_LocalTypeScriptVersion;_WireStampStatus;_WireStampError;_WireStagingCheckStatus;_LinkedWireStagingSource;_RuntimeOutputStatus;_RuntimeOutputCheck">
   <PropertyGroup>
+    <FlatcHostArchitecture>$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture)</FlatcHostArchitecture>
     <RuntimeTypeScriptRoot>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)', '../..'))</RuntimeTypeScriptRoot>
   </PropertyGroup>
+  <Import Project="FlatcCompiler.targets" />
+  <PropertyGroup>
+    <WireTypeScriptDirectory>$([MSBuild]::NormalizeDirectory('$(RuntimeTypeScriptRoot)', 'tools', 'e2e', '.wire'))</WireTypeScriptDirectory>
+    <_WireTypeScriptNamespace>$(WireTypeScriptDirectory)curious-contraptions/</_WireTypeScriptNamespace>
+    <_WireTypeScriptEntry>$(_WireTypeScriptNamespace)wire.ts</_WireTypeScriptEntry>
+    <_WireValidationDirectory>$(WireTypeScriptDirectory)</_WireValidationDirectory>
+    <_RuntimeTypeScriptOutput>$(RuntimeTypeScriptRoot).runtime-build/</_RuntimeTypeScriptOutput>
+    <_CompiledWireDirectory>$(_RuntimeTypeScriptOutput)tools/e2e/.wire/curious-contraptions/</_CompiledWireDirectory>
+    <_WireTypeScriptTargets>$(MSBuildThisFileFullPath)</_WireTypeScriptTargets>
+    <_FlatcCompilerTargets>$(MSBuildThisFileDirectory)FlatcCompiler.targets</_FlatcCompilerTargets>
+    <_WireTypeScriptStaging>$(_WireIntermediatePath)WireTypeScriptStaging/</_WireTypeScriptStaging>
+    <_WireShellTypeScriptStaging>$([System.Text.RegularExpressions.Regex]::Replace('$(_WireTypeScriptStaging)', '\x27', '$(_WireShellQuoteEscape)'))</_WireShellTypeScriptStaging>
+    <_RuntimeTypeScriptShellOutput>$([System.Text.RegularExpressions.Regex]::Replace('$(_RuntimeTypeScriptOutput)', '\x27', '$(_WireShellQuoteEscape)'))</_RuntimeTypeScriptShellOutput>
+    <_WireTypeScriptStamp>$(_WireBaseIntermediatePath)WireTypeScript/.stamp</_WireTypeScriptStamp>
+    <_RuntimeRestoreMarker>$(RuntimeTypeScriptRoot)node_modules/.package-lock.json</_RuntimeRestoreMarker>
+  </PropertyGroup>
   <ItemGroup>
+    <_RuntimeTypeScriptCopies Include="CuriousContraptions.Simulation/wwwroot/worker.js;CuriousContraptions.web/wwwroot/event-ring-cursor.js;CuriousContraptions.web/wwwroot/workshop-observation.js;CuriousContraptions.web/wwwroot/workshop-client.js;CuriousContraptions.Animation.Worker/wwwroot/worker.js;CuriousContraptions.Simulation/wwwroot/clock-master.js;CuriousContraptions.web/wwwroot/clock-ring.js;CuriousContraptions.web/wwwroot/native-clock.js;CuriousContraptions.web/wwwroot/pose-ring.js;CuriousContraptions.web/wwwroot/workshop-isolation.js;CuriousContraptions.web/wwwroot/workshop-isolation-worker.js;CuriousContraptions.web/wwwroot/workshop-bootstrap.js" />
+    <_RuntimeTypeScriptPublished Include="@(_RuntimeTypeScriptCopies->'$(RuntimeTypeScriptRoot)%(Identity)')" />
     <RuntimeTypeScriptTool Include="$(RuntimeTypeScriptRoot)tools/workshop-console*.ts;$(RuntimeTypeScriptRoot)tools/workshop-close-findings*.ts" />
     <RuntimeTypeScriptHarness Include="$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts" Exclude="$(RuntimeTypeScriptRoot)tools/runtime/**/*.d.ts" />
+    <_RuntimeTypeScriptEmitted Include="@(_RuntimeTypeScriptCopies->'$(_RuntimeTypeScriptOutput)%(Identity)');@(RuntimeTypeScriptTool->'$(_RuntimeTypeScriptOutput)tools/%(Filename).js');@(RuntimeTypeScriptHarness->'$(_RuntimeTypeScriptOutput)tools/runtime/%(RecursiveDir)%(Filename).js');$(_CompiledWireDirectory)wire.js" />
     <RuntimeTypeScriptSource Include="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-observation.ts;$(RuntimeTypeScriptRoot)tools/runtime/**/*.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/pose-ring.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation-worker.ts;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-bootstrap.ts" />
   </ItemGroup>
   <!-- Explicit entries exist at evaluation even when generated JS does not yet exist. -->
@@ -20,34 +40,305 @@
     <WasmExtraFilesToDeploy Remove="wwwroot/worker.js" />
     <WasmExtraFilesToDeploy Include="wwwroot/worker.js" />
   </ItemGroup>
-  <Target Name="RestoreRuntimeTypeScript" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+  <Target Name="RestoreRuntimeTypeScript" DependsOnTargets="ValidateWireInputs;ValidateRootNodeModules;RejectFlatBuffersShadow" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
           Inputs="$(RuntimeTypeScriptRoot)package.json;$(RuntimeTypeScriptRoot)package-lock.json"
-          Outputs="$(RuntimeTypeScriptRoot)node_modules/.package-lock.json">
+          Outputs="$(_RuntimeRestoreMarker)">
     <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="npm ci --ignore-scripts --no-audit --no-fund" />
   </Target>
-  <!-- Abstractions is shared by native tests and both shipped hosts: one compiler invocation per build graph. -->
-  <Target Name="BuildRuntimeTypeScript" BeforeTargets="BeforeBuild" DependsOnTargets="RestoreRuntimeTypeScript"
-          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
-          Inputs="@(RuntimeTypeScriptSource);@(RuntimeTypeScriptTool);$(RuntimeTypeScriptRoot)tsconfig.runtime.json;$(RuntimeTypeScriptRoot)package-lock.json;$(MSBuildThisFileFullPath)"
-          Outputs="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Animation.Worker/wwwroot/worker.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/clock-master.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/clock-ring.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/native-clock.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-client.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-observation.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/pose-ring.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-isolation.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-isolation-worker.js;$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-bootstrap.js;@(RuntimeTypeScriptTool->'$(RuntimeTypeScriptRoot).runtime-build/tools/%(Filename).js');$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/pose-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation-worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-bootstrap.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-observation.js;@(RuntimeTypeScriptHarness->'$(RuntimeTypeScriptRoot).runtime-build/tools/runtime/%(RecursiveDir)%(Filename).js')">
-    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="npm run build:runtime" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/worker.js"
-          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/event-ring-cursor.js"
-          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-observation.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-observation.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-client.js"
-          DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Animation.Worker/wwwroot/worker.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.Simulation/wwwroot/clock-master.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/clock-ring.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/native-clock.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/pose-ring.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/pose-ring.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-isolation.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-isolation-worker.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation-worker.js" />
-    <Copy SourceFiles="$(RuntimeTypeScriptRoot).runtime-build/CuriousContraptions.web/wwwroot/workshop-bootstrap.js" DestinationFiles="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-bootstrap.js" />
+  <Target Name="ValidateRootNodeModules" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true"
+          EnvironmentVariables="WIRE_MARKER=$(_RuntimeRestoreMarker);WIRE_BOUNDARY=$(RuntimeTypeScriptRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_directory node_modules || exit 1&#10;wire_file &quot;$WIRE_MARKER&quot; &quot;$WIRE_BOUNDARY&quot;" StandardOutputImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_NodeModulesCheckStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_NodeModulesCheckOutput" />
+    </Exec>
+    <Error Condition="'$(_NodeModulesCheckStatus)' != '0'" Text="Cannot use repository node_modules. $(_NodeModulesCheckOutput)" />
+  </Target>
+  <Target Name="ValidateWireInputs" BeforeTargets="CoreClean"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_TREE=$(WireTypeScriptDirectory);WIRE_BOUNDARY=$(RuntimeTypeScriptRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_tree &quot;$WIRE_TREE&quot; &quot;$WIRE_BOUNDARY&quot;">
+      <Output TaskParameter="ExitCode" PropertyName="_WireSourceCheckStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_LinkedWireSource" />
+    </Exec>
+    <Error Condition="'$(_WireSourceCheckStatus)' != '0'" Text="Cannot use generated wire source. $(_LinkedWireSource)" />
+    <Error Condition="'$(_LinkedWireSource)' != ''" Text="Linked generated wire source: $(_LinkedWireSource)." />
     <ItemGroup>
-      <FileWrites Include="$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/pose-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-isolation-worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-bootstrap.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Animation.Worker/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/clock-master.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/clock-ring.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/native-clock.js;$(RuntimeTypeScriptRoot).runtime-build/**/*.js;$(RuntimeTypeScriptRoot)CuriousContraptions.Simulation/wwwroot/worker.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/event-ring-cursor.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-client.js;$(RuntimeTypeScriptRoot)CuriousContraptions.web/wwwroot/workshop-observation.js" />
+      <_UnexpectedWireSchema Include="$(RuntimeTypeScriptRoot)schemas/**/*.fbs" Exclude="$(WireSchemaPath)" />
+      <_RetiredWireArtifact Include="$(WireTypeScriptDirectory)schemas.txt;$(RuntimeTypeScriptRoot)tools/e2e/package.json;$(RuntimeTypeScriptRoot)tools/e2e/package-lock.json" />
     </ItemGroup>
+    <Error Condition="Exists('%(_RetiredWireArtifact.Identity)')"
+           Text="Retired wire artifact %(_RetiredWireArtifact.Identity) is present. Remove it before building or running suites." />
+    <Error Condition="'@(_UnexpectedWireSchema)' != ''"
+           Text="Only the canonical wire schema $(WireSchemaPath) is admitted. Unexpected schema: @(_UnexpectedWireSchema)." />
+  </Target>
+  <!-- A current restore marker is independent of the contents of the installed tools. -->
+  <Target Name="ValidateRootRuntimeTypeScript" DependsOnTargets="ValidateWireInputs;ValidateRootNodeModules;RejectFlatBuffersShadow"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true"
+          Command="node --input-type=module-typescript --eval '
+            import {realpathSync, readdirSync, statSync} from &quot;node:fs&quot;;
+            import {join} from &quot;node:path&quot;;
+            const root = realpathSync(&quot;.&quot;);
+            function requirePhysical(relative: string, label: string, directory = false): void {
+                const expected = join(root, relative);
+                let actual: string;
+                try { actual = realpathSync(expected); }
+                catch { console.log(label + &quot; is missing or unreadable: &quot; + expected); process.exit(1); }
+                if (actual !== expected) {
+                    console.log(label + &quot; resolves outside its canonical root path: &quot; + actual + &quot; (expected &quot; + expected + &quot;)&quot;);
+                    process.exit(1);
+                }
+                const item = statSync(actual);
+                if (directory ? !item.isDirectory() : !item.isFile()) {
+                    console.log(label + &quot; has the wrong path type: &quot; + actual);
+                    process.exit(1);
+                }
+            }
+            requirePhysical(&quot;node_modules/flatbuffers&quot;, &quot;The pinned root FlatBuffers installation&quot;, true);
+            requirePhysical(&quot;node_modules/flatbuffers/package.json&quot;, &quot;The installed FlatBuffers manifest&quot;);
+            requirePhysical(&quot;node_modules/typescript/bin/tsc&quot;, &quot;The pinned local TypeScript compiler node_modules/typescript/bin/tsc&quot;);
+            function requireLinkFree(directory: string): void {
+                for (const entry of readdirSync(directory, {withFileTypes: true})) {
+                    const path = join(directory, entry.name);
+                    if (!entry.isDirectory() &amp;&amp; !entry.isFile()) {
+                        console.log(&quot;Unexpected non-file package member (links are refused): &quot; + path);
+                        process.exit(1);
+                    }
+                    if (entry.isDirectory()) requireLinkFree(path);
+                }
+            }
+            requireLinkFree(join(root, &quot;node_modules&quot;, &quot;flatbuffers&quot;));
+            requireLinkFree(join(root, &quot;node_modules&quot;, &quot;typescript&quot;));
+          '" StandardOutputImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_RootToolPathStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_RootToolPathError" />
+    </Exec>
+    <Error Condition="'$(_RootToolPathStatus)' != '0'"
+           Text="Physical root tool admission failed. $(_RootToolPathError) Run npm ci at the repository root." />
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true"
+          Command="node --input-type=module-typescript --eval 'import root from &quot;./package.json&quot; with {type:&quot;json&quot;}; import manifestLock from &quot;./package-lock.json&quot; with {type:&quot;json&quot;}; import installed from &quot;./node_modules/flatbuffers/package.json&quot; with {type:&quot;json&quot;}; console.log(JSON.stringify([root?.devDependencies?.flatbuffers, manifestLock?.packages?.[&quot;&quot;]?.devDependencies?.flatbuffers, manifestLock?.packages?.[&quot;node_modules/flatbuffers&quot;]?.version, installed?.version]));'"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_FlatBuffersPins" />
+    </Exec>
+    <Error Condition="'$(_FlatBuffersPins)' != '[&quot;$(FlatcVersion)&quot;,&quot;$(FlatcVersion)&quot;,&quot;$(FlatcVersion)&quot;,&quot;$(FlatcVersion)&quot;]'"
+           Text="Root FlatBuffers versions (declared, lock declaration, locked, installed) $(_FlatBuffersPins) must equal the declared pin for flatc $(FlatcVersion). Run npm ci at the repository root." />
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" IgnoreExitCode="true" ConsoleToMSBuild="true"
+          Command="node --input-type=module-typescript --eval '
+            import {fileURLToPath, pathToFileURL} from &quot;node:url&quot;;
+            import {realpathSync} from &quot;node:fs&quot;;
+            import {join, sep} from &quot;node:path&quot;;
+            const packageDirectory = join(realpathSync(&quot;.&quot;), &quot;node_modules&quot;, &quot;flatbuffers&quot;) + sep;
+            const runtime = realpathSync(fileURLToPath(import.meta.resolve(&quot;flatbuffers&quot;)));
+            if (!runtime.startsWith(packageDirectory)) {
+                console.log(runtime);
+                process.exit(2);
+            }
+            await import(pathToFileURL(runtime).href);
+          '" StandardOutputImportance="low">
+      <Output TaskParameter="ExitCode" PropertyName="_FlatBuffersLoadResult" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_FlatBuffersResolved" />
+    </Exec>
+    <Error Condition="'$(_FlatBuffersLoadResult)' == '2'"
+           Text="FlatBuffers resolved outside the pinned root installation: $(_FlatBuffersResolved)." />
+    <Error Condition="'$(_FlatBuffersLoadResult)' != '0'"
+           Text="The pinned FlatBuffers runtime could not be loaded from the root installation. Run npm ci at the repository root." />
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true"
+          Command="node --input-type=module-typescript --eval 'import root from &quot;./package.json&quot; with {type:&quot;json&quot;}; const pin: unknown = root?.devDependencies?.typescript; if (typeof pin !== &quot;string&quot; || pin.trim() !== pin || !/^[0-9]+\.[0-9]+\.[0-9]+$/.test(pin)) throw new Error(&quot;The root TypeScript pin must be an exact version&quot;); console.log(&quot;Version &quot; + pin);'"
+          StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_TypeScriptPin" />
+    </Exec>
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true"
+          Command="node ./node_modules/typescript/bin/tsc --version" StandardOutputImportance="low">
+      <Output TaskParameter="ConsoleOutput" PropertyName="_LocalTypeScriptVersion" />
+    </Exec>
+    <Error Condition="'$(_LocalTypeScriptVersion)' != '$(_TypeScriptPin)'"
+           Text="The pinned local TypeScript compiler reports $(_LocalTypeScriptVersion), expected $(_TypeScriptPin). Run npm ci at the repository root." />
+  </Target>
+  <Target Name="ValidateWireStampPath" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_STAMP=$(_WireTypeScriptStamp);WIRE_BOUNDARY=$(_WireOwnedBaseIntermediateRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_file &quot;$WIRE_STAMP&quot; &quot;$WIRE_BOUNDARY&quot;">
+      <Output TaskParameter="ExitCode" PropertyName="_WireStampStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_WireStampError" />
+    </Exec>
+    <Error Condition="'$(_WireStampStatus)' != '0'" Text="Cannot use the wire generation stamp. $(_WireStampError)" />
+  </Target>
+  <Target Name="StampWireTypeScriptInputs" DependsOnTargets="ValidateWirePublishedPaths;ValidateWireStagingPath;ValidateWireStampPath" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <WriteLinesToFile File="$(_WireTypeScriptStamp)" Lines="$(WireSchemaPath)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+  </Target>
+  <Target Name="CleanWireTypeScriptInputs" BeforeTargets="CoreClean" DependsOnTargets="ValidateRuntimeOutputPaths;ValidateWirePublishedPaths;ValidateWireStagingPath;ValidateWireStampPath"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Delete Files="$(_WireTypeScriptStamp)" />
+  </Target>
+  <Target Name="ValidateWireStagingPath" DependsOnTargets="DeriveWireTypeScriptPaths" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_TREE=$(_WireTypeScriptStaging);WIRE_BOUNDARY=$(_WireOwnedIntermediateRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_tree &quot;$WIRE_TREE&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_files &quot;$WIRE_BOUNDARY&quot; &quot;$WIRE_TREE&quot; @(_WireTypeScriptRelativeSource, ' ')">
+      <Output TaskParameter="ExitCode" PropertyName="_WireStagingCheckStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_LinkedWireStagingSource" />
+    </Exec>
+    <Error Condition="'$(_WireStagingCheckStatus)' != '0'" Text="Cannot use generated wire staging. $(_LinkedWireStagingSource)" />
+    <Error Condition="'$(_LinkedWireStagingSource)' != ''" Text="Linked generated wire staging source: $(_LinkedWireStagingSource)." />
+  </Target>
+  <Target Name="GenerateWireTypeScript" DependsOnTargets="StampWireTypeScriptInputs"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+          Inputs="$(_WireTypeScriptStamp);$(WireSchemaPath);$(_FlatcCompilerTargets);$(_WireTypeScriptTargets)"
+          Outputs="$(_WireTypeScriptEntry)">
+    <CallTarget Targets="ProvisionFlatBuffersCompiler" />
+    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
+    <MakeDir Directories="$(_WireTypeScriptStaging)" />
+    <Exec Command="'$(_FlatcShellExecutable)' --ts --gen-object-api -o '$(_WireShellTypeScriptStaging)' '$(_FlatcShellSchema)'" />
+    <!-- Isolate the staged target results from the published results in this graph. The target names select the stage. -->
+    <MSBuild Projects="$(MSBuildProjectFullPath)" Targets="_SelectStagedWireTypeScript;ValidateWireTypeScriptModules"
+             Properties="_WireValidationInvocation=$([System.Guid]::NewGuid().ToString('N'))" />
+    <ItemGroup>
+      <_WireTypeScriptFile Include="$(_WireTypeScriptStaging)**/*.ts" />
+      <_WireTypeScriptTypeFile Include="$(_WireTypeScriptStaging)**/*.ts" Exclude="$(_WireTypeScriptStaging)curious-contraptions/wire.ts" />
+    </ItemGroup>
+    <WriteLinesToFile File="%(_WireTypeScriptFile.FullPath)" Overwrite="true"
+                      Lines="$([MSBuild]::Escape($([System.IO.File]::ReadAllText('%(_WireTypeScriptFile.FullPath)').Replace('optionalEncoding?:any', 'optionalEncoding?:flatbuffers.Encoding').Replace(', @typescript-eslint/no-explicit-any', ''))))" />
+    <ItemGroup>
+      <_WireTypeScriptPrevious Include="$(WireTypeScriptDirectory)**/*" />
+    </ItemGroup>
+    <Delete Files="@(_WireTypeScriptPrevious)" />
+    <RemoveDir Directories="$(WireTypeScriptDirectory)curious-contraptions" />
+    <Move SourceFiles="@(_WireTypeScriptTypeFile)" DestinationFiles="@(_WireTypeScriptTypeFile->'$(WireTypeScriptDirectory)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Move SourceFiles="$(_WireTypeScriptStaging)curious-contraptions/wire.ts" DestinationFiles="$(_WireTypeScriptEntry)" />
+    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
+    <OnError ExecuteTargets="RemoveWireTypeScriptStaging" />
+  </Target>
+  <!-- Derive the expected paths before either the runtime writer or an admission reader examines outputs. -->
+  <Target Name="DeriveWireTypeScriptPaths" DependsOnTargets="ValidateWireInputs;DeriveWireDeclarations"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <ItemGroup>
+      <_WireGenerationInput Include="$(WireSchemaPath);$(_FlatcCompilerTargets);$(_WireTypeScriptTargets)" />
+      <_WireTypeScriptModule Include="@(_WireSymbol)">
+        <BaseName>$([System.Text.RegularExpressions.Regex]::Replace('%(_WireSymbol.Name)', '(?&lt;=[a-z0-9])[A-Z]|(?&lt;=[A-Z])[A-Z](?=[a-z])', '-$0').ToLowerInvariant().Replace('_', '-'))</BaseName>
+        <Symbols>%(_WireSymbol.Name), %(_WireSymbol.Name)T</Symbols>
+        <Symbols Condition="'%(_WireSymbol.Kind)' == 'enum'">%(_WireSymbol.Name)</Symbols>
+      </_WireTypeScriptModule>
+    </ItemGroup>
+    <ItemGroup>
+      <_WireTypeScriptRelativeSource Include="curious-contraptions/wire.ts;@(_WireTypeScriptModule->'curious-contraptions/wire/%(BaseName).ts')" />
+      <_PublishedWireSource Include="@(_WireTypeScriptRelativeSource->'$(WireTypeScriptDirectory)%(Identity)')" />
+      <_CompiledWireLeaf Include="@(_WireTypeScriptModule->'$(_CompiledWireDirectory)wire/%(BaseName).js')" />
+    </ItemGroup>
+    <Error Condition="!Exists('%(_WireGenerationInput.Identity)')"
+           Text="Wire generation input %(_WireGenerationInput.Identity) is missing." />
+  </Target>
+  <Target Name="ValidateWirePublishedPaths" DependsOnTargets="DeriveWireTypeScriptPaths">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_TREE=$(WireTypeScriptDirectory);WIRE_BOUNDARY=$(RuntimeTypeScriptRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_files &quot;$WIRE_BOUNDARY&quot; &quot;$WIRE_TREE&quot; @(_WireTypeScriptRelativeSource, ' ')">
+      <Output TaskParameter="ExitCode" PropertyName="_WirePublishedStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_WirePublishedError" />
+    </Exec>
+    <Error Condition="'$(_WirePublishedStatus)' != '0'" Text="Cannot use invalid generated wire source. $(_WirePublishedError)" />
+  </Target>
+  <Target Name="_SelectStagedWireTypeScript" DependsOnTargets="ValidateWireStagingPath">
+    <PropertyGroup>
+      <_WireValidationDirectory>$(_WireTypeScriptStaging)</_WireValidationDirectory>
+    </PropertyGroup>
+  </Target>
+  <!-- Admit schema-derived symbols and exact paths, for both the staged set and the published set. -->
+  <Target Name="ValidateWireTypeScriptModules" AfterTargets="GenerateWireTypeScript" DependsOnTargets="ValidateWirePublishedPaths"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <PropertyGroup>
+      <_WireValidationNamespace>$(_WireValidationDirectory)curious-contraptions/</_WireValidationNamespace>
+      <_WireValidationEntry>$(_WireValidationNamespace)wire.ts</_WireValidationEntry>
+    </PropertyGroup>
+    <ItemGroup>
+      <_WireSourceLeaf Include="@(_WireTypeScriptModule->'$(_WireValidationNamespace)wire/%(BaseName).ts')" />
+      <_InspectedWireSource Include="$(_WireValidationEntry);@(_WireSourceLeaf)" />
+    </ItemGroup>
+    <Error Condition="!Exists('$(_WireValidationEntry)')"
+           Text="The generated wire entry module $(_WireValidationEntry) is missing. Build CuriousContraptions.Abstractions." />
+    <PropertyGroup>
+      <_WireEntryCode>$([System.Text.RegularExpressions.Regex]::Replace($([System.IO.File]::ReadAllText('$(_WireValidationEntry)')), '(?s)/\*.*?\*/|(?m)//[^\r\n]*', ''))</_WireEntryCode>
+    </PropertyGroup>
+    <ItemGroup>
+      <_UnexpectedWireSource Include="$(_WireValidationDirectory)**/*" Exclude="@(_InspectedWireSource)" />
+    </ItemGroup>
+    <Error Condition="'@(_UnexpectedWireSource)' != ''"
+           Text="Unlisted generated TypeScript wire module(s): @(_UnexpectedWireSource). The compiler wrote TypeScript outside the wire namespace's module or its schema declarations. No TypeScript was replaced." />
+    <Error Condition="'@(_WireTypeScriptModule)' == '' Or $([System.Text.RegularExpressions.Regex]::Matches('$(_WireEntryCode)', '(?m)^[ \t]*\S').Count) != @(_WireTypeScriptModule->Count())"
+           Text="The generated TypeScript wire entry exports do not match the canonical schema. Delete $(_WireValidationEntry) and rebuild." />
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(_WireEntryCode)', '(?m)^export \{ %(_WireTypeScriptModule.Symbols) \} from \x27\./wire/%(_WireTypeScriptModule.BaseName)\.js\x27\x3b\r?$'))"
+           Text="The generated TypeScript wire entry is missing its expected export for %(_WireTypeScriptModule.Name). Delete $(_WireValidationEntry) and rebuild." />
+    <Error Condition="!Exists('%(_WireSourceLeaf.Identity)')"
+           Text="Missing generated TypeScript wire module %(_WireSourceLeaf.Identity). Delete $(_WireValidationEntry) and rebuild." />
+    <Error Condition="$([System.IO.File]::GetLastWriteTime('%(_InspectedWireSource.Identity)').ToUniversalTime().Ticks) &lt; $([System.IO.File]::GetLastWriteTime('$(WireSchemaPath)').ToUniversalTime().Ticks) Or
+                      $([System.IO.File]::GetLastWriteTime('%(_InspectedWireSource.Identity)').ToUniversalTime().Ticks) &lt; $([System.IO.File]::GetLastWriteTime('$(_FlatcCompilerTargets)').ToUniversalTime().Ticks) Or
+                      $([System.IO.File]::GetLastWriteTime('%(_InspectedWireSource.Identity)').ToUniversalTime().Ticks) &lt; $([System.IO.File]::GetLastWriteTime('$(_WireTypeScriptTargets)').ToUniversalTime().Ticks)"
+           Text="Generated TypeScript wire module %(_InspectedWireSource.Identity) is older than its generation inputs. Delete $(_WireValidationEntry) and rebuild." />
+    <Error Condition="'%(_WireSourceLeaf.Kind)' == 'enum' And !$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('%(_WireSourceLeaf.Identity)')), '(?m)^export enum %(_WireSourceLeaf.Name) \{\r?$'))"
+           Text="Generated TypeScript wire module %(_WireSourceLeaf.Identity) is missing its current enum declaration. Delete $(_WireValidationEntry) and rebuild." />
+    <Error Condition="'%(_WireSourceLeaf.Kind)' != 'enum' And (
+                       !$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('%(_WireSourceLeaf.Identity)')), '(?m)^export class %(_WireSourceLeaf.Name) implements flatbuffers\.IUnpackableObject&lt;%(_WireSourceLeaf.Name)T&gt; \{\r?$')) Or
+                       !$([System.Text.RegularExpressions.Regex]::IsMatch($([System.IO.File]::ReadAllText('%(_WireSourceLeaf.Identity)')), '(?m)^export class %(_WireSourceLeaf.Name)T implements flatbuffers\.IGeneratedObject \{\r?$')))"
+           Text="Generated TypeScript wire module %(_WireSourceLeaf.Identity) is missing its current object API. Delete $(_WireValidationEntry) and rebuild." />
+  </Target>
+  <Target Name="RequirePublishedWireTypeScript">
+    <Error Condition="'$(_WireValidationDirectory)' != '$(WireTypeScriptDirectory)'"
+           Text="Runtime TypeScript admission requires the published generated source set." />
+  </Target>
+  <Target Name="AdmitRuntimeTypeScriptArtifacts" DependsOnTargets="RequirePublishedWireTypeScript;ValidateRuntimeOutputPaths;ValidateRootRuntimeTypeScript;ValidateWireTypeScriptModules"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+          Returns="@(_AdmittedWirePath->'%(RepositoryPath)')">
+    <PropertyGroup>
+      <AdmittedWireSourceCount>@(_PublishedWireSource->Count())</AdmittedWireSourceCount>
+    </PropertyGroup>
+    <ItemGroup>
+      <_AdmittedWirePath Include="@(_PublishedWireSource)">
+        <RepositoryPath>$([MSBuild]::MakeRelative('$(RuntimeTypeScriptRoot)', '%(_PublishedWireSource.Identity)'))</RepositoryPath>
+      </_AdmittedWirePath>
+    </ItemGroup>
+  </Target>
+  <Target Name="RemoveWireTypeScriptStaging" DependsOnTargets="ValidateWireInputs;ValidateWireStagingPath">
+    <RemoveDir Directories="$(_WireTypeScriptStaging)" />
+  </Target>
+  <!-- Non-root resolution candidates for the source importers and compiled Node harness. -->
+  <Target Name="RejectFlatBuffersShadow" Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <ItemGroup>
+      <_FlatBuffersShadowDirectory Include="$(RuntimeTypeScriptRoot)tools;$(RuntimeTypeScriptRoot)tools/runtime;$(RuntimeTypeScriptRoot)tools/e2e;$(RuntimeTypeScriptRoot)tools/e2e/unit;$(RuntimeTypeScriptRoot)tools/e2e/.wire;$(RuntimeTypeScriptRoot)tools/e2e/.wire/curious-contraptions;$(RuntimeTypeScriptRoot)tools/e2e/.wire/curious-contraptions/wire;$(_RuntimeTypeScriptOutput);$(_RuntimeTypeScriptOutput)tools;$(_RuntimeTypeScriptOutput)tools/runtime;$(_RuntimeTypeScriptOutput)tools/e2e;$(_RuntimeTypeScriptOutput)tools/e2e/.wire;$(_CompiledWireDirectory);$(_CompiledWireDirectory)wire" />
+    </ItemGroup>
+    <Error Condition="Exists('%(_FlatBuffersShadowDirectory.Identity)/node_modules/flatbuffers')"
+           Text="FlatBuffers at %(_FlatBuffersShadowDirectory.Identity)/node_modules/flatbuffers shadows the pinned root package. Remove the nested installation." />
+  </Target>
+  <!-- Abstractions is shared by native tests and both shipped hosts: one compiler invocation per build graph. -->
+  <Target Name="ValidateRuntimeOutputPaths" BeforeTargets="CoreClean" DependsOnTargets="DeriveWireTypeScriptPaths"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <ItemGroup>
+      <_RuntimeOutputFile Include="@(_RuntimeTypeScriptEmitted);@(_RuntimeTypeScriptPublished);@(_CompiledWireLeaf)">
+        <ShellArgument>'$([System.Text.RegularExpressions.Regex]::Replace('%(Identity)', '\x27', '$(_WireShellQuoteEscape)'))'</ShellArgument>
+      </_RuntimeOutputFile>
+    </ItemGroup>
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" ConsoleToMSBuild="true" IgnoreExitCode="true" StandardOutputImportance="low"
+          EnvironmentVariables="WIRE_TREE=$(_RuntimeTypeScriptOutput);WIRE_BOUNDARY=$(RuntimeTypeScriptRoot)"
+          Command="$(_WireDirectoryGuard)&#10;wire_tree &quot;$WIRE_TREE&quot; &quot;$WIRE_BOUNDARY&quot; || exit 1&#10;wire_files &quot;$WIRE_BOUNDARY&quot; &quot;&quot; @(_RuntimeOutputFile->'%(ShellArgument)', ' ')">
+      <Output TaskParameter="ExitCode" PropertyName="_RuntimeOutputStatus" />
+      <Output TaskParameter="ConsoleOutput" PropertyName="_RuntimeOutputCheck" />
+    </Exec>
+    <Error Condition="'$(_RuntimeOutputStatus)' != '0' Or '$(_RuntimeOutputCheck)' != ''"
+           Text="Cannot use linked or invalid runtime output. $(_RuntimeOutputCheck)" />
+  </Target>
+  <Target Name="BuildRuntimeTypeScript" BeforeTargets="BeforeBuild" DependsOnTargets="ValidateRuntimeOutputPaths;ValidateWirePublishedPaths;ValidateWireStagingPath;ValidateWireStampPath;RestoreRuntimeTypeScript;ValidateRootRuntimeTypeScript;GenerateWireTypeScript;AdmitRuntimeTypeScriptArtifacts"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'"
+          Inputs="@(RuntimeTypeScriptSource);@(RuntimeTypeScriptTool);@(_PublishedWireSource);$(RuntimeTypeScriptRoot)tsconfig.runtime.json;$(RuntimeTypeScriptRoot)package.json;$(RuntimeTypeScriptRoot)package-lock.json;$(_WireTypeScriptTargets)"
+          Outputs="@(_RuntimeTypeScriptEmitted);@(_RuntimeTypeScriptPublished);@(_CompiledWireLeaf)">
+    <Exec WorkingDirectory="$(RuntimeTypeScriptRoot)" Command="node ./node_modules/typescript/bin/tsc -p tsconfig.runtime.json --outDir '$(_RuntimeTypeScriptShellOutput)'" />
+    <Copy SourceFiles="@(_RuntimeTypeScriptCopies->'$(_RuntimeTypeScriptOutput)%(Identity)')" DestinationFiles="@(_RuntimeTypeScriptPublished)" />
+    <ItemGroup>
+      <FileWrites Include="@(_RuntimeTypeScriptPublished);$(_RuntimeTypeScriptOutput)**/*.js" />
+    </ItemGroup>
+  </Target>
+  <Target Name="ReconcileCompiledWireTypeScript" AfterTargets="BuildRuntimeTypeScript" DependsOnTargets="ValidateRuntimeOutputPaths;AdmitRuntimeTypeScriptArtifacts"
+          Condition="'$(MSBuildProjectName)' == 'CuriousContraptions.Abstractions'">
+    <ItemGroup>
+      <_RetiredCompiledWireModule Include="$(_CompiledWireDirectory)wire/*.js" Exclude="@(_CompiledWireLeaf)" />
+    </ItemGroup>
+    <Delete Files="@(_RetiredCompiledWireModule)" />
   </Target>
 </Project>

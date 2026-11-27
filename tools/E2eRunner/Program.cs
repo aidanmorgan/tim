@@ -168,7 +168,7 @@ internal static class Program
 
     private static Dictionary<string, string> Header(string root, Toolchain toolchain, int workers, long memory, PublishedArtifact artifact)
     {
-        var source = SourceIdentity.Capture(root);
+        var source = SourceIdentity.Capture(root, toolchain.AdmittedWireSources);
         return new Dictionary<string, string>(StringComparer.Ordinal)
         {
             ["runnerSourceDigest"] = source.RunnerSourceDigest, ["sourceHead"] = source.Head, ["sourceStatusDigest"] = source.StatusDigest,
@@ -184,7 +184,7 @@ internal static class Program
 
     private static RunDependencies Dependencies(string root, Toolchain toolchain, PublishedArtifact artifact, double? threshold) => new()
     {
-        SuiteSources = () => SourceIdentity.SuiteSources(root),
+        SuiteSources = () => SourceIdentity.SuiteSources(root, toolchain.AdmittedWireSources),
         VerifyArtifact = () => artifact.Verify(root),
         Watch = directory => new FileSystemBundleWatcher(directory),
         Ports = new FreePortSource(),

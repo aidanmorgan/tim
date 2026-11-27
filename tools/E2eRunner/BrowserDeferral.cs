@@ -16,7 +16,7 @@ internal static class BrowserDeferral
 {
     private const string Owner = "Aidan Morgan (project owner)";
     private const string TypeScript = "Runs tsc 6.0.3 with @types/node 26.0.1 over the Chrome suites, which import Playwright types and "
-        + "the flatbuffers runtime the browser phase installs with npm ci in tools/e2e: the browser-suite TypeScript toolchain, which no "
+        + "the flatbuffers runtime pinned in the root package.json: the browser-suite TypeScript toolchain, which no "
         + "required run provisions.";
     private const string Tsx = "Runs runner fixtures through the pinned tsx 4.23.15 loader the Chrome suites use: browser-suite toolchain, "
         + "which no required run provisions.";
@@ -42,7 +42,7 @@ internal static class BrowserDeferral
         new(DeferredRunner.E2eRunnerTests, "IdentityTests.EndRehashCatchesAChangeTheWatcherMissed", Engine, ReEnableGate.PostCatalogueBrowserPhase, Owner),
         new(DeferredRunner.NodeTest, "tools/e2e/unit/run-reset-snapshot.test.ts",
             "Browserless checks of the Chrome suites' Run/Reset snapshot comparator; needs the tsx 4.23.15 loader and the flatbuffers "
-            + "runtime the browser phase installs with npm ci in tools/e2e, the browser-suite toolchain, which no required run provisions.",
+            + "runtime pinned in the root package.json, the browser-suite toolchain, which no required run provisions.",
             ReEnableGate.PostCatalogueBrowserPhase, Owner),
         new(DeferredRunner.NodeTest, "tools/workshop-close-findings.test.ts",
             "Checks the Chrome suites' session close-finding module (tools/workshop-close-findings.ts, used by WorkshopDriver) through "

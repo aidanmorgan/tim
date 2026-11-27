@@ -1,8 +1,0 @@
-{
-  "name": "curious-contraptions-e2e",
-  "private": true,
-  "type": "module",
-  "devDependencies": {
-    "flatbuffers": "25.2.10"
-  }
-}

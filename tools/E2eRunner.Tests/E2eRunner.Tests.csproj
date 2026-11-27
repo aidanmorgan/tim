@@ -16,9 +16,7 @@
     <Reference Include="Microsoft.CodeAnalysis"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.dll</HintPath></Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp"><HintPath>$(MSBuildSDKsPath)/../Roslyn/bincore/Microsoft.CodeAnalysis.CSharp.dll</HintPath></Reference>
     <ProjectReference Include="../E2eRunner/E2eRunner.csproj" />
-    <!-- Build the shared runtime TS outputs used by the native node harnesses. -->
+    <!-- Build the shared runtime TS outputs and generated TypeScript wire modules (tools/e2e/.wire/). -->
     <ProjectReference Include="../../CuriousContraptions.Abstractions/CuriousContraptions.Abstractions.csproj" ReferenceOutputAssembly="false" />
-    <!-- Build the generated TypeScript wire modules (tools/e2e/.wire/, S5b) that the suites' import closures read. -->
-    <ProjectReference Include="../../CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 </Project>
