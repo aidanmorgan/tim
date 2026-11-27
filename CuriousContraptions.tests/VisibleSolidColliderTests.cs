@@ -15,10 +15,11 @@ namespace CuriousContraptions.Tests;
 /// <item>Collider against art, one case per element package: the scene's art is read through Godot (independent of the bundle's
 /// text extractor) and every solid art node must have a collider of its kind, centre, orientation and dimensions on the body that
 /// owns it (the base, or the moving body whose root lies above it, each body's colliders matched only against its own art), and every
-/// collider must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes) match their true Tube,
-/// Frustum and Torus colliders on the body that carries them, and a bend's drawn chords its torus segment; art that a span binding
-/// draws between a moving body and the base matches that body's clipped extrusion collider at the authored pose. Every art node is
-/// classified (<see cref="ArtSpec"/>), and no collider proxy (a <c>col_</c> mesh) is drawn or targeted by a presentation binding.</item>
+/// collider must be some solid art node (nothing reaches beyond the art). Round hollow parts (engine-hollow-shapes), a ring imported as a
+/// mesh among them, match their true Tube, Frustum and Torus colliders on the body that carries them, and a bend's drawn chords its torus
+/// segment; art that a span binding draws between a moving body and the base matches that body's clipped extrusion collider at the
+/// authored pose; art scaled by a gas-radius binding is drawn at the radius its gas store declares. Every art node is classified
+/// (<see cref="ArtSpec"/>), and no collider proxy (a <c>col_</c> mesh) is drawn or targeted by a presentation binding.</item>
 /// <item>Ball drops and rolls on the production simulation (<see cref="WorkshopIntegrationHarness"/>), on the features named in
 /// <see cref="Feature"/>, a switch terminal, the delay housing's face, the ramp's rail and a Wall: each stops the ball at its drawn
 /// surface, and the drops return the product restitution of the documented materials where it can be told from zero. A ball that
@@ -39,6 +40,15 @@ public sealed class VisibleSolidColliderTests
     /// (the 2.6 mm minimum-width rail) by L·θ; holding that within <see cref="Tol"/> gives θ ≈ Tol / L = 7.6e-4 rad, and
     /// 1 − cos θ ≈ θ² / 2 = 2.9e-7.</summary>
     private const float AxisTol = Tol / .0026f * (Tol / .0026f) / 2;
+    /// <summary>The storage allowance of an imported mesh's positions (m). Godot may store an imported mesh's positions as 16-bit values
+    /// across its bounds; the largest bound here is the Windmill guard's 1.63 m, so one step is 1.63 / 65535 ≈ 2.5e-5 m; two steps. It
+    /// widens only the match of an imported mesh (<see cref="Solid.Allowance"/>); primitive art keeps <see cref="Tol"/>.</summary>
+    private const float ImportedStep = 5e-5f;
+    /// <summary>How far apart two stored positions of one drawn circle or end may lie (m): each is within <see cref="ImportedStep"/> of
+    /// the true value, so two of them, a vertex and the measured extreme it is compared with, differ by at most twice that. No gameplay
+    /// defect lies within it; it is used only to group vertices against a measured extreme, never to compare a reading with its
+    /// literal or a collider.</summary>
+    private const float ImportedSpread = 2 * ImportedStep;
 
     /// <summary>One element's art, every mesh classified (an entry ending "/*" names a node's whole subtree):
     /// <list type="bullet">
@@ -47,7 +57,8 @@ public sealed class VisibleSolidColliderTests
     /// the body that owns it: an open <c>CylinderMesh</c> (both caps off) with the Tube (equal radii) or Frustum (tapered) whose outer
     /// radii, half-length, centre and axis are the drawn ones and whose inner radii are the element's mouth bores, a tube's inner radius
     /// also the bore its art node declares when that node states its wall (<see cref="Solid.Inner"/>); a <c>TorusMesh</c> with the full
-    /// solid Torus of its drawn centreline and tube;</item>
+    /// solid Torus of its drawn centreline and tube; an imported ring mesh (<see cref="Annulus"/>) with the Tube of its drawn outer
+    /// radius, bore, half-length, centre and axis;</item>
     /// <item><paramref name="Arc"/>: the straight open cylinders a bend's curved shell is drawn with (Godot has no torus-segment mesh),
     /// matched together with the one partial Torus collider they draw: each chord's radius is the torus's outer radius, its centre lies
     /// in the torus's plane within the chord's sagitta inside the centreline, its axis is tangent there, and the chords together span
@@ -71,9 +82,11 @@ public sealed class VisibleSolidColliderTests
     /// × scale, when its own art node states its <c>wall_thickness</c>; otherwise null. The tube is drawn as one open surface (the
     /// delivered convention of the pipe, the powered gate and the ball detector), so its bore is declared data, not drawn: matching it
     /// with the proxy's bore is a consistency check of the two declarations, like the mouth rule, and the bore's behaviour is proven by
-    /// <c>WoundSpringContactTests.RealHeadContactLaunchesLoadsAndGuideRimStopsOversizeEntry</c>.</summary>
+    /// <c>WoundSpringContactTests.RealHeadContactLaunchesLoadsAndGuideRimStopsOversizeEntry</c>. An imported ring's bore is drawn: its
+    /// inner wall's radius. <paramref name="Allowance"/> widens this mesh's own match by the storage step of an imported mesh's positions
+    /// (<see cref="ImportedStep"/>); it is zero for primitive art.</summary>
     private sealed record Solid(string Path, ColliderShapeKind Kind, NumVector3 Centre, NumQuaternion Rotation, NumVector3 Extents, float MeshError,
-        float? Inner);
+        float? Inner, float Allowance);
 
     private static readonly Dictionary<PartId, ArtSpec> Specs = new()
     {
@@ -84,7 +97,8 @@ public sealed class VisibleSolidColliderTests
         [new PartId("delay")] = new(["Visual/Visual_Body", "Visual/Visual_Face", "Visual/Visual_Base", "Visual/Visual_CenterPip",
             "Visual/Indicator", "Visual/Visual_PortIn", "Visual/Visual_PortOut"], null, [], ["Visual/CountdownHand/Visual_HandMesh"], []),
         [new PartId("ramp")] = new(["Visual/Visual_Body", "Visual/Visual_RailA", "Visual/Visual_RailB"], null, [], [], []),
-        // The four charge marks and the plus symbol are the gauge and label printed on the body.
+        // The four charge marks (0.02 m deep boxes) and the plus symbol (0.015 m deep bars) stand proud of the band and the body; they are
+        // the gauge and the label, decorative until the Battery repair redraws them as flat prints (batch-b.md:77).
         [new PartId("battery")] = new(["Visual/Visual_Body", "Visual/Visual_Stripe", "Visual/Terminal"], null, [],
             ["Visual/Mark_0", "Visual/Mark_1", "Visual/Mark_2", "Visual/Mark_3", "Visual/Visual_PlusH", "Visual/Visual_PlusV"], []),
         // The chevron is the arrow printed on the housing.
@@ -123,13 +137,15 @@ public sealed class VisibleSolidColliderTests
             ["Visual/InputWheel", "Visual/OutputWheel"]),
 
         // Every other element package, classified the same way.
-        // The seam is a torus on a dynamic body: engine-multi-collider-dynamic.
+        // The seam is the drawn full torus of its hollow collider on the ball's dynamic body.
         [new PartId("ball")] = new(["Visual/Visual_Sphere"], ["Visual/Visual_Stripe"], [], [], []),
         [new PartId("bowling")] = new(["Visual/Visual_Sphere"], null, [], [], []),
+        // The seam is printed flush with no collider (owner decision 24i), as owner decision 11 rules for the planned Pool ball's stripe.
+        [new PartId("tennis")] = new(["Visual/Felt"], null, [], ["Visual/Seam"], []),
         // The base lies inside the head; the impact ring is scaled by the impact cue. The upper ring is the
         // drawn full torus (engine-hollow-shapes).
         [new PartId("bumper")] = new(["Visual/BumperHead", "Visual/Visual_Cap"], ["Visual/Visual_Ring2"], [], ["Visual/Visual_Base", "Visual/ImpactRing"], []),
-        // The pips: engine-multi-collider-dynamic.
+        // The pips are solid, each its own sphere collider on the domino's dynamic body.
         [new PartId("domino")] = new(["Visual/Visual_Body", "Visual/Visual_Pip1", "Visual/Visual_Pip2"], null, [], [], []),
         // The stripes are flush with the faces. The body is drawn at 0.998 of the thickness so the stripes do not z-fight with it; the
         // collider takes the full thickness, 0.001·t thicker per face, at most 2 mm at the 2 m maximum thickness.
@@ -137,12 +153,12 @@ public sealed class VisibleSolidColliderTests
         // The body is drawn at mass m by a uniform scale 0.136734·m + 0.453070 of its 0.35166413 m radius, and the collider's radius
         // is 0.04808397·m + 0.15932827: the declared constants differ by 0.35166413·(0.136734·m + 0.453070) − (0.04808397·m +
         // 0.15932827), at most 4.0e-6 m at the 8 kg bound (the half-height by 3.2e-6 m).
-        // The base, and the bands and eye (tori on a dynamic body): engine-multi-collider-dynamic.
+        // The base is solid, and the bands and the eye are the drawn full tori of their hollow colliders, on the dynamic body.
         [new PartId("weight")] = new(["Visual/Visual_Body", "Visual/Visual_Base"], ["Visual/Visual_BandLower", "Visual/Visual_BandUpper", "Visual/Visual_Eye"], [], [], [], Fit: 4e-6f),
         // The halo is a glow.
         [new PartId("basket")] = new(["Visual/Visual_Floor", "Visual/Visual_Left", "Visual/Visual_Right", "Visual/Visual_Back", "Visual/Visual_Front"],
             null, [], ["Visual/Visual_Halo"], []),
-        // The studs and the ring torus would be colliders past the fifth, reaching the contact-load row: engine-multi-collider-dynamic.
+        // The four studs are solid and the ring is the drawn full torus of its hollow collider.
         [new PartId("pressure_plate")] = new(["Visual/Visual_Base", "Visual/Visual_Top", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply",
             "Visual/Visual_Socket_ActivationOut", "Visual/Stud_0", "Visual/Stud_1", "Visual/Stud_2", "Visual/Stud_3"], ["Visual/Visual_Ring"], [], [], []),
         // The stripe is printed on the plate; the coil is drawn by the spring's compression.
@@ -174,7 +190,7 @@ public sealed class VisibleSolidColliderTests
         [new PartId("latch")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/IndicatorLamp", "Visual/Visual_Socket_SetIn",
             "Visual/Visual_Socket_ResetIn", "Visual/Visual_Socket_PowerIn", "Visual/Visual_Socket_Supply", "Visual/Visual_Socket_ActivationOut"],
             null, [], ["Visual/Rocker", "Visual/SetMarker", "Visual/ResetMarker/*", "Visual/OutMarker/*"], []),
-        // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap: engine-multi-collider-dynamic.
+        // The pendulum swings with the clock. The recess stands 2 cm proud of the face. The pivot cap is solid.
         [new PartId("clock")] = new(["Visual/Housing", "Visual/Foot", "Visual/Face", "Visual/PivotCap", "Visual/Visual_Indicator", "Visual/Visual_Socket_PowerIn",
             "Visual/Visual_Socket_ActivationOut", "Visual/Recess"], null, [], ["Visual/PendulumPivot/*"], []),
 
@@ -210,6 +226,24 @@ public sealed class VisibleSolidColliderTests
             "Visual/ActivationSocket"], ["Visual/Sleeve"], [],
             ["Visual/Head/ChargeIndex", "Visual/Shaft/Spoke", .. Enumerable.Range(0, 5).Select(i => $"Visual/Mark{i}"), "Visual/Latch/Lever",
              "Visual/Coil/*"], ["Visual/Head", "Visual/Shaft"]),
+
+        // Visible-solid remainder, part C. The jacket and both collars are imported rings, each matched with its tube collider; the
+        // sleeve, slid by the recoil binding, lies inside the jacket's wall over its travel; the charge bar and the ready flag are moved
+        // by bindings.
+        [new PartId("cannon")] = new(["Visual/Breech", "Visual/Foot", "Visual/ChargeTrack", "Visual/Indicator", "Visual/PowerIn",
+            "Visual/ActivationIn"], ["Visual/Jacket", "Visual/RearCollar", "Visual/MuzzleCollar"], [],
+            ["Visual/Sleeve", "Visual/ChargeBar", "Visual/ReadyFlag"], []),
+        // The rotor turns on its hinge (its own body); each blade's tip lies inside its blade. The output wheel turns on a binding about
+        // its own axis, which a static cylinder follows exactly; its spokes turn off the axis, so they are drawn by the binding. The guard
+        // is an imported ring matched with its tube collider.
+        [new PartId("windmill")] = new(["Visual/Base", "Visual/Tower", "Visual/Nacelle", "Visual/Output/Wheel", "Visual/Rotor/Hub",
+            .. Enumerable.Range(0, 4).Select(i => $"Visual/Rotor/Arm{i}/Blade")], ["Visual/Guard"], [],
+            [.. Enumerable.Range(0, 4).Select(i => $"Visual/Rotor/Arm{i}/Tip"), "Visual/Output/Spoke0", "Visual/Output/Spoke1"],
+            ["Visual/Rotor"]),
+        // The envelope is drawn at its gas radius, its collider's. The neck is moved by the gas-radius binding and the carrier lies
+        // inside the envelope at every radius. The string is the thin-string exception, visible and decorative with no collider (owner,
+        // 21 November 2026; owner decision 1, 22 November 2026).
+        [new PartId("balloon")] = new(["Envelope"], null, [], ["Neck", "Carrier", "String"], []),
     };
 
     private static ArtSpec Logic(string[] printed) => new(["Visual/Body", "Visual/Foot", "Visual/Face", "Visual/FirstLamp", "Visual/SecondLamp",
@@ -254,10 +288,11 @@ public sealed class VisibleSolidColliderTests
             var unmatched = new List<string>();
             foreach (var path in art.Meshes.Keys.Where(path => (spec.Hollow ?? []).Any(e => Names(e, path))))
             {
-                var hollow = art.Meshes[path] ?? throw new InvalidOperationException($"{element}: hollow art '{path}' is not an open cylinder or a torus.");
+                var hollow = art.Meshes[path] ?? throw new InvalidOperationException(
+                    $"{element}: hollow art '{path}' is not an open cylinder, an imported ring or a torus.");
                 Assert.InRange(hollow.MeshError, 0f, .005f);
                 var pool = Pool(spec, path, colliders, moving);
-                var match = pool.FindIndex(collider => MatchesHollow(hollow, collider, bores, Tol + spec.Fit));
+                var match = pool.FindIndex(collider => MatchesHollow(hollow, collider, bores, Tol + spec.Fit + hollow.Allowance));
                 if (match < 0) unmatched.Add($"'{path}' ({hollow.Kind}, centre {hollow.Centre}, extents {hollow.Extents})");
                 else pool.RemoveAt(match);
             }
@@ -273,7 +308,7 @@ public sealed class VisibleSolidColliderTests
             {
                 var solid = art.Meshes[path] ?? throw new InvalidOperationException($"{element}: solid art '{path}' is not a box, full sphere or straight cylinder.");
                 var pool = Pool(spec, path, colliders, moving);
-                var match = pool.FindIndex(collider => Matches(solid, collider, Tol + spec.Fit));
+                var match = pool.FindIndex(collider => Matches(solid, collider, Tol + spec.Fit + solid.Allowance));
                 if (match < 0) unmatched.Add($"'{path}' ({solid.Kind}, centre {solid.Centre}, half {solid.Extents})");
                 else pool.RemoveAt(match);
             }
@@ -346,8 +381,9 @@ public sealed class VisibleSolidColliderTests
 
     /// <summary>Every mesh of the element's scene in the frame of the body that owns it, and each moving root's own pose in the base
     /// frame, with the declared presentation parameter scales and offsets applied to their nodes (for example the Ramp's Visual node
-    /// scales X by length / 3 and Z by width / 1.3). A mesh that is not a box, a full sphere, a straight cylinder, an open cylinder or a
-    /// torus has no primitive shape (null). A collider proxy (a <c>col_</c> mesh: engine-hollow-shapes' hollow proxies are mesh
+    /// scales X by length / 3 and Z by width / 1.3) and a gas-radius scale at the radius its gas store declares (<see cref="GasRadius"/>).
+    /// A mesh that is not a box, a full sphere, a straight cylinder, an open cylinder, a torus or an imported ring has no primitive shape
+    /// (null). A collider proxy (a <c>col_</c> mesh: engine-hollow-shapes' hollow proxies are mesh
     /// instances) is no art, and it must not be drawn: the scene contract's proxy is a separate node that is not rendered, so its own
     /// node is hidden and no presentation binding targets it.</summary>
     private static ArtScene Art(BundleEntry entry, string[] movingRoots, IReadOnlyDictionary<string, float> parameters)
@@ -391,7 +427,18 @@ public sealed class VisibleSolidColliderTests
             var nodePath = root.GetPathTo(node).ToString();
             if (node != start && movingRoots.Contains(nodePath, StringComparer.Ordinal)) break;
             var local = ((Node3D)node).Transform;
-            var (scale, origin) = (new Godot.Vector3(1, 1, 1), local.Origin);
+            var (basis, scale, origin) = (local.Basis, new Godot.Vector3(1, 1, 1), local.Origin);
+            // G2: a gas-radius scale replaces the node's authored scale, keeping its rotation; the authored scale must be the radius the
+            // gas store declares at the default parameters, so the scene stays checked.
+            foreach (var binding in entry.Presentation.Bindings.Where(b => b.Node == nodePath &&
+                         b.Driver == PresentationDriver.CommittedGasRadius && b.Property == PresentationProperty.UniformScale))
+            {
+                var authored = GasRadius(entry, binding, BundleGeometry.Parameters(entry));
+                Assert.True(Near(new(basis.Scale.X, basis.Scale.Y, basis.Scale.Z), new NumVector3(authored)),
+                    $"{entry.Metadata.Id}: '{nodePath}' is authored at scale {basis.Scale}, not at its declared gas radius {authored} m");
+                var radius = GasRadius(entry, binding, parameters);
+                (basis, scale) = (new Basis(basis.GetRotationQuaternion()), new Godot.Vector3(radius, radius, radius));
+            }
             foreach (var binding in entry.Presentation.Parameters.Where(b => b.Node == nodePath))
             {
                 var value = binding.Multiplier * parameters[binding.Parameter] + binding.Offset;
@@ -407,15 +454,84 @@ public sealed class VisibleSolidColliderTests
                     _ => throw new InvalidOperationException($"Unexpected presentation parameter {binding.Property} on {nodePath}.")
                 };
             }
-            local = new Transform3D(local.Basis * Basis.FromScale(scale), origin);
+            local = new Transform3D(basis * Basis.FromScale(scale), origin);
             transform = local * transform;
         }
         return transform;
     }
 
+    /// <summary>G2: the radius a gas-radius binding draws at the authored state in Standard atmosphere, from declared data with the
+    /// production function: the outer radius of the binding's gas shape (its dry radius) holding its store's reference volume at these
+    /// parameters, clamped to the binding's endpoints. It is a statement about declarations; the real part drawing it is
+    /// <c>BalloonArtTests.TheEnvelopeIsDrawnAtTheColliderRadiusInBuildModeAtRunStartAndAfterReset</c>.</summary>
+    private static float GasRadius(BundleEntry entry, PresentationBinding binding, IReadOnlyDictionary<string, float> parameters)
+    {
+        var mechanical = entry.Mechanical ?? throw new InvalidOperationException($"{entry.Metadata.Id}: gas-radius art without a mechanical payload.");
+        var reference = binding.GasShape ?? throw new InvalidOperationException($"{entry.Metadata.Id}: '{binding.Node}' names no gas shape.");
+        var shape = mechanical.GasShapes.Single(s => s.Body == reference.Body && s.Collider == reference.Collider);
+        var store = mechanical.GasStores.Single(s => s.Id == shape.Store);
+        var volume = store.ReferenceVolume.Evaluate(parameters.ToDictionary(p => new ParameterId(p.Key), p => p.Value));
+        return Math.Clamp(IsobaricGas.OuterRadius(shape.DryRadius, volume), binding.From, binding.To);
+    }
+
+    /// <summary>A ring read from an imported mesh about its local Y axis (<see cref="Annulus"/>): its inner and outer radii, the least
+    /// and greatest y of its two ends, and the largest angular gap between neighbouring outer vertices (rad).</summary>
+    private readonly record struct Ring(float Inner, float Outer, float Low, float High, float Gap);
+
+    /// <summary>G1: an imported mesh read as a ring from its vertices and triangles, or null. Outer is the largest radial distance
+    /// √(x² + z²), inner the smallest, the ends the least and greatest y. It is a ring only when the mesh has one indexed surface of
+    /// triangles (every delivered imported ring is one); inner &gt; 0
+    /// and the wall exceeds two storage steps; every vertex lies within <see cref="ImportedSpread"/> of the inner or the outer radius and
+    /// of one end (both stored values carry a step); each of the four circles holds at least three distinct vertices; and no triangle's
+    /// centroid lies nearer the axis than inner · cos(Δ) less a step, Δ the largest angular gap between neighbouring distinct outer
+    /// vertices, the wrap-around included. A ring with a gap reads with that gap's mesh error (<see cref="RingError"/>), which the
+    /// theory's 5 mm bound refuses.</summary>
+    private static Ring? Annulus(ArrayMesh mesh)
+    {
+        if (mesh.GetSurfaceCount() != 1 || mesh.SurfaceGetPrimitiveType(0) != Mesh.PrimitiveType.Triangles) return null;
+        var arrays = mesh.SurfaceGetArrays(0);
+        var vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+        var index = arrays[(int)Mesh.ArrayType.Index];
+        if (vertices.Length == 0 || index.VariantType == Variant.Type.Nil) return null;
+        var triangles = index.AsInt32Array();
+        if (triangles.Length == 0 || triangles.Length % 3 != 0) return null;
+        static float Radial(Godot.Vector3 v) => MathF.Sqrt(v.X * v.X + v.Z * v.Z);
+        static bool Stored(float a, float b) => MathF.Abs(a - b) <= ImportedSpread;
+        var (inner, outer, low, high) = (vertices.Min(Radial), vertices.Max(Radial), vertices.Min(v => v.Y), vertices.Max(v => v.Y));
+        if (inner <= 0 || outer - inner <= 2 * ImportedStep) return null;
+        if (!vertices.All(v => (Stored(Radial(v), inner) || Stored(Radial(v), outer)) && (Stored(v.Y, low) || Stored(v.Y, high)))) return null;
+        (float Radius, float Y)[] circles = [(inner, low), (inner, high), (outer, low), (outer, high)];
+        if (circles.Any(c => vertices.Where(v => Stored(Radial(v), c.Radius) && Stored(v.Y, c.Y)).Distinct().Count() < 3)) return null;
+        var angles = vertices.Where(v => Stored(Radial(v), outer)).Select(v => MathF.Atan2(v.Z, v.X)).Distinct().Order().ToArray();
+        var gap = MathF.Tau - (angles[^1] - angles[0]);
+        for (var i = 1; i < angles.Length; i++) gap = MathF.Max(gap, angles[i] - angles[i - 1]);
+        var nearest = inner * MathF.Cos(gap) - ImportedStep;
+        for (var i = 0; i < triangles.Length; i += 3)
+            if (Radial((vertices[triangles[i]] + vertices[triangles[i + 1]] + vertices[triangles[i + 2]]) / 3) < nearest) return null;
+        return new(inner, outer, low, high, gap);
+    }
+
+    /// <summary>The largest distance of a ring's drawn outer wall inside its true circle at scale s: outer · s · (1 − cos(Δ/2)).</summary>
+    private static float RingError(Ring ring, float scale) => ring.Outer * scale * (1f - MathF.Cos(ring.Gap / 2));
+
+    /// <summary>An imported ring at uniform scale s in its body's frame: a Tube with extents (outer·s, half-length·s, outer·s), bore
+    /// inner·s, centred at the mid-point of its two ends, its mesh error <see cref="RingError"/> and the allowance
+    /// <see cref="ImportedStep"/>; null for any other imported mesh.</summary>
+    private static Solid? Imported(string path, ArrayMesh mesh, Transform3D transform)
+    {
+        var s = transform.Basis.Scale;
+        if (Annulus(mesh) is not { } ring || MathF.Abs(s.X - s.Y) > Tol || MathF.Abs(s.Y - s.Z) > Tol) return null;
+        var q = transform.Basis.GetRotationQuaternion();
+        var centre = transform * new Godot.Vector3(0, (ring.Low + ring.High) * .5f, 0);
+        return new(path, ColliderShapeKind.Tube, new(centre.X, centre.Y, centre.Z), new(q.X, q.Y, q.Z, q.W),
+            new NumVector3(ring.Outer * s.X, (ring.High - ring.Low) * .5f * s.X, ring.Outer * s.X), RingError(ring, s.X), ring.Inner * s.X,
+            ImportedStep);
+    }
+
     /// <summary>A mesh's primitive (<see cref="Solid"/>) at its pose in its body's frame, or null when it has none.</summary>
     private static Solid? Primitive(string path, MeshInstance3D mesh, Transform3D transform)
     {
+        if (mesh.Mesh is ArrayMesh imported) return Imported(path, imported, transform);
         var s = transform.Basis.Scale;
         var q = transform.Basis.GetRotationQuaternion();
         (ColliderShapeKind Kind, NumVector3 Extents)? shape = mesh.Mesh switch
@@ -448,7 +564,7 @@ public sealed class VisibleSolidColliderTests
         float? inner = mesh.Mesh is CylinderMesh { CapTop: false, CapBottom: false } tube && tube.TopRadius == tube.BottomRadius &&
             mesh.HasMeta("wall_thickness") ? (tube.TopRadius - mesh.GetMeta("wall_thickness").AsSingle()) * s.X : null;
         return shape is { } primitive ? new(path, primitive.Kind, new(transform.Origin.X, transform.Origin.Y, transform.Origin.Z),
-            new(q.X, q.Y, q.Z, q.W), primitive.Extents, meshError, inner) : null;
+            new(q.X, q.Y, q.Z, q.W), primitive.Extents, meshError, inner, 0f) : null;
     }
 
     private static IEnumerable<Node> Descendants(Node node)
@@ -543,6 +659,184 @@ public sealed class VisibleSolidColliderTests
             Assert.True(spans[i].Angle - spans[i].Reach <= spans[i - 1].Angle + spans[i - 1].Reach, "the chords leave a gap in the sweep");
     }
 
+    /// <summary>C3, C7 and C10 (visible-solid remainder, part C): G1 reads each delivered imported ring from its own vertices and
+    /// triangles as the inner radius, outer radius and half-length its source file states, within one storage allowance
+    /// (<see cref="ImportedStep"/>): the Cannon's jacket, collars and sleeve and the Windmill's guard. The sleeve, at both ends of its
+    /// recoil binding, lies coaxially inside the jacket's wall, so it needs no collider of its own. Controls, built here as meshes whose
+    /// structural preconditions (surface count, primitive and indexing) are asserted, each shown by reading to fail the named rule of
+    /// <see cref="Annulus"/>: a box centred on the axis has no wall; a capped cylinder (a centre vertex on each cap) has no bore and no
+    /// inner circle, refused by those two rules together; the full ring with a second surface capping its bore is not one surface; its
+    /// arrays as lines are no triangles; its triangles without indices fail the index check (an empty index list also refuses); a fan across its lower inner circle
+    /// puts a triangle centroid near the axis; one more vertex at radius 0.53 m on an end lies on neither radius; one more vertex on the
+    /// outer radius at mid-height lies on neither end; every outer vertex moved onto the one at angle 0 or π leaves two per outer circle;
+    /// a conical shell of its lower outer and upper inner circles has two circles, not four; none is read. A half ring reads with a mesh
+    /// error beyond the 5 mm the visible-solid theory admits; and the full ring every control is built from reads as its literals, so the
+    /// builder is no cause of those refusals.</summary>
+    [Fact]
+    public void AnImportedRingIsReadFromItsMeshAndOtherMeshesAreRefused()
+    {
+        var (cannon, windmill) = (new PartId("cannon"), new PartId("windmill"));
+        var (jacket, jacketPose) = ReadRing(cannon, "Visual/Jacket", .48f, .58f, .55f);
+        ReadRing(cannon, "Visual/RearCollar", .48f, .65f, .05f);
+        ReadRing(cannon, "Visual/MuzzleCollar", .48f, .65f, .05f);
+        var (sleeve, sleevePose) = ReadRing(cannon, "Visual/Sleeve", .5f, .565f, .07f);
+        ReadRing(windmill, "Visual/Guard", .745f, .815f, .035f);
+
+        Assert.True(sleeve.Inner >= jacket.Inner && sleeve.Outer <= jacket.Outer,
+            $"the sleeve's wall ({sleeve.Inner} to {sleeve.Outer} m) leaves the jacket's ({jacket.Inner} to {jacket.Outer} m)");
+        var recoil = Assert.Single(TestBundle.Entry(cannon).Presentation.Bindings,
+            b => b.Node == "Visual/Sleeve" && b.Property == PresentationProperty.LocalX);
+        Godot.Vector3[] jacketEnds = [jacketPose * new Godot.Vector3(0, jacket.Low, 0), jacketPose * new Godot.Vector3(0, jacket.High, 0)];
+        foreach (var x in new[] { recoil.From, recoil.To })
+        {
+            var pose = sleevePose with { Origin = sleevePose.Origin with { X = x } };
+            foreach (var end in new[] { pose * new Godot.Vector3(0, sleeve.Low, 0), pose * new Godot.Vector3(0, sleeve.High, 0) })
+                Assert.True(end.X >= jacketEnds.Min(e => e.X) && end.X <= jacketEnds.Max(e => e.X) &&
+                    MathF.Abs(end.Y - jacketEnds[0].Y) <= ImportedStep && MathF.Abs(end.Z - jacketEnds[0].Z) <= ImportedStep,
+                    $"with the sleeve at x {x} its end lies at {end}, outside the jacket between {jacketEnds[0]} and {jacketEnds[1]}");
+        }
+
+        const Mesh.PrimitiveType Triangles = Mesh.PrimitiveType.Triangles;
+        using var box = new BoxMesh { Size = new(.6f, .2f, .6f) };
+        using var boxSurface = Surface(box);
+        AssertRefused(boxSurface, 1, Triangles, true, "a box centred on the axis (wall rule)");
+        using var capped = new CylinderMesh { TopRadius = .3f, BottomRadius = .3f, Height = .2f, Rings = 0 };
+        using var cappedSurface = Surface(capped);
+        AssertRefused(cappedSurface, 1, Triangles, true, "a capped cylinder (bore and inner-circle rules)");
+        var (vertices, indices, count) = RingArrays(.48f, .58f, .55f, MathF.Tau);
+        using var fullRing = Built(vertices, indices, Triangles);
+        var full = Annulus(fullRing);
+        Assert.True(full is { } closed && MathF.Abs(closed.Inner - .48f) <= ImportedStep && MathF.Abs(closed.Outer - .58f) <= ImportedStep &&
+            MathF.Abs(closed.High - .55f) <= ImportedStep && RingError(closed, 1) <= .005f, $"the built full ring reads as {full}");
+        var bore = 2 * count; // the inner circle at the lower end
+        List<int> fan = [.. Enumerable.Range(1, count - 2).SelectMany(k => new[] { bore, bore + k, bore + k + 1 })];
+        using var twoSurfaces = Built(vertices, indices, Triangles);
+        AddSurface(twoSurfaces, vertices, fan, Triangles);
+        AssertRefused(twoSurfaces, 2, Triangles, true, "a second surface capping the bore (single-surface rule)");
+        using var lines = Built(vertices, indices, Mesh.PrimitiveType.Lines);
+        AssertRefused(lines, 1, Mesh.PrimitiveType.Lines, true, "the ring's arrays as lines (triangle rule)");
+        using var unindexed = Built([.. indices.Select(i => vertices[i])], null, Triangles);
+        AssertRefused(unindexed, 1, Triangles, false, "the ring's triangles unindexed (index check)");
+        using var coveredBore = Built(vertices, [.. indices, .. fan], Triangles);
+        AssertRefused(coveredBore, 1, Triangles, true, "a fan closing the bore (centroid rule)");
+        using var midWall = Built([.. vertices, new(.53f, .55f, 0)], [.. indices, count, vertices.Count, 3 * count], Triangles);
+        AssertRefused(midWall, 1, Triangles, true, "a vertex between the radii (on-circle rule)");
+        using var midHeight = Built([.. vertices, new(.58f, 0, 0)], [.. indices, 0, vertices.Count, count], Triangles);
+        AssertRefused(midHeight, 1, Triangles, true, "a vertex between the ends (on-end rule)");
+        using var twoPerCircle = Built([.. vertices.Select((v, i) => i < 2 * count ? new Godot.Vector3(v.X >= 0 ? .58f : -.58f, v.Y, 0) : v)],
+            indices, Triangles);
+        AssertRefused(twoPerCircle, 1, Triangles, true, "two outer vertices per circle (three-vertices rule)");
+        using var conical = Built([.. vertices.Take(count), .. vertices.Skip(3 * count)],
+            [.. Enumerable.Range(0, count).SelectMany(k => new[] { k, count + k, count + (k + 1) % count, k, count + (k + 1) % count, (k + 1) % count })],
+            Triangles);
+        AssertRefused(conical, 1, Triangles, true, "a conical shell of two circles (four-circles rule)");
+        var (halfVertices, halfIndices, _) = RingArrays(.48f, .58f, .55f, MathF.PI);
+        using var halfRing = Built(halfVertices, halfIndices, Mesh.PrimitiveType.Triangles);
+        var half = Annulus(halfRing);
+        Assert.True(half is { } open && RingError(open, 1) > .005f, $"the built half ring reads as {half}, not as a ring with a gap");
+    }
+
+    /// <summary>The ring read from an element scene's imported mesh, asserted to be the stated literals within one storage allowance,
+    /// with the mesh node's pose in its parent.</summary>
+    private static (Ring Ring, Transform3D Pose) ReadRing(PartId element, string path, float inner, float outer, float half)
+    {
+        var root = WorkshopResources.LoadScene(TestBundle.Entry(element).Metadata.ScenePath).Instantiate<Node3D>();
+        try
+        {
+            var node = root.GetNode<MeshInstance3D>(path);
+            var mesh = Assert.IsType<ArrayMesh>(node.Mesh);
+            var read = Annulus(mesh);
+            Assert.True(read is { } ring && MathF.Abs(ring.Inner - inner) <= ImportedStep && MathF.Abs(ring.Outer - outer) <= ImportedStep &&
+                MathF.Abs(ring.Low + half) <= ImportedStep && MathF.Abs(ring.High - half) <= ImportedStep,
+                $"{element}: '{path}' reads as {read?.ToString() ?? "no ring"}, not inner {inner}, outer {outer} and half-length {half} " +
+                $"({Measured(mesh)})");
+            return (read!.Value, node.Transform);
+        }
+        finally
+        {
+            root.Free();
+        }
+    }
+
+    /// <summary>What an imported mesh holds, for a failure message: its surfaces, and its first surface's vertex and index counts,
+    /// radial range about Y and y range.</summary>
+    private static string Measured(ArrayMesh mesh)
+    {
+        var arrays = mesh.SurfaceGetArrays(0);
+        var vertices = arrays[(int)Mesh.ArrayType.Vertex].AsVector3Array();
+        var index = arrays[(int)Mesh.ArrayType.Index];
+        var radial = vertices.Select(v => MathF.Sqrt(v.X * v.X + v.Z * v.Z)).ToArray();
+        var (inner, outer, low, high) = (radial.Min(), radial.Max(), vertices.Min(v => v.Y), vertices.Max(v => v.Y));
+        return $"{mesh.GetSurfaceCount()} surface(s), {vertices.Length} vertices, " +
+            $"{(index.VariantType == Variant.Type.Nil ? 0 : index.AsInt32Array().Length)} indices, radial {inner} to {outer}, " +
+            $"y {low} to {high}, farthest from the nearer radius {radial.Max(r => MathF.Min(r - inner, outer - r))}, " +
+            $"from the nearer end {vertices.Max(v => MathF.Min(v.Y - low, high - v.Y))}";
+    }
+
+    private static ArrayMesh Surface(PrimitiveMesh primitive)
+    {
+        using var arrays = primitive.GetMeshArrays();
+        var mesh = new ArrayMesh();
+        mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+        return mesh;
+    }
+
+    /// <summary>A ring about Y of 64 segments over <paramref name="sweep"/> rad: its vertices, four circles of <c>Count</c> each (outer
+    /// lower, outer upper, inner lower, inner upper), and the indexed triangles of its outer and inner walls and its two end faces. A full
+    /// turn closes on its first vertices; a part turn leaves its gap open.</summary>
+    private static (List<Godot.Vector3> Vertices, List<int> Indices, int Count) RingArrays(float inner, float outer, float half, float sweep)
+    {
+        const int Segments = 64;
+        var count = sweep >= MathF.Tau ? Segments : Segments + 1;
+        var vertices = new List<Godot.Vector3>(4 * count);
+        foreach (var (radius, y) in new[] { (outer, -half), (outer, half), (inner, -half), (inner, half) })
+            for (var k = 0; k < count; k++)
+                vertices.Add(new(radius * MathF.Cos(sweep * k / Segments), y, radius * MathF.Sin(sweep * k / Segments)));
+        var indices = new List<int>(24 * Segments);
+        void Band(int a, int b)
+        {
+            for (var k = 0; k < Segments; k++)
+            {
+                var next = (k + 1) % count;
+                indices.AddRange([a + k, b + k, b + next, a + k, b + next, a + next]);
+            }
+        }
+        Band(0, count);
+        Band(2 * count, 3 * count);
+        Band(0, 2 * count);
+        Band(count, 3 * count);
+        return (vertices, indices, count);
+    }
+
+    /// <summary>A mesh of one surface of <paramref name="primitive"/> from these vertices (<see cref="AddSurface"/>).</summary>
+    private static ArrayMesh Built(List<Godot.Vector3> vertices, List<int>? indices, Mesh.PrimitiveType primitive)
+    {
+        var mesh = new ArrayMesh();
+        AddSurface(mesh, vertices, indices, primitive);
+        return mesh;
+    }
+
+    /// <summary>Adds a surface of <paramref name="primitive"/> from these vertices, indexed when <paramref name="indices"/> is given.</summary>
+    private static void AddSurface(ArrayMesh mesh, List<Godot.Vector3> vertices, List<int>? indices, Mesh.PrimitiveType primitive)
+    {
+        using var arrays = new Godot.Collections.Array();
+        arrays.Resize((int)Mesh.ArrayType.Max);
+        arrays[(int)Mesh.ArrayType.Vertex] = vertices.ToArray();
+        if (indices is not null) arrays[(int)Mesh.ArrayType.Index] = indices.ToArray();
+        mesh.AddSurfaceFromArrays(primitive, arrays);
+    }
+
+    /// <summary>A control mesh has the intended structure (its surface count, every surface's primitive, and whether its first surface is
+    /// indexed) and is not read as a ring; that it fails the named <paramref name="rule"/> is shown by reading the control and
+    /// <see cref="Annulus"/>, not asserted here.</summary>
+    private static void AssertRefused(ArrayMesh mesh, int surfaces, Mesh.PrimitiveType primitive, bool indexed, string rule)
+    {
+        Assert.Equal(surfaces, mesh.GetSurfaceCount());
+        for (var surface = 0; surface < surfaces; surface++) Assert.Equal(primitive, mesh.SurfaceGetPrimitiveType(surface));
+        Assert.Equal(indexed, mesh.SurfaceGetArrays(0)[(int)Mesh.ArrayType.Index].VariantType != Variant.Type.Nil);
+        Assert.True(Annulus(mesh) is null, $"{rule}: the control mesh is read as a ring");
+    }
+
     // ---------- the production simulation ----------
 
     private const double T = 1.0 / 120, G = 9.81;
@@ -580,13 +874,14 @@ public sealed class VisibleSolidColliderTests
     /// <summary>A flat top of each newly solid feature; for the hollow parts (engine-hollow-shapes) their drawn outer surfaces: the
     /// detector's and the gate's collar tubes (each turned over so its housing hangs below), the pipe's shell top and a pipe collar's
     /// torus top; the gate's housing, which carries the frame's documented restitution; for the logic family, a face panel, a lamp or
-    /// indicator and a socket; for the pressure plate, a socket at the plate's own restitution.</summary>
+    /// indicator and a socket; for the pressure plate, a socket at the plate's own restitution; for the Cannon, its indicator's apex;
+    /// for the Windmill, its output wheel's outer face.</summary>
     public enum Feature
     {
         LampBulb, SwitchButton, DelayHousing, DelayFace, RampSlab, BatteryTerminal, DetectorCollar, GateHousing, LogicFace, LogicLamp,
         CounterLamp, LatchIndicator, LatchSocket, ClockFace, HoldTimerFace, PlateSocket, NorFace, OrFace, XorFace, PipeShell, PipeCollar,
         GateCollar, Bend45Collar, Bend90Collar, FunnelCollar, AnchorEye, PulleyPost, PulleyRim, FanRing, ConveyorOutputPulley,
-        ConveyorInputPulley, PusherSocket
+        ConveyorInputPulley, PusherSocket, CannonIndicator, WindmillOutput
     }
 
     /// <summary>On its back: −90° about X, the face up; a part-local point (x, y, z) is then at (x, z, −y) from the origin.</summary>
@@ -677,6 +972,16 @@ public sealed class VisibleSolidColliderTests
         // (r 0.065 at (−0.4, 0.2, 0.34)), beyond its 0.34 radius; without the socket's collider it would stop on that edge, at
         // 0.325 + √(0.34² − 0.125²), 0.169 m lower. Restitution 0 (CAT-039).
         Feature.PusherSocket => (new PartId("linear_pusher"), NumQuaternion.Identity, .4 + .07, -.45f, .45f, 0),
+        // CAT-016: the upright Cannon, onto the apex of its indicator (r 0.07 at (−0.66, 0.65, 0.4)), 0.14 m above the breech's 0.58
+        // top. Resting there (centre 1.06) the ball is 0.495 m from the rear collar's rim and 0.56 m from the jacket's, beyond its 0.34
+        // radius; without the indicator's collider it would stop on the breech, 0.14 m lower. Restitution 0 (CAT-016).
+        Feature.CannonIndicator => (new PartId("cannon"), NumQuaternion.Identity, .65 + .07, -.66f, .4f, 0),
+        // CAT-070: the Windmill on its back, onto the outer face of its output wheel (r 0.24, length 0.12, centre (0.25, −0.1, 0.44)) at
+        // local z 0.5. Dropped at local (0.40, −0.25), 0.15 m off the wheel's centre along both spoke directions: resting there (centre
+        // 0.84) the ball's surface passes each spoke's edge, 0.135 m away, 13 mm above its top (15 mm proud of the face); the guard is
+        // 0.485 m away along the axis. Without the wheel's collider it would stop on the nacelle's face (local z 0.275), 0.225 m lower.
+        // Restitution 0 (CAT-070).
+        Feature.WindmillOutput => (new PartId("windmill"), Back, .44 + .06, .4f, .25f, 0),
         _ => throw new ArgumentOutOfRangeException(nameof(feature), feature, "Unknown feature.")
     };
 
@@ -733,16 +1038,18 @@ public sealed class VisibleSolidColliderTests
     }
 
     /// <summary>The Basketball dropped 0.5 m onto a newly solid feature of a part whose static restitution is 0.05 (Conveyor) or 0
-    /// (Linear pusher). The product with the ball's 0.55 is at most 0.0275. At the 3.13 m/s arrival and T = 1/120 s the rebound bracket's
+    /// (Linear pusher, Cannon and Windmill). The product with the ball's 0.55 is at most 0.0275. At the 3.13 m/s arrival and T = 1/120 s the rebound bracket's
     /// slack g·T·(1 + e)/v_in is 0.0268, so its low bound for e = 0.0275 is near zero (about 0.0006) and the bracket cannot tell 0.0275
     /// from zero; only the stop is asserted: the first landed read (landing detected as
     /// <see cref="AssertDropOnto"/> detects it) lies in [rest − the envelope's temporary penetration (17 mm), rest + 5 mm], the drop
     /// theory's two bounds. After the stop the ball rises at most e·v_in·T = 0.7 mm in a commit, so that read is the stop, on a flat
-    /// face or a sphere's apex alike. Without each collider the ball would first stop at least 0.169 m lower (see <see cref="Drop"/>).</summary>
+    /// face or a sphere's apex alike. Without each collider the ball would first stop at least 0.14 m lower (see <see cref="Drop"/>).</summary>
     [Theory]
     [InlineData(Feature.ConveyorOutputPulley)]
     [InlineData(Feature.ConveyorInputPulley)]
     [InlineData(Feature.PusherSocket)]
+    [InlineData(Feature.CannonIndicator)]
+    [InlineData(Feature.WindmillOutput)]
     public async Task ABallDroppedOntoEachLowRestitutionFeatureStopsAtItsDrawnSurface(Feature feature)
     {
         var (part, rotation, top, x, z, _) = Drop(feature);

@@ -52,7 +52,7 @@ Colours: shell pale grey `#ccd9df` ("metal details use pale grey", `DESIGN.md:24
 
 ### Behaviour and numbers
 
-- **Law.** Gravity and contact only. Pair laws are product restitution and geometric-mean friction (`docs/gpu-f32-physics.md:147`). No transport force, no logical transfer between mouths.
+- **Law.** Gravity and contact only. Pair laws are product restitution and geometric-mean friction (`docs/gpu-f32-physics.md:151`). No transport force, no logical transfer between mouths.
 - **Bore 0.65 m radius.** Passes the Basketball (0.35 m with its band, `elements/Ball/ball.tscn:18`), the Bowling ball (0.28 m, `elements/BowlingBall/bowling.tscn:9`) and the default Tennis ball (0.25 m, `elements/TennisBall/TennisBallElementDeclaration.cs:18`). Kept equal to the clear family so mouths snap (bores must be equal within 1e-6 m, `CuriousContraptions.tests/TubeMouthSnapTests.cs:269`).
 - **Oversized cargo.** Any sphere with radius above 0.65 m meets the mouth rim and stops. The control ball is a Tennis ball with `radius` 0.75 m (admitted range 1/16 to 16 m). This is D12; the code confirms it: the same geometry already stops a 0.75 m sphere at the Clear pipe's mouth (`CuriousContraptions.tests/WorkshopPhysicsLawHollowTests.cs:618`).
 - **Restitution 0.3** (starting value, D1). A Basketball (0.55) rebounds from the steel at 0.165 of its approach speed, twice the clear shell's 0.0825, so cargo rattles audibly more. **Friction 0.2** (starting value): pair friction with a ball (0.3) is 0.245 against the clear pipe's 0.30, so a ball that enters sliding takes longer to grip. A ball already rolling accelerates at (5/7)·g·(sin θ − C_rr) in both pipes; the metal pipe is not a faster conveyor.
@@ -82,7 +82,7 @@ Nothing is missing, narrower or untested. The earlier draft's "Missing" list (ho
 - **Layers.** Colliders: 1 Tube and 2 Torus (hidden `col_` proxies). Visuals: opaque shell, collars and printed bands, none used as a collider. Animation: none; nothing moves any art node during a Run; shell and collars (with their bands) follow `length` through Build-time parameter bindings. Visible = solid: shell and collars each have their hollow collider; the bands are printed flat, and no viewing slot is drawn.
 - **One-way flow and typing.** Nothing reads art. `length` is a typed f32 parameter in metres.
 - **Flat state.** 1 static body, 3 colliders, 0 joints, 0 drives, 0 sensors, 0 domain nodes, 0 stores, 3 collider and mouth parameter bindings and 3 presentation parameter bindings; 2 tube mouths.
-- **Performance.** Three primitive hollow colliders, the Clear pipe's count. Static. Fast cargo is kept in by the engine's general substeps and margins (`docs/gpu-f32-physics.md:375`). No island sleeping exists today; a jammed or resting ball costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
+- **Performance.** Three primitive hollow colliders, the Clear pipe's count. Static. Fast cargo is kept in by the engine's general substeps and margins (`docs/gpu-f32-physics.md:396`). No island sleeping exists today; a jammed or resting ball costs nothing only once ENGINE-ISLANDS-SLEEP (owner decision 3a) is delivered, ahead of this part.
 - **Tests are scenarios.** Rows A1 to A11 run the production simulation with delivered balls and tube parts.
 
 ## 4. Sources and legacy

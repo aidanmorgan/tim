@@ -2,7 +2,7 @@
 
 **Current delivery:** [EL-189 delivery slice](../invest/named-elements.md#element-189), Story 12.1a. [CAT-064](CAT-064-tennis.md) and the [approved native spec](../../../_bmad-output/implementation-artifacts/spec-12-1a-tennis-ball.md) record current declarations and source decisions. Apply the [package/bundle architecture](../../architecture/element-package-isolation.md) and [native unit/integration acceptance](../../testing-guidance.md). Browser qualification remains deferred until every named element passes.
 
-Rewritten on 22 November 2026 as one current text, checked against `elements/TennisBall/` and its tests in checkout `8d1d68aa`. Citations without `@` are `path:line` in that checkout; `Decl` is `elements/TennisBall/TennisBallElementDeclaration.cs`. `path@a6c914e` citations appear only in section 4 and are source facts.
+Rewritten on 22 November 2026 as one current text, checked against `elements/TennisBall/` and its tests in checkout `8d1d68aa`, and re-read on 25 November 2026 at `466ff4ca` with part B2's changes. Citations without `@` are `path:line` in part B2's commit, the commit that carries this sentence; `Decl` is `elements/TennisBall/TennisBallElementDeclaration.cs`. `path@a6c914e` citations appear only in section 4 and are source facts.
 
 ## 1. Identity
 
@@ -13,7 +13,7 @@ Rewritten on 22 November 2026 as one current text, checked against `elements/Ten
 | Owner key / slice | S297; `named-el-189` |
 | Refines | [CAT-064 tennis](CAT-064-tennis.md) ([requirement](../requirements.md#current-cat-064)). Contrasts: [EL-187](EL-187-basketball.md), [EL-188](EL-188-bowling-ball.md) |
 | Row and outcome | "Light compliant spherical cargo retains distinct calibrated contact properties." Outcome: "Its bounce differs from the bowling ball because of declared material, not IDs." |
-| Status | Delivered through package `tennis`, published in `15c8681d`. The closure review is blocked on the engine programme (owner decision 3a), including `ENGINE-CAPABILITY-INSTANCES` (payload contract), and runs after it (owner decision 22); the seam repair (part B2) is a repair and may run before it |
+| Status | Delivered through package `tennis`, published in `15c8681d`. The closure review is blocked on the engine programme (owner decision 3a), including `ENGINE-CAPABILITY-INSTANCES` (payload contract), and runs after it (owner decision 22); the seam repair, part B2, a repair allowed before it, prints the seam flush |
 
 ### Disposition
 
@@ -31,7 +31,7 @@ Then the `element-189` ledger entry cites `tennis` and those tests. The seam rep
 
 ## 2. Declaration
 
-Delivered; the full record is [CAT-064](CAT-064-tennis.md). In short: one dynamic body with a `radius`-bound sphere collider (`Decl:33`–`:38`), solid-sphere moments 0.4 × mass × radius², gravity (0, −9.81, 0) m/s², one ambient load whose lift is `buoyancy` and whose drag is `drag`, both scaled by the scene's atmosphere preset (`Decl:55`–`:57`), one airflow receiver, payload policy `CaptureTarget` (`Decl:45`), no port, store or event.
+Delivered; the full record is [CAT-064](CAT-064-tennis.md). In short: one dynamic body with a `radius`-bound sphere collider (`Decl:32`–`:37`), solid-sphere moments 0.4 × mass × radius², gravity (0, −9.81, 0) m/s², one ambient load whose lift is `buoyancy` and whose drag is `drag`, both scaled by the scene's atmosphere preset (`Decl:54`–`:56`), one airflow receiver, payload policy `CaptureTarget` (`Decl:44`), no port, store or event.
 
 | Parameter | Unit | Minimum | Maximum | Default | `Decl` |
 | --- | --- | --- | --- | --- | --- |
@@ -43,16 +43,16 @@ Delivered; the full record is [CAT-064](CAT-064-tennis.md). In short: one dynami
 
 All are `Real`, build-only, refused (not clamped) outside the range.
 
-**Material, as declared data.** The body declares restitution 0.85, friction 0.3, rolling resistance 0 and bounce threshold 0.1 m/s (`Decl:32`), and one `MaterialParameterBinding` writes `bounce` into the body's restitution (`Decl:39`–`:40`; `MaterialComponent.Restitution`, `CuriousContraptions.Abstractions/MaterialParameterBinding.cs:5`). So the bounce is a declared, player-visible value on the general contact law, which is the identity's whole claim. Friction, rolling resistance and the threshold are fixed. The material model has no density, strength, thermal or optical property, and this row asks for none.
+**Material, as declared data.** The body declares restitution 0.85, friction 0.3, rolling resistance 0 and bounce threshold 0.1 m/s (`Decl:31`), and one `MaterialParameterBinding` writes `bounce` into the body's restitution (`Decl:38`–`:39`; `MaterialComponent.Restitution`, `CuriousContraptions.Abstractions/MaterialParameterBinding.cs:5`). So the bounce is a declared, player-visible value on the general contact law, which is the identity's whole claim. Friction, rolling resistance and the threshold are fixed. The material model has no density, strength, thermal or optical property, and this row asks for none.
 
 ### Art and solidity
 
 | Node | Mesh | Class | Moved by |
 | --- | --- | --- | --- |
 | `Visual/Felt` | sphere r 0.25 m, felt yellow `#b8db59` | solid; collider `col_0_0` | body pose; build-time scale radius × 4 (`Decl:24`) |
-| `Visual/Seam` | torus, inner 0.245 m, outer 0.253 m, turned 45° about X, cream | printed seam, no collider (owner decision 24i, 23 November 2026); drawn 3 mm proud of the felt today | body pose; the same scale |
+| `Visual/Seam` | open band, radius 0.2504 m, height 8 mm, on the great circle turned 45° about X, cream | printed seam, no collider (owner decision 24i, 23 November 2026); 0.40–0.43 mm outside the felt at the default size | body pose; the same scale |
 
-The seam is a print, like the Pool ball's stripe (owner decision 24i): it has no collider, and the ball's only solid is its sphere. Repair: [visible-solid remainder part B2](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b2.md) is a flush-print repair that draws the seam flush with the felt, with no collider, no radius-bound torus and no matcher change. Part B2 is one of the visible-solid repair parts that may run before the engine programme (owner decision 22, 23 November 2026). At a glance: the small yellow ball with one tilted cream seam ring.
+The seam is a print, like the Pool ball's stripe (owner decision 24i): it has no collider, and the ball's only solid is its sphere. [Visible-solid remainder part B2](../../../_bmad-output/implementation-artifacts/spec-elements-visible-solid-remainder-b2.md), a repair allowed before the engine programme (owner decision 22, 23 November 2026), draws it flush with the felt, the same fraction of the radius proud at every size, with no collider, no radius-bound torus and no matcher change, and adds the package's row to the visible-solid table. At a glance: the small yellow ball with one tilted cream seam ring.
 
 ## 3. Engine capabilities
 
@@ -65,7 +65,7 @@ Probe of 22 November 2026. "Opened" means the test body was read for this spec.
 | Parameter-bound restitution on the general contact law | present | `IParameterizedMaterialElement`, `MaterialParameterBinding` (`CuriousContraptions.Abstractions/MaterialParameterBinding.cs:8`, `:10`) | `TennisBallTests.TennisReboundsAboveMatchedHeavierBallsAndSettlesOnTheBench` (`CuriousContraptions.tests/TennisBallTests.cs:84`, opened) at the default; a non-default `bounce` reaches the compiled body in `IndependentMassAndRadiusCompileCorrectInertiaAndPersist` (`:29`, bounce 0.6). No test observes a rebound at a non-default bounce: row A2 |
 | Radius-bound sphere and declared inertia | present | `IParameterizedGeometryElement` (`CuriousContraptions.Abstractions/SceneGeometry.cs:29`) | `TennisBallTests.IndependentMassAndRadiusCompileCorrectInertiaAndPersist` |
 | Ambient lift and drag | present | `IAmbientLoadElement` (`CuriousContraptions.Abstractions.Mechanical/MechanicalContracts.cs:124`) | `TennisBallTests.ConfiguredBuoyancyAndDragChangeMotionAndResetRestoresAuthoredState` (`:58`) |
-| Airflow receiver | present | `IAirflowReceiverElement` (`MechanicalContracts.cs:45`) | `FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`CuriousContraptions.tests/FanGuidanceTests.cs:124`, opened) |
+| Airflow receiver | present | `IAirflowReceiverElement` (`MechanicalContracts.cs:45`) | `FanGuidanceTests.ElectricalConeGuidesFallingTennisToReceiverWithMatchedControls` (`CuriousContraptions.tests/FanGuidanceTests.cs:132`, opened) |
 | Capture payload and contact load | present | `PayloadPolicy.CaptureTarget` | `TennisInteractionTests.ReceiverCapturesOnlyTheAlignedTennisPayload` (`CuriousContraptions.tests/TennisInteractionTests.cs:11`); `TwoDefaultTennisBallsLoadThePlateWhileOneStaysBelowThreshold` (`:30`, opened) |
 
 Counts: 5 present, 0 untested, 0 narrower, 0 missing.
@@ -121,7 +121,7 @@ Closure review "Cargo": one record, one candidate commit, one approval; owned di
 
 - **Prerequisites, in order.** Blocked on the engine programme (owner decision 3a), in particular `ENGINE-SPATIAL-QUERIES` (airflow occlusion), `ENGINE-SENSOR-VOLUMES` (capture), `ENGINE-ISLANDS-SLEEP` (resting) and `ENGINE-CAPABILITY-INSTANCES` (the payload contract). The closure review runs after the programme (owner decision 22, 23 November 2026), against those stories as delivered.
 
-The seam repair (part B2, the flush seam print) is a repair and may run before the programme (owner decision 22); it is independent of the closure, and the closure review re-reads the package as part B2 left it. Disqualifier: the review finds a criterion of the row that needs a declaration change, in which case this is a small slice on the package, not a closure. Buoyancy is the declared ambient lift (owner decision 24, 23 November 2026), executed by row A3.
+The seam repair (part B2, the flush seam print) is a repair that runs before the programme (owner decision 22); it is independent of the closure, and the closure review re-reads the package as part B2 left it. Disqualifier: the review finds a criterion of the row that needs a declaration change, in which case this is a small slice on the package, not a closure. Buoyancy is the declared ambient lift (owner decision 24, 23 November 2026), executed by row A3.
 
 ## 6. Open questions
 
@@ -131,7 +131,7 @@ Resolved:
 - **Closure group.** "Cargo", as delivery batches 2a lists it.
 - **Row A2 belongs to the closure, not to a new slice** (decided now, standing delegation). Reason: it is a test of a delivered declaration, and without it the "not IDs" half of the outcome is argued from the declaration rather than executed.
 - **Buoyancy.** The declared ambient lift (owner decision 24, 23 November 2026). This identity closes as planned, its `buoyancy` parameter being executed by `TennisBallTests.ConfiguredBuoyancyAndDragChangeMotionAndResetRestoresAuthoredState` (row A3). Floating in a liquid is `ENGINE-LIQUID`'s own acceptance (at D2's 16 kg/m³ the default ball displaces (4/3)π × 0.25³ × 16 = 1.05 kg against 0.35 kg and floats).
-- **Closure reviews before the engine programme.** They wait for it (owner decision 22, 23 November 2026); the seam repair, part B2, is a named repair part and may run before it.
+- **Closure reviews before the engine programme.** They wait for it (owner decision 22, 23 November 2026); the seam repair, part B2, is a named repair part that runs before it.
 
 **Needs the owner.** None.
 
@@ -139,12 +139,12 @@ Resolved:
 
 Against the owner's addendum of 22 November 2026, `AGENTS.md` (element-free engine gate, Tri-Graph) and `_bmad/custom/element-free-engine-design.md`.
 
-1. **Declaration data only.** One declaration class, one scene, one icon. A search of `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions projects for `tennis` and `TennisBall` found nothing. One refactor is owed, by a shared contract the part uses and not by the part: its `PayloadPolicy.CaptureTarget` (`Decl:45`) is the product role that `BodyTargetKind.AllPayloads` builds into the target filter (`CuriousContraptions.Abstractions/ContactWorkDeclarationValues.cs:31`, `:43`; engine design audit finding E12). `ENGINE-CAPABILITY-INSTANCES` replaces it with a declared participation mask; this package's declaration changes in that slice and rows A4 and A6 are re-run. The part declares no gas store, so the sphere-only gas coupling (finding E10) does not touch it.
+1. **Declaration data only.** One declaration class, one scene, one icon. A search of `engine/`, `CuriousContraptions.Simulation`, `CuriousContraptions.Bundle` and the abstractions projects for `tennis` and `TennisBall` found nothing. One refactor is owed, by a shared contract the part uses and not by the part: its `PayloadPolicy.CaptureTarget` (`Decl:44`) is the product role that `BodyTargetKind.AllPayloads` builds into the target filter (`CuriousContraptions.Abstractions/ContactWorkDeclarationValues.cs:31`, `:43`; engine design audit finding E12). `ENGINE-CAPABILITY-INSTANCES` replaces it with a declared participation mask; this package's declaration changes in that slice and rows A4 and A6 are re-run. The part declares no gas store, so the sphere-only gas coupling (finding E10) does not touch it.
 2. **Generic laws.** Bounce: contact restitution, parameterised by `bounce`. Lift and air drag: the ambient-load law. Fan push: the conical airflow law at declared samples. Capture, plate load and switch hit: the other part's sensor rows acting on an ordinary body.
 3. **Three layers.** Colliders: one hidden sphere; the seam is a print and has none (owner decision 24i). Visuals: felt and seam, never colliders. Animation: none; the `radius` scale is a build-time binding.
 4. **One-way flow and typing.** Typed f32 parameters with typed units; nothing reads art.
 5. **Flat state.** Bodies 1 (dynamic); colliders 1 sphere; joints, drives, sensors, domain nodes, stores and ports 0; airflow receivers 1 (4 samples); ambient loads 1; material bindings 1; collider bindings 3; presentation bindings 1 (build-time scale).
-6. **Performance.** One primitive, two after the repair, the second because the seam is a drawn solid. The smallest admitted radius is 1/16 m; a small fast ball is kept from tunnelling by the engine's speculative contact, not by a check here. Engine gaps, each owned inside the engine programme (owner decision 3a): island sleeping does not exist, so a resting ball is stepped every tick (`ENGINE-ISLANDS-SLEEP`; CAT-064's sentence that a resting ball sleeps with its island describes the design, not the delivery); every residence sensor tests every payload each tick (`ENGINE-SENSOR-VOLUMES`, candidates from `ENGINE-SPATIAL-QUERIES`); the Pressure plate's load and the Impact switch's trigger that this ball sets off are found by scanning rows (`ENGINE-CONTACT-OBSERVATIONS`); airflow occlusion walks every collider per sample line (`ENGINE-SPATIAL-QUERIES`).
+6. **Performance.** One primitive; the printed seam adds none. The smallest admitted radius is 1/16 m; a small fast ball is kept from tunnelling by the engine's speculative contact, not by a check here. Engine gaps, each owned inside the engine programme (owner decision 3a): island sleeping does not exist, so a resting ball is stepped every tick (`ENGINE-ISLANDS-SLEEP`; CAT-064's sentence that a resting ball sleeps with its island describes the design, not the delivery); every residence sensor tests every payload each tick (`ENGINE-SENSOR-VOLUMES`, candidates from `ENGINE-SPATIAL-QUERIES`); the Pressure plate's load and the Impact switch's trigger that this ball sets off are found by scanning rows (`ENGINE-CONTACT-OBSERVATIONS`); airflow occlusion walks every collider per sample line (`ENGINE-SPATIAL-QUERIES`).
 7. **Tests are scenarios.** Every row runs the production simulation through the Workshop harness.
 
-**Verdict: Conforms with fixes** (the flush seam print, part B2; the E12 contract refactor owed by `ENGINE-CAPABILITY-INSTANCES`); blocked on the engine programme (owner decision 3a).
+**Verdict: Conforms with one fix** (the E12 contract refactor owed by `ENGINE-CAPABILITY-INSTANCES`; the seam is printed flush by part B2); blocked on the engine programme (owner decision 3a).

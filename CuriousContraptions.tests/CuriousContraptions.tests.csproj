@@ -30,6 +30,11 @@
         <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5" />
     </ItemGroup>
 
+    <!-- The CommonMark and GitHub Markdown parser of the link rule in ArchitectureDocsConsistencyTests (DOC-ENGINE-STATUS VG-1), pinned to exactly 1.6.0 by the version range [1.6.0]. -->
+    <ItemGroup>
+        <PackageReference Include="Markdig" Version="[1.6.0]" />
+    </ItemGroup>
+
     <ItemGroup>
         <Using Include="Xunit" />
         <Using Include="CuriousContraptions.Abstractions.PortId" Alias="PortId" />

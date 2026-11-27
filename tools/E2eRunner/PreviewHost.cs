@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 
@@ -22,95 +23,103 @@ internal sealed class FreePortSource : IPortSource
     }
 }
 
-/// <summary>The runner's matching prebuilt Preview output on a free port, retried on
-/// a new port up to three times when the port is lost to a race, and proven to be this process by the full served-identity check.
-/// Disposing kills its process tree.</summary>
-internal sealed class PreviewHost : IDisposable
+/// <summary>The runner's matching prebuilt Preview output on a free port, retried on a new port up to three times when the port is
+/// lost to a race, and proven to be this process by the full served-identity check. Each attempt appends to the preview log through
+/// its own sink; <see cref="Stop"/> stops its process tree through the process lifecycle and closes that sink.</summary>
+internal sealed class PreviewHost
 {
     public const int Attempts = 3;
-    private readonly Process _process;
+    private static readonly TimeSpan StartLimit = TimeSpan.FromMinutes(2);
+    private readonly IChildProcess _child;
+    private readonly OutputSink _sink;
+    private readonly TimeSpan _grace;
+    private bool _stopped;
 
-    private PreviewHost(Process process, Uri baseUri)
+    internal PreviewHost(IChildProcess child, OutputSink sink, Uri baseUri, TimeSpan grace)
     {
-        _process = process;
+        _child = child;
+        _sink = sink;
         BaseUri = baseUri;
+        _grace = grace;
     }
 
     public Uri BaseUri { get; }
     public int Port => BaseUri.Port;
 
+    /// <summary>The preview process's pid.</summary>
+    public int ProcessId => _child.Id;
+
+    /// <summary>Starts the preview; a program that cannot start is refused as ProcessNotStarted at once, without another attempt, and
+    /// a cancellation stops the attempt in progress and makes no further one (OperationCanceledException); a cancellation already
+    /// requested makes none.</summary>
     public static async Task<PreviewHost> StartAsync(string root, string bundleDirectory, BundleManifest manifest, IPortSource ports,
-        HttpClient client, TextWriter log, CancellationToken cancellation)
+        HttpClient client, string logPath, LaunchChild launcher, CancellationToken cancellation)
     {
         ArgumentNullException.ThrowIfNull(ports);
         ArgumentNullException.ThrowIfNull(manifest);
         var failures = new List<string>();
         for (var attempt = 1; attempt <= Attempts; attempt++)
         {
+            cancellation.ThrowIfCancellationRequested();
             var port = ports.Next();
-            var host = await TryStartAsync(root, bundleDirectory, port, client, log, cancellation).ConfigureAwait(false);
+            var host = await TryStartAsync(root, bundleDirectory, port, client, logPath, launcher, cancellation).ConfigureAwait(false);
             if (host is null)
             {
+                cancellation.ThrowIfCancellationRequested();
                 failures.Add($"attempt {attempt} on port {port} did not start");
                 continue;
             }
-            try
+            try { await manifest.VerifyServedAsync(client, host.BaseUri, cancellation).ConfigureAwait(false); }
+            catch (Exception failure)
             {
-                await manifest.VerifyServedAsync(client, host.BaseUri, cancellation).ConfigureAwait(false);
-                var verified = host;
-                host = null;
-                return verified;
+                host.StopAfterFailure(failure);
+                throw;
             }
-            finally { host?.Dispose(); }
+            return host;
         }
         throw new RunnerException(RunnerError.PreviewUnavailable, "The preview did not start: " + string.Join("; ", failures));
     }
 
-    private static async Task<PreviewHost?> TryStartAsync(string root, string bundleDirectory, int port, HttpClient client, TextWriter log,
-        CancellationToken cancellation)
+    /// <summary>One attempt: the started preview, or null after stopping an attempt that did not answer.</summary>
+    private static async Task<PreviewHost?> TryStartAsync(string root, string bundleDirectory, int port, HttpClient client, string logPath,
+        LaunchChild launcher, CancellationToken cancellation)
     {
-        var start = new ProcessStartInfo("dotnet")
-        {
-            UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true, WorkingDirectory = root,
-        };
+        var start = new ProcessStartInfo("dotnet") { WorkingDirectory = root };
         // Kestrel's per-request information logs would make preview.log grow with every file fetched; warnings and errors remain.
         start.Environment["Logging__LogLevel__Default"] = "Warning";
         var executable = RequireExecutable(AppContext.BaseDirectory);
-        foreach (var argument in new[] { executable, bundleDirectory,
-            port.ToString(System.Globalization.CultureInfo.InvariantCulture) }) start.ArgumentList.Add(argument);
-        Process? process = new();
+        foreach (var argument in new[] { executable, bundleDirectory, port.ToString(CultureInfo.InvariantCulture) }) start.ArgumentList.Add(argument);
+        var sink = new OutputSink(logPath, append: true, $"preview[{port}] ");
+        var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        sink.LineWritten += (stream, line) =>
+        {
+            if (stream == OutputStream.Standard && line.StartsWith("Workshop preview:", StringComparison.Ordinal)) ready.TrySetResult();
+        };
+        var host = new PreviewHost(ProcessLifecycle.Start(launcher, start, sink), sink, new Uri($"http://127.0.0.1:{port}/"), ProcessLifecycle.Grace);
         try
         {
-            process.StartInfo = start;
-            var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            process.OutputDataReceived += (_, line) =>
-            {
-                if (line.Data is null) return;
-                lock (log) log.WriteLine($"preview[{port}] {line.Data}");
-                if (line.Data.StartsWith("Workshop preview:", StringComparison.Ordinal)) ready.TrySetResult();
-            };
-            process.ErrorDataReceived += (_, line) => { if (line.Data is not null) lock (log) log.WriteLine($"preview[{port}] {line.Data}"); };
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
-            var baseUri = new Uri($"http://127.0.0.1:{port}/");
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
-            timeout.CancelAfter(TimeSpan.FromMinutes(2));
-            var exited = process.WaitForExitAsync(timeout.Token);
-            var answering = WaitUntilAnsweringAsync(client, baseUri, ready.Task, timeout.Token);
-            var first = await Task.WhenAny(exited, answering).ConfigureAwait(false);
-            var started = first == answering && await answering.ConfigureAwait(false) && !process.HasExited;
-            await timeout.CancelAsync().ConfigureAwait(false);
-            if (!started) return null;
-            var host = new PreviewHost(process, baseUri);
-            process = null;
-            return host;
+            if (await host.AnswersAsync(client, ready.Task, cancellation).ConfigureAwait(false)) return host;
+            host.Stop();
+            return null;
         }
-        finally
+        catch (Exception failure)
         {
-            if (process is not null) Stop(process);
-            process?.Dispose();
+            host.StopAfterFailure(failure);
+            throw;
         }
+    }
+
+    /// <summary>True when the preview announced itself and answers while its root still runs, within the start limit.</summary>
+    private async Task<bool> AnswersAsync(HttpClient client, Task ready, CancellationToken cancellation)
+    {
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellation);
+        timeout.CancelAfter(StartLimit);
+        var exited = _child.WaitForRootAsync(Timeout.InfiniteTimeSpan, timeout.Token);
+        var answering = WaitUntilAnsweringAsync(client, BaseUri, ready, timeout.Token);
+        var first = await Task.WhenAny(exited, answering).ConfigureAwait(false);
+        var started = first == answering && await answering.ConfigureAwait(false) && !exited.IsCompleted;
+        await timeout.CancelAsync().ConfigureAwait(false);
+        return started;
     }
 
     private static async Task<bool> WaitUntilAnsweringAsync(HttpClient client, Uri baseUri, Task ready, CancellationToken cancellation)
@@ -140,20 +149,43 @@ internal sealed class PreviewHost : IDisposable
         return executable;
     }
 
-    private static void Stop(Process process)
+    /// <summary>Stops the preview once (a second call does nothing): one kill of its tree, one grace wait for its root, its output
+    /// drained for the grace when the root ended, and its log closed with the runner's lines. A root still running is a typed
+    /// ProcessNotStopped refusal; output that could not be read or recorded is ProcessOutputFailed.</summary>
+    public void Stop()
     {
-        try
-        {
-            if (process.HasExited) return;
-            process.Kill(entireProcessTree: true);
-            process.WaitForExit();
-        }
-        catch (InvalidOperationException) { return; } // never started
+        if (StopOnce() is { } refusal) throw refusal;
     }
 
-    public void Dispose()
+    /// <summary>Stops the preview while another failure is in flight. Only a ProcessNotStopped of the stop replaces that failure (a
+    /// process the run owns may still run), as one refusal naming both when the failure in flight is a ProcessNotStopped too; any
+    /// other outcome of the stop gives way to the failure in flight.</summary>
+    public void StopAfterFailure(Exception inFlight)
     {
-        Stop(_process);
-        _process.Dispose();
+        ArgumentNullException.ThrowIfNull(inFlight);
+        if (StopOnce() is not { Error: RunnerError.ProcessNotStopped } notStopped) return;
+        throw inFlight is RunnerException { Error: RunnerError.ProcessNotStopped }
+            ? ProcessLifecycle.BothNotStopped(inFlight, notStopped)
+            : notStopped;
+    }
+
+    /// <summary>The outcome of the one stop: null when the preview stopped cleanly or was already stopped.</summary>
+    private RunnerException? StopOnce()
+    {
+        if (_stopped) return null;
+        _stopped = true;
+        try { return KillAndCloseAsync().GetAwaiter().GetResult(); }
+        finally { _child.Dispose(); }
+    }
+
+    private async Task<RunnerException?> KillAndCloseAsync()
+    {
+        var stop = await ProcessLifecycle.StopAsync(_child, _grace).ConfigureAwait(false);
+        var outputFailure = await ProcessLifecycle.FinishAsync(_child, _sink, $"the preview on port {Port}", stop.Root, TimeSpan.Zero, _grace,
+            [$"E2E_RUNNER stop (stop requested): {stop.Detail}"]).ConfigureAwait(false);
+        return stop.Root == RootState.StillRunning
+            ? new RunnerException(RunnerError.ProcessNotStopped,
+                $"The preview on port {Port} was still running {ProcessLifecycle.Seconds(_grace)} s after the kill ({stop.Detail}).")
+            : outputFailure;
     }
 }

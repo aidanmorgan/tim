@@ -157,6 +157,26 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.75, 0)
 mesh = SubResource("Foot")
 visible = false
 
+[node name="col_ChargeTrack" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.55, 0.62)
+mesh = SubResource("Track")
+visible = false
+
+[node name="col_Indicator" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.66, 0.65, 0.4)
+mesh = SubResource("Indicator")
+visible = false
+
+[node name="col_PowerIn" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, -0.55, 0.55)
+mesh = SubResource("Socket")
+visible = false
+
+[node name="col_ActivationIn" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.15, -0.55, 0.55)
+mesh = SubResource("Socket")
+visible = false
+
 [node name="Loc_Port_PowerIn" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, -0.55, 0.55)
 

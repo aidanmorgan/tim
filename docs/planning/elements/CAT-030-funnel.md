@@ -54,7 +54,7 @@ The package is declaration data and a scene. It has no script, callback or updat
 | Air does not cross the shell | Airflow occlusion by solid colliders | The same five colliders |
 | Light crosses the wall and stops at the collars | Optical transport with a declared surface response per collider (EL-176 section 10): missing, [ENGINE-OPTICAL](../../../_bmad-output/planning-artifacts/epics.md#story-engine-optical-beam-emission-transport-surface-interaction-and-reception) | `col_shell` and both stubs declare Transmit (1, 1, 1), a criterion of ENGINE-OPTICAL (EL-176 section 10, item 6); the collars keep the default Absorb |
 
-**Performance fitness.** The body is static with no sensor or field region. Five primitive hollow colliders replace the deleted box ring. Tunnelling through the 5 cm wall is excluded by the engine's general means, speculative contacts at 480 Hz substeps (`docs/gpu-f32-physics.md:299-306`; envelope `:375`). Nothing costs work in proportion to the scene. Engine gap: optical response (ENGINE-OPTICAL).
+**Performance fitness.** The body is static with no sensor or field region. Five primitive hollow colliders replace the deleted box ring. Tunnelling through the 5 cm wall is excluded by the engine's general means, speculative contacts at 480 Hz substeps (`docs/gpu-f32-physics.md:320-327`; envelope `:396`). Nothing costs work in proportion to the scene. Engine gap: optical response (ENGINE-OPTICAL).
 
 ## 3. Engine capabilities
 

@@ -129,7 +129,7 @@ Laws: rigid-body dynamics; the delivered ambient load (lift and linear drag) wit
 - **Lost guidance.** With the light hidden, off or out of range, both nose contacts are open: corrective thrust and its work are exactly zero. The dart flies straight on its main jet, sinking slowly.
 - **No supply.** `enabled` Disabled, `initial_charge` 0 or an empty cell: nothing runs. Corrective thrust can never exceed what the cell holds or what `power_limit` passes.
 - **Vacuum.** Lift, drag and every jet's reaction scale with the atmosphere's pressure scale: in a Vacuum atmosphere it is a 0.3 kg dart that is not propelled; on a ramp it stays where it lies.
-- **Fit and tunnelling.** 0.16 m across the body, 0.226 m across the fins: it passes the pipe bore (1.3 m across) and is not a Cannon payload. At 6 m/s it moves 0.0125 m per substep against a 0.08 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:195`, `:258`). Its speed can never pass the 16 m/s flow speed, under the 64 m/s linear envelope (`CuriousContraptions.Abstractions/CanonicalBodyValues.cs:16`).
+- **Fit and tunnelling.** 0.16 m across the body, 0.226 m across the fins: it passes the pipe bore (1.3 m across) and is not a Cannon payload. At 6 m/s it moves 0.0125 m per substep against a 0.08 m radius; the engine's fattened bounds and speculative contacts cover it (`docs/gpu-f32-physics.md:213`, `:276`). Its speed can never pass the 16 m/s flow speed, under the 64 m/s linear envelope (`CuriousContraptions.Abstractions/CanonicalBodyValues.cs:16`).
 
 ## 3. Engine capabilities
 

@@ -33,7 +33,7 @@ One dynamic body, long axis local +Y, nozzle at −Y. Mass 0.4 kg (**starting va
 | Fins A | Box | 0.44 × 0.18 × 0.02 | (0, −0.36, 0) |
 | Fins B | Box | 0.02 × 0.18 × 0.44 | (0, −0.36, 0) |
 
-Four colliders against the Tennis ball's two. Reason: the nose and the four fins are proud visible solids, and the crossed fin pair gives a 0.44 m base so the rocket stands on a bench.
+Four colliders against the Tennis ball's one, its sphere (its seam is printed flush, owner decision 24i). Reason: the nose and the four fins are proud visible solids, and the crossed fin pair gives a 0.44 m base so the rocket stands on a bench.
 
 ### Store, jet and signal nodes
 
@@ -88,7 +88,7 @@ Laws: rigid-body dynamics and contact; the store-paid conical airflow law; the a
 - **Vacuum.** The reaction scales with the atmosphere's pressure scale: in a Vacuum atmosphere this toy air jet gives no thrust and pays nothing.
 - **Exhaust.** A body inside the cone takes its share of the same rated force, and the rocket receives the equal and opposite of that share as delivered today. Geometry of row A6: a lying rocket rests on two fin tips (0.22 × sin 45° = 0.156 m) and its nose (0.12 m), so its axis is about 0.15 m above the bench; a Tennis ball's centre is at 0.25 m. At 0.5 m behind the nozzle the cone's radius is 0.4 × 0.5 = 0.2 m, so the ball's two side samples (0.125 m off its centre, 0.16 m from the axis) and its bottom sample are inside the cone and its top sample is not. The row asserts only that the ball is pushed away.
 - **Fit.** 0.24 m across the tube and 0.44 m across the fins: it passes the pipe bore (1.3 m across); it is outside the Cannon's 0.6–0.84 m seating window (`CannonElementDeclaration.cs:32`) and is not a cannon payload. Its 3.9 N weight is below a default 0.5 kg Pressure plate's 4.9 N.
-- **Tunnelling.** At no more than the 16 m/s flow speed the rocket moves 0.033 m per 480 Hz substep, about a quarter of its radius; the engine's velocity-fattened bounds and speculative contacts ([solver model](../../gpu-f32-physics.md), `docs/gpu-f32-physics.md:195`, `:258`) cover it with no per-part check.
+- **Tunnelling.** At no more than the 16 m/s flow speed the rocket moves 0.033 m per 480 Hz substep, about a quarter of its radius; the engine's velocity-fattened bounds and speculative contacts ([solver model](../../gpu-f32-physics.md), `docs/gpu-f32-physics.md:213`, `:276`) cover it with no per-part check.
 
 ## 3. Engine capabilities
 
