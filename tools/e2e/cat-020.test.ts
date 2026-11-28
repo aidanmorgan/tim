@@ -11,13 +11,14 @@
 // (driver.expectResetMatches) against the snapshot taken before the first Run, with the committed counter at count 0 and its
 // activation Clear (contact open); each Run cycle first proves it advanced.
 import assert from 'node:assert/strict';
+import { ActivationPhase } from '../../CuriousContraptions.web/wwwroot/workshop-observation.ts';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
 import { type InstanceRecord } from './.wire/curious-contraptions/wire.ts';
-import { MemoryKind, activationMemoryRows, assertLoadRestores, snapshotEntries, snapshotValue, type ActivationMemoryRow } from './run-reset-snapshot.ts';
+import { MemoryKind, assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
 const Socket = { ActivationOut: 1, ActivationIn: 4, Supply: 7, PowerIn: 8 } as const;
@@ -29,7 +30,6 @@ const LAMP_TARGET = '5'; // Animation target of the Signal lamp's activation nod
 const ARMED_LIFTS = [28, 42, 56, 70] as const;
 // The negative control's two balls (the original recipe's lifts).
 const TWO_CROSSING_LIFTS = [50, 100] as const;
-const ActivationPhase = { Clear: '0' } as const;
 
 const screen = (x: number, z: number) => ({
     x: Math.round(720 + 53.8 * x - 36.8 * z),
@@ -44,25 +44,7 @@ async function click(driver: WorkshopDriver, x: number, y: number) {
     await driver.page.waitForTimeout(180);
 }
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
-
-function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, lampSlot: number, battSlot: number, detSlot: number, counterSlot: number) {
+function assertCounterWiring(bytes: Uint8Array, gateSlot: number, ballSlot: number, lampSlot: number, battSlot: number, detSlot: number, counterSlot: number) {
     const saved = decodeSavedConstruction(bytes);
     const construction = saved.construction()!;
     const count = construction.connectionsLength();
@@ -93,24 +75,23 @@ function assertCounterWiring(bytes: Buffer, gateSlot: number, ballSlot: number, 
     assert.equal(counterTarget?.value(), 3);
 }
 
-function counterRow(snapshot: RunResetSnapshot): ActivationMemoryRow {
-    const rows = activationMemoryRows(snapshot).filter(row => row.kind === MemoryKind.Counter);
+function counterRow(snapshot: RunResetSnapshot) {
+    const rows = snapshot.activationMemory.filter(row => row.kind === MemoryKind.Counter);
     assert.equal(rows.length, 1, `Expected one committed counter row, got ${rows.length}`);
     return rows[0];
 }
 
 // The committed activation of the counter node (its switched contact): the activations entry with the counter's node id.
-function counterActivationPhase(snapshot: RunResetSnapshot): string {
+function counterActivationPhase(snapshot: RunResetSnapshot): number {
     const node = counterRow(snapshot).node;
-    const length = Number(snapshotValue(snapshot, 'read.activations.length'));
-    for (let i = 0; i < length; i++)
-        if (snapshotValue(snapshot, `read.activations[${i}].node`) === node) return snapshotValue(snapshot, `read.activations[${i}].phase`);
-    assert.fail(`No committed activation for counter node ${node}`);
+    const activation = snapshot.activations.find(row => row.node === node);
+    if (activation === undefined) assert.fail(`No committed activation for counter node ${node}`);
+    return activation.phase;
 }
 
 // Story 9R.1 AC: after Reset the counter's count is 0 and its activation is Clear (contact open).
 function assertCounterCleared(snapshot: RunResetSnapshot): void {
-    assert.equal(counterRow(snapshot).count, '0', 'Reset: counter count 0');
+    assert.equal(counterRow(snapshot).count, 0, 'Reset: counter count 0');
     assert.equal(counterActivationPhase(snapshot), ActivationPhase.Clear, 'Reset: counter activation Clear (contact open)');
 }
 
@@ -243,7 +224,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
 
     test('1. Placement and wiring validation', { timeout: 150000 }, async () => {
         await buildCounterBench([]);
-        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
+        assertCounterWiring(await driver.readSavedSlot(), 0, 1, 2, 3, 4, 5);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -264,7 +245,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         assert.ok(finalBall.px < 0.2, `Upstream ball must remain stopped upstream, got px=${finalBall.px}`);
         assert.ok(finalBall.py > 2.8, `Upstream ball must remain stopped upstream at height, got py=${finalBall.py}`);
         // Boundary: the committed counter is at target - 1 with its contact open before the Reset.
-        assert.equal(counterRow(paused).count, '2', 'Counter at target - 1 (2 of 3) before Reset');
+        assert.equal(counterRow(paused).count, 2, 'Counter at target - 1 (2 of 3) before Reset');
         assert.equal(counterActivationPhase(paused), ActivationPhase.Clear, 'Counter contact still open below target');
 
         await resetMatches(s0);
@@ -275,7 +256,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
         const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
         for (const cycle of ['first run', 'second run']) {
             const paused = await runReachesTarget(s0, cycle);
-            assert.equal(counterRow(paused).count, '3', `${cycle}: committed counter count 3`);
+            assert.equal(counterRow(paused).count, 3, `${cycle}: committed counter count 3`);
             await resetMatches(s0);
         }
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -284,7 +265,7 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
     test('4. Saturation: 4th ball crossing does not glitch or re-trigger, saturated state maintains gate open', { timeout: 150000 }, async () => {
         const s0 = await buildCounterBench(ARMED_LIFTS);
         const paused = await runReachesTarget(s0, 'saturated run');
-        assert.ok(Number(counterRow(paused).count) >= 3, 'Saturated counter stays at or past its target without re-triggering');
+        assert.ok(counterRow(paused).count >= 3, 'Saturated counter stays at or past its target without re-triggering');
         await resetMatches(s0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
@@ -292,15 +273,15 @@ describe('CAT-020: Pulse Counter Event Accumulator E2E', () => {
     test('5. State persistence & reset: Save / reload / Load preserves counter, gate, detector, lamp, and wiring; simulation replay triggers traversal', { timeout: 150000 }, async () => {
         // captureSnapshot saves the wired bench with its three detector balls.
         const s0 = await buildCounterBench(ARMED_LIFTS.slice(0, 3));
-        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
+        assertCounterWiring(await driver.readSavedSlot(), 0, 1, 2, 3, 4, 5);
 
         // Reload browser page from scratch, then Load construction from IndexedDB
         await driver.reload();
         await driver.load();
         const loaded = await driver.captureSnapshot({ bodies: s0.bodies });
         assertLoadRestores(s0, loaded);
-        assertCounterWiring(await saved(driver), 0, 1, 2, 3, 4, 5);
-        assert.ok(snapshotEntries(loaded, 'read.activation_memory').length > 0, 'The loaded read publishes the counter memory row');
+        assertCounterWiring(await driver.readSavedSlot(), 0, 1, 2, 3, 4, 5);
+        assert.equal(counterRow(loaded).count, 0, 'The loaded read publishes the cleared Counter memory row');
 
         await runReachesTarget(loaded, 'replay after reload');
         // Reset must restore to authored state without residual runtime contact

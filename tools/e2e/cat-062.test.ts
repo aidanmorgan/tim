@@ -9,26 +9,12 @@ import { type WorkshopResponse } from './.wire/curious-contraptions/wire.ts';
 const SpringRoute = { Centred: 'Centred', Miss: 'Miss' } as const;
 type SpringRoute = typeof SpringRoute[keyof typeof SpringRoute];
 const evidence = process.env.SPRING_EVIDENCE_DIR ?? '.anvil/springboard-ui-' + Date.now();
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    return Buffer.from(await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onsuccess = () => {
-            const db = request.result, tx = db.transaction('construction', 'readonly');
-            const value = tx.objectStore('construction').get(1);
-            tx.oncomplete = () => { resolve(Array.from(value.result as Uint8Array)); db.close(); };
-            tx.onabort = () => reject(new Error('Save read aborted'));
-        };
-        request.onerror = () => reject(new Error('Save database unavailable'));
-    })));
-}
-const authored = (bytes: Buffer) => authoredState(bytes);
 async function construct(driver: WorkshopDriver, route: SpringRoute) {
     await driver.selectTool('basketball'); await driver.placeOnCanvas(720,485);
     await driver.clickAt(60,844); await driver.liftSelectedPart(90);
     await driver.clickAt(130,715); // actual Springboard palette row
     await driver.placeOnCanvas(route === SpringRoute.Centred ? 720 : 960,485);
-    await driver.save();
-    const bytes = await saved(driver);
+    const { slot: bytes } = await driver.save();
     const fb = decodeSavedConstruction(bytes);
     const boardInst = fb.construction()!.instances(1)!;
     const ballInst = fb.construction()!.instances(0)!;
@@ -79,13 +65,11 @@ for(const route of [SpringRoute.Centred,SpringRoute.Miss]){
         try{
             const construction=await construct(driver,route);
             await driver.page.screenshot({path:evidence+'/build-'+route+'.png'});
-            await driver.reload();await driver.load();await driver.save();
-            assert.deepEqual(authored(await saved(driver)),authored(construction),'Load restores exact board configuration and poses');
+            await driver.reload();await driver.load();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(construction),'Load restores exact board configuration and poses');
             await driver.run();const samples=await observe(driver,3200);await driver.pauseSimulation();
             assertDrop(samples,route);
             await driver.page.screenshot({path:evidence+'/paused-'+route+'.png'});
-            await driver.reset();await driver.save();
-            assert.deepEqual(authored(await saved(driver)),authored(construction),'Reset preserves exact construction');
+            await driver.reset();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(construction),'Reset preserves exact construction');
             await driver.page.screenshot({path:evidence+'/reset-'+route+'.png'});
             await driver.run();const repeated=await observe(driver,3200);await driver.pauseSimulation();
             assertDrop(repeated,route);
@@ -164,14 +148,13 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
                 }
                 await driver.clickAt(130,744);
             }
-            await driver.save();const construction=await saved(driver);
+            const { slot: construction } = await driver.save();
             const constFb=decodeSavedConstruction(construction);
             const boardInst=constFb.construction()!.instances(1)!;
             assert.equal(parameter(boardInst,'stiffness'),Math.fround(settings.stiffness));
             assert.equal(parameter(boardInst,'damping'),Math.fround(settings.damping));
             await driver.page.screenshot({path:evidence+'/configuration-'+configuration+'.png'});
-            await driver.reload();await driver.load();await driver.save();
-            assert.deepEqual(authored(await saved(driver)),authored(construction));
+            await driver.reload();await driver.load();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(construction));
             await driver.run();const samples=await observe(driver,2200);await driver.pauseSimulation();
             assert.ok(samples.length>60);
             const angle=settings.tilt*Math.PI/180,axis=[-Math.sin(angle),Math.cos(angle)];
@@ -185,8 +168,7 @@ for(const configuration of [SpringConfiguration.SoftUndamped,SpringConfiguration
             }
             assert.ok(minTravel<-.02,'payload actually loads the configured spring');
             if(configuration===SpringConfiguration.Tilted)assert.ok(samples.some(sample=>sample.ball.vx<-.2),'tilted physical normal redirects payload sideways');
-            await driver.reset();await driver.save();
-            assert.deepEqual(authored(await saved(driver)),authored(construction));
+            await driver.reset();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(construction));
             assert.deepEqual(errors,[]);
             console.log(JSON.stringify({configuration,minTravel,samples}));
         }catch(error){await driver.page.screenshot({path:evidence+'/configuration-failure-'+configuration+'.png'});console.error(JSON.stringify({configuration,errors}));throw error;}
@@ -207,41 +189,38 @@ test('Springboard text settings reject atomically and delete/recreate retires th
         }
         await driver.clickAt(130,744);await driver.page.waitForTimeout(250);
         await driver.page.screenshot({path:evidence+'/settings-feedback-'+editAttempt++ +'.png'});
-        await driver.save();
+        return (await driver.save()).slot;
     };
     try{
         await construct(driver,SpringRoute.Centred);
-        await edit('400.00003','0.20000002','0.1234567');
-        const precise=await saved(driver);
+        const precise=await edit('400.00003','0.20000002','0.1234567');
         const preciseFb=decodeSavedConstruction(precise);
         const preciseBoard=preciseFb.construction()!.instances(1)!;
         assert.equal(parameter(preciseBoard,'stiffness'),Math.fround(400.00003));assert.equal(parameter(preciseBoard,'damping'),Math.fround(.20000002));
         assert.equal(parameter(preciseBoard,'initial_compression'),Math.fround(.1234567));
         for(const [k,c,compression] of [['NaN','.2','.1'],['1201','.2','.1'],['400','-.1','.1'],['invalid','.2','.1'],['400','.2','NaN'],['400','.2','-.01'],['400','.2','.200001'],['400','.2','Infinity']]){
-            await edit(k,c,compression);assert.deepEqual(authored(await saved(driver)),authored(precise),'invalid text/bounds preserve all construction bytes');
+            const actual=await edit(k,c,compression);assert.deepEqual(authoredState(actual),authoredState(precise),'invalid text and bounds preserve all authored construction fields');
         }
-        await edit('400.00003','0.20000002','0.2'); // Valid retry through the same editor after rejected input.
-        assert.equal(parameter(decodeSavedConstruction(await saved(driver)).construction()!.instances(1)!,'initial_compression'),Math.fround(.2));
-        await driver.clickAt(744,836);await driver.save();
-        assert.deepEqual(authored(await saved(driver)),authored(precise),'Undo returns to the preceding accepted settings');
-        await driver.clickAt(744,836);await driver.save(); // Rejected edits never entered the undo history.
-        const undone=await saved(driver);
+        const valid=await edit('400.00003','0.20000002','0.2'); // Valid retry through the same editor after rejected input.
+        assert.equal(parameter(decodeSavedConstruction(valid).construction()!.instances(1)!,'initial_compression'),Math.fround(.2));
+        await driver.clickAt(744,836);assert.deepEqual(authoredState((await driver.save()).slot),authoredState(precise),'Undo returns to the preceding accepted settings');
+        // Rejected edits never entered the undo history.
+        await driver.clickAt(744,836);
+        const { slot: undone } = await driver.save();
         const undoneFb=decodeSavedConstruction(undone);
         const undoneBoard=undoneFb.construction()!.instances(1)!;
         assert.equal(parameter(undoneBoard,'stiffness'),400);assert.equal(parameter(undoneBoard,'damping'),Math.fround(.2));assert.equal(parameter(undoneBoard,'initial_compression'),0);
-        await driver.selectPartAt(720,485);await driver.clickAt(148,842);await driver.save();
-        assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.instancesLength(),1,'delete removes authored board');
+        await driver.selectPartAt(720,485);await driver.clickAt(148,842);assert.equal(decodeSavedConstruction((await driver.save()).slot).construction()!.instancesLength(),1,'delete removes authored board');
         await driver.run();await driver.page.waitForTimeout(200);
         assert.deepEqual((await driver.readLatestPose())!.bodies.map(body=>body.id),['1'],'deleted plate is absent from active population');
         await driver.reset();
-        await driver.clickAt(130,715);await driver.placeOnCanvas(720,485);await driver.save();
-        const replacement=await saved(driver);
+        await driver.clickAt(130,715);await driver.placeOnCanvas(720,485);const { slot: replacement } = await driver.save();
         const repFb=decodeSavedConstruction(replacement);
         assert.equal(repFb.construction()!.instancesLength(),2);assert.equal(repFb.construction()!.instances(1)!.id(),3n,'replacement has a fresh owner');
         await driver.reload();await driver.load();await driver.run();
         const samples=await observe(driver,3200,'4294968322');
         await driver.pauseSimulation();assertDrop(samples,SpringRoute.Centred);
-        await driver.reset();await driver.save();assert.deepEqual(authored(await saved(driver)),authored(replacement));
+        await driver.reset();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(replacement));
         assert.deepEqual(errors,[]);await driver.page.screenshot({path:evidence+'/replacement-reset.png'});
         console.log(JSON.stringify({replacementId:'3',samples}));
     }catch(error){await driver.page.screenshot({path:evidence+'/replacement-failure.png'});console.error(JSON.stringify({errors}));throw error;}

@@ -10,8 +10,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
-import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const screen = (x: number, z: number) => ({
     x: Math.round(720 + 53.8 * x - 36.8 * z),

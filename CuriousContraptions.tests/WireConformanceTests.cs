@@ -600,9 +600,20 @@ public sealed class WireConformanceTests
 
     // ----- Helpers & Fixtures ---------------------------------------------------------------------------------------------
 
-    private static JsonElement[] RunConformance(object[] ops)
+    private static JsonElement[] RunConformance(object[] ops) => RunWireTool("wire-conformance.js", ops);
+
+    internal static IEnumerable<string> RunWireSourceGuard(IEnumerable<(string Path, string Text)> sources, string frameAdapter) =>
+        RunWireTool("wire-source-guard.js", sources.Select(source => new
+        {
+            path = source.Path,
+            text = source.Text,
+            frameAdapter = source.Path == frameAdapter
+        }).ToArray()).Select(result =>
+            $"{result.GetProperty("path").GetString()}:{result.GetProperty("line").GetInt32()}: {result.GetProperty("reason").GetString()}");
+
+    private static JsonElement[] RunWireTool(string script, object[] request)
     {
-        var path = Path.Combine(Root, ".runtime-build/tools/runtime/wire-conformance.js");
+        var path = Path.Combine(Root, ".runtime-build/tools/runtime", script);
         var start = new ProcessStartInfo("node")
         {
             RedirectStandardInput = true,
@@ -613,16 +624,16 @@ public sealed class WireConformanceTests
         };
         start.ArgumentList.Add(path);
         using var node = Process.Start(start) ?? throw new InvalidOperationException("Node could not be started.");
-        node.StandardInput.Write(JsonSerializer.Serialize(ops));
+        node.StandardInput.Write(JsonSerializer.Serialize(request));
         node.StandardInput.Close();
         var stdout = node.StandardOutput.ReadToEndAsync();
         var stderr = node.StandardError.ReadToEndAsync();
         if (!node.WaitForExit(30_000))
         {
             node.Kill();
-            Assert.Fail("wire-conformance.js did not finish within 30 s.");
+            Assert.Fail($"{script} did not finish within 30 s.");
         }
-        Assert.True(node.ExitCode == 0, $"wire-conformance.js failed ({node.ExitCode}): {stderr.Result}");
+        Assert.True(node.ExitCode == 0, $"{script} failed ({node.ExitCode}): {stderr.Result}");
         using var response = JsonDocument.Parse(stdout.Result);
         return response.RootElement.EnumerateArray().Select(value => value.Clone()).ToArray();
     }

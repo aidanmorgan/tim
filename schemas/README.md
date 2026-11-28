@@ -85,6 +85,3 @@ compiler's version (`25.2.10`) in the root `package.json` `devDependencies` and 
 
 `tools/e2e/workshop-wire.ts` keeps only the authored-state dump and the mock encoders, importing `openFrame` and `rootIdentifier`
 from `../runtime/wire-frame.ts` and generated types from `./.wire/curious-contraptions/wire.ts`.
-
-After a schema change, also update the field listing in `tools/e2e/run-reset-snapshot.ts` (`SNAPSHOT_SCHEMA`); its test fails until
-it matches the schema.

@@ -6,7 +6,7 @@
 // 1. The level: locked fixtures, knots and inventory equal content/puzzles.json; a second pipe placement issues no command.
 // 2. Solve: resized to 2 m, tilted and snapped, the ball travels pipe -> bend -> Receiver; exactly one solve is reported.
 // 3. Run/Reset and Save/Load: Reset restores the exact snapshot and a second Run solves; Save, reload and Load restore the pipe's
-//    pose, length and joint byte for byte, and the loaded level solves.
+//    pose, length and joint exactly, and the loaded level solves.
 // 4. Unsnapped (Precise): the same pipe released 0.72 m left of the joint keeps its pose; the ball lands on the outer shell, never
 //    enters either bore, and the goal stays unsolved for 1,200 ticks.
 // 5. Default length (Precise): a 3.6 m pipe snapped to the bend puts its upper mouth off the drop line; the ball misses the bore.
@@ -16,10 +16,10 @@ import { readFileSync } from 'node:fs';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
 import { type AssistanceKnotRecord } from './.wire/curious-contraptions/wire.ts';
-import { assertLoadRestores, snapshotEntries, snapshotValue } from './run-reset-snapshot.ts';
+import { assertLoadRestores, snapshotEntries, snapshotValue, type RunResetSnapshot } from './run-reset-snapshot.ts';
 import { assertJoined, assertNotJoined, dot, length, mouth, pipeLength, pose, rotate, sub, type Vec3 } from './tube-mouths.ts';
 
 // The locked ball is the only dynamic body; the bend, the Receiver and the pipe are static.
@@ -185,13 +185,13 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
             const { position, rotation, part } = pose(s0, id);
             assert.equal(part, kind);
             assert.equal(parts[name].kind, kind);
-            assert.equal(snapshotValue(s0, `saved.construction.instances[id=${id}].locked`), '1', `${name} is locked`);
+            assert.equal(snapshotValue(s0, `saved.construction.instances[id=${id}].locked`), true, `${name} is locked`);
             assert.ok(length(sub(position, parts[name].position as unknown as Vec3)) < 1e-4, `${name} at ${position.join(', ')}`);
             // The content orientation is column-major: its first column is the image of local +X.
             const [cx, cy, cz] = parts[name].orientation;
             assert.ok(length(sub(rotate(rotation, [1, 0, 0]), [cx, cy, cz])) < 1e-4, `${name} orientation`);
         }
-        assert.equal(snapshotEntries(s0, 'saved.construction.instances').filter(([path]) => path.endsWith('.part_id')).length, 3);
+        assert.equal(snapshotEntries(s0, 'saved.construction.instances').filter(([path]) => path.endsWith('.partId')).length, 3);
         const { slot } = await driver.save();
         const puzzle = decodeSavedConstruction(slot).construction()!.puzzle()!;
         assert.deepEqual(CONTENT.inventory, { pipe: 1 });
@@ -219,7 +219,7 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
         await driver.pressKey('Escape');
         const unchanged = await driver.captureSnapshot(BENCH);
         assert.deepEqual(snapshotEntries(unchanged, 'saved'), snapshotEntries(placed, 'saved'), 'the saved construction is unchanged');
-        assert.equal(snapshotEntries(unchanged, 'saved.construction.instances').filter(([path]) => path.endsWith('.part_id')).length, 4);
+        assert.equal(snapshotEntries(unchanged, 'saved.construction.instances').filter(([path]) => path.endsWith('.partId')).length, 4);
         noErrors();
     });
 
@@ -248,7 +248,7 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
         const loaded = await driver.captureSnapshot(BENCH);
         assertLoadRestores(s0, loaded);
         assert.deepEqual(snapshotEntries(loaded, `saved.construction.instances[id=${PIPE}]`),
-            snapshotEntries(s0, `saved.construction.instances[id=${PIPE}]`), 'the pipe pose and length are byte-identical');
+            snapshotEntries(s0, `saved.construction.instances[id=${PIPE}]`), 'the pipe pose and length match the authored values');
         assertJoined(loaded, { id: PIPE, end: 'end' }, { id: BEND, end: 'start' }, 'the loaded joint');
         await runSolved(loaded, 'loaded run');
         await resetMatches(loaded);
@@ -291,7 +291,7 @@ describe('Story 9R.7: joined_pipe lesson (Meet in the middle)', () => {
         assert.equal(pipeLength(short, PIPE), 1, 'the shortest pipe is exactly 1 m');
         await driver.undo();
         const undone = await driver.captureSnapshot(BENCH);
-        assert.equal(snapshotValue(undone, `saved.construction.instances[id=${PIPE}].length`), '0x40666666',
+        assert.equal(pipeLength(undone, PIPE), Math.fround(3.6),
             'one Undo restores the prior length, exactly the f32 3.6');
 
         await driver.selectPartAt(at.x, at.y);

@@ -32,16 +32,6 @@ async function drag(d:WorkshopDriver,x:number,y:number,a:number,b:number){
     await d.page.mouse.move(x,y);await d.page.mouse.down();await d.page.waitForTimeout(70);
     await d.page.mouse.move(a,b,{steps:12});await d.page.mouse.up();await d.page.waitForTimeout(250);
 }
-async function saved(d:WorkshopDriver):Promise<Buffer>{
-    return Buffer.from(await d.page.evaluate(()=>new Promise<number[]>((resolve,reject)=>{
-        const request=indexedDB.open('curious-contraptions-workshop');
-        request.onerror=()=>reject(new Error('Save unavailable'));
-        request.onsuccess=()=>{const db=request.result;const tx=db.transaction('construction','readonly');
-            const read=tx.objectStore('construction').get(1);
-            tx.oncomplete=()=>{db.close();resolve(Array.from(read.result as Uint8Array));};
-            tx.onabort=()=>{db.close();reject(new Error('Save read failed'));};};
-    })));
-}
 function position(saved: SavedConstruction, i: number, a: number) {
     const inst = saved.construction()!.instances(i)!;
     const c = inst.cell()!;
@@ -55,8 +45,8 @@ async function difficultyControls(d:WorkshopDriver){
     // then restore the original Balanced45 profile before construction.
     for(const [x,value,margin,speed,dwell,guide] of [[1040,0,.3,3,.15,12],[1396,1,.02,1.5,.35,0],[1200,.45,.174,2.325,.24,6.6]]){
         await press(d,1394,46);await press(d,x,350);
-        await d.page.keyboard.press('Escape',{delay:70});await d.save();
-        const bytes=await saved(d);
+        await d.page.keyboard.press('Escape',{delay:70});
+        const {slot:bytes}=await d.save();
         const savedFb = decodeSavedConstruction(bytes);
         assert.ok(Math.abs(savedFb.construction()!.puzzle()!.precision()-value)<.001);
         const rx = savedFb.construction()!.instances(1)!;
@@ -95,7 +85,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
             await d.page.keyboard.press('q',{delay:1300});await d.page.waitForTimeout(300);
             await d.page.keyboard.down('Shift');await drag(d,556,404,515,404);await d.page.keyboard.up('Shift');
         }
-        await d.page.keyboard.press('Escape',{delay:70});await d.save();const initialBytes=await saved(d);
+        await d.page.keyboard.press('Escape',{delay:70});const {slot:initialBytes}=await d.save();
         const initial=decodeSavedConstruction(initialBytes);
         assert.equal(initial.construction()!.puzzle()!.id(),lesson);assert.equal(initial.construction()!.connectionsLength(),0);
         const fixture=lesson===Lesson.Depth?[[0,5,3],[0,.9,-2]]:[[-3,5,0],[-5,.9,0]];
@@ -120,7 +110,7 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
             }
         }
         await d.page.screenshot({path:join(evidence,lesson+'-'+route+'-authored.png')});
-        await d.reload();await d.load();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(initialBytes));
+        await d.reload();await d.load();assert.deepEqual(authoredState((await d.save()).slot),authoredState(initialBytes));
         const initialRead=reads.at(-1)!;
         await d.run();const samples=[];const start=Date.now();
         while(Date.now()-start<5200){const b=(await d.readLatestPose())?.bodies[0];if(b)samples.push(b);await d.page.waitForTimeout(40);}
@@ -157,11 +147,11 @@ test('CAT015b lesson '+lesson+' route '+route+' real UI and exact lifecycle',asy
         assert.equal((await d.readAnimationSamplesForTarget(String((2n<<32n)+owner))).at(-1)?.value??0,0,
             'Bumper animation neutral after Reset');
         await d.page.screenshot({path:join(evidence,lesson+'-'+route+'-reset.png')});
-        await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(initialBytes));assert.deepEqual(errors,[]);
+        assert.deepEqual(authoredState((await d.save()).slot),authoredState(initialBytes));assert.deepEqual(errors,[]);
         const solvedBeforeReplay=await d.readCaptured();
         await d.run();await d.page.waitForTimeout(5200);await d.pauseSimulation();
         assert.equal((await d.readCaptured())-solvedBeforeReplay,route===Route.Paid?1:0,'Repeat Run reproduces intended outcome');
-        await d.reset();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(initialBytes));assert.deepEqual(errors,[]);
+        await d.reset();assert.deepEqual(authoredState((await d.save()).slot),authoredState(initialBytes));assert.deepEqual(errors,[]);
         console.log(JSON.stringify({lesson,route,solved,paid:paid.length,remaining:after.contactWorksLength()>0?storedEnergy(energyStore(after, after.contactWorks(0)!.store())):0,
             bumper:[0,1,2].map(a=>position(initial,2,a)),samples}));
     }catch(e){console.error(JSON.stringify({lesson,route,errors}));

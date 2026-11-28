@@ -57,24 +57,8 @@ const scrolledRowY = (row: number): number => LAST_ROW_Y_SCROLLED - (PALETTE.len
 // The bench point every suite places on (ENGINE-CORE-2a1).
 const BENCH = { x: 720, y: 485 } as const;
 
-async function savedPartIds(driver: WorkshopDriver): Promise<string[]> {
-    const bytes = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error(`Construction database unavailable: ${request.error?.message ?? 'no detail'}`));
-        request.onsuccess = () => {
-            const connection = request.result;
-            const transaction = connection.transaction('construction', 'readonly');
-            const read = transaction.objectStore('construction').get(1);
-            transaction.oncomplete = () => {
-                connection.close();
-                if (!(read.result instanceof Uint8Array)) { reject(new Error('The construction slot is empty.')); return; }
-                resolve(Array.from(read.result));
-            };
-            transaction.onabort = () => { connection.close(); reject(new Error('The construction slot read aborted.')); };
-        };
-    }));
-    const construction = decodeSavedConstruction(new Uint8Array(bytes)).construction();
+function savedPartIds(slot: Uint8Array): string[] {
+    const construction = decodeSavedConstruction(slot).construction();
     assert.ok(construction, 'The saved slot must hold a construction');
     const ids: string[] = [];
     for (let i = 0; i < construction.instancesLength(); i++) ids.push(construction.instances(i)!.partId() ?? '');
@@ -105,8 +89,8 @@ describe('Story 9R.0c: every Free palette part places on the bench; undelivered 
     // Place the selected palette row on the bench (one Applied Construct), Save through the menu, and return the saved part ids.
     async function placeAndSave(): Promise<string[]> {
         await driver.placeOnCanvas(BENCH.x, BENCH.y);
-        await driver.save();
-        return savedPartIds(driver);
+        const { slot } = await driver.save();
+        return savedPartIds(slot);
     }
 
     for (const row of PALETTE) {

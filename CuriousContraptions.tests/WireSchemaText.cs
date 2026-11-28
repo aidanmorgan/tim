@@ -295,6 +295,13 @@ internal sealed class WireSchemaText
 /// 4 + 2i). Fields are never reordered or removed, so the declaration order is the layout.</summary>
 internal static class WireSchemaLayout
 {
+    private static readonly Lazy<WireSchemaText> Current = new(() => WireSchemaText.Read(
+        Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas", "workshop_wire.fbs")));
+
+    public static int FieldCount<T>() => FieldCount(Current.Value, typeof(T).Name);
+    public static int Slot<T>(string field) => Slot(Current.Value, typeof(T).Name, field);
+    public static int VtableOffset<T>(string field) => VtableOffset(Slot<T>(field));
+
     public static int FieldCount(WireSchemaText schema, string table) => Table(schema, table).Fields.Count;
 
     /// <summary>The builder slot (field index) of a field.</summary>

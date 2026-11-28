@@ -20,9 +20,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
-import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Electrical: 2 } as const;
 const Socket = { Supply: 7, PowerIn: 8 } as const;
@@ -32,27 +32,8 @@ const screen = (x: number, z: number) => ({
     y: Math.round(485 + 17.0 * x + 24.8 * z)
 });
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
 
-const authored = (bytes: Buffer) => authoredState(bytes);
-
-function assertPressurePlateWiring(bytes: Buffer, batterySlot: number, plateSlot: number, gateSlot: number) {
+function assertPressurePlateWiring(bytes: Uint8Array, batterySlot: number, plateSlot: number, gateSlot: number) {
     const saved = decodeSavedConstruction(bytes);
     const construction = saved.construction()!;
     const count = construction.connectionsLength();
@@ -225,7 +206,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     test('1. Free workshop placement & wiring: place gate, basketball, plate, and battery; wire Battery -> Plate -> Gate', { timeout: 150000 }, async () => {
         await buildPlateBench('none');
         // The saved slot records both electrical links (Gate is slot 0, Plate is slot 2, Battery is slot 3)
-        assertPressurePlateWiring(await saved(driver), 3, 2, 0);
+        assertPressurePlateWiring(await driver.readSavedSlot(), 3, 2, 0);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -262,7 +243,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
     test('5. State persistence: Save / reload / Load preserves gate, battery, plate and electrical links bit-identically', { timeout: 150000 }, async () => {
         // captureSnapshot saves the bench with the bowling ball on the plate.
         const s0 = await buildPlateBench('bowling');
-        const initialSaved = await saved(driver);
+        const initialSaved = await driver.readSavedSlot();
         assertPressurePlateWiring(initialSaved, 3, 2, 0);
 
         // Reload page, then Load the saved state
@@ -270,8 +251,8 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
         await driver.load();
         const loaded = await driver.captureSnapshot(bench('bowling'));
         assertLoadRestores(s0, loaded);
-        const loadedSaved = await saved(driver);
-        assert.deepEqual(authored(loadedSaved), authored(initialSaved), 'Authored state must roundtrip bit-identically');
+        const loadedSaved = await driver.readSavedSlot();
+        assert.deepEqual(authoredState(loadedSaved), authoredState(initialSaved), 'Authored state must roundtrip exactly');
         assertPressurePlateWiring(loadedSaved, 3, 2, 0);
 
         // Run simulation: gate opens and ball rolls downstream
@@ -284,7 +265,7 @@ describe('CAT-052: Pressure Plate Surface Contact Load Sensor E2E', () => {
 
     test('6. Sum: two dominoes (0.8 kg) on the plate close its contact, the gate opens and the ball passes', { timeout: 150000 }, async () => {
         const s0 = await buildPlateBench('dominoes');
-        const plate = decodeSavedConstruction(await saved(driver)).construction()!.instances(2)!;
+        const plate = decodeSavedConstruction(await driver.readSavedSlot()).construction()!.instances(2)!;
         assert.equal(parameter(plate, 'minimum_mass'), 0.5, 'the plate keeps its 0.5 kg minimum');
         assertOpened(await runAndSample(s0, 3500), 'two dominoes');
         await assertDominoesStand(['5', '6']);

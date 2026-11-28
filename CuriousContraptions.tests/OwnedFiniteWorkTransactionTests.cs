@@ -2,6 +2,7 @@ using System.Numerics;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -193,9 +194,12 @@ public sealed class OwnedFiniteWorkTransactionTests
         var malformed = WorkshopWireFlatBuffers.EncodeResponse(decoded);
         var buffer = new Google.FlatBuffers.ByteBuffer(malformed);
         var table = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        var actuatorVector = table.__offset(4 + 35 * 2); // WorkshopResponse.finite_work_actuators
+        var actuatorVector = table.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("finite_work_actuators"));
         Assert.NotEqual(0, actuatorVector);
-        malformed[table.__vector(actuatorVector) + 44] = byte.MaxValue; // current struct's Clearance lane
+        var actuatorPosition = table.__vector(actuatorVector);
+        var row = new Wire.FiniteWorkActuatorReadRecord().__assign(actuatorPosition, buffer);
+        CompiledSceneBoundaryTests.ReplaceStruct(malformed.AsSpan(actuatorPosition), builder => Wire.FiniteWorkActuatorReadRecord.CreateFiniteWorkActuatorReadRecord(
+            builder, row.Id, row.Store, row.Region, row.OccurrenceCount, row.Result, row.Payload, row.Debit, byte.MaxValue));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(malformed));
         var reset = await device.Admit(scene, new(2), profile, new(4));
         device.Commit(new(4));

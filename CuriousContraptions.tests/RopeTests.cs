@@ -3,6 +3,7 @@ using System.Numerics;
 using Google.FlatBuffers;
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -578,13 +579,13 @@ public sealed class RopeTests
         switch (defect)
         {
             case CutWireDefect.Missing:
-                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(root.bb_pos - root.bb.GetInt(root.bb_pos) + 4 + 2 * 9), 0);
+                BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(root.bb_pos - root.bb.GetInt(root.bb_pos) + WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("cut_span")), 0);
                 break;
             case CutWireDefect.Zero:
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(WireSlot(root, 9)), 0);
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(WireSlot(root, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("cut_span"))), 0);
                 break;
             case CutWireDefect.UnexpectedPayload:
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WireSlot(root, 1)), (uint)WorkshopCommandKind.Pause);
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WireSlot(root, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("kind"))), (uint)WorkshopCommandKind.Pause);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
@@ -617,23 +618,29 @@ public sealed class RopeTests
         Assert.Equal(before.Presentation.Ropes.ToArray(), WorkshopWireFlatBuffers.DecodeResponse(valid).Read.Presentation.Ropes.ToArray());
         var bytes = (byte[])valid.Clone();
         var root = WireRoot(bytes);
-        var vector = root.__vector(root.__offset(4 + 26 * 2));
+        var vector = root.__vector(root.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("ropes")));
         var rope = new Table(root.__indirect(vector), root.bb);
         switch (defect)
         {
             case RopeReadWireDefect.TranslatedAttachments:
                 // Both x coordinates are zero: translation preserves length/state and all record-local validation.
-                foreach (var field in new[] { 5, 6 }) BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(WireSlot(rope, field)), .5f);
+                foreach (var attachment in new[] { "attachment_a", "attachment_b" })
+                {
+                    var slot = WireSlot(rope, WireSchemaLayout.VtableOffset<Wire.RopeSpanReadRecord>(attachment));
+                    var point = new Wire.Vec3f().__assign(slot, root.bb);
+                    CompiledSceneBoundaryTests.ReplaceStruct(bytes.AsSpan(slot),
+                        builder => Wire.Vec3f.CreateVec3f(builder, X: .5f, Y: point.Y, Z: point.Z));
+                }
                 var original = Assert.Single(before.Presentation.Ropes.ToArray());
                 (original with { AttachmentA = original.AttachmentA + Vector3.UnitX * .5f,
                     AttachmentB = original.AttachmentB + Vector3.UnitX * .5f }).Validate();
                 break;
             case RopeReadWireDefect.NonfiniteLength:
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(WireSlot(rope, 8)), float.NaN); break;
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(WireSlot(rope, WireSchemaLayout.VtableOffset<Wire.RopeSpanReadRecord>("current_length"))), float.NaN); break;
             case RopeReadWireDefect.UnknownState:
-                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WireSlot(rope, 10)), 99); break;
+                BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(WireSlot(rope, WireSchemaLayout.VtableOffset<Wire.RopeSpanReadRecord>("state"))), 99); break;
             case RopeReadWireDefect.ForeignRoute:
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(WireSlot(rope, 1)), 999); break;
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(WireSlot(rope, WireSchemaLayout.VtableOffset<Wire.RopeSpanReadRecord>("route"))), 999); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Reason);
@@ -995,7 +1002,7 @@ public sealed class RopeTests
     }
     private static int WireSlot(Table table, int field)
     {
-        var offset = table.__offset(4 + 2 * field);
+        var offset = table.__offset(field);
         Assert.NotEqual(0, offset);
         return table.bb_pos + offset;
     }

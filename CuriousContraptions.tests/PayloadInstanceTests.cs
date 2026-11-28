@@ -267,6 +267,7 @@ public sealed class PayloadInstanceTests
 
     // ---------- pre-conversion records (InstanceRecord at 59ecb70b: 27 slots) ----------
 
+    // historical layout: begin
     /// <summary>A stored save holding one instance in the pre-conversion InstanceRecord layout: 0 id, 1 part_id, 2 locked, 3 cell,
     /// 4 local, 5 rotation, 6 radius, 7 mass, 8 bounce, 9 drag, 10 buoyancy, 11 length, 23 half_extents, 24 friction, 26 parameters
     /// (the other slots are absent in every record built here). Encoded exactly as the pre-conversion encoder wrote it.</summary>
@@ -315,6 +316,7 @@ public sealed class PayloadInstanceTests
 
     internal static byte[] PreConversionResizedRamp() => PreConversionSave("ramp", new Dictionary<int, float>(),
         parameters: [("length", 3.123457f), ("width", 1.234567f)]);
+    // historical layout: end
 
     // The pre-conversion layout is unsupported: deleting radius, drag and buoyancy renumbered every later slot, so each of these saves
     // (each admitted by the record path at 59ecb70b, receipt evidence-c-balls/baseline/baseline-payload-suite.txt) is refused with the
@@ -357,8 +359,7 @@ public sealed class PayloadInstanceTests
         if (unknownField)
         {
             // One entry past the current InstanceRecord's declared fields (from the schema), which the verifier refuses.
-            var fields = WireSchemaLayout.FieldCount(
-                WireSchemaText.Read(Path.Combine(twodog.Engine.ResolveProjectDir(), "schemas", "workshop_wire.fbs")), nameof(InstanceRecord));
+            var fields = WireSchemaLayout.FieldCount<InstanceRecord>();
             builder.StartTable(fields + 1);
             builder.AddFloat(fields, 1f, 0f);
         }

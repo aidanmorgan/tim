@@ -119,25 +119,7 @@ async function build(driver: WorkshopDriver, reset: ResetWiring, setWired = true
     }
 }
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
-
-function assertWiring(bytes: Buffer, reset: ResetWiring) {
+function assertWiring(bytes: Uint8Array, reset: ResetWiring) {
     const construction = decodeSavedConstruction(bytes).construction()!;
     const ids = new Map<string, bigint>();
     for (let i = 0; i < construction.instancesLength(); i++) {
@@ -276,8 +258,7 @@ describe('CAT-037: State Latch bistable memory E2E', () => {
         }
         // Wire the Set through the contextual UI: Switch [Connect ActivationOut] → choose SetIn (bar) on the latch.
         await connect(driver, SWITCH, ROW_LAST, LATCH, CHOICE_SET_BAR, () => assertIconOnlyChoices(driver));
-        await driver.save();
-        assertWiring(await saved(driver), 'none');
+        assertWiring((await driver.save()).slot, 'none');
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
@@ -355,8 +336,7 @@ describe('CAT-037: State Latch bistable memory E2E', () => {
     test('4. Simultaneous Set and Reset resolve Off (Reset dominance): the gate never opens and the latch never shows On', { timeout: 150000 }, async () => {
         errors.length = 0;
         await build(driver, 'same-source');
-        await driver.save();
-        assertWiring(await saved(driver), 'same-source');
+        assertWiring((await driver.save()).slot, 'same-source');
         const before = await latchSampleCount(driver);
         const switchBefore = (await driver.readAnimationSamplesForTarget(SWITCH_TARGET)).length;
         const lampBefore = await signalLampSampleCount(driver, 'same-source');
@@ -379,8 +359,7 @@ describe('CAT-037: State Latch bistable memory E2E', () => {
     test('5. Reset pulse after the Set: On (open, Gold, +0.25 rad), then Off (closed, Slate, −0.25 rad) and stays Off', { timeout: 150000 }, async () => {
         errors.length = 0;
         await build(driver, 'delay');
-        await driver.save();
-        assertWiring(await saved(driver), 'delay');
+        assertWiring((await driver.save()).slot, 'delay');
         await driver.run();
         try {
             const first = await sampleBlade(driver, 1300, 'set-reset-on');
@@ -412,8 +391,7 @@ describe('CAT-037: State Latch bistable memory E2E', () => {
         await driver.reload();
         await driver.load();
         // F3: decode the loaded workbench itself (re-saved from it), not the slot written before the reload; an empty load would fail.
-        await driver.save();
-        assertWiring(await saved(driver), 'delay');
+        assertWiring((await driver.save()).slot, 'delay');
         await driver.run();
         try {
             const samples = await sampleBlade(driver, 5000, 'replay');

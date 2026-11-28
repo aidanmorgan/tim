@@ -172,8 +172,10 @@ public sealed class DeclaredOscillatorTests
     [InlineData(9u)]
     public void EveryRecordPathCounterTargetIsRefusedTypedAtBothBoundaries(uint target)
     {
+        // historical layout: begin
         var layout = new OldLayoutSaves.Layout(10, 9, 48, 11);
         OldLayoutSaves.Slot[] slots = [new(8, Unsigned: target)];
+        // historical layout: end
         Assert.Throws<WorkshopSaveRejectedException>(() => WorkshopSaveCodec.Decode(RuntimeTestServices.Core.Codecs.Commands, RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, OldLayoutSaves.Save(layout, "counter", slots)));
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(layout, "counter", slots)));
     }

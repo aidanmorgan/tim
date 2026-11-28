@@ -8,6 +8,7 @@ using CuriousContraptions.Gpu;
 using Xunit;
 using CuriousContraptions.Simulation;
 using Shape = CuriousContraptions.Abstractions.ColliderShapeKind;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -495,11 +496,11 @@ public sealed class DrivenSurfaceBindingTests
         var before = harness.Committed;
         var command = harness.Command(WorkshopCommandKind.Construct, construction with { Revision = new(3) });
         var request = WorkshopWireFlatBuffers.EncodeCommand(command);
-        CorruptSurface(request, 11, defect);
+        CorruptSurface(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"), defect);
         var reason = defect == WireDefect.MissingCollection ? WireFaultReason.VerifierRejected : WireFaultReason.OutOfRange;
         Assert.Equal(reason, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(request)).Reason);
         var response = WorkshopWireFlatBuffers.EncodeResponse(harness.Latest with { Scene = harness.Simulation.Scene });
-        CorruptSurface(response, 27, defect);
+        CorruptSurface(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"), defect);
         Assert.Equal(reason, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
         Assert.Equal(before.Revision, harness.Committed.Revision);
         Assert.Equal(before.Epoch, harness.Committed.Epoch);
@@ -516,19 +517,25 @@ public sealed class DrivenSurfaceBindingTests
         var root = 4 + buffer.GetInt(4); // Size-prefixed current schema.
         var sceneSlot = Field(buffer, root, sceneField);
         var scene = sceneSlot + buffer.GetInt(sceneSlot);
+        var surfaces = WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("driven_surfaces");
         if (defect == WireDefect.MissingCollection)
         {
-            buffer.PutUshort(scene - buffer.GetInt(scene) + 74, 0);
+            buffer.PutUshort(scene - buffer.GetInt(scene) + surfaces, 0);
             return;
         }
-        var vectorSlot = Field(buffer, scene, 35);
+        var vectorSlot = Field(buffer, scene, surfaces);
         var first = vectorSlot + buffer.GetInt(vectorSlot) + 4;
         var row = first + buffer.GetInt(first);
-        var field = defect switch
+        var field = WireSchemaLayout.VtableOffset<Wire.DrivenSurfaceRecord>(defect switch
         {
-            WireDefect.Identity => 0, WireDefect.Carrier => 1, WireDefect.Collider => 2,
-            WireDefect.Face => 3, WireDefect.Source => 4, WireDefect.Direction => 5, _ => 6
-        };
+            WireDefect.Identity => "id",
+            WireDefect.Carrier => "carrier",
+            WireDefect.Collider => "collider",
+            WireDefect.Face => "face",
+            WireDefect.Source => "source",
+            WireDefect.Direction => "direction",
+            _ => "travel_per_radian"
+        });
         var slot = Field(buffer, row, field);
         switch (defect)
         {
@@ -537,7 +544,11 @@ public sealed class DrivenSurfaceBindingTests
             case WireDefect.Collider:
             case WireDefect.Source: buffer.PutUlong(slot, ulong.MaxValue); break;
             case WireDefect.Face: buffer.PutByte(slot, 255); break;
-            case WireDefect.Direction: buffer.PutFloat(slot, 0f); break;
+            case WireDefect.Direction:
+                var direction = new Wire.Vec3f().__assign(slot, buffer);
+                CompiledSceneBoundaryTests.ReplaceStruct(bytes.AsSpan(slot),
+                    builder => Wire.Vec3f.CreateVec3f(builder, X: 0, Y: direction.Y, Z: direction.Z));
+                break;
             case WireDefect.ZeroTravel: buffer.PutFloat(slot, 0f); break;
             case WireDefect.NonfiniteTravel: buffer.PutFloat(slot, float.NaN); break;
             case WireDefect.OverflowTravel: buffer.PutFloat(slot, 1e30f); break;
@@ -548,7 +559,7 @@ public sealed class DrivenSurfaceBindingTests
     private static int Field(Google.FlatBuffers.ByteBuffer buffer, int table, int field)
     {
         var vtable = table - buffer.GetInt(table);
-        var offset = buffer.GetUshort(vtable + 4 + 2 * field);
+        var offset = buffer.GetUshort(vtable + field);
         Assert.NotEqual(0, offset);
         return table + offset;
     }

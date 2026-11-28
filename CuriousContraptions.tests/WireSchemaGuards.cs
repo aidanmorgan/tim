@@ -13,6 +13,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -1025,4 +1026,334 @@ public sealed class WireSchemaGuards
 
     private static string? JsonText(JsonElement element, params string[] path) =>
         JsonFind(element, path) is { ValueKind: JsonValueKind.String } value ? value.GetString() : null;
+    // S11: these checks are limited to the retired forms named in the contract.
+    private static readonly string[] RemovedSchemaNames =
+    [
+        "SNAPSHOT_" + "SCHEMA",
+        "TheVersionlessRecords" + "DeclareExactlyTheirFields",
+        "InstanceRecord" + "Fields",
+        "SavedConstruction" + "Slot",
+        "ConstructionInstances" + "Slot",
+        "HoldsFieldBeyond" + "TheInstanceTable",
+        "ValidateBinding" + "Shapes",
+        "Table" + "Target",
+        "COMMAND_" + "IDENTIFIER",
+        "RESPONSE_" + "IDENTIFIER",
+        "SAVE_" + "IDENTIFIER",
+        "Command" + "Identifier",
+        "Response" + "Identifier",
+        "Observation" + "Identifier",
+    ];
+
+    private static readonly string[] RootIdentifiers = Enum.GetValues<Wire.WireRootIdentifier>()
+        .Select(WorkshopWireFlatBuffers.FileIdentifier).ToArray();
+
+    private static readonly Regex ForbiddenSchemaWords = new(
+        @"\b(?:" + string.Join('|', RemovedSchemaNames.Concat(RootIdentifiers).Select(Regex.Escape)) + @")\b",
+        RegexOptions.CultureInvariant);
+
+    private const string SaveRejections = "CuriousContraptions.tests/WorkshopSaveRejectionTests.cs";
+    private const string SchemaLayoutFile = "CuriousContraptions.tests/WireSchemaText.cs";
+    private const string FrameAdapter = "tools/runtime/wire-frame.ts";
+    private const string HistoricalBegin = "// historical layout: begin";
+    private const string HistoricalEnd = "// historical layout: end";
+
+    private static readonly Dictionary<string, int> HistoricalCounts = new(StringComparer.Ordinal)
+    {
+        ["CuriousContraptions.tests/OldLayoutSaves.cs"] = 1,
+        ["CuriousContraptions.tests/DeclaredOscillatorTests.cs"] = 1,
+        ["CuriousContraptions.tests/DeclaredOrientationTests.cs"] = 1,
+        ["CuriousContraptions.tests/PayloadInstanceTests.cs"] = 1,
+        ["CuriousContraptions.tests/ClutchGeneralityTests.cs"] = 1,
+    };
+
+    private static readonly Regex OldInstanceFieldEnum = new(@"\benum\s+Field\b", RegexOptions.CultureInvariant);
+    private static readonly CSharpParseOptions[] SourceVariants =
+    [
+        CSharpParseOptions.Default.WithPreprocessorSymbols("DEBUG", "TRACE"),
+        CSharpParseOptions.Default.WithPreprocessorSymbols("DEBUG", "TRACE", "PLAYTEST"),
+    ];
+    // Each recognized signature takes the table size or slot first in its declaration.
+    private static readonly Dictionary<(string Name, int Arity), string> CSharpSlotParameters =
+        typeof(Google.FlatBuffers.FlatBufferBuilder).GetMethods()
+            .Where(method => method.Name == "StartTable" || method.Name.StartsWith("Add", StringComparison.Ordinal) &&
+                method.GetParameters() is [{ ParameterType: var slot }, _, ..] && slot == typeof(int))
+            .Concat(typeof(Google.FlatBuffers.Table).GetMethods().Where(method => method.Name == "__offset"))
+            .Select(method => (method.Name, Parameters: method.GetParameters()))
+            .ToDictionary(method => (method.Name, method.Parameters.Length), method => method.Parameters[0].Name!);
+
+    [Fact]
+    public void NoHandSchemaRestatementRemains()
+    {
+        var (paths, violations) = ScanSchemaSources(CSharpStaticGateTests.RepositoryFiles().Order(StringComparer.Ordinal),
+            path => File.ReadAllText(Path.Combine(Root, path)));
+        Assert.Contains(FrameAdapter, paths);
+        Assert.Contains(SaveRejections, paths);
+        foreach (var path in HistoricalCounts.Keys) Assert.Contains(path, paths);
+        Assert.True(violations.Length == 0, string.Join(Environment.NewLine, violations));
+    }
+
+    [Fact]
+    public void SchemaRestatementGuardRefusesTheClosedFormsAndChecksHistoricalRegions()
+    {
+        const string cs = "Probe.cs";
+        foreach (var word in RemovedSchemaNames.Concat(RootIdentifiers))
+            Assert.Equal([$"{cs}:2: hand schema name '{word}'"], RestatementViolations(cs, $"\n// {word}\n"));
+        Assert.Equal([$"{SaveRejections}:1: hand instance field enum"], RestatementViolations(SaveRejections, "enum Field { Id }"));
+        Assert.Empty(RestatementViolations(cs, "enum Field { Id }"));
+
+        foreach (var call in new[]
+        {
+            "builder.StartTable(12)", "builder.StartTable(numfields: 12)",
+            "builder.AddInt(2, value, 0)", "builder.AddInt(x: value, d: 0, o: 2)",
+            "builder.AddInt(2, nullable)", "builder.AddInt(x: nullable, o: 2)",
+            "builder.AddStruct(x: value, d: 0, voffset: 2)",
+            "table.__offset(0xA)", "table.__offset(vtableOffset: 0xA)",
+            "Table.__offset(4, position, buffer)", "Table.__offset(bb: buffer, offset: position, vtableOffset: 4)"
+        })
+            Assert.Equal([$"{cs}:2: literal FlatBuffers table slot or size"], RestatementViolations(cs, $"\n{call};"));
+        foreach (var expression in new[] { "4 + 2 * slot", "4 + slot * 2", "slot * 2 + 4",
+            "vtable + 4 + 2 * slot", "vtable + (4 + slot * 2)", "vtable + slot * 2 + 4" })
+            Assert.Equal([$"{cs}:2: hand FlatBuffers vtable offset"], RestatementViolations(cs, $"\nbytes.AsSpan({expression});"));
+
+        AssertTypeScriptCalls();
+
+        Assert.Empty(RestatementViolations(cs, "builder.AddInt(10); builder.AddOffset(3); builder.StartTable(fieldCount); bytes.AsSpan(4 + width);"));
+        foreach (var call in new[]
+        {
+            "builder.AddInt(x: 12)", "builder.AddInt(x: 12, d: 0, o: slot)", "builder.AddInt(x: 12, o: slot)",
+            "builder.AddStruct(x: 12, d: 0, voffset: slot)", "table.__offset(vtableOffset: field)",
+            "Table.__offset(offset: 12, bb: buffer, vtableOffset: field)"
+        })
+            Assert.Empty(RestatementViolations(cs, call + ";"));
+        Assert.False(ScansSchemaSource("tools/e2e/.wire/curious-contraptions/wire.ts"));
+        Assert.False(ScansSchemaSource("CuriousContraptions.FlatBuffers/FlatBufferBuilder.cs"));
+        Assert.True(ScansSchemaSource("CuriousContraptions.FlatBuffers/CuriousContraptions.FlatBuffers.csproj"));
+
+        var fixture = HistoricalCounts.Keys.First();
+        var retired = $"{HistoricalBegin}\nbuilder.StartTable(12);\n{HistoricalEnd}\n";
+        Assert.Empty(RestatementViolations(fixture, retired));
+        Assert.Equal([$"{fixture}:4: literal FlatBuffers table slot or size"],
+            RestatementViolations(fixture, retired + "builder.StartTable(12);"));
+        Assert.Contains($"{fixture}:1: expected 1 historical layout region(s), found 2", RestatementViolations(fixture, retired + retired));
+        Assert.Contains($"{fixture}:2: nested historical layout region", RestatementViolations(fixture, $"{HistoricalBegin}\n{retired}"));
+        Assert.Contains($"{fixture}:1: unclosed historical layout region", RestatementViolations(fixture, HistoricalBegin));
+        Assert.Contains($"{fixture}:1: historical layout end without begin", RestatementViolations(fixture, HistoricalEnd));
+        Assert.Contains($"{cs}:1: historical layout marker outside a named fixture", RestatementViolations(cs, retired));
+    }
+
+    private static void AssertTypeScriptCalls()
+    {
+        string[] literals = ["12", "( (12) )", "0x1_2", "0B1_0", "0o1_2", "1_2", "(-0b10)", "12.0", "1.2e1"];
+        var refusals = literals.SelectMany(literal => new[]
+        {
+            $"builder.startObject({literal})", $"builder.addFieldInt32({literal}, value, 0)", $"bb.__offset(row, {literal})"
+        }).Concat([
+            "builder[('startObject')](12.0)", "builder['addFieldInt32'](1e1, value, 0)", "bb['__offset'](row, (0xA))",
+            "(builder.startObject)(12 as number)", "(<Start>builder.startObject)(<number>12)",
+            "(builder.startObject satisfies Start)(12 satisfies number)", "builder.startObject!(12!)",
+            "(builder.addFieldInt32<number>)(0b10, value, 0)", "(bb[(`__offset` as string)!])(row, (12 as number)!)",
+            "bb.__offset(resolveRow(rows, index), (0xA))",
+            "bb.__offset(resolveRow(rows, /* , */ index), /* slot */ ( /* inner */ 0b10 /* value */ ) /* end */)",
+            "builder.startObject(// count below\n (0o12) /* end */)",
+            "bb.__offset(resolveRow<Row, Key>(rows, index), (0xA))",
+            "bb.__offset(resolveRow(\"(,)[;]\", index), /* slot\n follows */ (0xA))",
+            "bb.__offset(row, // count below\u2028 (0xA))"
+        ]).ToArray();
+        string[] admitted =
+        [
+            "builder[('startObject')](count)", "builder['addFieldInt32'](slot, 1e1, 0)", "bb['__offset'](12.0, offset)",
+            "builder.startObject(1.25); bb.__offset(row, 1e-1); builder[method](12); builder['start' + 'Object'](12)",
+            "(builder.startObject)(count as number)", "(<Start>builder.startObject)(<number>count)",
+            "(builder.startObject satisfies Start)(count satisfies number)", "builder.startObject!(count!)",
+            "(builder.addFieldInt32<number>)(slot, value, 0)", "(bb[(`__offset` as string)!])(row, (offset as number)!)",
+            "(bb[('__has_' + 'identifier')])(identifier); bb[`__has_${suffix}`](identifier)",
+            "flatbuffers['SIZE_PREFIX_' + 'LENGTH']; const label = 'SIZE_PREFIX_LENGTH';",
+            """const { someOtherKey = "SIZE_PREFIX_LENGTH" } = options""",
+            "const { ['SIZE_PREFIX_' + 'LENGTH']: size } = flatbuffers; ({ [`__has_${suffix}`]: check } = bb)",
+            "const label = { name: 'SIZE_PREFIX_LENGTH' }; import { helper } from '__has_identifier'",
+            "builder.startObject(count); bb.__offset(4, offset)",
+            "bb.__offset(resolveRow(rows, (2)), offset)",
+            "bb.__offset(resolveRow(rows, index), /* slot */ (offset))",
+            "builder.startObject((2 + 3)); builder.addFieldInt32(slot, (2), 0)",
+            "bb.__offset(resolveRow<Row, Key>(rows, index), offset)",
+            "bb.__offset(resolveRow(\"(,)[;]\", index), /* slot\n follows */ offset)",
+            "bb.__offset(row, // count below\u2028 (offset))"
+        ];
+        var probes = refusals.Concat(admitted).Select((call, index) => (Path: $"probe-{index}.ts", Text: $"\n{call};")).ToArray();
+        const string handwritten = "tools/e2e/handwritten-probe.ts";
+        string[] frameUses =
+        [
+            "bb.__has_identifier(identifier)",
+            "((bb[(`__has_identifier`)] as FrameCheck)!)(identifier)",
+            "flatbuffers.SIZE_PREFIX_LENGTH",
+            "(bb.__has_identifier).call(bb, identifier)",
+            "__has_identifier.apply(bb, [identifier])",
+            """bb.__has_\u0069dentifier.apply(bb, [identifier])""",
+            """flatbuffers.SI\u005aE_PREFIX_LENGTH""",
+            """flatbuffers[('\u0053IZE_PREFIX_LENGTH' as string)]""",
+            """bb[`\u005f_has_identifier`].call(bb, identifier)""",
+            "SIZE_PREFIX_LENGTH",
+            """const { "\u0053IZE_PREFIX_LENGTH": boundPrefix } = flatbuffers""",
+            "const { [(`__has_identifier` as string)!]: boundIdentifier } = bb",
+            "({ 'SIZE_PREFIX_LENGTH': prefix } = flatbuffers)",
+            """({ [('\u005f_has_identifier' as string)]: lookup } = bb)""",
+            """import { '\u0053IZE_PREFIX_LENGTH' as importedPrefix } from 'flatbuffers'""",
+            """export { "__has_identifier" as checkIdentifier } from 'flatbuffers'""",
+            """export { prefix as "SIZE_PREFIX_LENGTH" } from 'flatbuffers'"""
+        ];
+        var frameAndSlot = string.Concat(frameUses.Select(use => $"\n{use};")) + "\nbuilder.startObject(12);";
+        var sources = probes.Concat([
+            (Path: "batch.cs", Text: "\noldBuilder.StartTable(3);"),
+            (Path: handwritten, Text: frameAndSlot),
+            (Path: FrameAdapter, Text: frameAndSlot),
+            (Path: "tools/e2e/.wire/curious-contraptions/wire.ts", Text: frameAndSlot)
+        ]).ToDictionary(source => source.Path, source => source.Text);
+        var slotLine = frameUses.Length + 2;
+        var expected = probes.Take(refusals.Length).Select(probe => $"{probe.Path}:2: literal FlatBuffers table slot or size")
+            .Concat(Enumerable.Range(2, frameUses.Length).Select(line => $"{handwritten}:{line}: frame check outside the shared frame adapter"))
+            .Concat([
+                "batch.cs:2: literal FlatBuffers table slot or size",
+                $"{handwritten}:{slotLine}: literal FlatBuffers table slot or size",
+                $"{FrameAdapter}:{slotLine}: literal FlatBuffers table slot or size"
+            ]);
+        var (_, violations) = ScanSchemaSources(sources.Keys, path => sources[path]);
+        Assert.Equal(expected.Order(StringComparer.Ordinal), violations.Order(StringComparer.Ordinal));
+    }
+
+    private static (string[] Paths, string[] Violations) ScanSchemaSources(IEnumerable<string> paths, Func<string, string> readSource)
+    {
+        var selected = paths.Where(ScansSchemaSource).ToArray();
+        var sources = selected.Select(path => (Path: path, Text: readSource(path))).ToArray();
+        var violations = sources.SelectMany(source => RestatementViolations(source.Path, source.Text))
+            .Concat(WireConformanceTests.RunWireSourceGuard(sources.Where(source => source.Path.EndsWith(".ts", StringComparison.Ordinal)), FrameAdapter))
+            .ToArray();
+        return (selected, violations);
+    }
+
+    private static bool ScansSchemaSource(string path) =>
+        !path.StartsWith("docs/", StringComparison.Ordinal) &&
+        !path.StartsWith("_bmad-output/", StringComparison.Ordinal) &&
+        !path.StartsWith("tools/e2e/.wire/", StringComparison.Ordinal) &&
+        !(path.StartsWith("CuriousContraptions.FlatBuffers/", StringComparison.Ordinal) && path.EndsWith(".cs", StringComparison.Ordinal)) &&
+        Path.GetExtension(path) is ".cs" or ".ts" or ".csproj" or ".props" or ".targets" or ".slnx" or ".proj" or ".rsp";
+
+    private static IEnumerable<string> RestatementViolations(string path, string text)
+    {
+        var source = SourceText.From(text);
+        var result = new List<string>();
+        void Report(int line, string reason) => result.Add($"{path}:{line + 1}: {reason}");
+        var historical = HistoricalLines(path, source, Report);
+        var csharp = path.EndsWith(".cs", StringComparison.Ordinal);
+        var root = csharp ? CSharpSyntaxTree.ParseText(source).GetRoot() : null;
+        var layout = path == SchemaLayoutFile ? root?.DescendantNodes().OfType<ClassDeclarationSyntax>()
+            .SingleOrDefault(node => node.Identifier.ValueText == nameof(WireSchemaLayout))?.Span : null;
+
+        bool Exempt(int position) => historical[source.Lines.GetLineFromPosition(position).LineNumber] ||
+            layout is { } region && region.Contains(position);
+        void At(int position, string reason)
+        {
+            if (!Exempt(position)) Report(source.Lines.GetLineFromPosition(position).LineNumber, reason);
+        }
+
+        foreach (Match word in ForbiddenSchemaWords.Matches(text))
+            At(word.Index, $"hand schema name '{word.Value}'");
+        if (path == SaveRejections)
+            foreach (Match field in OldInstanceFieldEnum.Matches(text)) At(field.Index, "hand instance field enum");
+        if (root is not null)
+        {
+            ScanCSharpInvocations(root, At);
+            foreach (var options in SourceVariants)
+                ScanCSharpInvocations(CSharpSyntaxTree.ParseText(source, options).GetRoot(), At);
+        }
+        return result.Distinct(StringComparer.Ordinal);
+    }
+
+    private static bool[] HistoricalLines(string path, SourceText source, Action<int, string> report)
+    {
+        var exempt = new bool[source.Lines.Count];
+        var expected = HistoricalCounts.GetValueOrDefault(path);
+        var begin = -1;
+        var count = 0;
+        foreach (var line in source.Lines)
+        {
+            var number = line.LineNumber;
+            switch (line.ToString().Trim())
+            {
+                case HistoricalBegin:
+                    if (expected == 0) report(number, "historical layout marker outside a named fixture");
+                    else if (begin >= 0) report(number, "nested historical layout region");
+                    else begin = number;
+                    break;
+                case HistoricalEnd:
+                    if (expected == 0) report(number, "historical layout marker outside a named fixture");
+                    else if (begin < 0) report(number, "historical layout end without begin");
+                    else
+                    {
+                        Array.Fill(exempt, true, begin, number - begin + 1);
+                        ++count;
+                        begin = -1;
+                    }
+                    break;
+            }
+        }
+        if (begin >= 0) report(begin, "unclosed historical layout region");
+        if (count != expected) report(0, $"expected {expected} historical layout region(s), found {count}");
+        return exempt;
+    }
+
+    private static void ScanCSharpInvocations(SyntaxNode root, Action<int, string> report)
+    {
+        foreach (var invocation in root.DescendantNodes().OfType<InvocationExpressionSyntax>())
+        {
+            var name = invocation.Expression switch
+            {
+                MemberAccessExpressionSyntax member => member.Name.Identifier.ValueText,
+                MemberBindingExpressionSyntax member => member.Name.Identifier.ValueText,
+                IdentifierNameSyntax identifier => identifier.Identifier.ValueText,
+                _ => string.Empty
+            };
+            var arguments = invocation.ArgumentList.Arguments;
+            if (CSharpSlotParameters.TryGetValue((name, arguments.Count), out var parameter))
+            {
+                var slot = arguments.FirstOrDefault(argument => argument.NameColon?.Name.Identifier.ValueText == parameter);
+                if (slot is null && arguments[0].NameColon is null) slot = arguments[0];
+                if (slot is not null && IntegerLiteral(slot.Expression) is not null)
+                    report(slot.Expression.SpanStart, "literal FlatBuffers table slot or size");
+            }
+
+            if (name is "__offset" or "AsSpan" or "GetUshort" or "PutUshort")
+                foreach (var argument in arguments.Where(argument => HasVtableArithmetic(argument.Expression)))
+                    report(argument.SpanStart, "hand FlatBuffers vtable offset");
+        }
+    }
+
+    private static ExpressionSyntax Unparenthesized(ExpressionSyntax value) =>
+        value is ParenthesizedExpressionSyntax parenthesized ? Unparenthesized(parenthesized.Expression) : value;
+
+    private static decimal? IntegerLiteral(ExpressionSyntax value) => Unparenthesized(value) switch
+    {
+        LiteralExpressionSyntax { Token.Value: int or uint or long or ulong } literal =>
+            Convert.ToDecimal(literal.Token.Value, System.Globalization.CultureInfo.InvariantCulture),
+        PrefixUnaryExpressionSyntax unary when unary.IsKind(SyntaxKind.UnaryPlusExpression) => IntegerLiteral(unary.Operand),
+        PrefixUnaryExpressionSyntax unary when unary.IsKind(SyntaxKind.UnaryMinusExpression) => -IntegerLiteral(unary.Operand),
+        _ => null
+    };
+
+    private static bool IsLiteral(ExpressionSyntax value, int expected) => IntegerLiteral(value) == expected;
+
+    private static bool Doubled(ExpressionSyntax expression) =>
+        Unparenthesized(expression) is BinaryExpressionSyntax product && product.IsKind(SyntaxKind.MultiplyExpression) &&
+        (IsLiteral(product.Left, 2) || IsLiteral(product.Right, 2));
+
+    private static bool HasVtableArithmetic(ExpressionSyntax expression)
+    {
+        if (Unparenthesized(expression) is not BinaryExpressionSyntax sum || !sum.IsKind(SyntaxKind.AddExpression)) return false;
+        if (IsLiteral(sum.Left, 4) && Doubled(sum.Right) || Doubled(sum.Left) && IsLiteral(sum.Right, 4)) return true;
+        if (HasVtableArithmetic(sum.Left) || HasVtableArithmetic(sum.Right)) return true;
+        // C# parses "base + 4 + 2 * slot" as "(base + 4) + 2 * slot".
+        return Unparenthesized(sum.Left) is BinaryExpressionSyntax prefix && prefix.IsKind(SyntaxKind.AddExpression) &&
+            (IsLiteral(prefix.Right, 4) && Doubled(sum.Right) || Doubled(prefix.Right) && IsLiteral(sum.Right, 4));
+    }
+
 }

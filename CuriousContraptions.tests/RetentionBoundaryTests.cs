@@ -4,6 +4,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using Google.FlatBuffers;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -116,9 +117,15 @@ public sealed class RetentionBoundaryTests
         var buffer = new ByteBuffer(bytes);
         var root = 4 + buffer.GetInt(4);
         var table = new Table(root, buffer);
-        var vector = table.__vector(table.__offset(68)); // Published WorkshopResponse.retentions field.
+        var vector = table.__vector(table.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("retentions")));
         var row = new Table(table.__indirect(vector), buffer);
-        var slot = field switch { Tag.Mode => 10, Tag.Phase => 12, Tag.Result => 30, _ => throw new ArgumentOutOfRangeException(nameof(field)) };
+        var slot = WireSchemaLayout.VtableOffset<Wire.PrismaticRetentionReadRecord>(field switch
+        {
+            Tag.Mode => "mode",
+            Tag.Phase => "phase",
+            Tag.Result => "request_result",
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        });
         var at = row.__offset(slot);
         Assert.NotEqual(0, at);
         bytes[row.bb_pos + at] = 255;
@@ -369,8 +376,8 @@ public sealed class RetentionBoundaryTests
 
         var request = WorkshopWireFlatBuffers.EncodeCommand(world.Command(WorkshopCommandKind.Construct, construction with { Revision = new(3) }));
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
-        Poison(request, 11);
-        Poison(response, 27);
+        Poison(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Poison(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
         Assert.Same(original, world.Simulation.Scene);
@@ -383,17 +390,31 @@ public sealed class RetentionBoundaryTests
             switch (defect)
             {
                 case SceneRetentionDefect.ForeignPhysicalRequest:
-                    var node = CompiledSceneBoundaryTests.Rows(scene, 22).First(r => buffer.GetUlong(CompiledSceneBoundaryTests.Slot(r, 1)) == first.Id.Value);
-                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(node, 15)), secondRetention.Value);
+                    var node = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("activation_nodes"))
+                        .Single(row =>
+                        {
+                            var decoded = new Wire.CapabilityActivationNodeDeclarationRecord().__assign(row.bb_pos, buffer);
+                            return decoded.Owner == first.Id.Value && decoded.Kind == (uint)ActivationNodeKind.PhysicalRequest;
+                        });
+                    var targetOffset = WireSchemaLayout.VtableOffset<Wire.CapabilityActivationNodeDeclarationRecord>("request_target");
+                    var position = CompiledSceneBoundaryTests.Slot(node, targetOffset);
+                    var target = new Wire.PhysicalRequestTargetRecord().__assign(position, buffer);
+                    Assert.Equal((uint)PhysicalRequestTargetKind.Retention, target.Kind);
+                    Assert.NotEqual(secondRetention.Value, target.Retention);
+                    CompiledSceneBoundaryTests.ReplaceStruct(bytes.AsSpan(position), builder => Wire.PhysicalRequestTargetRecord
+                        .CreatePhysicalRequestTargetRecord(builder, Kind: target.Kind, Retention: secondRetention.Value, Actuator: target.Actuator));
+                    Assert.Equal(secondRetention.Value, target.Retention);
                     break;
                 case SceneRetentionDefect.ForeignDrivenPrismatic:
-                    var rel = CompiledSceneBoundaryTests.Rows(scene, 34).First(r => buffer.GetUlong(CompiledSceneBoundaryTests.Slot(r, 8)) == first.Id.Value);
-                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(rel, 2)), secondPrismatic.Prismatic.Value);
+                    var rel = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("transmissions"))
+                        .First(r => buffer.GetUlong(CompiledSceneBoundaryTests.Slot(r, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>("owner"))) == first.Id.Value);
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(rel, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>("driven_coordinate"))), secondPrismatic.Prismatic.Value);
                     break;
                 case SceneRetentionDefect.MissingTrackRetention:
                 case SceneRetentionDefect.ForeignTrackRetention:
-                    var tr = CompiledSceneBoundaryTests.Rows(scene, 29).First(r => buffer.GetUlong(CompiledSceneBoundaryTests.Slot(r, 3)) == first.Id.Value);
-                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(tr, 11)),
+                    var tr = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))
+                        .First(r => buffer.GetUlong(CompiledSceneBoundaryTests.Slot(r, WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("owner"))) == first.Id.Value);
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(tr, WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("retention"))),
                         defect == SceneRetentionDefect.MissingTrackRetention ? 0ul : secondRetention.Value);
                     break;
             }

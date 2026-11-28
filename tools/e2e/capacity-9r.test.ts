@@ -10,8 +10,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
-import { assertLoadRestores, assertSnapshotEqual, readSnapshot } from './run-reset-snapshot.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
+import { assertLoadRestores, assertSnapshotEqual, type RunResetSnapshot } from './run-reset-snapshot.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
 
 // Free-workshop camera (workshop-driver.ts FREE_VIEW_PX_PER_M): a point (x, 3, z) on the placement plane projects to the screen
@@ -54,18 +54,11 @@ describe('Story 9R.2: a full bench of bends compiles and runs', () => {
         }
     }
 
-    async function savedPartIds(): Promise<string[]> {
+    async function saveInstances() {
         const { slot } = await driver.save();
         const construction = decodeSavedConstruction(slot).construction();
         assert.ok(construction, 'The saved slot must hold a construction');
-        return Array.from({ length: construction.instancesLength() }, (_, i) => construction.instances(i)!.partId() ?? '');
-    }
-
-    // A static bench has no committed body, so the Story 9R.1 snapshot (which requires one) does not apply: Reset is compared on
-    // the Save acknowledgement's committed read and the stored slot, byte for byte.
-    async function staticSnapshot(): Promise<{ read: RunResetSnapshot; slot: Uint8Array }> {
-        const { acknowledgement, slot } = await driver.save();
-        return { read: readSnapshot(acknowledgement), slot };
+        return Array.from({ length: construction.instancesLength() }, (_, i) => construction.instances(i)!);
     }
 
     // Runs for a window, then pauses through the menu: a session that faulted while running rejects the Pause (WrongPhase).
@@ -82,33 +75,31 @@ describe('Story 9R.2: a full bench of bends compiles and runs', () => {
         errors.length = 0;
         await driver.reload();
         await placeBends([...GRID, ...FULL_EXTRA]);
-        assert.deepEqual(await savedPartIds(), Array(32).fill('pipe_bend_90'), 'The bench holds exactly 32 pipe_bend_90');
-        const s0 = await staticSnapshot();
-        assert.equal(s0.read.bodies, 0, 'A bench of bends has no moving body');
+        const original = await saveInstances();
+        assert.deepEqual(original.map(instance => instance.partId()), Array(32).fill('pipe_bend_90'), 'The bench holds exactly 32 pipe_bend_90');
+        const s0 = await driver.captureSnapshot({ bodies: 0 });
+        assert.equal(s0.bodies, 0, 'A bench of bends has no moving body');
 
         for (const cycle of ['first', 'second']) {
             await runFor(`${cycle} run`, 2000);
             await driver.reset();
-            const s1 = await staticSnapshot();
-            assertSnapshotEqual(s0.read, s1.read, `${cycle} Reset`);
-            assert.deepEqual(s1.slot, s0.slot, `${cycle} Reset: the stored construction is unchanged`);
+            assertSnapshotEqual(s0, await driver.captureSnapshot({ bodies: 0 }), `${cycle} Reset`);
         }
 
         await driver.reload();
         await driver.load();
-        assert.deepEqual(await savedPartIds(), Array(32).fill('pipe_bend_90'), 'Load restores the 32 bends');
-        const loaded = await staticSnapshot();
-        assertSnapshotEqual(s0.read, loaded.read, 'Load');
-        const original = decodeSavedConstruction(s0.slot).construction()!;
-        const restored = decodeSavedConstruction(loaded.slot).construction()!;
+        const restored = await saveInstances();
+        assert.deepEqual(restored.map(instance => instance.partId()), Array(32).fill('pipe_bend_90'), 'Load restores the 32 bends');
+        const loaded = await driver.captureSnapshot({ bodies: 0 });
+        assertLoadRestores(s0, loaded);
         for (let i = 0; i < 32; i++) {
-            const a = original.instances(i)!; const b = restored.instances(i)!;
+            const a = original[i]; const b = restored[i];
             assert.deepEqual([b.id(), b.cell()!.x(), b.cell()!.y(), b.cell()!.z(), b.rotation()!.z(), b.rotation()!.w()],
                 [a.id(), a.cell()!.x(), a.cell()!.y(), a.cell()!.z(), a.rotation()!.z(), a.rotation()!.w()], `Load restores bend ${i}`);
         }
         await runFor('loaded run', 2000);
         await driver.reset();
-        assertSnapshotEqual(loaded.read, (await staticSnapshot()).read, 'loaded Reset');
+        assertSnapshotEqual(loaded, await driver.captureSnapshot({ bodies: 0 }), 'loaded Reset');
         assert.deepEqual(errors, [], `No console or worker error: ${errors.join('; ')}`);
     });
 

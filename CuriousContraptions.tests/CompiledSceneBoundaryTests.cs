@@ -3,6 +3,7 @@ using CuriousContraptions.Abstractions;
 using CuriousContraptions.Presentation;
 using CuriousContraptions.Gpu;
 using Google.FlatBuffers;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -86,20 +87,25 @@ public sealed class CompiledSceneBoundaryTests
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         Assert.NotNull(WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene);
         var buffer = new ByteBuffer(bytes);
-        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11);
-        var declaration = Child(Rows(scene, 29)[0], 5);
-        var index = field switch { ImpulseField.Peak => 17, ImpulseField.Visibility => 18, ImpulseField.Timing => 19,
-            _ => throw new ArgumentOutOfRangeException(nameof(field)) };
-        Assert.NotEqual(0, declaration.__offset(4 + index * 2));
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        var declaration = Child(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))[0], WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("declaration"));
+        var fieldOffset = WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>(field switch
+        {
+            ImpulseField.Peak => "impulse_peak",
+            ImpulseField.Visibility => "impulse_visibility",
+            ImpulseField.Timing => "impulse_timing",
+            _ => throw new ArgumentOutOfRangeException(nameof(field))
+        });
+        Assert.NotEqual(0, declaration.__offset(fieldOffset));
         var vtable = declaration.bb_pos - buffer.GetInt(declaration.bb_pos);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4 + index * 2), 0);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + fieldOffset), 0);
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
         var inactiveBytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var inactiveBuffer = new ByteBuffer(inactiveBytes);
-        var inactiveScene = Child(new Table(4 + inactiveBuffer.GetInt(4), inactiveBuffer), 11);
-        var inactiveDeclaration = Child(Rows(inactiveScene, 29)[0], 5);
-        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, 8)), (uint)PresentationCurve.SmoothStep);
-        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, 10)), (uint)PresentationOverlap.Replace);
+        var inactiveScene = Child(new Table(4 + inactiveBuffer.GetInt(4), inactiveBuffer), WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        var inactiveDeclaration = Child(Rows(inactiveScene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))[0], WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("declaration"));
+        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>("curve"))), (uint)PresentationCurve.SmoothStep);
+        BinaryPrimitives.WriteUInt32LittleEndian(inactiveBytes.AsSpan(Slot(inactiveDeclaration, WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>("overlap"))), (uint)PresentationOverlap.Replace);
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(inactiveBytes));
     }
 
@@ -119,10 +125,11 @@ public sealed class CompiledSceneBoundaryTests
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         Assert.NotNull(WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene);
         var buffer = new ByteBuffer(bytes);
-        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11);
-        var declaration = Child(Rows(scene, 29)[0], 5);
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        var declaration = Child(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))[0], WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("declaration"));
         BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(declaration,
-            field == ImpulseField.Visibility ? 18 : 19)), encoded);
+            WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>(
+                field == ImpulseField.Visibility ? "impulse_visibility" : "impulse_timing"))), encoded);
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
     }
 
@@ -158,15 +165,16 @@ public sealed class CompiledSceneBoundaryTests
         var buffer = new ByteBuffer(bytes);
         var table = 4 + buffer.GetInt(4);
         var vtable = table - buffer.GetInt(table);
-        var relative = buffer.GetUshort(vtable + 4);
+        var xOffset = WireSchemaLayout.VtableOffset<Wire.CapabilityVector3Record>("x");
+        var relative = buffer.GetUshort(vtable + xOffset);
         Assert.Equal(aboveSignedRange, relative > short.MaxValue);
-        Assert.Equal(table + relative, Table.__offset(4, bytes.Length - table, buffer));
+        Assert.Equal(table + relative, Table.__offset(xOffset, bytes.Length - table, buffer));
         Assert.True(new Verifier(buffer).VerifyBuffer("VEC3", true,
             CuriousContraptions.Wire.CapabilityVector3RecordVerify.Verify));
         buffer.Position = 4;
         Assert.Equal(4f, CuriousContraptions.Wire.CapabilityVector3Record.GetRootAsCapabilityVector3Record(buffer).X);
 
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4), ushort.MaxValue);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + xOffset), ushort.MaxValue);
         Assert.False(new Verifier(new ByteBuffer(bytes)).VerifyBuffer("VEC3", true,
             CuriousContraptions.Wire.CapabilityVector3RecordVerify.Verify));
     }
@@ -200,7 +208,7 @@ public sealed class CompiledSceneBoundaryTests
         var bytes = builder.SizedByteArray();
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
-        var table = Child(root, 11);
+        var table = Child(root, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
         var vtable = table.bb_pos - buffer.GetInt(table.bb_pos);
         Assert.Equal(padding > 0, vtable > short.MaxValue);
         var decoded = WorkshopWireFlatBuffers.DecodeCommand(bytes).Scene!;
@@ -209,7 +217,7 @@ public sealed class CompiledSceneBoundaryTests
         Assert.Equal(scene.Physics.Bodies.ToArray(), decoded.Physics.Bodies.ToArray());
 
         // A malformed required settings reference at the same byte position must still refuse.
-        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(table, 2)), uint.MaxValue);
+        BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(table, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("settings"))), uint.MaxValue);
         Assert.Equal(WireFaultReason.VerifierRejected,
             Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes)).Reason);
     }
@@ -305,8 +313,8 @@ public sealed class CompiledSceneBoundaryTests
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
         Assert.Equal(900f, WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Presentation[index].SourceCapacity);
         Assert.Equal(900f, WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Presentation[index].SourceCapacity);
-        Poison(request, 11);
-        Poison(response, 27);
+        Poison(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Poison(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
         Assert.Equal(WireFaultReason.OutOfRange,
             Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange,
@@ -324,10 +332,10 @@ public sealed class CompiledSceneBoundaryTests
         {
             var buffer = new ByteBuffer(bytes);
             var root = new Table(4 + buffer.GetInt(4), buffer);
-            var track = Rows(Child(root, sceneField), 29)[index];
+            var track = Rows(Child(root, sceneField), WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))[index];
             if (defect == SourceTrackDefect.WrongCapacity)
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(track, 7)), invalid.SourceCapacity);
-            else BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(track, 0)), invalid.Source.Value);
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(track, WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("source_capacity"))), invalid.SourceCapacity);
+            else BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(track, WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("source"))), invalid.Source.Value);
             var decoded = new CuriousContraptions.Wire.CompiledPresentationRecord().__assign(track.bb_pos, buffer);
             Assert.Equal(invalid.Source.Value, decoded.Source);
             Assert.Equal(invalid.SourceCapacity, decoded.SourceCapacity);
@@ -368,8 +376,8 @@ public sealed class CompiledSceneBoundaryTests
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = scene });
         Assert.Equal(.25f, WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Presentation[trackIndex].Declaration.From);
         Assert.Equal(.25f, WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Presentation[trackIndex].Declaration.From);
-        Poison(request, 11);
-        Poison(response, 27);
+        Poison(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Poison(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
         Assert.Equal(WireFaultReason.OutOfRange,
             Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange,
@@ -392,7 +400,7 @@ public sealed class CompiledSceneBoundaryTests
         {
             var buffer = new ByteBuffer(bytes);
             var root = new Table(4 + buffer.GetInt(4), buffer);
-            var binding = Child(Rows(Child(root, sceneField), 29)[trackIndex], 5);
+            var binding = Child(Rows(Child(root, sceneField), WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("presentation"))[trackIndex], WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("declaration"));
             var fields = new CuriousContraptions.Wire.CapabilityPresentationBindingRecord().__assign(binding.bb_pos, buffer);
             Assert.Equal((uint)tracks[trackIndex].Declaration.Mapping, fields.Mapping);
             Assert.Equal((uint)tracks[trackIndex].Declaration.Driver, fields.Driver);
@@ -400,31 +408,32 @@ public sealed class CompiledSceneBoundaryTests
             switch (defect)
             {
                 case PresentationDefect.MissingMapping:
-                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + 10), 0);
+                    BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(binding.bb_pos - buffer.GetInt(binding.bb_pos) + WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>("mapping")), 0);
                     Assert.Equal(0U, fields.Mapping); break;
                 case PresentationDefect.UnknownMapping:
-                    Write(3, uint.MaxValue); Assert.Equal(uint.MaxValue, fields.Mapping); break;
+                    Write("mapping", uint.MaxValue); Assert.Equal(uint.MaxValue, fields.Mapping); break;
                 case PresentationDefect.IncompatibleMapping:
-                    Write(3, (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit);
+                    Write("mapping", (uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationValueMapping.SineCyclesToUnit, fields.Mapping); break;
                 case PresentationDefect.InvalidElectricalSocket:
-                    Write(13, (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn);
+                    Write("socket", (uint)CuriousContraptions.Abstractions.PortRole.ActivationIn);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PortRole.ActivationIn, fields.Socket); break;
                 case PresentationDefect.NonfiniteFrom:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, 6)), float.NaN);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(binding, WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>("from"))), float.NaN);
                     Assert.True(float.IsNaN(fields.From)); break;
                 case PresentationDefect.MissingSocket:
-                    Write(5, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket);
+                    Write("driver", (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedElectricalSocket, fields.Driver); break;
                 case PresentationDefect.UnsupportedCurve:
-                    Write(8, (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse);
+                    Write("curve", (uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationCurve.SineSquaredPulse, fields.Curve); break;
                 case PresentationDefect.IncompatibleDriver:
-                    Write(5, (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase);
+                    Write("driver", (uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase);
                     Assert.Equal((uint)CuriousContraptions.Abstractions.PresentationDriver.CommittedOscillatorPhase, fields.Driver); break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
-            void Write(int field, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(binding, field)), value);
+            void Write(string field, uint value) => BinaryPrimitives.WriteUInt32LittleEndian(
+                bytes.AsSpan(Slot(binding, WireSchemaLayout.VtableOffset<Wire.CapabilityPresentationBindingRecord>(field))), value);
         }
     }
 
@@ -514,8 +523,8 @@ public sealed class CompiledSceneBoundaryTests
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
         Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.Revolutes.ToArray());
         Assert.Single(WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Physics.Revolutes.ToArray());
-        Poison(request, 11); // WorkshopCommand.scene
-        Poison(response, 27); // WorkshopResponse.scene
+        Poison(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Poison(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
 
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
@@ -525,26 +534,26 @@ public sealed class CompiledSceneBoundaryTests
         void Poison(byte[] bytes, int sceneField)
         {
             var buffer = new ByteBuffer(bytes);
-            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), 30)); // CompiledSceneRecord.revolutes
+            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolutes")));
             switch (defect)
             {
                 case RevoluteDefect.LimitOrder: // lower := upper
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 5)), BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(Slot(row, 6))));
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("lower"))), BinaryPrimitives.ReadSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("upper")))));
                     break;
                 case RevoluteDefect.UnadmittedBody: // body_b names no scene body
-                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, 2)), ulong.MaxValue);
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("body_b"))), ulong.MaxValue);
                     break;
                 case RevoluteDefect.NegativeFrictionTorque: // friction_torque := -1 (the lever writes 2, so the slot is present)
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), -1f);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("friction_torque"))), -1f);
                     break;
                 case RevoluteDefect.NaNFrictionTorque:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.NaN);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("friction_torque"))), float.NaN);
                     break;
                 case RevoluteDefect.InfiniteFrictionTorque:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.PositiveInfinity);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("friction_torque"))), float.PositiveInfinity);
                     break;
                 case RevoluteDefect.NegativeInfiniteFrictionTorque:
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 10)), float.NegativeInfinity);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("friction_torque"))), float.NegativeInfinity);
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
@@ -632,29 +641,30 @@ public sealed class CompiledSceneBoundaryTests
         var request = CommandWithEveryField(DrivenLeverScene());
         Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.RevoluteDrives.ToArray());
         var buffer = new ByteBuffer(request);
-        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), 11); // WorkshopCommand.scene
+        var scene = Child(new Table(4 + buffer.GetInt(4), buffer), WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene")); // WorkshopCommand.scene
         switch (defect)
         {
             case DriveDefect.UndefinedTravel: // CompiledSceneRecord.revolutes[0].travel := 2
-                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 11)), 2);
+                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolutes"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("travel"))), 2);
                 break;
             case DriveDefect.ContinuousNarrowLower: // revolutes[0].lower := −3 (a continuous hinge's limits are exactly [−π, π])
-                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 5)), -3f);
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolutes"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("lower"))), -3f);
                 break;
             case DriveDefect.ContinuousWithSpring: // revolutes[0].stiffness := 10
-                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 30)), 7)), 10f);
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolutes"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteConstraintDeclarationRecord>("stiffness"))), 10f);
                 break;
             case DriveDefect.NaNTargetSpeed: // CompiledSceneRecord.revolute_drives[0].target_speed := NaN
-                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 1)), float.NaN);
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolute_drives"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteDriveDeclarationRecord>("target_speed"))), float.NaN);
                 break;
             case DriveDefect.OverspeedTarget:
-                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 1)), MathF.BitIncrement(128f));
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolute_drives"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteDriveDeclarationRecord>("target_speed"))), MathF.BitIncrement(128f));
                 break;
             case DriveDefect.ZeroTorque: // revolute_drives[0].max_torque := 0
-                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, 32)), 2)), 0f);
+                BinaryPrimitives.WriteSingleLittleEndian(request.AsSpan(Slot(Assert.Single(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("revolute_drives"))), WireSchemaLayout.VtableOffset<Wire.CapabilityRevoluteDriveDeclarationRecord>("max_torque"))), 0f);
                 break;
             case DriveDefect.UndefinedConsumerKind: // supply_nodes[last].consumers[0].kind := 2
-                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(Rows(scene, 18)[^1], 5)), 0)), 2);
+                BinaryPrimitives.WriteUInt32LittleEndian(request.AsSpan(Slot(Assert.Single(Rows(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("supply_nodes"))[^1],
+                    WireSchemaLayout.VtableOffset<Wire.CapabilitySupplyNodeDeclarationRecord>("consumers"))), WireSchemaLayout.VtableOffset<Wire.CapabilitySupplyConsumerRecord>("kind"))), 2);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
@@ -683,8 +693,8 @@ public sealed class CompiledSceneBoundaryTests
         var response = WorkshopWireFlatBuffers.EncodeResponse(world.Latest with { Scene = original });
         Assert.Single(WorkshopWireFlatBuffers.DecodeCommand(request).Scene!.Physics.CompliantSurfaces.ToArray());
         Assert.Single(WorkshopWireFlatBuffers.DecodeResponse(response).Scene!.Physics.CompliantSurfaces.ToArray());
-        Poison(request, 11); // WorkshopCommand.scene
-        Poison(response, 27); // WorkshopResponse.scene
+        Poison(request, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Poison(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
 
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => world.Router.Dispatch(request)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
@@ -694,17 +704,17 @@ public sealed class CompiledSceneBoundaryTests
         void Poison(byte[] bytes, int sceneField)
         {
             var buffer = new ByteBuffer(bytes);
-            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), 31)); // CompiledSceneRecord.compliant_surfaces
+            var row = Assert.Single(Rows(Child(new Table(4 + buffer.GetInt(4), buffer), sceneField), WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("compliant_surfaces")));
             switch (defect)
             {
                 case CompliantSurfaceDefect.CollapsedFootprint: // half_x := 0
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 2)), 0f);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CompliantSurfaceRecord>("half_x"))), 0f);
                     break;
                 case CompliantSurfaceDefect.UnadmittedBody: // body names no scene body
-                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, 1)), ulong.MaxValue);
+                    BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CompliantSurfaceRecord>("body"))), ulong.MaxValue);
                     break;
                 case CompliantSurfaceDefect.ZeroArrivalDepth: // arrival_depth := 0
-                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, 8)), 0f);
+                    BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(row, WireSchemaLayout.VtableOffset<Wire.CompliantSurfaceRecord>("arrival_depth"))), 0f);
                     break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
@@ -715,46 +725,55 @@ public sealed class CompiledSceneBoundaryTests
     {
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
-        var scene = Child(root, 11); // WorkshopCommand.scene
-        var bodies = Rows(scene, 6); // CompiledSceneRecord.bodies
-        var body = bodies.Single(row => ReadUInt(row, 2) == (uint)RigidMotionKind.Dynamic);
+        var scene = Child(root, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene")); // WorkshopCommand.scene
+        var bodies = Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("bodies"));
+        var body = bodies.Single(row => ReadUInt(row, WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("motion")) == (uint)RigidMotionKind.Dynamic);
         var decoded = new CuriousContraptions.Wire.CapabilityRigidBodyDeclarationRecord().__assign(body.bb_pos, buffer);
         switch (defect)
         {
             case Defect.UnknownMotion:
-                WriteUInt(body, 2, uint.MaxValue);
+                WriteUInt(body, WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("motion"), uint.MaxValue);
                 Assert.Equal(uint.MaxValue, decoded.Motion); break;
             case Defect.NarrowedMotion:
-                WriteUInt(body, 2, 256);
+                WriteUInt(body, WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("motion"), 256);
                 Assert.Equal(256U, decoded.Motion); break;
             case Defect.NonfiniteMass:
-                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(body, 8)), float.NaN);
+                BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(body, WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("mass"))), float.NaN);
                 Assert.True(float.IsNaN(decoded.Mass)); break;
             case Defect.ForeignColliderBody:
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 7)[0], 1)), ulong.MaxValue); break;
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("colliders"))[0], WireSchemaLayout.VtableOffset<Wire.CapabilityColliderDeclarationRecord>("body"))), ulong.MaxValue); break;
             case Defect.ForeignTrigger:
-                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, 22)[0], 3)), ulong.MaxValue); break;
-            case Defect.WrongSubsteps: WriteUInt(scene, 25, 2); break;
+                BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("activation_nodes"))[0], WireSchemaLayout.VtableOffset<Wire.CapabilityActivationNodeDeclarationRecord>("trigger"))), ulong.MaxValue); break;
+            case Defect.WrongSubsteps: WriteUInt(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("activation_substeps"), 2); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
-        void WriteUInt(Table table, int field, uint value) =>
-            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(table, field)), value);
+        void WriteUInt(Table table, int fieldOffset, uint value) =>
+            BinaryPrimitives.WriteUInt32LittleEndian(bytes.AsSpan(Slot(table, fieldOffset)), value);
     }
 
-    private static uint ReadUInt(Table table, int field)
+    // Rebuild one malformed inline fixture row with the generated struct writer.
+    internal static void ReplaceStruct(Span<byte> destination, Action<FlatBufferBuilder> write)
     {
-        var offset = table.__offset(4 + field * 2);
+        var builder = new FlatBufferBuilder(128);
+        write(builder);
+        var bytes = builder.DataBuffer.ToArray(builder.DataBuffer.Length - builder.Offset, builder.Offset);
+        bytes.CopyTo(destination);
+    }
+
+    private static uint ReadUInt(Table table, int fieldOffset)
+    {
+        var offset = table.__offset(fieldOffset);
         return offset == 0 ? 0 : table.bb.GetUint(table.bb_pos + offset);
     }
-    internal static int Slot(Table table, int field)
+    internal static int Slot(Table table, int fieldOffset)
     {
-        var offset = table.__offset(4 + field * 2);
+        var offset = table.__offset(fieldOffset);
         Assert.NotEqual(0, offset); return table.bb_pos + offset;
     }
-    internal static Table Child(Table table, int field) => new(table.__indirect(Slot(table, field)), table.bb);
-    internal static Table[] Rows(Table table, int field)
+    internal static Table Child(Table table, int fieldOffset) => new(table.__indirect(Slot(table, fieldOffset)), table.bb);
+    internal static Table[] Rows(Table table, int fieldOffset)
     {
-        var offset = table.__offset(4 + field * 2);
+        var offset = table.__offset(fieldOffset);
         Assert.NotEqual(0, offset);
         var start = table.__vector(offset);
         return Enumerable.Range(0, table.__vector_len(offset))

@@ -12,8 +12,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type AnimationSampleRecord, type RunResetSnapshot } from './workshop-driver.ts';
-import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { WorkshopDriver, type AnimationSampleRecord } from './workshop-driver.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const detPos = { x: 720, y: 485 };
 const lampPos = { x: 900, y: 420 };

@@ -4,6 +4,8 @@ using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Abstractions.Electrical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
+using Google.FlatBuffers;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -265,40 +267,30 @@ public sealed class IndependentSignalCompositionTests
         var before = harness.Committed;
         var bytes = WorkshopWireFlatBuffers.EncodeResponse(harness.Latest with { Scene = harness.Simulation.Scene });
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
-        var vector = Field(buffer, 4 + buffer.GetInt(4), 16);
-        var origin = vector + buffer.GetInt(vector) + 4; // First ordered ActivationRecord, the clock.
-        switch (defect)
+        var root = new Table(4 + buffer.GetInt(4), buffer);
+        if (defect is CauseDefect.AbsentTimerKind or CauseDefect.ReadyTimerWithCause)
         {
-            case CauseDefect.AbsentTimerKind:
-            case CauseDefect.ReadyTimerWithCause:
-                var timers = Field(buffer, 4 + buffer.GetInt(4), 17);
-                var timer = timers + buffer.GetInt(timers) + 4;
-                if (defect == CauseDefect.AbsentTimerKind) buffer.PutUint(timer + 88, 0);
-                else buffer.PutUint(timer + 8, (uint)ActivationTimerPhase.Ready);
-                break;
-            case CauseDefect.FractionalNodeTime:
-                buffer.PutFloat(origin + 48, .5f); buffer.PutFloat(origin + 76, .5f); break;
-            case CauseDefect.NonboundaryNodeOrdinal:
-                buffer.PutUint(origin + 44, 47); buffer.PutUint(origin + 72, 47); break;
-            case CauseDefect.AbsentKind: buffer.PutUint(origin + 80, 0); break;
-            case CauseDefect.UnknownKind: buffer.PutUint(origin + 80, 99); break;
-            case CauseDefect.Collider: buffer.PutUlong(origin + 32, 1); break;
-            case CauseDefect.Speed: buffer.PutFloat(origin + 52, 1f); break;
-            case CauseDefect.UnknownNode: buffer.PutUlong(origin + 16, 999); break;
-            case CauseDefect.WrongNode: buffer.PutUlong(origin + 16, 3); break;
-            case CauseDefect.UnknownOwner: buffer.PutUlong(origin + 24, 999); break;
-            case CauseDefect.PhysicalWithoutCollider: buffer.PutUint(origin + 80, (uint)ActivationCauseKind.Physical); break;
+            var timer = FirstStruct<Wire.WorkshopResponse>(root, "timers");
+            var row = new Wire.TimerRecord().__assign(timer, buffer);
+            CompiledSceneBoundaryTests.ReplaceStruct(bytes.AsSpan(timer), builder => Wire.TimerRecord.CreateTimerRecord(
+                builder, row.Node, defect == CauseDefect.ReadyTimerWithCause ? (uint)ActivationTimerPhase.Ready : row.Phase,
+                row.StartedTick, row.DueTick, row.InputKind, row.InputOrdinal, row.InputPhase, row.InputApproachSpeed,
+                row.InputEmitter, row.CauseSource, row.CauseBody, row.CauseCollider, row.CauseOrdinal, row.CausePhase,
+                defect == CauseDefect.AbsentTimerKind ? 0 : row.CauseKind));
+        }
+        else
+        {
+            var activation = FirstStruct<Wire.WorkshopResponse>(root, "activations");
+            WriteInvalidActivation(bytes.AsSpan(activation), new Wire.ActivationRecord().__assign(activation, buffer), defect);
         }
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes)).Reason);
         var command = harness.Command(WorkshopCommandKind.Construct, Bench(true) with { Revision = new(3) });
         var request = WorkshopWireFlatBuffers.EncodeCommand(command);
         buffer = new(request);
-        var sceneSlot = Field(buffer, 4 + buffer.GetInt(4), 11);
-        var scene = sceneSlot + buffer.GetInt(sceneSlot);
-        var nodes = Field(buffer, scene, 22);
-        var first = nodes + buffer.GetInt(nodes) + 4;
-        var node = first + buffer.GetInt(first);
-        buffer.PutUlong(Field(buffer, node, 1), 999); // Foreign logical owner, even without a physical-body prerequisite.
+        var requestRoot = new Table(4 + buffer.GetInt(4), buffer);
+        var scene = CompiledSceneBoundaryTests.Child(requestRoot, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        var node = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("activation_nodes"))[0];
+        buffer.PutUlong(CompiledSceneBoundaryTests.Slot(node, WireSchemaLayout.VtableOffset<Wire.CapabilityActivationNodeDeclarationRecord>("owner")), 999); // Foreign logical owner, even without a physical-body prerequisite.
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(request)).Reason);
         Assert.Equal(before.Revision, harness.Committed.Revision);
         Assert.Equal(before.Epoch, harness.Committed.Epoch);
@@ -307,11 +299,31 @@ public sealed class IndependentSignalCompositionTests
         Assert.Equal(6U, harness.Simulation.Scene.Activation.Memory(harness.Committed.Memory, SignalTestNodes.Only(harness.Simulation.Scene.Activation, new(3))).Count);
     }
 
-    private static int Field(Google.FlatBuffers.ByteBuffer buffer, int table, int field)
+    private static int FirstStruct<T>(Table root, string vector)
     {
-        var offset = buffer.GetUshort(table - buffer.GetInt(table) + 4 + 2 * field);
+        var offset = root.__offset(WireSchemaLayout.VtableOffset<T>(vector));
         Assert.NotEqual(0, offset);
-        return table + offset;
+        return root.__vector(offset);
+    }
+
+    private static void WriteInvalidActivation(Span<byte> destination, Wire.ActivationRecord row, CauseDefect defect)
+    {
+        var source = defect switch { CauseDefect.UnknownNode => 999ul, CauseDefect.WrongNode => 3ul, _ => row.Source };
+        var causeKind = defect switch
+        {
+            CauseDefect.AbsentKind => 0u,
+            CauseDefect.UnknownKind => 99u,
+            CauseDefect.PhysicalWithoutCollider => (uint)ActivationCauseKind.Physical,
+            _ => row.CauseKind
+        };
+        CompiledSceneBoundaryTests.ReplaceStruct(destination, builder => Wire.ActivationRecord.CreateActivationRecord(
+            builder, row.Node, row.Owner, source, defect == CauseDefect.UnknownOwner ? 999 : row.Body,
+            defect == CauseDefect.Collider ? 1 : row.Collider, row.Phase,
+            defect == CauseDefect.NonboundaryNodeOrdinal ? 47 : row.EventOrdinal,
+            defect == CauseDefect.FractionalNodeTime ? .5f : row.EventPhase,
+            defect == CauseDefect.Speed ? 1f : row.ApproachSpeed, row.Kind, row.Emitter,
+            defect == CauseDefect.NonboundaryNodeOrdinal ? 47 : row.CauseOrdinal,
+            defect == CauseDefect.FractionalNodeTime ? .5f : row.CausePhase, causeKind));
     }
 
     [Fact]

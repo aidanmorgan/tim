@@ -12,11 +12,12 @@
 //    Run, with its own identity; Reset is exact.
 // Every leg fails on a worker or console error, and WorkshopDriver.close() fails it on any session fault.
 import assert from 'node:assert/strict';
+import { ActivationPhase } from '../../CuriousContraptions.web/wwwroot/workshop-observation.ts';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
-import { assertLoadRestores, snapshotValue } from './run-reset-snapshot.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
 
 type Point = { x: number; y: number };
@@ -32,9 +33,8 @@ const GRID: Point[] = Array.from({ length: SWITCHES }, (_, i) => screenOf(-6 + i
 const LAST = GRID[SWITCHES - 1];
 const LAMP = screenOf(6.5, 0);
 const BALL_LIFT_PX = 150; // the cat-037 drop: a lifted Basketball strikes the switch placed under it
-const LAST_SWITCH_NODE = '41';
-const LAMP_NODE = '42';
-const LATCHED = '1';
+const LAST_SWITCH_NODE = 41n;
+const LAMP_NODE = 42n;
 // Contextual rows (ui/WorkshopConnections.cs) are bottom-anchored 45 px apart; text target choices stack upward from 735.
 const ROW_LAST = 789;
 const TEXT_CHOICE: Point = { x: 133, y: 735 };
@@ -104,24 +104,20 @@ describe('Story 9R.5b: a forty-switch bench past every retired table runs, reset
     }
 
     /** The committed activation phase of every node in a read. */
-    function phases(read: RunResetSnapshot): Map<string, string> {
-        const result = new Map<string, string>();
-        const length = Number(snapshotValue(read, 'read.activations.length'));
-        for (let i = 0; i < length; i++)
-            result.set(snapshotValue(read, `read.activations[${i}].node`), snapshotValue(read, `read.activations[${i}].phase`));
-        return result;
+    function phases(read: RunResetSnapshot): Map<bigint, number> {
+        return new Map(read.activations.map(({ node, phase }) => [node, phase]));
     }
 
     /** Runs until the ball has struck the last switch, pauses through the menu and returns the Pause acknowledgement's read. */
-    async function runAndPause(s0: RunResetSnapshot, label: string): Promise<Map<string, string>> {
+    async function runAndPause(s0: RunResetSnapshot, label: string): Promise<Map<bigint, number>> {
         await driver.run(2500);
         const pose = await driver.readLatestPose();
         assert.equal(pose?.bodies.length, 1, `${label}: the Basketball is the one committed body`);
         const read = await driver.expectRunAdvanced(s0);
         const committed = phases(read);
-        assert.equal(committed.get(LAST_SWITCH_NODE), LATCHED, `${label}: the last switch (41) fired`);
+        assert.equal(committed.get(LAST_SWITCH_NODE), ActivationPhase.Latched, `${label}: the last switch (41) fired`);
         for (let node = 1; node < SWITCHES; node++)
-            assert.notEqual(committed.get(String(node)), LATCHED, `${label}: switch ${node} was never struck`);
+            assert.notEqual(committed.get(BigInt(node)), ActivationPhase.Latched, `${label}: switch ${node} was never struck`);
         return committed;
     }
 
@@ -129,7 +125,7 @@ describe('Story 9R.5b: a forty-switch bench past every retired table runs, reset
         const s0 = await build(true);
         for (const cycle of ['first', 'second']) {
             const committed = await runAndPause(s0, `${cycle} run`);
-            assert.equal(committed.get(LAMP_NODE), LATCHED, `${cycle} run: the lamp (42) is lit by the last switch`);
+            assert.equal(committed.get(LAMP_NODE), ActivationPhase.Latched, `${cycle} run: the lamp (42) is lit by the last switch`);
             await driver.reset();
             await driver.expectResetMatches(s0);
         }
@@ -138,7 +134,7 @@ describe('Story 9R.5b: a forty-switch bench past every retired table runs, reset
         const loaded = await driver.captureSnapshot({ bodies: 1 });
         assertLoadRestores(s0, loaded);
         const committed = await runAndPause(loaded, 'loaded run');
-        assert.equal(committed.get(LAMP_NODE), LATCHED, 'loaded run: the lamp is lit by the last switch');
+        assert.equal(committed.get(LAMP_NODE), ActivationPhase.Latched, 'loaded run: the lamp is lit by the last switch');
         await driver.reset();
         await driver.expectResetMatches(loaded);
         assert.deepEqual(errors, [], `No console or worker error: ${errors.join('; ')}`);
@@ -171,7 +167,7 @@ describe('Story 9R.5b: a forty-switch bench past every retired table runs, reset
     test('2. Control: without the wire the lamp stays dark although the last switch fires', { timeout: 900000 }, async () => {
         const s0 = await build(false);
         const committed = await runAndPause(s0, 'unwired run');
-        assert.notEqual(committed.get(LAMP_NODE), LATCHED, 'unwired run: the lamp stays dark');
+        assert.notEqual(committed.get(LAMP_NODE), ActivationPhase.Latched, 'unwired run: the lamp stays dark');
         await driver.reset();
         await driver.expectResetMatches(s0);
         assert.deepEqual(errors, [], `No console or worker error: ${errors.join('; ')}`);

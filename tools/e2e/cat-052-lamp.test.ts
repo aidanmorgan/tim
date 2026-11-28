@@ -16,22 +16,22 @@
 // 5. Refusals: the plate's ActivationOut to a Counter, a Delay, and the latch's SetIn and ResetIn is refused with "A level output can only
 //    light a Signal lamp."; the latch's own ActivationOut to the Counter gives the identical refusal; no link is stored. Control: the
 //    plate's ActivationOut to the lamp is admitted.
-// 6. Save / reload / Load preserves the activation_out wire and both supply links bit-identically; the loaded bench replays (lamp lit).
+// 6. Save / reload / Load preserves the activation_out wire and both supply links exactly; the loaded bench replays (lamp lit).
 import assert from 'node:assert/strict';
+import { ActivationPhase } from '../../CuriousContraptions.web/wwwroot/workshop-observation.ts';
 import { createRequire } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
-import { MemoryKind, activationMemoryRows, assertLoadRestores, snapshotValue } from './run-reset-snapshot.ts';
+import { MemoryKind, assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const { PNG } = requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
 
 const ConnectionDomain = { Activation: 1, Electrical: 2 } as const;
 const Socket = { ActivationOut: 1, SetIn: 2, ResetIn: 3, ActivationIn: 4, Supply: 7, PowerIn: 8 } as const;
-const ActivationPhase = { Clear: '0', Latched: '1' } as const;
 const HOLD_TICKS = 12n; // ticks(0.1 s, 120 Hz)
 const LEVEL_REFUSAL = 'A level output can only light a Signal lamp.';
 
@@ -58,8 +58,8 @@ const CHOICE_RESET_RING: Point = { x: 134, y: 730 };
 const SIGNAL_BULB_PIXEL: Point = { x: 1000, y: 596 }; // the Signal lamp's bulb on screen (the cat-037 lamp position)
 const BLADE_BODY_ID = '4294967810'; // SliderBody(1, 0): (1 << 32) + 256 + 1 * 256 + 2
 const UPSTREAM_BALL = '2';
-const PLATE_NODE = '3';
-const LAMP_NODE = '5';
+const PLATE_NODE = 3n;
+const LAMP_NODE = 5n;
 const LAMP_TARGET = '7'; // the lamp's Memory cosmetic: ActivationTarget(lamp node 5) = 5 + 2
 // F.6 F-1 (C-Plate): a part placed from the drawer onto the flat plate rests on its face, so the resting Basketball and the Domino
 // need no lift. Move-gizmo lifts (about 56 px/m): the bounce ball is lifted about 2 m above its rested pose
@@ -71,26 +71,8 @@ const BOWLING_LIFT_PX = 12;
 type PlateLoad = 'basketball' | 'bounce' | 'domino' | 'rolloff';
 interface TickRead { tick: bigint; plate: boolean; lamp: boolean; qualifying: boolean }
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
-
 /** The saved links as `domain:source.fromSocket→target.toSocket` (instance ids), sorted. */
-function savedLinks(bytes: Buffer): string[] {
+function savedLinks(bytes: Uint8Array): string[] {
     const construction = decodeSavedConstruction(bytes).construction()!;
     const links: string[] = [];
     for (let i = 0; i < construction.connectionsLength(); i++) {
@@ -104,18 +86,17 @@ const BENCH_LINKS = [ACTIVATION_OUT_WIRE, `${ConnectionDomain.Electrical}:3.${So
     `${ConnectionDomain.Electrical}:4.${Socket.Supply}→3.${Socket.PowerIn}`].sort();
 
 /** The committed activation phase of one node in a snapshot's read. */
-function phase(snapshot: RunResetSnapshot, node: string): string {
-    const length = Number(snapshotValue(snapshot, 'read.activations.length'));
-    for (let i = 0; i < length; i++)
-        if (snapshotValue(snapshot, `read.activations[${i}].node`) === node) return snapshotValue(snapshot, `read.activations[${i}].phase`);
-    throw new Error(`no committed activation for node ${node}`);
+function phase(snapshot: RunResetSnapshot, node: bigint): number {
+    const activation = snapshot.activations.find(row => row.node === node);
+    if (activation === undefined) throw new Error(`no committed activation for node ${node}`);
+    return activation.phase;
 }
 /** The plate's committed release hold: the boundary its held level is due to clear (0 when released). */
 function holdDue(snapshot: RunResetSnapshot): bigint {
-    const rows = activationMemoryRows(snapshot).filter(row => row.node === PLATE_NODE);
+    const rows = snapshot.activationMemory.filter(row => row.node === PLATE_NODE);
     assert.equal(rows.length, 1, 'the plate commits one memory row');
     assert.equal(rows[0].kind, MemoryKind.ContactLoadSource, 'the plate row is its contact-load hold');
-    return BigInt(rows[0].due_tick);
+    return rows[0].dueTick;
 }
 function tickRead(snapshot: RunResetSnapshot): TickRead {
     const plate = phase(snapshot, PLATE_NODE) === ActivationPhase.Latched;
@@ -212,7 +193,7 @@ describe('CAT-052: a Pressure Plate ActivationOut lights a Signal lamp, held 0.1
         else if (load === 'domino') await placeNewPart('domino', 0);
         else await placeNewPart('bowling', BOWLING_LIFT_PX);
         const s0 = await driver.captureSnapshot(BENCH);
-        assert.deepEqual(savedLinks(await saved(driver)), BENCH_LINKS, 'the drawer stored the three wires');
+        assert.deepEqual(savedLinks(await driver.readSavedSlot()), BENCH_LINKS, 'the drawer stored the three wires');
         assert.deepEqual([phase(s0, PLATE_NODE), phase(s0, LAMP_NODE), holdDue(s0)], [ActivationPhase.Clear, ActivationPhase.Clear, 0n],
             'Build: the plate is released and the lamp Slate');
         return s0;
@@ -343,15 +324,14 @@ describe('CAT-052: a Pressure Plate ActivationOut lights a Signal lamp, held 0.1
             assert.ok(rejections[rejections.length - 1].includes(`WorkshopEditRejectedException: ${LEVEL_REFUSAL}`),
                 `${label}: refused with the level message, got ${rejections[rejections.length - 1].slice(0, 200)}`);
         }
-        await driver.save();
-        assert.deepEqual(savedLinks(await saved(driver)), [], 'no refused link was stored');
+        assert.deepEqual(savedLinks((await driver.save()).slot), [], 'no refused link was stored');
         // Control: the plate's ActivationOut to the lamp is admitted and stored.
         await connect(PLATE, ROW_SECOND_LAST, LAMP, TEXT_CHOICE);
-        await driver.save();
-        const construction = decodeSavedConstruction(await saved(driver)).construction()!;
+        const { slot } = await driver.save();
+        const construction = decodeSavedConstruction(slot).construction()!;
         const ids = new Map<string, bigint>();
         for (let i = 0; i < construction.instancesLength(); i++) ids.set(construction.instances(i)!.partId()!, construction.instances(i)!.id());
-        assert.deepEqual(savedLinks(await saved(driver)),
+        assert.deepEqual(savedLinks(slot),
             [`${ConnectionDomain.Activation}:${ids.get('pressure_plate')}.${Socket.ActivationOut}→${ids.get('lamp')}.${Socket.ActivationIn}`]);
         assert.equal(rejections.length, attempts.length, 'the admitted link raised no refusal');
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -359,13 +339,13 @@ describe('CAT-052: a Pressure Plate ActivationOut lights a Signal lamp, held 0.1
 
     test('6. Save / reload / Load preserves the activation_out wire and replays the lit lamp', { timeout: 150000 }, async () => {
         const s0 = await buildLampBench('basketball');
-        const initial = await saved(driver);
+        const initial = await driver.readSavedSlot();
         await driver.reload();
         await driver.load();
         const loaded = await driver.captureSnapshot(BENCH);
         assertLoadRestores(s0, loaded);
-        const reloaded = await saved(driver);
-        assert.deepEqual(authoredState(reloaded), authoredState(initial), 'the authored state round-trips bit-identically');
+        const reloaded = await driver.readSavedSlot();
+        assert.deepEqual(authoredState(reloaded), authoredState(initial), 'the authored state round-trips exactly');
         assert.deepEqual(savedLinks(reloaded), BENCH_LINKS, 'the activation_out wire and both supply links are preserved');
         await driver.run(1500);
         const read = tickRead(await driver.expectRunAdvanced(loaded));

@@ -7,6 +7,7 @@ namespace CuriousContraptions.Tests;
 /// <summary>Raw malformed-table controls and the pre-Domino fixtures still used by boundary tests.</summary>
 internal static class OldLayoutSaves
 {
+    // historical layout: begin
     /// <summary>One old table layout and the construction values its pinned saves were written with.</summary>
     internal sealed record Layout(int FieldCount, int ParametersSlot, int CellY, ulong NextBodyId)
     {
@@ -78,6 +79,8 @@ internal static class OldLayoutSaves
         ConstructionRecord.AddInstances(builder, instances);
         return ConstructionRecord.EndConstructionRecord(builder);
     }
+
+    // historical layout: end
 
     /// <summary>One old record: its element and the old slots and parameters it stored.</summary>
     internal sealed record OldRecord(string Name, string Part, Slot[] Slots, (string Key, float Value)[] Parameters)

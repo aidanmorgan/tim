@@ -122,8 +122,6 @@ type AcknowledgementEntry = { ack: WorkshopAcknowledgement; bytes: Uint8Array } 
 
 /** The bench a Run/Reset snapshot belongs to: the number of bodies its committed read must carry (Story 9R.1, no vacuous pass). */
 export interface SnapshotBench { readonly bodies: number }
-export type { RunResetSnapshot };
-
 function nameOf(table: Readonly<Record<string, string | number>>, value: number): string {
     return Object.keys(table).find(key => table[key] === value) ?? `#${value}`;
 }
@@ -136,7 +134,7 @@ function member<E extends Readonly<Record<string, string | number>>>(table: E, v
 }
 
 // MachineWorld.LogWorkshop prints "CCGPU <base64>" for every command the Workshop UI issues (Construct for placement, edits, wiring,
-// level selection and Load; Run; Reset; Save; Pause; Resume). The bytes are the one codec's size-prefixed "CWRM" FlatBuffers response
+// level selection and Load; Run; Reset; Save; Pause; Resume). The bytes are the one codec's size-prefixed WorkshopResponse
 // (WorkshopWireFlatBuffers.EncodeResponse), decoded through the generated schema. Unknown values reject at this boundary.
 const ACK_PREFIX = 'CCGPU ';
 function decodeAcknowledgement(text: string): WorkshopAcknowledgement {
@@ -856,7 +854,7 @@ export class WorkshopDriver {
         await this.openMenu();
         // Save stores the IndexedDB slot first and only then sends its Save command, so the acknowledgement follows the stored slot.
         const acknowledgement = await this.command('save', CommandKind.Save, () => this.press(UI_ANCHORS.menu.save.x, UI_ANCHORS.menu.save.y));
-        const slot = await this.expectSavedSlot();
+        const slot = await this.readSavedSlot();
         await this.closeMenu();
         return { acknowledgement, slot };
     }
@@ -883,7 +881,7 @@ export class WorkshopDriver {
         return paused;
     }
 
-    /** Story 9R.1: after a Reset, the snapshot is bit-equal to S0 (first differing path named) and no goal solved since.
+    /** Story 9R.1: after a Reset, the decoded snapshot equals S0 (first differing path named) and no goal solved since.
      *  Returns the post-Reset snapshot for a suite's element-specific assertions. */
     async expectResetMatches(s0: RunResetSnapshot): Promise<RunResetSnapshot> {
         if (this.solvedAtReset === undefined) throw new Error('expectResetMatches: no Reset was acknowledged on this page');
@@ -895,8 +893,8 @@ export class WorkshopDriver {
         return s1;
     }
 
-    // Read-only check of the construction slot written by workshop-client.js saveConstruction; never creates or upgrades the database.
-    private async expectSavedSlot(): Promise<Uint8Array> {
+    /** Reads the stored construction without issuing a Workshop command or creating or upgrading its database. */
+    async readSavedSlot(): Promise<Uint8Array> {
         const savedBytes = await this.page.evaluate(({ database, store, slot }: { database: string; store: string; slot: number }) =>
             new Promise<number[] | null>((resolve, reject) => {
                 const request = indexedDB.open(database);
@@ -924,10 +922,10 @@ export class WorkshopDriver {
                 };
             }), { database: CONSTRUCTION_DATABASE, store: CONSTRUCTION_STORE, slot: CONSTRUCTION_SLOT });
         if (!savedBytes)
-            throw new Error('save: the Save command was acknowledged but the IndexedDB slot is empty or invalid');
+            throw new Error('The IndexedDB construction slot is empty or does not contain a byte array');
         const bytes = new Uint8Array(savedBytes);
-        // The slot must be one size-prefixed "CCWS" save root with its construction (decodeSavedConstruction throws otherwise).
-        decodeSavedConstruction(bytes);
+        try { decodeSavedConstruction(bytes); }
+        catch (error) { throw new Error('The IndexedDB construction slot does not contain a current SavedConstruction', { cause: error }); }
         return bytes;
     }
 

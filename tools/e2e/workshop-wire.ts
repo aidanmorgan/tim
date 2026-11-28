@@ -4,10 +4,11 @@
 // from this module, which declares and re-exports none.
 import * as flatbuffers from 'flatbuffers';
 import {
-    ActivationMemoryRecord, BodyRead, CaptureLatchRead, CommandIdentityRecord, ContactWorkStoreRecord, ElectricalEnable,
-    ElectricalSourceRecord, EnergyStoreReadRecord, PhysicalCommitRevisionRecord, RunControlCommandRecord, RunControlValueKind,
+    ActivationMemoryRecordT, BodyReadT, CaptureLatchReadT, CommandIdentityRecordT, ContactWorkStoreRecordT, ElectricalEnable,
+    ElectricalSourceRecord, ElectricalSourceRecordT, EnergyStoreReadRecordT, PhysicalCommitRevisionRecordT,
+    Quat4fT, RunControlCommandRecordT, RunControlValueKind, Vec3fT, Vec3iT,
     SavedConstruction, WireRootIdentifier, WorkshopCommand, WorkshopResponse,
-    type CommandKind, type CommandOutcome, type ConstructionRecord, type InstanceRecord, type ResponseKind, type SimulationPhase,
+    type EnergyStoreReadRecord, type InstanceRecord, type WorkshopCommandT, type WorkshopResponseT,
 } from './.wire/curious-contraptions/wire.ts';
 import { openFrame, rootIdentifier } from '../runtime/wire-frame.ts';
 
@@ -59,15 +60,12 @@ export function decodeWorkshopCommand(data: Buffer | Uint8Array): WorkshopComman
     return WorkshopCommand.getRootAsWorkshopCommand(openFrame(data, WireRootIdentifier.WorkshopCommand));
 }
 
-function readSavedConstruction(data: Buffer | Uint8Array): { saved: SavedConstruction; construction: ConstructionRecord } {
+export function decodeSavedConstruction(data: Uint8Array): SavedConstruction {
     const saved = SavedConstruction.getRootAsSavedConstruction(openFrame(data, WireRootIdentifier.SavedConstruction));
     const construction = saved.construction();
-    if (!construction) throw new Error('a SavedConstruction save without its construction');
-    return { saved, construction };
-}
-
-export function decodeSavedConstruction(data: Buffer | Uint8Array): SavedConstruction {
-    return readSavedConstruction(data).saved;
+    if (construction === null) throw new Error('a SavedConstruction save without its construction');
+    if (construction.settings() === null) throw new Error('a saved construction without its cadence settings');
+    return saved;
 }
 
 /** One declared generic parameter of a saved instance, by its key; a missing key fails the suite. */
@@ -79,202 +77,69 @@ export function parameter(instance: InstanceRecord, key: string): number {
     throw new Error(`Instance ${instance.id()} has no declared parameter '${key}'`);
 }
 
-export function authoredState(bytes: Uint8Array | Buffer): object {
-    const { saved, construction: cr } = readSavedConstruction(bytes);
-    const instances = [];
-    for (let i = 0; i < cr.instancesLength(); i++) {
-        const inst = cr.instances(i)!;
-        const c = inst.cell();
-        const l = inst.local();
-        const r = inst.rotation();
-        instances.push({
-            id: String(inst.id()),
-            partId: inst.partId(),
-            locked: inst.locked(),
-            cell: c ? { x: c.x(), y: c.y(), z: c.z() } : null,
-            local: l ? { x: l.x(), y: l.y(), z: l.z() } : null,
-            rotation: r ? { x: r.x(), y: r.y(), z: r.z(), w: r.w() } : null,
-            parameters: Array.from({length: inst.parametersLength()}, (_, index) => {
-                const parameter = inst.parameters(index)!;
-                return {key: parameter.key(), value: parameter.value()};
-            }),
-        });
-    }
-    const connections = [];
-    for (let i = 0; i < cr.connectionsLength(); i++) {
-        const conn = cr.connections(i)!;
-        connections.push({
-            source: String(conn.source()),
-            target: String(conn.target()),
-            domain: conn.domain(),
-            fromSocket: conn.fromSocket(),
-            toSocket: conn.toSocket(),
-            ropeLength: conn.hasRopeLength() ? conn.ropeLength() : null,
-        });
-    }
-    const p = cr.puzzle();
-    const puzzle = p ? {
-        id: p.id(),
-        placement: p.placement(),
-        precision: p.precision(),
-        inventoryPart: p.inventoryPart(),
-        inventoryCount: p.inventoryCount(),
-        goalKind: p.goalKind(),
-        goalBody: String(p.goalBody()),
-        goalTarget: String(p.goalTarget()),
-        goalSourceNode: p.goalSourceNode(),
-        goalTargetNode: p.goalTargetNode(),
-        goalDelay: p.goalDelay(),
-    } : null;
-
-    return {
-        nextBodyId: String(saved.nextBodyId()),
-        puzzle,
-        instances,
-        connections,
-    };
+export function authoredState(bytes: Uint8Array | Buffer) {
+    const { construction, ...save } = decodeSavedConstruction(bytes).unpack();
+    // Admission requires construction, although the generated unpack type permits null.
+    // The revision belongs to the current page.
+    const { revision: _revision, ...authoredConstruction } = construction!;
+    return { ...save, construction: authoredConstruction };
 }
 
-export interface MockResponseParams {
-    sequence?: bigint;
-    kind?: ResponseKind;
-    outcome?: CommandOutcome;
-    reason?: number;
-    phase?: SimulationPhase;
-    epoch?: bigint;
-    tick?: bigint;
+type MockBody = Partial<Omit<BodyReadT, 'pack' | 'cell' | 'local' | 'rotation' | 'com' | 'velocity' | 'angularVelocity'>> & {
+    cell?: Partial<Omit<Vec3iT, 'pack'>>;
+    local?: Partial<Omit<Vec3fT, 'pack'>>;
+    rotation?: Partial<Omit<Quat4fT, 'pack'>>;
+    com?: Partial<Omit<Vec3fT, 'pack'>>;
+    velocity?: Partial<Omit<Vec3fT, 'pack'>>;
+    angularVelocity?: Partial<Omit<Vec3fT, 'pack'>>;
+};
+
+export interface MockResponseParams extends Partial<Pick<WorkshopResponseT, 'sequence' | 'kind' | 'outcome' | 'reason' |
+    'phase' | 'epoch' | 'tick' | 'revision' | 'publication' | 'masterGeneration' | 'cadence' | 'projection'>> {
     physicalRevision: bigint;
-    revision?: bigint;
-    publication?: bigint;
-    masterGeneration?: bigint;
-    cadence?: bigint;
-    projection?: bigint;
     session?: Uint8Array | number[];
-    electrical?: { id?: bigint; owner?: bigint; remainingBulk?: number; remainingRemainder?: number; transactions?: number; debit?: number; enabled?: number; available?: boolean }[];
-    contactWorks?: { id?: bigint; owner?: bigint; occurrenceCount?: number; store?: bigint }[];
-    energyStores?: { id?: bigint; owner?: bigint; bulk?: number; remainder?: number; commitSupplied?: number; commitReleased?: number; commitDissipated?: number; transactions?: number; supplied?: number; released?: number; dissipated?: number }[];
-    bodies?: {
-        id?: bigint;
-        cell?: { x?: number; y?: number; z?: number };
-        local?: { x?: number; y?: number; z?: number };
-        rotation?: { x?: number; y?: number; z?: number; w?: number };
-        com?: { x?: number; y?: number; z?: number };
-        velocity?: { x?: number; y?: number; z?: number };
-        angularVelocity?: { x?: number; y?: number; z?: number };
-    }[];
-    captures?: {
-        sensor?: bigint;
-        target: bigint;
-        phase?: number;
-        eventOrdinal?: number;
-        eventPhase?: number;
-    }[];
-    activationMemory?: {
-        node?: bigint; kind?: number; count?: number; lastOrdinal?: number; lastPhase?: number; phase?: number; dueTick?: bigint;
-        passageSequence: bigint; dispatchedKind: number; dispatchedEmitter: bigint; dispatchedOrdinal: number; dispatchedPhase: number;
-        causeSource: bigint; causeBody: bigint; causeCollider: bigint; causeOrdinal: number; causePhase: number; causeSpeed: number; causeKind: number;
-    }[];
+    electrical?: (Partial<Omit<ElectricalSourceRecordT, 'pack' | 'enabled'>> & { enabled?: ElectricalEnable })[];
+    contactWorks?: Partial<Omit<ContactWorkStoreRecordT, 'pack'>>[];
+    energyStores?: Partial<Omit<EnergyStoreReadRecordT, 'pack'>>[];
+    bodies?: MockBody[];
+    captures?: (Partial<Omit<CaptureLatchReadT, 'pack'>> & Pick<CaptureLatchReadT, 'target'>)[];
+    activationMemory?: Partial<Omit<ActivationMemoryRecordT, 'pack'>>[];
+}
+
+function withMockFields<T extends object>(row: T, fields: Partial<NoInfer<T>> | undefined): T {
+    const defined = Object.entries(fields ?? {}).filter(([, value]: [string, unknown]) => value != null);
+    return Object.assign(row, Object.fromEntries(defined));
+}
+
+function mockBody({ id, cell, local, rotation, com, velocity, angularVelocity }: MockBody): BodyReadT {
+    return Object.assign(new BodyReadT(), {
+        id: id ?? 1n,
+        cell: withMockFields(new Vec3iT(), cell),
+        local: withMockFields(new Vec3fT(), local),
+        rotation: withMockFields(Object.assign(new Quat4fT(), { w: 1 }), rotation),
+        com: withMockFields(new Vec3fT(), com),
+        velocity: withMockFields(new Vec3fT(), velocity),
+        angularVelocity: withMockFields(new Vec3fT(), angularVelocity),
+    });
 }
 
 export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     const builder = new flatbuffers.Builder(1024);
-    let sessionOffset: flatbuffers.Offset | null = null;
-    if (params.session) {
-        sessionOffset = WorkshopResponse.createSessionVector(builder, params.session);
-    }
-    let electricalOffset: flatbuffers.Offset | null = null;
-    if (params.electrical && params.electrical.length > 0) {
-        WorkshopResponse.startElectricalVector(builder, params.electrical.length);
-        for (let i = params.electrical.length - 1; i >= 0; i--) {
-            const e = params.electrical[i]!;
-            ElectricalSourceRecord.createElectricalSourceRecord(
-                builder,
-                e.id ?? 1n,
-                e.owner ?? 1n,
-                e.remainingBulk ?? 0,
-                e.remainingRemainder ?? 0,
-                e.transactions ?? 0,
-                e.debit ?? 0,
-                e.enabled ?? 1,
-                e.available ?? true
-            );
-        }
-        electricalOffset = builder.endVector();
-    }
-    let contactWorksOffset: flatbuffers.Offset | null = null;
-    if (params.contactWorks && params.contactWorks.length > 0) {
-        WorkshopResponse.startContactWorksVector(builder, params.contactWorks.length);
-        for (let i = params.contactWorks.length - 1; i >= 0; i--) {
-            const w = params.contactWorks[i]!;
-            ContactWorkStoreRecord.createContactWorkStoreRecord(
-                builder,
-                w.id ?? 1n,
-                w.owner ?? 1n,
-                w.occurrenceCount ?? 0,
-                w.store ?? 1n
-            );
-        }
-        contactWorksOffset = builder.endVector();
-    }
-    let energyStoresOffset: flatbuffers.Offset | null = null;
-    if (params.energyStores && params.energyStores.length > 0) {
-        WorkshopResponse.startEnergyStoresVector(builder, params.energyStores.length);
-        for (let i = params.energyStores.length - 1; i >= 0; i--) {
-            const store = params.energyStores[i]!;
-            EnergyStoreReadRecord.createEnergyStoreReadRecord(builder, store.id ?? 1n, store.owner ?? 1n,
-                store.bulk ?? 0, store.remainder ?? 0, store.commitSupplied ?? 0, store.commitReleased ?? 0,
-                store.commitDissipated ?? 0, store.transactions ?? 0, store.supplied ?? 0, store.released ?? 0, store.dissipated ?? 0);
-        }
-        energyStoresOffset = builder.endVector();
-    }
-    let bodiesOffset: flatbuffers.Offset | null = null;
-    if (params.bodies && params.bodies.length > 0) {
-        WorkshopResponse.startBodiesVector(builder, params.bodies.length);
-        for (let i = params.bodies.length - 1; i >= 0; i--) {
-            const b = params.bodies[i]!;
-            BodyRead.createBodyRead(
-                builder,
-                b.id ?? 1n,
-                b.cell?.x ?? 0, b.cell?.y ?? 0, b.cell?.z ?? 0,
-                b.local?.x ?? 0, b.local?.y ?? 0, b.local?.z ?? 0,
-                b.rotation?.x ?? 0, b.rotation?.y ?? 0, b.rotation?.z ?? 0, b.rotation?.w ?? 1,
-                b.com?.x ?? 0, b.com?.y ?? 0, b.com?.z ?? 0,
-                b.velocity?.x ?? 0, b.velocity?.y ?? 0, b.velocity?.z ?? 0,
-                b.angularVelocity?.x ?? 0, b.angularVelocity?.y ?? 0, b.angularVelocity?.z ?? 0
-            );
-        }
-        bodiesOffset = builder.endVector();
-    }
-    let capturesOffset: flatbuffers.Offset | null = null;
-    if (params.captures && params.captures.length > 0) {
-        WorkshopResponse.startCapturesVector(builder, params.captures.length);
-        for (let i = params.captures.length - 1; i >= 0; i--) {
-            const c = params.captures[i]!;
-            CaptureLatchRead.createCaptureLatchRead(
-                builder,
-                c.sensor ?? 0n,
-                c.target,
-                c.phase ?? 0,
-                c.eventOrdinal ?? 0,
-                c.eventPhase ?? 0
-            );
-        }
-        capturesOffset = builder.endVector();
-    }
-    let memoryOffset: flatbuffers.Offset | null = null;
-    if (params.activationMemory && params.activationMemory.length > 0) {
-        WorkshopResponse.startActivationMemoryVector(builder, params.activationMemory.length);
-        for (let i = params.activationMemory.length - 1; i >= 0; i--) {
-            const m = params.activationMemory[i]!;
-            ActivationMemoryRecord.createActivationMemoryRecord(builder, m.node ?? 1n, m.kind ?? 6, m.count ?? 0, m.lastOrdinal ?? 0,
-                m.lastPhase ?? 0, m.phase ?? 0, m.dueTick ?? 0n, m.passageSequence,
-                m.dispatchedKind, m.dispatchedEmitter, m.dispatchedOrdinal, m.dispatchedPhase,
-                m.causeSource, m.causeBody, m.causeCollider, m.causeOrdinal,
-                m.causePhase, m.causeSpeed, m.causeKind);
-        }
-        memoryOffset = builder.endVector();
-    }
+    const session = params.session ? WorkshopResponse.createSessionVector(builder, params.session) : 0;
+    const bodies = structVector(builder, params.bodies?.map(mockBody), WorkshopResponse.startBodiesVector);
+    const captures = structVector(builder, params.captures?.map(row => withMockFields(new CaptureLatchReadT(), row)),
+        WorkshopResponse.startCapturesVector);
+    const electrical = structVector(builder, params.electrical?.map(row =>
+        withMockFields(Object.assign(new ElectricalSourceRecordT(), { id: 1n, owner: 1n, enabled: ElectricalEnable.Enabled, available: true }), row)),
+        WorkshopResponse.startElectricalVector);
+    const contactWorks = structVector(builder, params.contactWorks?.map(row =>
+        withMockFields(Object.assign(new ContactWorkStoreRecordT(), { id: 1n, owner: 1n, store: 1n }), row)), WorkshopResponse.startContactWorksVector);
+    const energyStores = structVector(builder, params.energyStores?.map(row =>
+        withMockFields(Object.assign(new EnergyStoreReadRecordT(), { id: 1n, owner: 1n }), row)), WorkshopResponse.startEnergyStoresVector);
+    const memory = structVector(builder, params.activationMemory?.map(row =>
+        withMockFields(Object.assign(new ActivationMemoryRecordT(), { node: 1n, kind: 6 }), row)), WorkshopResponse.startActivationMemoryVector);
 
+    // The generated object packer always writes motion, even when empty. Use the direct builder to leave it absent.
     WorkshopResponse.startWorkshopResponse(builder);
     if (params.sequence !== undefined) WorkshopResponse.addSequence(builder, params.sequence);
     if (params.kind !== undefined) WorkshopResponse.addKind(builder, params.kind);
@@ -288,78 +153,53 @@ export function encodeWorkshopResponse(params: MockResponseParams): Buffer {
     if (params.masterGeneration !== undefined) WorkshopResponse.addMasterGeneration(builder, params.masterGeneration);
     if (params.cadence !== undefined) WorkshopResponse.addCadence(builder, params.cadence);
     if (params.projection !== undefined) WorkshopResponse.addProjection(builder, params.projection);
-    if (sessionOffset !== null) WorkshopResponse.addSession(builder, sessionOffset);
-    if (bodiesOffset !== null) WorkshopResponse.addBodies(builder, bodiesOffset);
-    if (capturesOffset !== null) WorkshopResponse.addCaptures(builder, capturesOffset);
-    if (electricalOffset !== null) WorkshopResponse.addElectrical(builder, electricalOffset);
-    if (contactWorksOffset !== null) WorkshopResponse.addContactWorks(builder, contactWorksOffset);
-    if (energyStoresOffset !== null) WorkshopResponse.addEnergyStores(builder, energyStoresOffset);
-    if (memoryOffset !== null) WorkshopResponse.addActivationMemory(builder, memoryOffset);
-    WorkshopResponse.addPhysicalCommit(builder, PhysicalCommitRevisionRecord.createPhysicalCommitRevisionRecord(builder, params.physicalRevision));
-    const end = WorkshopResponse.endWorkshopResponse(builder);
-    builder.finishSizePrefixed(end, rootIdentifier(WireRootIdentifier.WorkshopResponse));
+    WorkshopResponse.addSession(builder, session);
+    WorkshopResponse.addBodies(builder, bodies);
+    WorkshopResponse.addCaptures(builder, captures);
+    WorkshopResponse.addElectrical(builder, electrical);
+    WorkshopResponse.addContactWorks(builder, contactWorks);
+    WorkshopResponse.addEnergyStores(builder, energyStores);
+    WorkshopResponse.addActivationMemory(builder, memory);
+    const physicalCommit = Object.assign(new PhysicalCommitRevisionRecordT(), { value: params.physicalRevision });
+    WorkshopResponse.addPhysicalCommit(builder, physicalCommit.pack(builder));
+    builder.finishSizePrefixed(WorkshopResponse.endWorkshopResponse(builder), rootIdentifier(WireRootIdentifier.WorkshopResponse));
     return Buffer.from(builder.asUint8Array());
 }
 
-export interface MockCommandParams {
-    sequence?: bigint;
-    kind?: CommandKind;
-    epoch?: bigint;
-    revision?: bigint;
-    revisionKind?: number;
+function structVector(builder: flatbuffers.Builder, rows: flatbuffers.IGeneratedObject[] | undefined,
+    start: (builder: flatbuffers.Builder, length: number) => void): flatbuffers.Offset {
+    return rows?.length ? builder.createStructOffsetList(rows, start) : 0;
+}
+
+export interface MockCommandParams extends Partial<Pick<WorkshopCommandT, 'sequence' | 'kind' | 'epoch' |
+    'revision' | 'revisionKind' | 'cadence' | 'projection'>> {
     session?: Uint8Array | number[];
-    cadence?: bigint;
-    projection?: bigint;
-    settings?: Record<string, unknown>;
-    runControl?: { owner?: bigint; control?: bigint; scalar?: number; kind?: RunControlValueKind; enable?: ElectricalEnable };
-    target?: {
-        sequence?: bigint;
-        epoch?: bigint;
-        revision?: bigint;
-        cadence?: bigint;
-        projection?: bigint;
-    };
+    runControl?: Partial<Omit<RunControlCommandRecordT, 'pack'>>;
+    target?: Partial<Omit<CommandIdentityRecordT, 'pack'>>;
 }
 
 export function encodeWorkshopCommand(params: MockCommandParams): Buffer {
     const builder = new flatbuffers.Builder(1024);
-    let sessionOffset: flatbuffers.Offset | null = null;
-    if (params.session) {
-        sessionOffset = WorkshopCommand.createSessionVector(builder, params.session);
-    }
+    const session = params.session ? WorkshopCommand.createSessionVector(builder, params.session) : 0;
     WorkshopCommand.startWorkshopCommand(builder);
     if (params.sequence !== undefined) WorkshopCommand.addSequence(builder, params.sequence);
     if (params.kind !== undefined) WorkshopCommand.addKind(builder, params.kind);
     if (params.epoch !== undefined) WorkshopCommand.addEpoch(builder, params.epoch);
     if (params.revision !== undefined) WorkshopCommand.addRevision(builder, params.revision);
     if (params.revisionKind !== undefined) WorkshopCommand.addRevisionKind(builder, params.revisionKind);
-    if (sessionOffset !== null) WorkshopCommand.addSession(builder, sessionOffset);
+    WorkshopCommand.addSession(builder, session);
     if (params.cadence !== undefined) WorkshopCommand.addCadence(builder, params.cadence);
     if (params.projection !== undefined) WorkshopCommand.addProjection(builder, params.projection);
     if (params.runControl) {
-        const controlOffset = RunControlCommandRecord.createRunControlCommandRecord(
-            builder,
-            params.runControl.owner ?? 0n,
-            params.runControl.control ?? 0n,
-            params.runControl.scalar ?? 0,
-            params.runControl.kind ?? RunControlValueKind.Enable,
-            params.runControl.enable ?? ElectricalEnable.Disabled
-        );
-        WorkshopCommand.addRunControl(builder, controlOffset);
+        const control = withMockFields(Object.assign(new RunControlCommandRecordT(), {
+            kind: RunControlValueKind.Enable, enable: ElectricalEnable.Disabled,
+        }), params.runControl);
+        WorkshopCommand.addRunControl(builder, control.pack(builder));
     }
     if (params.target) {
-        const t = params.target;
-        const targetOffset = CommandIdentityRecord.createCommandIdentityRecord(
-            builder,
-            t.sequence ?? 0n,
-            t.epoch ?? 0n,
-            t.revision ?? 0n,
-            t.cadence ?? 0n,
-            t.projection ?? 0n
-        );
-        WorkshopCommand.addTarget(builder, targetOffset);
+        const target = withMockFields(new CommandIdentityRecordT(), params.target);
+        WorkshopCommand.addTarget(builder, target.pack(builder));
     }
-    const end = WorkshopCommand.endWorkshopCommand(builder);
-    builder.finishSizePrefixed(end, rootIdentifier(WireRootIdentifier.WorkshopCommand));
+    builder.finishSizePrefixed(WorkshopCommand.endWorkshopCommand(builder), rootIdentifier(WireRootIdentifier.WorkshopCommand));
     return Buffer.from(builder.asUint8Array());
 }

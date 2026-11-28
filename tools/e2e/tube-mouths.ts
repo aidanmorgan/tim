@@ -1,6 +1,6 @@
 // Story 9R.6: tube-mouth geometry read back from a Run/Reset snapshot's saved construction (tools/e2e/run-reset-snapshot.ts).
 // The mouth table restates each scene's declared Loc_Port_mouth_* locator (position, outward local +X) as the expected data;
-// the committed pose of an instance is (cell + local) / 16 with its f32 rotation, decoded from the raw IEEE-754 bits.
+// the committed pose of an instance is (cell + local) / 16 with its decoded f32 rotation.
 import assert from 'node:assert/strict';
 import { snapshotValue, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
@@ -28,14 +28,14 @@ export function screen(x: number, y: number, z: number): { x: number; y: number 
     return { x: Math.round(720 + 53.8 * x - 36.8 * z), y: Math.round(485 + 17.0 * x + 24.8 * z - 57.9 * (y - 3)) };
 }
 
-function f32(bits: string): number {
-    const view = new DataView(new ArrayBuffer(4));
-    view.setUint32(0, Number.parseInt(bits, 16));
-    return view.getFloat32(0);
+function numberAt(snapshot: RunResetSnapshot, path: string): number {
+    const value = snapshotValue(snapshot, path);
+    if (typeof value !== 'number') throw new Error(`expected a decoded number at ${path}`);
+    return value;
 }
 
 export function instanceCount(snapshot: RunResetSnapshot): number {
-    return Number(snapshotValue(snapshot, 'saved.construction.instances.length'));
+    return numberAt(snapshot, 'saved.construction.instances.length');
 }
 
 export function hasInstance(snapshot: RunResetSnapshot, id: number): boolean {
@@ -44,10 +44,12 @@ export function hasInstance(snapshot: RunResetSnapshot, id: number): boolean {
 
 /** The committed pose of instance `id`. */
 export function pose(snapshot: RunResetSnapshot, id: number): { position: Vec3; rotation: Quat; part: string } {
-    const at = (field: string) => snapshotValue(snapshot, `saved.construction.instances[id=${id}].${field}`);
-    const axis = (a: 'x' | 'y' | 'z') => (Number(at(`cell.${a}`)) + f32(at(`local.${a}`))) / 16;
-    const q = (c: 'x' | 'y' | 'z' | 'w') => f32(at(`rotation.${c}`));
-    return { position: [axis('x'), axis('y'), axis('z')], rotation: [q('x'), q('y'), q('z'), q('w')], part: JSON.parse(at('part_id')) };
+    const prefix = `saved.construction.instances[id=${id}]`;
+    const axis = (a: 'x' | 'y' | 'z') => (numberAt(snapshot, `${prefix}.cell.${a}`) + numberAt(snapshot, `${prefix}.local.${a}`)) / 16;
+    const q = (c: 'x' | 'y' | 'z' | 'w') => numberAt(snapshot, `${prefix}.rotation.${c}`);
+    const part = snapshotValue(snapshot, `${prefix}.partId`);
+    if (typeof part !== 'string') throw new Error(`instance ${id} has no part ID`);
+    return { position: [axis('x'), axis('y'), axis('z')], rotation: [q('x'), q('y'), q('z'), q('w')], part };
 }
 
 export function rotate([x, y, z, w]: Quat, [vx, vy, vz]: Vec3): Vec3 {
@@ -63,11 +65,16 @@ export const length = (a: Vec3): number => Math.sqrt(dot(a, a));
 
 /** Story 9R.7: the committed f32 `length` of pipe instance `id` (CAT-048 §2: 1–8 m). */
 export function pipeLength(snapshot: RunResetSnapshot, id: number): number {
-    const { part } = pose(snapshot, id);
-    if (part !== 'pipe') throw new Error(`instance ${id} is a ${part}, not a pipe`);
-    const bits = snapshotValue(snapshot, `saved.construction.instances[id=${id}].length`);
-    if (!/^0x[0-9a-f]{8}$/.test(bits)) throw new Error(`pipe ${id} saved no length (${bits})`);
-    return f32(bits);
+    const instance = `saved.construction.instances[id=${id}]`;
+    const part = snapshotValue(snapshot, `${instance}.partId`);
+    if (part !== 'pipe') throw new Error(`instance ${id} has part ID ${part}; expected pipe`);
+    const parameters = `${instance}.parameters`;
+    const count = numberAt(snapshot, `${parameters}.length`);
+    for (let index = 0; index < count; index++) {
+        const entry = `${parameters}[${index}]`;
+        if (snapshotValue(snapshot, `${entry}.key`) === 'length') return numberAt(snapshot, `${entry}.value`);
+    }
+    throw new Error(`pipe ${id} saved no length`);
 }
 
 /** The pipe's mouths sit at its collar faces, ±(length/2 + 0.09); the table above restates the scene's default 3.6 m pipe. */

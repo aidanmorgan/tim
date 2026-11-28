@@ -16,22 +16,6 @@ function bodyState(b: BodyRead) {
         angularVelocity: { x: b.angularVelocity()!.x(), y: b.angularVelocity()!.y(), z: b.angularVelocity()!.z() },
     };
 }
-async function savedBytes(driver: WorkshopDriver): Promise<Buffer> {
-    const values = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save database unavailable'));
-        request.onsuccess = () => {
-            const database = request.result;
-            const transaction = database.transaction('construction', 'readonly');
-            const read = transaction.objectStore('construction').get(1);
-            transaction.oncomplete = () => { database.close(); resolve(Array.from(read.result as Uint8Array)); };
-            transaction.onabort = () => { database.close(); reject(new Error('Save observation aborted')); };
-        };
-    }));
-    return Buffer.from(values);
-}
-
 async function scenario(kind: 'basketball' | 'bowling', duration: number) {
     const driver = await WorkshopDriver.launch();
     const errors: string[] = [];
@@ -47,8 +31,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         await driver.placeOnCanvas(720, 485);
         await driver.stackUnderLiftedBall('bumper', 150);
         const authored = bodyState(observations[observations.length - 1].bodies(0)!);
-        await driver.save();
-        const construction = await savedBytes(driver);
+        const { slot: construction } = await driver.save();
         const fbSave = decodeSavedConstruction(construction);
         const c = fbSave.construction()!;
         const payloadPartId = kind === 'basketball' ? 'ball' : kind;
@@ -69,8 +52,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         assert.ok(ballInst.cell()!.y() > 80, 'Payload is visibly lifted above the bumper');
         await driver.reload();
         await driver.load();
-        await driver.save();
-        assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Save/Load preserves every authored bumper and payload declaration byte');
+        assert.deepEqual(authoredState((await driver.save()).slot), authoredState(construction), 'Save/Load preserves every authored bumper and payload field');
         const loaded = observations[observations.length - 1];
         assert.equal(loaded.bodiesLength(), 1, 'Loaded construction has one dynamic payload');
         const built = bodyState(loaded.bodies(0)!);
@@ -121,8 +103,7 @@ async function scenario(kind: 'basketball' | 'bowling', duration: number) {
         assert.deepEqual(bodyState(restored.bodies(0)!), built, 'Reset restores exact placed body state after saved construction reload');
         assert.equal(storedEnergy(energyStore(restored, restored.contactWorks(0)!.store())), 32);
         assert.equal(restored.contactWorks(0)!.occurrenceCount(), 0);
-        await driver.save();
-        assert.deepEqual(authoredState(await savedBytes(driver)), authoredState(construction), 'Reset preserves the full authored construction, including bumper pose and strength');
+        assert.deepEqual(authoredState((await driver.save()).slot), authoredState(construction), 'Reset preserves the full authored construction, including bumper pose and strength');
         assert.equal(errors.length, 0, errors.join('\n'));
     } finally {
         await driver.close();

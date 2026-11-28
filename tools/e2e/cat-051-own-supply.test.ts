@@ -8,16 +8,16 @@
 // 3. Enable supply while Paused, then Resume: the paused blade does not move; it opens after Resume.
 // 4. Two circuits: B1 → G1 and B2 → G2, both open; disabling B1 closes G1 while G2 stays open throughout (no global flag).
 // 5. Unpowered control: a gate with no supply blocks the ball even while an unwired battery is enabled in run.
-// 6. Save/Load preserves both wires of the two-circuit bench bit-identically, and the loaded bench replays both circuits.
+// 6. Save/Load preserves both wires of the two-circuit bench exactly, and the loaded bench replays both circuits.
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
 import { ElectricalEnable } from './.wire/curious-contraptions/wire.ts';
-import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
+import { assertLoadRestores, committedEnable, snapshotEntries, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const requireMcp = createRequire('/opt/homebrew/lib/node_modules/@playwright/mcp/package.json');
 const { PNG } = requireMcp('./node_modules/playwright-core/lib/utilsBundle.js');
@@ -93,26 +93,8 @@ async function toggleSupply(driver: WorkshopDriver, battery: Point, tag: string)
     await driver.page.keyboard.press('Escape');
 }
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
-
 /** The saved electrical links as `source→target` instance ids, every one Supply → PowerIn. */
-function savedSupplies(bytes: Buffer): string[] {
+function savedSupplies(bytes: Uint8Array): string[] {
     const construction = decodeSavedConstruction(bytes).construction()!;
     const links: string[] = [];
     for (let i = 0; i < construction.connectionsLength(); i++) {
@@ -125,7 +107,7 @@ function savedSupplies(bytes: Buffer): string[] {
     return links.sort();
 }
 
-function savedBatteryEnables(bytes: Buffer): number[] {
+function savedBatteryEnables(bytes: Uint8Array): number[] {
     const construction = decodeSavedConstruction(bytes).construction()!;
     const enables: number[] = [];
     for (let i = 0; i < construction.instancesLength(); i++) {
@@ -185,15 +167,6 @@ function assertBallReleased(held: Sample[], released: Sample[], label: string) {
     const moved = Math.hypot(final.px - rest.px, final.py - rest.py);
     assert.ok(moved > 0.5, `${label}: the ball leaves its held rest (${rest.px}, ${rest.py}) once the blade opens, moved ${moved} m`);
 }
-/** The committed enable of the battery instance `owner` in a snapshot's electrical source records. */
-function committedEnable(snapshot: RunResetSnapshot, owner: bigint): number {
-    const ownerEntry = snapshot.entries.find(([path, value]) => /^read\.electrical\[id=\d+\]\.owner$/.test(path) && value === owner.toString());
-    assert.ok(ownerEntry, `The committed read has an electrical source owned by ${owner}`);
-    const enabled = snapshot.entries.find(([path]) => path === ownerEntry[0].replace(/\.owner$/, '.enabled'));
-    assert.ok(enabled, `The electrical source of ${owner} records its enable`);
-    return Number(enabled[1]);
-}
-
 describe('Story 9R.3: each directly wired Powered Gate follows its own battery (CAT-051)', () => {
     let driver: WorkshopDriver;
     const errors: string[] = [];
@@ -256,7 +229,7 @@ describe('Story 9R.3: each directly wired Powered Gate follows its own battery (
     test('1. Authored Disabled battery: the gate blocks until in-run Enable supply, then opens and releases the ball; Reset restores Disabled', { timeout: 150000 }, async () => {
         await buildGateBench(false);
         const s0 = await driver.captureSnapshot({ bodies: 2 });
-        const slot = await saved(driver);
+        const slot = await driver.readSavedSlot();
         assert.deepEqual(savedBatteryEnables(slot), [ElectricalEnable.Disabled], 'The battery is authored Disabled');
         assert.deepEqual(savedSupplies(slot), ['3→1'], 'The battery is wired Supply → gate PowerIn');
         assert.equal(committedEnable(s0, 3n), ElectricalEnable.Disabled, 'The pre-Run committed read is the authored Disabled');
@@ -281,7 +254,7 @@ describe('Story 9R.3: each directly wired Powered Gate follows its own battery (
     test('2. Authored Enabled battery: the gate opens, then in-run Disable supply returns it closed; Reset matches', { timeout: 150000 }, async () => {
         await buildGateBench(true);
         const s0 = await driver.captureSnapshot({ bodies: 2 });
-        assert.deepEqual(savedBatteryEnables(await saved(driver)), [ElectricalEnable.Enabled]);
+        assert.deepEqual(savedBatteryEnables(await driver.readSavedSlot()), [ElectricalEnable.Enabled]);
         await driver.run();
         const opened = await sample(driver, 2000, [BLADE_1], 'before Disable');
         assertOpensBy(opened, BLADE_1, 'before Disable');
@@ -313,7 +286,7 @@ describe('Story 9R.3: each directly wired Powered Gate follows its own battery (
     test('4. Two circuits: disabling B1 closes G1 while G2 stays open (negative control for a global battery flag)', { timeout: 150000 }, async () => {
         await buildTwoCircuits();
         const s0 = await driver.captureSnapshot({ bodies: 2 });
-        assert.deepEqual(savedSupplies(await saved(driver)), ['3→1', '4→2'], 'Each battery is wired to its own gate');
+        assert.deepEqual(savedSupplies(await driver.readSavedSlot()), ['3→1', '4→2'], 'Each battery is wired to its own gate');
         await driver.run();
         const both = await sample(driver, 2000, [BLADE_1, BLADE_2], 'both enabled');
         assertOpensBy(both, BLADE_1, 'both enabled'); assertOpensBy(both, BLADE_2, 'both enabled');
@@ -331,7 +304,7 @@ describe('Story 9R.3: each directly wired Powered Gate follows its own battery (
     test('5. Unpowered control: a gate with no supply blocks the ball while an unwired battery is enabled in run', { timeout: 150000 }, async () => {
         await buildGateBench(false, false);
         const s0 = await driver.captureSnapshot({ bodies: 2 });
-        assert.deepEqual(savedSupplies(await saved(driver)), [], 'Nothing is wired');
+        assert.deepEqual(savedSupplies(await driver.readSavedSlot()), [], 'Nothing is wired');
         await driver.run();
         assertClosed(await sample(driver, 1000, [BLADE_1], 'unpowered'), BLADE_1, 'unpowered');
         await toggleSupply(driver, BATTERY_1, 'enable-unwired');
@@ -347,13 +320,13 @@ describe('Story 9R.3: each directly wired Powered Gate follows its own battery (
     test('6. Save/Load preserves both wires of the two-circuit bench and the loaded bench replays both circuits', { timeout: 150000 }, async () => {
         await buildTwoCircuits();
         const s0 = await driver.captureSnapshot({ bodies: 2 });
-        const initial = await saved(driver);
+        const initial = await driver.readSavedSlot();
         await driver.reload();
         await driver.load();
         const loaded = await driver.captureSnapshot({ bodies: 2 });
         assertLoadRestores(s0, loaded);
-        const loadedSlot = await saved(driver);
-        assert.deepEqual(authoredState(loadedSlot), authoredState(initial), 'Authored state roundtrips bit-identically');
+        const loadedSlot = await driver.readSavedSlot();
+        assert.deepEqual(authoredState(loadedSlot), authoredState(initial), 'Authored state roundtrips exactly');
         assert.deepEqual(savedSupplies(loadedSlot), ['3→1', '4→2'], 'Both wires survive Save/Load');
         await driver.run();
         const both = await sample(driver, 2000, [BLADE_1, BLADE_2], 'loaded both enabled');

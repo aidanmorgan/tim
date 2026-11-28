@@ -132,8 +132,7 @@ public sealed class DeclaredOrientationTests
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(record.Command())).Reason);
     }
 
-    // The boundary slot: a record that is current in every field but holds one extra field at exactly slot 7 (the first slot beyond
-    // the 7-field table) is refused by the save boundary; the same save without it loads (control).
+    // The save boundary refuses the first undefined slot and admits a current save without it.
     [Fact]
     public void ACurrentSaveRefusesTheFirstUnknownInstanceFieldAndItsValidControlLoads()
     {
@@ -146,10 +145,14 @@ public sealed class DeclaredOrientationTests
             RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, SaveFixture.Elements, control).Construction.Instances).PartId);
         Assert.Equal(new PartId("domino"), WorkshopAuthoringFlatBuffers.MapInstance(WorkshopSaveCodec.Open(
             RuntimeTestServices.Core.Codecs.Commands, control).Construction!.Value.Instances(0)!.Value).PartId);
+        // historical layout: begin
         var historical = new OldLayoutSaves.Layout(9, 7, 16, 2);
+        var extendedCommand = OldLayoutSaves.Command(historical, "domino", [new(8, 1f)]);
+        var emptyCommand = OldLayoutSaves.Command(historical, "domino", []);
+        // historical layout: end
         Assert.Equal(WireFaultReason.VerifierRejected, Assert.Throws<WireFaultException>(() =>
-            WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(historical, "domino", [new(8, 1f)]))).Reason);
-        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(OldLayoutSaves.Command(historical, "domino", [])));
+            WorkshopWireFlatBuffers.DecodeCommand(extendedCommand)).Reason);
+        Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeCommand(emptyCommand));
     }
 
     // Controls: current-encoder records (a zero-parameter domino and lamp, a parametered Ramp whose parameters fill the last slot, a

@@ -17,8 +17,8 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
-import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
+import { assertLoadRestores, snapshotEntries, type RunResetSnapshot } from './run-reset-snapshot.ts';
 import { assertAt, assertJoined, assertNotJoined, dot, hasInstance, instanceCount, length, mouth, screen, sub, type Vec3 } from './tube-mouths.ts';
 
 // Every bench carries one basketball, so each snapshot's committed read has one (dynamic) body; tubes are static.
@@ -115,7 +115,7 @@ describe('Story 9R.6: typed tube-mouth snapping', () => {
         assert.equal(instanceCount(undone), 2);
         assert.ok(!hasInstance(undone, 3), 'Undo removed the new pipe');
         assert.deepEqual(snapshotEntries(undone, 'saved.construction.instances'), snapshotEntries(before, 'saved.construction.instances'),
-            'Undo restored exactly the construction before the placement');
+            'Undo restored the authored instance fields before the placement');
         noErrors();
     });
 
@@ -176,7 +176,7 @@ describe('Story 9R.6: typed tube-mouth snapping', () => {
         await driver.pressKey('Escape');
         const s1 = await driver.captureSnapshot(BENCH);
         assert.deepEqual(snapshotEntries(s1, 'saved.construction.instances'), snapshotEntries(s0, 'saved.construction.instances'),
-            'the locked fixture did not move');
+            'the locked fixture retained its authored instance fields');
         noErrors();
     });
 

@@ -9,19 +9,6 @@ async function press(driver:WorkshopDriver,x:number,y:number){
     await driver.page.mouse.move(x,y);await driver.page.mouse.down();await driver.page.waitForTimeout(70);
     await driver.page.mouse.up();await driver.page.waitForTimeout(180);
 }
-async function saved(driver:WorkshopDriver):Promise<Buffer>{
-    return Buffer.from(await driver.page.evaluate(()=>new Promise<number[]>((resolve,reject)=>{
-        const request=indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded=()=>request.transaction?.abort();
-        request.onerror=()=>reject(new Error('Existing save unavailable'));
-        request.onsuccess=()=>{const db=request.result;try{
-            const tx=db.transaction('construction','readonly'),read=tx.objectStore('construction').get(1);
-            tx.oncomplete=()=>{db.close();resolve(Array.from(read.result as Uint8Array));};
-            tx.onabort=()=>{db.close();reject(new Error('Save read failed'));};
-        }catch(error){db.close();reject(error);}};
-    })));
-}
-
 for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+scenario+' route uses actual UI and restores authored state',async()=>{
     const driver=await WorkshopDriver.launch(),reads:WorkshopResponse[]=[],events:WorkshopResponse[]=[],errors:string[]=[];
     driver.page.on('console',message=>{const text=message.text();
@@ -41,8 +28,8 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
             await driver.page.mouse.move(585,620);await driver.page.mouse.down();await driver.page.waitForTimeout(70);
             await driver.page.mouse.move(455,620,{steps:12});await driver.page.mouse.up();await driver.page.waitForTimeout(250);
         }
-        await driver.page.keyboard.press('Escape');await driver.save();
-        const initialBytes=await saved(driver);
+        await driver.page.keyboard.press('Escape');
+        const {slot:initialBytes}=await driver.save();
         const initialFb=decodeSavedConstruction(initialBytes);
         const construction=initialFb.construction()!;
         const bumper=construction.instances(2)!;
@@ -56,7 +43,7 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         else assert.ok(Math.abs(pos0+3.3)<.001);
         assert.ok(Math.abs(pos1-1)<.001);assert.equal(pos2,0);
         assert.equal(parameter(bumper,'strength'),scenario==='unpaid'?0:8);
-        await driver.reload();await driver.load();await driver.save();assert.deepEqual(authoredState(await saved(driver)),authoredState(initialBytes));
+        await driver.reload();await driver.load();assert.deepEqual(authoredState((await driver.save()).slot),authoredState(initialBytes));
         await driver.run();const samples:{x:number,y:number,z:number,vx:number,vy:number}[]=[];
         const started=Date.now();while(Date.now()-started<4300){
             const body=(await driver.readLatestPose())?.bodies[0];
@@ -86,7 +73,7 @@ for(const scenario of ['paid','unpaid','miss'] as Scenario[])test('Sidekick '+sc
         const solved=await driver.readCaptured();
         await driver.reset();const reset=reads.at(-1)!;
         assert.equal(storedEnergy(energyStore(reset, reset.contactWorks(0)!.store())),scenario==='unpaid'?0:32);assert.equal(reset.contactWorks(0)!.occurrenceCount(),0);
-        await driver.save();assert.deepEqual(authoredState(await saved(driver)),authoredState(initialBytes));assert.deepEqual(errors,[]);
+        assert.deepEqual(authoredState((await driver.save()).slot),authoredState(initialBytes));assert.deepEqual(errors,[]);
         console.log(JSON.stringify({scenario,solved,debit:lastHit?.debit??0,remaining:after.contactWorksLength()>0?storedEnergy(energyStore(after, after.contactWorks(0)!.store())):0,samples}));
     }catch(error){console.error(JSON.stringify({scenario,errors}));await driver.page.screenshot({path:'/tmp/sidekick-'+scenario+'-failure.png'});throw error;}
     finally{await driver.close();}

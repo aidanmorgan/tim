@@ -8,9 +8,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
-import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 // The bench point every suite places on (ENGINE-CORE-2a1); the Receiver sits about 4.5 m to its left.
 const BENCH = { x: 720, y: 485 } as const;

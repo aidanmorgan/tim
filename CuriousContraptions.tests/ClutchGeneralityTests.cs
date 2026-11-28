@@ -8,6 +8,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using Xunit;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -348,7 +349,7 @@ public sealed partial class ClutchTests
                     Assert.Throws<ArgumentException>(() => new WorkshopCompiledScene(scene.Identity, scene.Revision, scene.Settings,
                         hostile, scene.Activation, scene.Presentation, scene.Owners, scene.RunControls));
                 }
-                RejectWire(frame, 8, owner.Value);
+                RejectWire(frame, "owner", owner.Value);
             }
             // Remove only the external coupling from hostile-input fixtures so its occupied driving role cannot mask ownership.
             PhysicsSceneDeclaration WithEndpoints(MechanicalTransmissionDeclaration transmission) => new(
@@ -363,8 +364,8 @@ public sealed partial class ClutchTests
             var foreignJoint = construction.Instances.Identities[new(2)].Hinges[0].Joint;
             foreach (var (transmission, field) in new[]
             {
-                (internalRow with { Driving = new(foreignJoint) }, 1),
-                (internalRow with { Driven = new(foreignJoint) }, 2)
+                (internalRow with { Driving = new(foreignJoint) }, "driving_coordinate"),
+                (internalRow with { Driven = new(foreignJoint) }, "driven_coordinate")
             })
             {
                 Assert.Equal(internalRow.Owner, transmission.Owner);
@@ -375,27 +376,27 @@ public sealed partial class ClutchTests
                     hostile, scene.Activation, scene.Presentation, scene.Owners, scene.RunControls));
                 RejectWire(endpointFrame, field, foreignJoint.Value);
             }
-            void RejectWire(byte[] validFrame, int field, ulong value)
+            void RejectWire(byte[] validFrame, string field, ulong value)
             {
                 var bad = (byte[])validFrame.Clone();
                 var bytes = new Google.FlatBuffers.ByteBuffer(bad);
                 static int Field(Google.FlatBuffers.ByteBuffer buffer, int table, int field) =>
-                    table + buffer.GetUshort(table - buffer.GetInt(table) + 4 + field * 2);
+                    table + buffer.GetUshort(table - buffer.GetInt(table) + WireSchemaLayout.VtableOffset(field));
                 static int Target(Google.FlatBuffers.ByteBuffer buffer, int table, int field)
                 {
                     var position = Field(buffer, table, field);
                     return position + buffer.GetInt(position);
                 }
                 var root = 4 + bytes.GetInt(4);
-                var compiled = Target(bytes, root, 11);
-                var vector = Target(bytes, compiled, 34);
+                var compiled = Target(bytes, root, WireSchemaLayout.Slot<Wire.WorkshopCommand>("scene"));
+                var vector = Target(bytes, compiled, WireSchemaLayout.Slot<Wire.CompiledSceneRecord>("transmissions"));
                 var changed = false;
                 for (var index = 0; index < bytes.GetInt(vector); index++)
                 {
                     var element = vector + 4 + index * 4;
                     var row = element + bytes.GetInt(element);
-                    if (bytes.GetUlong(Field(bytes, row, 0)) != internalRow.Id.Value) continue;
-                    System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bad.AsSpan(Field(bytes, row, field)), value);
+                    if (bytes.GetUlong(Field(bytes, row, WireSchemaLayout.Slot<Wire.MechanicalTransmissionRecord>("id"))) != internalRow.Id.Value) continue;
+                    System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(bad.AsSpan(Field(bytes, row, WireSchemaLayout.Slot<Wire.MechanicalTransmissionRecord>(field))), value);
                     changed = true;
                 }
                 Assert.True(changed);
@@ -425,6 +426,7 @@ public sealed partial class ClutchTests
         await using var harness = await WorkshopIntegrationHarness.Building(construction);
         var priorScene = harness.Simulation.Scene;
         var priorTick = harness.Committed.Tick;
+        // historical layout: begin
         static byte[] Obsolete(bool command)
         {
             var builder = new Google.FlatBuffers.FlatBufferBuilder(1024);
@@ -443,6 +445,7 @@ public sealed partial class ClutchTests
             builder.FinishSizePrefixed(root, command ? "CCWC" : "CCWR");
             return builder.SizedByteArray();
         }
+        // historical layout: end
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(Obsolete(true))).Reason);
         Assert.Equal(WireFaultReason.UnknownIdentifier, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(Obsolete(false))).Reason);
         var current = WorkshopWireFlatBuffers.EncodeCommand(harness.Command(WorkshopCommandKind.Construct, construction));
@@ -451,16 +454,17 @@ public sealed partial class ClutchTests
         static int Target(Google.FlatBuffers.ByteBuffer bytes, int table, int field)
         {
             var vtable = table - bytes.GetInt(table);
-            var location = table + bytes.GetUshort(vtable + 4 + field * 2);
+            var location = table + bytes.GetUshort(vtable + WireSchemaLayout.VtableOffset(field));
             return location + bytes.GetInt(location);
         }
         var rootPosition = 4 + buffer.GetInt(4);
-        var scenePosition = Target(buffer, rootPosition, 11);
-        var vector = Target(buffer, scenePosition, 29);
+        var scenePosition = Target(buffer, rootPosition, WireSchemaLayout.Slot<Wire.WorkshopCommand>("scene"));
+        var vector = Target(buffer, scenePosition, WireSchemaLayout.Slot<Wire.CompiledSceneRecord>("presentation"));
         var trackPosition = vector + 4 + buffer.GetInt(vector + 4);
-        var bindingPosition = Target(buffer, trackPosition, 5);
+        var bindingPosition = Target(buffer, trackPosition, WireSchemaLayout.Slot<Wire.CompiledPresentationRecord>("declaration"));
         var bindingVtable = bindingPosition - buffer.GetInt(bindingPosition);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(current.AsSpan(bindingVtable), 38);
+        var beyondFields = WireSchemaLayout.VtableOffset(WireSchemaLayout.FieldCount<Wire.CapabilityPresentationBindingRecord>() + 1);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(current.AsSpan(bindingVtable), checked((ushort)beyondFields));
         Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(current));
         Assert.Same(priorScene, harness.Simulation.Scene);
         Assert.Equal(priorTick, harness.Committed.Tick);

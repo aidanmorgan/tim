@@ -1,6 +1,7 @@
 using CuriousContraptions.Abstractions;
 using System.Buffers.Binary;
 using CuriousContraptions.Gpu;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -916,10 +917,10 @@ public sealed class WorkshopWireTests
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
         var root = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        const int targetField = 10;
-        Assert.NotEqual(0, root.__offset(4 + 2 * targetField));
+        var targetField = WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("target");
+        Assert.NotEqual(0, root.__offset(targetField));
         var vtable = root.bb_pos - buffer.GetInt(root.bb_pos);
-        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4 + 2 * targetField), 0);
+        BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + targetField), 0);
         Assert.Throws<ArgumentException>(() => WorkshopWireFlatBuffers.DecodeCommand(bytes));
     }
 

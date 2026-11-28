@@ -13,9 +13,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState, parameter } from './workshop-wire.ts';
-import { assertLoadRestores } from './run-reset-snapshot.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Electrical: 2 } as const;
 const Socket = { Supply: 7, PowerIn: 8 } as const;
@@ -42,26 +42,8 @@ const BLADES = [bladeId(1), bladeId(2)];
 // The committed dynamic bodies: both blades and the bowling ball.
 const BENCH = { bodies: 3 };
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
-
 /** The saved Supply → PowerIn links as `source→target` instance ids, and every plate's saved minimum_mass. */
-function savedCircuits(bytes: Buffer): { links: string[]; minimums: number[] } {
+function savedCircuits(bytes: Uint8Array): { links: string[]; minimums: number[] } {
     const construction = decodeSavedConstruction(bytes).construction()!;
     const links: string[] = [];
     for (let i = 0; i < construction.connectionsLength(); i++) {
@@ -168,7 +150,7 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
 
     test('1. A ball on P1 opens only G1; Reset matches the snapshot (both plates Empty, both gates closed)', { timeout: 240000 }, async () => {
         const s0 = await buildTwoPlates(PLATE_1);
-        const circuits = savedCircuits(await saved(driver));
+        const circuits = savedCircuits(await driver.readSavedSlot());
         assert.deepEqual(circuits.links, ['3→1', '4→2', '5→3', '6→4'].sort(), 'B1 → P1 → G1 and B2 → P2 → G2');
         assert.deepEqual(circuits.minimums, [0.5, 0.5]);
         for (const cycle of ['first run', 'second run']) {
@@ -197,7 +179,7 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
             await driver.placeOnCanvas(at.x, at.y);
         }
         const s0 = await driver.captureSnapshot(BENCH);
-        const bytes = await saved(driver);
+        const bytes = await driver.readSavedSlot();
         const construction = decodeSavedConstruction(bytes).construction()!;
         const kinds = Array.from({ length: construction.instancesLength() }, (_, i) => construction.instances(i)!.partId());
         assert.equal(kinds.length, 29, `all 29 parts are on the bench, got ${kinds.length}`);
@@ -209,7 +191,7 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
         await driver.load();
         const loaded = await driver.captureSnapshot(BENCH);
         assertLoadRestores(s0, loaded);
-        assert.deepEqual(authoredState(await saved(driver)), authoredState(bytes), 'Authored state must roundtrip bit-identically');
+        assert.deepEqual(authoredState(await driver.readSavedSlot()), authoredState(bytes), 'Load restores the authored state');
         assertOnlyOpens(await runAndSample(loaded, 3500), BLADES[0], 'loaded 24-part bench, P1 loaded');
         await resetMatches(loaded);
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
@@ -217,13 +199,13 @@ describe('CAT-052: two Pressure Plates switch only their own gates (Story 9R.4)'
 
     test('3. Save/Load preserves both circuits and minimum_mass; the loaded bench opens only G1', { timeout: 240000 }, async () => {
         const s0 = await buildTwoPlates(PLATE_1);
-        const initialSaved = await saved(driver);
+        const initialSaved = await driver.readSavedSlot();
         await driver.reload();
         await driver.load();
         const loaded = await driver.captureSnapshot(BENCH);
         assertLoadRestores(s0, loaded);
-        const loadedSaved = await saved(driver);
-        assert.deepEqual(authoredState(loadedSaved), authoredState(initialSaved), 'Authored state must roundtrip bit-identically');
+        const loadedSaved = await driver.readSavedSlot();
+        assert.deepEqual(authoredState(loadedSaved), authoredState(initialSaved), 'Load restores the authored state');
         assert.deepEqual(savedCircuits(loadedSaved), savedCircuits(initialSaved));
         assertOnlyOpens(await runAndSample(loaded, 3500), BLADES[0], 'loaded bench, P1 loaded');
         await resetMatches(loaded);

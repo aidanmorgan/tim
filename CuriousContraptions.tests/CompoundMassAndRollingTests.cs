@@ -875,17 +875,18 @@ public sealed class CompoundPassageBoundaryTests
 public sealed class CurrentPuzzleShapeTests
 {
     [Theory]
-    [InlineData(14)]
-    [InlineData(15)]
-    public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int extraField)
+    [InlineData(0)]
+    [InlineData(1)]
+    public void AuthoredSaveRefusesUnknownPuzzleFieldsBeforeDomainDecoding(int beyondDeclaredFields)
     {
         var builder = new FlatBufferBuilder(512);
         var id = builder.CreateString("ready_to_rebound");
         Wire.PuzzleRecord.StartAssistanceVector(builder, 0);
         var assistance = builder.EndVector();
+        var extraField = WireSchemaLayout.FieldCount<Wire.PuzzleRecord>() + beyondDeclaredFields;
         builder.StartTable(extraField + 1);
-        builder.AddOffset(0, id.Value, 0);
-        builder.AddOffset(11, assistance.Value, 0);
+        Wire.PuzzleRecord.AddId(builder, id);
+        Wire.PuzzleRecord.AddAssistance(builder, assistance);
         builder.AddUlong(extraField, 123, 0);
         var puzzle = new Offset<Wire.PuzzleRecord>(builder.EndTable());
         Wire.ConstructionRecord.StartConstructionRecord(builder);

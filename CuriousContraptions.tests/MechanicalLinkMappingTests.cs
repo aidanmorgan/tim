@@ -7,6 +7,7 @@ using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using Xunit;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -142,12 +143,12 @@ public sealed partial class MechanicalLinkPresentationTests
         var command = h.Command(WorkshopCommandKind.Construct, h.Construction with { Revision = new(h.Construction.Revision.Value + 1) });
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var bb = new Google.FlatBuffers.ByteBuffer(bytes);
-        var scene = CompiledSceneBoundaryTests.Child(new Google.FlatBuffers.Table(4 + bb.GetInt(4), bb), 11);
-        var link = CompiledSceneBoundaryTests.Rows(scene, 36)[0];
-        var rimTable = CompiledSceneBoundaryTests.Child(link, 1);
-        System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(rimTable, 5)), radius);
-        var centreTable = CompiledSceneBoundaryTests.Child(rimTable, 3);
-        System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(centreTable, 2)), centreZ);
+        var scene = CompiledSceneBoundaryTests.Child(new Google.FlatBuffers.Table(4 + bb.GetInt(4), bb), WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        var link = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("mechanical_links"))[0];
+        var rimTable = CompiledSceneBoundaryTests.Child(link, WireSchemaLayout.VtableOffset<Wire.MechanicalLinkPresentationRecord>("source"));
+        System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(rimTable, WireSchemaLayout.VtableOffset<Wire.MechanicalRimPresentationRecord>("radius"))), radius);
+        var centreTable = CompiledSceneBoundaryTests.Child(rimTable, WireSchemaLayout.VtableOffset<Wire.MechanicalRimPresentationRecord>("centre"));
+        System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(CompiledSceneBoundaryTests.Slot(centreTable, WireSchemaLayout.VtableOffset<Wire.CapabilityVector3Record>("z"))), centreZ);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => h.Router.Dispatch(bytes)).Reason);
         Assert.Same(installed, h.Simulation.Scene);
         Assert.Equal(before.Epoch, h.Committed.Epoch); Assert.Equal(before.Tick, h.Committed.Tick);

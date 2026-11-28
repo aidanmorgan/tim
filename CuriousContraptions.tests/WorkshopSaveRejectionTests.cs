@@ -14,25 +14,19 @@ public sealed class WorkshopSaveRejectionTests
 {
     // ---------- a hand-built save record whose every field the test controls ----------
 
-    /// <summary>InstanceRecord field ids, in schema order (the vtable slot of each field; C-Clock deleted the threshold, C-Memory the target count).</summary>
-    public enum Field
-    {
-        Id, PartId, Locked, Cell, Local, Rotation, Parameters,
-    }
-
     internal sealed class Instance(string part, ulong id)
     {
         public string Part { get; set; } = part;
-        public Dictionary<Field, object> Values { get; } = new() { [Field.Id] = id };
-        public Instance With(Field field, object value) { var copy = Clone(); copy.Values[field] = value; return copy; }
+        public Dictionary<string, object> Values { get; } = new() { ["id"] = id };
+        public Instance With(string field, object value) { var copy = Clone(); copy.Values[field] = value; return copy; }
         public Instance WithParameter(ParameterId key, float value)
         {
             var copy = Clone();
-            copy.Values[Field.Parameters] = ((KeyValuePair<string, float>[])copy.Values[Field.Parameters])
+            copy.Values["parameters"] = ((KeyValuePair<string, float>[])copy.Values["parameters"])
                 .Select(pair => pair.Key == key.Value ? KeyValuePair.Create(pair.Key, value) : pair).ToArray();
             return copy;
         }
-        public Instance Without(Field field) { var copy = Clone(); copy.Values.Remove(field); return copy; }
+        public Instance Without(string field) { var copy = Clone(); copy.Values.Remove(field); return copy; }
         public Instance Clone() { var copy = new Instance(Part, 0); copy.Values.Clear(); foreach (var (k, v) in Values) copy.Values[k] = v; return copy; }
     }
 
@@ -45,18 +39,18 @@ public sealed class WorkshopSaveRejectionTests
     {
         var part = builder.CreateString(instance.Part);
         VectorOffset? parameters = null;
-        if (instance.Values.TryGetValue(Field.Parameters, out var values))
+        if (instance.Values.TryGetValue("parameters", out var values))
         {
             var offsets = ((KeyValuePair<string, float>[])values).Select(pair =>
                 ParameterRecord.CreateParameterRecord(builder, builder.CreateString(pair.Key), pair.Value)).ToArray();
             parameters = InstanceRecord.CreateParametersVector(builder, offsets);
         }
-        builder.StartTable(Enum.GetValues<Field>().Length);
+        builder.StartTable(WireSchemaLayout.FieldCount<InstanceRecord>());
         if (parameters.HasValue) InstanceRecord.AddParameters(builder, parameters.Value);
         foreach (var (field, value) in instance.Values)
         {
-            if (field == Field.Parameters) continue;
-            var slot = (int)field;
+            if (field == "parameters") continue;
+            var slot = WireSchemaLayout.Slot<InstanceRecord>(field);
             switch (value)
             {
                 case ulong v: builder.AddUlong(slot, v, 0); break;
@@ -112,12 +106,12 @@ public sealed class WorkshopSaveRejectionTests
         var bb = new ByteBuffer(bytes); bb.Position = 4;
         var record = SavedConstruction.GetRootAsSavedConstruction(bb).Construction!.Value.Instances(0)!.Value;
         var result = new Instance(record.PartId, record.Id);
-        if (record.Locked) result.Values[Field.Locked] = true;
-        var c = record.Cell!.Value; result.Values[Field.Cell] = (c.X, c.Y, c.Z);
-        var l = record.Local!.Value; result.Values[Field.Local] = (l.X, l.Y, l.Z);
-        var r = record.Rotation!.Value; result.Values[Field.Rotation] = (r.X, r.Y, r.Z, r.W);
+        if (record.Locked) result.Values["locked"] = true;
+        var c = record.Cell!.Value; result.Values["cell"] = (c.X, c.Y, c.Z);
+        var l = record.Local!.Value; result.Values["local"] = (l.X, l.Y, l.Z);
+        var r = record.Rotation!.Value; result.Values["rotation"] = (r.X, r.Y, r.Z, r.W);
         if (instance is WorkshopGenericInstance generic)
-            result.Values[Field.Parameters] = generic.Parameters.Select(pair => KeyValuePair.Create(pair.Key.Value, pair.Value)).ToArray();
+            result.Values["parameters"] = generic.Parameters.Select(pair => KeyValuePair.Create(pair.Key.Value, pair.Value)).ToArray();
         return result;
     }
 
@@ -161,14 +155,14 @@ public sealed class WorkshopSaveRejectionTests
             [new("", 3f), new("height", 2f), new("thickness", .25f)]
         })
         {
-            var bytes = Bytes(One(wall.With(Field.Parameters, malformed)));
+            var bytes = Bytes(One(wall.With("parameters", malformed)));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             var construction = WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value;
             Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, construction));
         }
         foreach (var instance in EveryKind().Where(instance => instance is not WorkshopGenericInstance))
         {
-            var forged = FromProduction(instance).With(Field.Parameters, valid);
+            var forged = FromProduction(instance).With("parameters", valid);
             var bytes = Bytes(One(forged));
             Assert.Equal(WorkshopSaveRejection.OutOfRange, Rejection(bytes));
             Assert.Throws<WireFaultException>(() =>
@@ -192,7 +186,7 @@ public sealed class WorkshopSaveRejectionTests
             [new("trigger_threshold", float.NaN)], [new("trigger_threshold", float.PositiveInfinity)]
         })
         {
-            var bytes = Bytes(One(record.With(Field.Parameters, invalid)));
+            var bytes = Bytes(One(record.With("parameters", invalid)));
             Assert.Contains(Rejection(bytes), new[] { WorkshopSaveRejection.OutOfRange, WorkshopSaveRejection.NonFinite });
             Assert.Throws<WireFaultException>(() => WorkshopAuthoringFlatBuffers.DecodeConstructionRecord(RuntimeTestServices.Core.Supply, RuntimeTestServices.Bundle, WorkshopSaveCodec.Open(RuntimeTestServices.Core.Codecs.Commands, bytes).Construction!.Value));
         }
@@ -317,36 +311,36 @@ public sealed class WorkshopSaveRejectionTests
         {
             "no construction" => One(ramp) with { HasConstruction = false },
             "no settings" => One(ramp) with { Settings = false },
-            "no cell" => One(ramp.Without(Field.Cell)),
-            "no local" => One(ramp.Without(Field.Local)),
-            "no rotation" => One(ramp.Without(Field.Rotation)),
-            "no receiver parameter vector" => One(receiver.Without(Field.Parameters)),
-            "domino carrying an unknown parameter" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With(Field.Parameters, new KeyValuePair<string, float>[] { new("unknown", .4f) })),
-            "no counter target" => One(Counter().With(Field.Parameters, Array.Empty<KeyValuePair<string, float>>())),
+            "no cell" => One(ramp.Without("cell")),
+            "no local" => One(ramp.Without("local")),
+            "no rotation" => One(ramp.Without("rotation")),
+            "no receiver parameter vector" => One(receiver.Without("parameters")),
+            "domino carrying an unknown parameter" => One(FromProduction(PlacedParts.Domino(new(1), 0, 1, 0, 0, 0, 0, 1)).With("parameters", new KeyValuePair<string, float>[] { new("unknown", .4f) })),
+            "no counter target" => One(Counter().With("parameters", Array.Empty<KeyValuePair<string, float>>())),
             "undefined simulation cadence" => One(ramp) with { Simulation = 99 },
             "undefined receiver participation" => One(receiver.WithParameter(new("capture_participation"), 99f)),
             "undefined battery enable" => One(battery.WithParameter(new("enabled"), 7f)),
             "undefined connection domain" => new([battery, lamp], [new(2, 3, 99, 0, 0)]),
             "undefined connection socket" => new([battery, lamp], [new(2, 3, electrical, 999, 0)]),
             "NaN ramp length" => One(ramp.WithParameter(new("length"), float.NaN)),
-            "infinite local position" => One(ramp.With(Field.Local, (float.PositiveInfinity, 0f, 0f))),
-            "NaN rotation" => One(ramp.With(Field.Rotation, (0f, float.NaN, 0f, 1f))),
+            "infinite local position" => One(ramp.With("local", (float.PositiveInfinity, 0f, 0f))),
+            "NaN rotation" => One(ramp.With("rotation", (0f, float.NaN, 0f, 1f))),
             "long ramp" => One(ramp.WithParameter(new("length"), 10f)),
             "ramp far beyond declared maximum" => One(ramp.WithParameter(new("length"), 1e6f)),
             "counter target ten" => One(Counter().WithParameter(new("target_count"), 10f)),
             "counter target two and a half" => One(Counter().WithParameter(new("target_count"), 2.5f)),
             "NaN counter target" => One(Counter().WithParameter(new("target_count"), float.NaN)),
             "zero revision" => One(ramp) with { Revision = 0 },
-            "zero instance identity" => One(ramp.With(Field.Id, 0UL)),
-            "cell outside the world" => One(ramp.With(Field.Cell, (2000, 0, 0))),
-            "local remainder of one half" => One(ramp.With(Field.Local, (.5f, 0f, 0f))),
-            "scaled rotation" => One(ramp.With(Field.Rotation, (0f, 0f, 0f, .5f))),
-            "counter carrying an unknown parameter" => One(Counter().With(Field.Parameters, new KeyValuePair<string, float>[] { new("unknown", 3f) })),
+            "zero instance identity" => One(ramp.With("id", 0UL)),
+            "cell outside the world" => One(ramp.With("cell", (2000, 0, 0))),
+            "local remainder of one half" => One(ramp.With("local", (.5f, 0f, 0f))),
+            "scaled rotation" => One(ramp.With("rotation", (0f, 0f, 0f, .5f))),
+            "counter carrying an unknown parameter" => One(Counter().With("parameters", new KeyValuePair<string, float>[] { new("unknown", 3f) })),
             "unknown element" => One(ramp.Clone().Also(i => i.Part = "unregistered_payload")),
             "no element" => One(ramp.Clone().Also(i => i.Part = "")),
             "duplicate instance" => new([ramp, ramp], []),
             "dangling connection" => new([battery], [new(2, 77, electrical, 0, 0)]),
-            "ramp to ramp electrical connection" => new([ramp, ramp.With(Field.Id, 2UL)],
+            "ramp to ramp electrical connection" => new([ramp, ramp.With("id", 2UL)],
                 [new(1, 2, electrical, 0, 0)]),
             "allocator at an existing identity" => One(ramp) with { NextBodyId = 1 },
             _ => throw new ArgumentOutOfRangeException(nameof(name)),
@@ -499,31 +493,31 @@ public sealed class WorkshopSaveRejectionTests
         foreach (var cell in new[] { -1025, -1024, 0, 1024, 1025, int.MaxValue, int.MinValue })
             for (var axis = 0; axis < 3; axis++)
             {
-                var c = ((int, int, int))baseline.Values[Field.Cell];
+                var c = ((int, int, int))baseline.Values["cell"];
                 var changed = axis switch { 0 => (cell, c.Item2, c.Item3), 1 => (c.Item1, cell, c.Item3), _ => (c.Item1, c.Item2, cell) };
-                var bytes = Bytes(One(baseline.With(Field.Cell, changed)));
+                var bytes = Bytes(One(baseline.With("cell", changed)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} cell[{axis}] = {cell}");
             }
         foreach (var id in new[] { 0UL, 1UL, 99UL, ulong.MaxValue })
         {
-            var bytes = Bytes(One(baseline.With(Field.Id, id)) with { NextBodyId = id == ulong.MaxValue ? id : 100 });
+            var bytes = Bytes(One(baseline.With("id", id)) with { NextBodyId = id == ulong.MaxValue ? id : 100 });
             if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} id = {id}");
         }
-        if (baseline.Values.TryGetValue(Field.Parameters, out var counted) &&
+        if (baseline.Values.TryGetValue("parameters", out var counted) &&
             ((KeyValuePair<string, float>[])counted).Any(pair => pair.Key == "target_count"))
             foreach (var count in new[] { 0f, 1f, 9f, 10f, 2.5f, -1f, 2147483648f })
             {
                 var bytes = Bytes(One(baseline.WithParameter(new("target_count"), count)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} target = {count}");
             }
-        if (baseline.Values.TryGetValue(Field.Parameters, out var parameters) &&
+        if (baseline.Values.TryGetValue("parameters", out var parameters) &&
             ((KeyValuePair<string, float>[])parameters).Any(pair => pair.Key == "capture_participation"))
             foreach (var value in new[] { 0f, 1f, 2f, 99f })
             {
                 var bytes = Bytes(One(baseline.WithParameter(new("capture_participation"), value)));
                 if (PreValidationRejects(bytes) != DomainRejects(bytes)) mismatches.Add($"{part} participation = {value}");
             }
-        if (baseline.Values.TryGetValue(Field.Parameters, out var declared) &&
+        if (baseline.Values.TryGetValue("parameters", out var declared) &&
             ((KeyValuePair<string, float>[])declared).Any(pair => pair.Key == "enabled"))
             foreach (var value in new[] { 0f, 1f, .5f, 2f, 255f, -1f })
             {

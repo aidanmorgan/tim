@@ -3,6 +3,7 @@ using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -300,14 +301,20 @@ public sealed class WindmillAdmissionTests
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
         var envelope = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(26)), buffer);
-        var field = missing switch { MissingCapability.Observers => 48, MissingCapability.Captures => 47,
-            MissingCapability.Samples => 4, MissingCapability.Exclusions => 5, _ => throw new ArgumentOutOfRangeException(nameof(missing)) };
+        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"))), buffer);
+        var field = missing switch
+        {
+            MissingCapability.Observers => WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("coordinate_travel_observers"),
+            MissingCapability.Captures => WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("rotary_airflow_captures"),
+            MissingCapability.Samples => WireSchemaLayout.VtableOffset<Wire.RotaryAirflowCaptureDeclarationRecord>("samples"),
+            MissingCapability.Exclusions => WireSchemaLayout.VtableOffset<Wire.RotaryAirflowCaptureDeclarationRecord>("internal_occluders"),
+            _ => throw new ArgumentOutOfRangeException(nameof(missing))
+        };
         if (missing is MissingCapability.Samples or MissingCapability.Exclusions)
-            scene = new(scene.__indirect(scene.__vector(scene.__offset(4 + 47 * 2))), buffer);
+            scene = new(scene.__indirect(scene.__vector(scene.__offset(WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("rotary_airflow_captures")))), buffer);
         var vtable = scene.bb_pos - buffer.GetInt(scene.bb_pos);
-        Assert.NotEqual(0, scene.__offset(4 + field * 2));
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4 + field * 2), 0);
+        Assert.NotEqual(0, scene.__offset(field));
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + field), 0);
         var before = h.Committed;
         var fault = Assert.Throws<WireFaultException>(() => h.Router.Dispatch(bytes));
         Assert.Contains(fault.Reason, new[] { WireFaultReason.MissingField, WireFaultReason.VerifierRejected });

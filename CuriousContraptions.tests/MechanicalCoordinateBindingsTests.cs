@@ -11,6 +11,7 @@ using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
 using Xunit;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -1016,8 +1017,8 @@ public sealed class MechanicalCoordinateBindingsTests
         var command = harness.Command(WorkshopCommandKind.Construct, construction with { Revision = new(3) });
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(command);
         var response = WorkshopWireFlatBuffers.EncodeResponse(harness.Latest with { Scene = command.Scene });
-        Corrupt(bytes, 11);
-        Corrupt(response, 27);
+        Corrupt(bytes, WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"));
+        Corrupt(response, WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("scene"));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(bytes)).Reason);
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(response)).Reason);
         Assert.Same(original, harness.Simulation.Scene);
@@ -1031,25 +1032,25 @@ public sealed class MechanicalCoordinateBindingsTests
         {
             var bb = new Google.FlatBuffers.ByteBuffer(buffer);
             var scene = CompiledSceneBoundaryTests.Child(new Google.FlatBuffers.Table(4 + bb.GetInt(4), bb), sceneField);
-            var rows = CompiledSceneBoundaryTests.Rows(scene, 34); // Current schema's transmissions vector.
+            var rows = CompiledSceneBoundaryTests.Rows(scene, WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("transmissions"));
             var first = rows[0];
             var second = rows[1];
-            ulong Read(Google.FlatBuffers.Table row, int field) => bb.GetUlong(CompiledSceneBoundaryTests.Slot(row, field));
-            void Identity(Google.FlatBuffers.Table row, int field, ulong value) =>
-                System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(row, field)), value);
-            void Ratio(float value) => System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(first, 6)), value);
+            ulong Read(Google.FlatBuffers.Table row, string field) => bb.GetUlong(CompiledSceneBoundaryTests.Slot(row, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>(field)));
+            void Identity(Google.FlatBuffers.Table row, string field, ulong value) =>
+                System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(row, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>(field))), value);
+            void Ratio(float value) => System.Buffers.Binary.BinaryPrimitives.WriteSingleLittleEndian(buffer.AsSpan(CompiledSceneBoundaryTests.Slot(first, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>("ratio"))), value);
             switch (defect)
             {
-                case TransmissionWireDefect.ZeroId: Identity(first, 0, 0); break;
-                case TransmissionWireDefect.DuplicateId: Identity(second, 0, Read(first, 0)); break;
-                case TransmissionWireDefect.MissingJoint: Identity(first, 1, ulong.MaxValue); break;
-                case TransmissionWireDefect.SameJoint: Identity(first, 2, Read(first, 1)); break;
-                case TransmissionWireDefect.DuplicateSource: Identity(second, 1, Read(first, 1)); break;
-                case TransmissionWireDefect.DuplicateTarget: Identity(second, 2, Read(first, 2)); break;
+                case TransmissionWireDefect.ZeroId: Identity(first, "id", 0); break;
+                case TransmissionWireDefect.DuplicateId: Identity(second, "id", Read(first, "id")); break;
+                case TransmissionWireDefect.MissingJoint: Identity(first, "driving_coordinate", ulong.MaxValue); break;
+                case TransmissionWireDefect.SameJoint: Identity(first, "driven_coordinate", Read(first, "driving_coordinate")); break;
+                case TransmissionWireDefect.DuplicateSource: Identity(second, "driving_coordinate", Read(first, "driving_coordinate")); break;
+                case TransmissionWireDefect.DuplicateTarget: Identity(second, "driven_coordinate", Read(first, "driven_coordinate")); break;
                 case TransmissionWireDefect.ZeroRatio: Ratio(0f); break;
                 case TransmissionWireDefect.NaNRatio: Ratio(float.NaN); break;
                 case TransmissionWireDefect.InfiniteRatio: Ratio(float.PositiveInfinity); break;
-                case TransmissionWireDefect.InvalidDrivingKind: buffer[CompiledSceneBoundaryTests.Slot(first, 3)] = 0; break;
+                case TransmissionWireDefect.InvalidDrivingKind: buffer[CompiledSceneBoundaryTests.Slot(first, WireSchemaLayout.VtableOffset<Wire.MechanicalTransmissionRecord>("driving_kind"))] = 0; break;
                 default: throw new ArgumentOutOfRangeException(nameof(defect));
             }
         }

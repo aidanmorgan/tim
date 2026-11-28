@@ -4,7 +4,7 @@
 // 2. Negative control: unpowered gate blocks rolling ball upstream, blade remains closed at y = 0.
 // 3. Powered run: wire battery Supply to gate PowerIn; actuator drive retracts blade to 1.55 m, ball rolls through downstream.
 // 4. Disconnecting battery: return spring brings blade back closed, blocking rolling ball upstream again.
-// 5. State persistence: Save / reload / Load preserves gate, battery, and electrical link bit-identically; replay traverses.
+// 5. State persistence: Save / reload / Load preserves gate, battery, and electrical link exactly; replay traverses.
 // Story 9R.1: every test reloads and builds its own bench, and every Reset is followed by the exact snapshot assertion
 // (driver.expectResetMatches) against the snapshot taken before the first Run, including the blade's authored closed pose;
 // each Run cycle first proves it advanced.
@@ -12,9 +12,9 @@ import assert from 'node:assert/strict';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot, type WorkshopBodyPose } from './workshop-driver.ts';
+import { WorkshopDriver, type WorkshopBodyPose } from './workshop-driver.ts';
 import { decodeSavedConstruction, authoredState } from './workshop-wire.ts';
-import { assertLoadRestores, snapshotEntries } from './run-reset-snapshot.ts';
+import { assertLoadRestores, snapshotEntries, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 const ConnectionDomain = { Electrical: 2 } as const;
 const Socket = { Supply: 7, PowerIn: 8 } as const;
@@ -32,27 +32,8 @@ async function click(driver: WorkshopDriver, x: number, y: number) {
     await driver.page.waitForTimeout(180);
 }
 
-async function saved(driver: WorkshopDriver): Promise<Buffer> {
-    const value = await driver.page.evaluate(() => new Promise<number[]>((resolve, reject) => {
-        const request = indexedDB.open('curious-contraptions-workshop');
-        request.onupgradeneeded = () => request.transaction?.abort();
-        request.onerror = () => reject(new Error('Existing save unavailable'));
-        request.onsuccess = () => {
-            const db = request.result;
-            try {
-                const tx = db.transaction('construction', 'readonly');
-                const read = tx.objectStore('construction').get(1);
-                tx.oncomplete = () => { db.close(); resolve(Array.from(read.result as Uint8Array)); };
-                tx.onabort = () => { db.close(); reject(new Error('Read aborted')); };
-            } catch (error) { db.close(); reject(error); }
-        };
-    }));
-    return Buffer.from(value);
-}
 
-const authored = (bytes: Buffer) => authoredState(bytes);
-
-function assertElectricalLink(bytes: Buffer, sourceSlot: number, targetSlot: number) {
+function assertElectricalLink(bytes: Uint8Array, sourceSlot: number, targetSlot: number) {
     const saved = decodeSavedConstruction(bytes);
     const construction = saved.construction()!;
     const count = construction.connectionsLength();
@@ -135,7 +116,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
     }
 
     // After Reset the snapshot is exact, and the blade's committed body read (cell, local, rotation, centre of mass, velocities) is
-    // bit-equal to its authored closed pose: the admission read before the first Run.
+    // at its exact authored closed pose: the admission read before the first Run.
     async function resetMatchesWithBladeClosed(s0: RunResetSnapshot): Promise<void> {
         await driver.reset();
         const s1 = await driver.expectResetMatches(s0);
@@ -179,7 +160,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         await buildPoweredGate();
         const s0 = await driver.captureSnapshot(BENCH);
         // The saved slot records the electrical link (Battery is slot 2, Gate is slot 0)
-        assertElectricalLink(await saved(driver), 2, 0);
+        assertElectricalLink(await driver.readSavedSlot(), 2, 0);
 
         for (const cycle of ['first run', 'second run']) {
             const samples = await runAndSample(s0);
@@ -208,7 +189,7 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
 
         // The saved slot records 0 connections
         const s0 = await driver.captureSnapshot(BENCH);
-        assert.equal(decodeSavedConstruction(await saved(driver)).construction()!.connectionsLength(), 0, 'Connections count should be 0 after disconnect');
+        assert.equal(decodeSavedConstruction(await driver.readSavedSlot()).construction()!.connectionsLength(), 0, 'Connections count should be 0 after disconnect');
 
         // Run unpowered: gate should remain closed and ball stopped upstream
         assertBlocked(await runAndSample(s0), 'disconnected run');
@@ -216,10 +197,10 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         assert.equal(errors.length, 0, `Zero errors expected, got: ${errors.join('; ')}`);
     });
 
-    test('5. State persistence: Save / reload / Load preserves gate, battery and electrical link bit-identically', { timeout: 150000 }, async () => {
+    test('5. State persistence: Save / reload / Load preserves gate, battery and electrical link exactly', { timeout: 150000 }, async () => {
         await buildPoweredGate();
         const s0 = await driver.captureSnapshot(BENCH);
-        const initialSaved = await saved(driver);
+        const initialSaved = await driver.readSavedSlot();
         assertElectricalLink(initialSaved, 2, 0);
 
         // Reload page, then Load the saved state
@@ -227,8 +208,8 @@ describe('CAT-051: Powered Gate Passageway Barrier E2E', () => {
         await driver.load();
         const loaded = await driver.captureSnapshot(BENCH);
         assertLoadRestores(s0, loaded);
-        const loadedSaved = await saved(driver);
-        assert.deepEqual(authored(loadedSaved), authored(initialSaved), 'Authored state must roundtrip bit-identically');
+        const loadedSaved = await driver.readSavedSlot();
+        assert.deepEqual(authoredState(loadedSaved), authoredState(initialSaved), 'Authored state must roundtrip exactly');
         assertElectricalLink(loadedSaved, 2, 0);
 
         // Run simulation: gate opens and ball rolls downstream

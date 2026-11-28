@@ -8,6 +8,7 @@ using CuriousContraptions.Abstractions;
 using CuriousContraptions.Gpu;
 using CuriousContraptions.Simulation;
 using Xunit;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -569,14 +570,15 @@ public sealed class TrampolineTests(ITestOutputHelper output)
         var bytes = (byte[])valid.Clone();
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
         var root = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        var vector = root.__vector(root.__offset(4 + 29 * 2)); // WorkshopResponse.compliant_surfaces
+        var vector = root.__vector(root.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopResponse>("compliant_surfaces")));
         var row = new Google.FlatBuffers.Table(root.__indirect(vector), root.bb);
-        int Slot(int field) { var offset = row.__offset(4 + 2 * field); Assert.NotEqual(0, offset); return row.bb_pos + offset; }
+        int Slot(string field) => CompiledSceneBoundaryTests.Slot(row,
+            WireSchemaLayout.VtableOffset<Wire.CompliantSurfaceReadRecord>(field));
         switch (defect)
         {
-            case SurfaceReadWireDefect.NonfiniteDeflection: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(1)), float.NaN); break;
-            case SurfaceReadWireDefect.NegativeDeflection: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot(1)), -.1f); break;
-            case SurfaceReadWireDefect.NoFrame: BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot(0)), 0); break;
+            case SurfaceReadWireDefect.NonfiniteDeflection: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot("deflection")), float.NaN); break;
+            case SurfaceReadWireDefect.NegativeDeflection: BinaryPrimitives.WriteSingleLittleEndian(bytes.AsSpan(Slot("deflection")), -.1f); break;
+            case SurfaceReadWireDefect.NoFrame: BinaryPrimitives.WriteUInt64LittleEndian(bytes.AsSpan(Slot("frame")), 0); break;
             default: throw new ArgumentOutOfRangeException(nameof(defect));
         }
         Assert.Throws<WireFaultException>(() => WorkshopWireFlatBuffers.DecodeResponse(bytes));

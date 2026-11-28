@@ -100,10 +100,12 @@ public sealed class RunControlTableTests
         var bytes = WorkshopWireFlatBuffers.EncodeCommand(construct);
         var buffer = new ByteBuffer(bytes);
         var root = new Table(4 + buffer.GetInt(4), buffer);
-        var record = new Table(root.__indirect(root.bb_pos + root.__offset(4 + 11 * 2)), buffer);
-        var rows = record.__vector(record.__offset(4 + 28 * 2));
-        Assert.Equal((byte)RunControlLane.SourceEnable, bytes[rows + 28]);
-        bytes[rows + 28] = 7;
+        var record = new Table(root.__indirect(root.bb_pos + root.__offset(WireSchemaLayout.VtableOffset<W.WorkshopCommand>("scene"))), buffer);
+        var rows = record.__vector(record.__offset(WireSchemaLayout.VtableOffset<W.CompiledSceneRecord>("run_controls")));
+        var row = new W.RunControlRecord().__assign(rows, buffer);
+        Assert.Equal((byte)RunControlLane.SourceEnable, row.Lane);
+        CompiledSceneBoundaryTests.ReplaceStruct(bytes.AsSpan(rows), builder => W.RunControlRecord.CreateRunControlRecord(
+            builder, row.Source, row.Id, row.Owner, row.LaneIndex, 7, row.Minimum, row.Maximum));
         Assert.Equal(WireFaultReason.OutOfRange, Assert.Throws<WireFaultException>(() => harness.Router.Dispatch(bytes)).Reason);
         // Nothing was installed, and the same valid Construct is still the next reliable request.
         Assert.Empty(harness.Simulation.Scene.RunControls);

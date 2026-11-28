@@ -1,6 +1,7 @@
 using CuriousContraptions.Abstractions;
 using CuriousContraptions.Bundle;
 using CuriousContraptions.Gpu;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -22,10 +23,10 @@ public sealed class FanAdmissionTests
         Assert.Equal(2, stores.Length);
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
         var envelope = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(26)), buffer);
-        var vector = scene.__vector(scene.__offset(4 + 45 * 2));
+        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"))), buffer);
+        var vector = scene.__vector(scene.__offset(WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("airflow_sources")));
         var source = new Google.FlatBuffers.Table(scene.__indirect(vector), buffer);
-        var storeOffset = source.__offset(4 + 13 * 2);
+        var storeOffset = source.__offset(WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("store"));
         Assert.NotEqual(0, storeOffset);
         System.Buffers.Binary.BinaryPrimitives.WriteUInt64LittleEndian(
             bytes.AsSpan(source.bb_pos + storeOffset), stores[1].Id.Value);
@@ -61,32 +62,32 @@ public sealed class FanAdmissionTests
         Assert.Single(decoded.Scene.Physics.AirflowReceivers.ToArray());
         var buffer = new Google.FlatBuffers.ByteBuffer(bytes);
         var envelope = new Google.FlatBuffers.Table(4 + buffer.GetInt(4), buffer);
-        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(26)), buffer);
-        Google.FlatBuffers.Table First(int field)
+        var scene = new Google.FlatBuffers.Table(envelope.__indirect(envelope.bb_pos + envelope.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"))), buffer);
+        Google.FlatBuffers.Table First(string field)
         {
-            var vector = scene.__vector(scene.__offset(4 + field * 2));
+            var vector = scene.__vector(scene.__offset(WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>(field)));
             return new(scene.__indirect(vector), buffer);
         }
         var table = missing switch
         {
-            MissingWireField.SourceAxis or MissingWireField.InternalOccluders => First(45),
-            MissingWireField.ReceiverSamples => First(46),
-            MissingWireField.PresentationSource => First(29),
+            MissingWireField.SourceAxis or MissingWireField.InternalOccluders => First("airflow_sources"),
+            MissingWireField.ReceiverSamples => First("airflow_receivers"),
+            MissingWireField.PresentationSource => First("presentation"),
             _ => scene
         };
         var field = missing switch
         {
-            MissingWireField.SourceAxis => 4,
-            MissingWireField.InternalOccluders => 11,
-            MissingWireField.ReceiverSamples => 4,
-            MissingWireField.SceneSources => 45,
-            MissingWireField.SceneReceivers => 46,
-            MissingWireField.PresentationSource => 16,
+            MissingWireField.SourceAxis => WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("axis"),
+            MissingWireField.InternalOccluders => WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("internal_occluders"),
+            MissingWireField.ReceiverSamples => WireSchemaLayout.VtableOffset<Wire.AirflowReceiverDeclarationRecord>("samples"),
+            MissingWireField.SceneSources => WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("airflow_sources"),
+            MissingWireField.SceneReceivers => WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>("airflow_receivers"),
+            MissingWireField.PresentationSource => WireSchemaLayout.VtableOffset<Wire.CompiledPresentationRecord>("airflow"),
             _ => throw new ArgumentOutOfRangeException(nameof(missing))
         };
-        Assert.NotEqual(0, table.__offset(4 + field * 2));
+        Assert.NotEqual(0, table.__offset(field));
         var vtable = table.bb_pos - buffer.GetInt(table.bb_pos);
-        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + 4 + field * 2), 0);
+        System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(bytes.AsSpan(vtable + field), 0);
         var before = h.Committed;
         var fault = Assert.Throws<WireFaultException>(() => h.Router.Dispatch(bytes));
         Assert.Contains(fault.Reason, new[] { WireFaultReason.MissingField, WireFaultReason.VerifierRejected });

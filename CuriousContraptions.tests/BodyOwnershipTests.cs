@@ -3,6 +3,7 @@ using CuriousContraptions.Abstractions;
 using CuriousContraptions.Abstractions.Mechanical;
 using CuriousContraptions.Gpu;
 using Google.FlatBuffers;
+using Wire = CuriousContraptions.Wire;
 
 namespace CuriousContraptions.Tests;
 
@@ -44,20 +45,20 @@ public sealed class BodyOwnershipTests
         var child = Array.FindIndex(physics.Bodies.ToArray(), b => b.Id == h.Construction.Instances.Identities[new(2)].Hinges[0].Body);
         switch (damage)
         {
-            case Damage.RootNotSelfOwned: wire.Scalar(wire.Row(6, root), 1, other.Id.Value); break;
-            case Damage.MissingOwner: wire.Scalar(wire.Row(6, child), 1, ulong.MaxValue); break;
-            case Damage.NonRootOwner: wire.Scalar(wire.Row(6, child), 1, foreignHinge.Body.Value); break;
-            case Damage.ZeroOwner: wire.Scalar(wire.Row(6, child), 1, 0); break;
-            case Damage.DuplicateBody: wire.Scalar(wire.Row(6, child), 0, 2); break;
-            case Damage.CaptureFrame: wire.Scalar(wire.Row(47), 2, other.Id.Value); break;
-            case Damage.CaptureHinge: wire.Scalar(wire.Row(47), 3, foreignHinge.Joint.Value); break;
-            case Damage.CaptureExclusion: wire.VectorValue(wire.Row(47), 5, foreignCollider.Value); break;
-            case Damage.ObserverHinge: wire.Scalar(wire.Row(48), 2, foreignHinge.Joint.Value); break;
-            case Damage.SourceFrame: wire.Scalar(wire.Row(45), 2, other.Id.Value); break;
-            case Damage.SourceExclusion: wire.VectorValue(wire.Row(45), 11, foreignCollider.Value); break;
+            case Damage.RootNotSelfOwned: wire.Scalar(wire.Row("bodies", root), WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("owner"), other.Id.Value); break;
+            case Damage.MissingOwner: wire.Scalar(wire.Row("bodies", child), WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("owner"), ulong.MaxValue); break;
+            case Damage.NonRootOwner: wire.Scalar(wire.Row("bodies", child), WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("owner"), foreignHinge.Body.Value); break;
+            case Damage.ZeroOwner: wire.Scalar(wire.Row("bodies", child), WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("owner"), 0); break;
+            case Damage.DuplicateBody: wire.Scalar(wire.Row("bodies", child), WireSchemaLayout.VtableOffset<Wire.CapabilityRigidBodyDeclarationRecord>("id"), 2); break;
+            case Damage.CaptureFrame: wire.Scalar(wire.Row("rotary_airflow_captures"), WireSchemaLayout.VtableOffset<Wire.RotaryAirflowCaptureDeclarationRecord>("frame"), other.Id.Value); break;
+            case Damage.CaptureHinge: wire.Scalar(wire.Row("rotary_airflow_captures"), WireSchemaLayout.VtableOffset<Wire.RotaryAirflowCaptureDeclarationRecord>("coordinate"), foreignHinge.Joint.Value); break;
+            case Damage.CaptureExclusion: wire.VectorValue(wire.Row("rotary_airflow_captures"), WireSchemaLayout.VtableOffset<Wire.RotaryAirflowCaptureDeclarationRecord>("internal_occluders"), foreignCollider.Value); break;
+            case Damage.ObserverHinge: wire.Scalar(wire.Row("coordinate_travel_observers"), WireSchemaLayout.VtableOffset<Wire.CoordinateTravelDeclarationRecord>("coordinate"), foreignHinge.Joint.Value); break;
+            case Damage.SourceFrame: wire.Scalar(wire.Row("airflow_sources"), WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("frame"), other.Id.Value); break;
+            case Damage.SourceExclusion: wire.VectorValue(wire.Row("airflow_sources"), WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("internal_occluders"), foreignCollider.Value); break;
             case Damage.SourceCoordinate:
                 var sourceIndex = Array.FindIndex(physics.AirflowSources.ToArray(), source => source.Owner == shaftFan.Id);
-                wire.Scalar(wire.Row(45, sourceIndex), 15, foreignHinge.Joint.Value);
+                wire.Scalar(wire.Row("airflow_sources", sourceIndex), WireSchemaLayout.VtableOffset<Wire.AirflowSourceDeclarationRecord>("coordinate"), foreignHinge.Joint.Value);
                 break;
             default: throw new ArgumentOutOfRangeException(nameof(damage));
         }
@@ -185,20 +186,23 @@ public sealed class BodyOwnershipTests
             _bytes = bytes;
             _buffer = new(bytes);
             var envelope = new Table(4 + _buffer.GetInt(4), _buffer);
-            _scene = new(envelope.__indirect(envelope.bb_pos + envelope.__offset(26)), _buffer);
+            _scene = new(envelope.__indirect(envelope.bb_pos + envelope.__offset(WireSchemaLayout.VtableOffset<Wire.WorkshopCommand>("scene"))), _buffer);
         }
 
-        public Table Row(int field, int index = 0) =>
-            new(_scene.__indirect(_scene.__vector(_scene.__offset(4 + field * 2)) + index * 4), _buffer);
-
-        public void Scalar(Table row, int field, ulong value)
+        public Table Row(string field, int index = 0)
         {
-            var offset = row.__offset(4 + field * 2);
+            var vector = _scene.__vector(_scene.__offset(WireSchemaLayout.VtableOffset<Wire.CompiledSceneRecord>(field)));
+            return new(_scene.__indirect(vector + index * sizeof(int)), _buffer);
+        }
+
+        public void Scalar(Table row, int fieldOffset, ulong value)
+        {
+            var offset = row.__offset(fieldOffset);
             Assert.NotEqual(0, offset);
             BinaryPrimitives.WriteUInt64LittleEndian(_bytes.AsSpan(row.bb_pos + offset), value);
         }
 
-        public void VectorValue(Table row, int field, ulong value) =>
-            BinaryPrimitives.WriteUInt64LittleEndian(_bytes.AsSpan(row.__vector(row.__offset(4 + field * 2))), value);
+        public void VectorValue(Table row, int fieldOffset, ulong value) =>
+            BinaryPrimitives.WriteUInt64LittleEndian(_bytes.AsSpan(row.__vector(row.__offset(fieldOffset))), value);
     }
 }

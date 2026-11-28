@@ -1,324 +1,354 @@
-// Story 9R.1: browserless unit checks of the Run/Reset snapshot authority (tools/e2e/run-reset-snapshot.ts).
-// Run: node --import <tsx loader> --test tools/e2e/unit/run-reset-snapshot.test.ts (not a Chrome suite: tools/e2e/unit/ is
-// outside the runner's tools/e2e/*.test.ts catalogue).
+// Story 9R.1: decoded Run/Reset and authored-state checks, deferred to the post-catalogue E2E phase.
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { readFileSync } from 'node:fs';
 import { describe, test } from 'node:test';
 import * as flatbuffers from 'flatbuffers';
 import {
-    ConnectionRecord, ConstructionRecord, InstanceRecord, ParameterRecord, PuzzleRecord, Quat4f, SavedConstruction, Vec3f, Vec3i,
+    AssistanceKnotRecordT, CadenceSettingsRecordT, CapabilityPulseRateRecordT, CapabilityWorkshopCadenceSettingsRecordT,
+    ClockStampT, CommandOutcome, CompiledSceneRecordT, ConnectionRecordT, ElectricalEnable, InstanceRecordT, MemoryObservationRecordT, ParameterRecordT, PhysicalCommitRevisionRecordT,
+    PuzzleRecordT, Quat4fT, ResponseKind, RunControlRecordT, SavedConstruction, SavedConstructionT,
+    SimulationPhase, Vec3fT, Vec3iT, WireRootIdentifier, WorkshopResponse, WorkshopResponseT, ConstructionRecordT,
 } from '../.wire/curious-contraptions/wire.ts';
-import * as generated from '../.wire/curious-contraptions/wire.ts';
-import { decodeWorkshopResponse, encodeWorkshopResponse, type MockResponseParams } from '../workshop-wire.ts';
-import {
-    SNAPSHOT_SCHEMA, assertLoadRestores, assertRunAdvanced, assertSnapshotEqual, readSnapshot, snapshotFrom, structLayout, tableSlot,
-} from '../run-reset-snapshot.ts';
+import { authoredState, decodeSavedConstruction, decodeWorkshopResponse, encodeWorkshopResponse, type MockResponseParams } from '../workshop-wire.ts';
+import { assertLoadRestores, assertRunAdvanced, assertSnapshotEqual, committedEnable, readSnapshot, snapshotFrom, snapshotValue } from '../run-reset-snapshot.ts';
+import { pipeLength } from '../tube-mouths.ts';
+import { rootIdentifier } from '../../runtime/wire-frame.ts';
 
-const SCHEMA_SOURCE = ['workshop_wire', 'workshop_authoring']
-    .map(name => readFileSync(new URL(`../../../schemas/${name}.fbs`, import.meta.url), 'utf8')).join('\n');
-// The build writes one generated file per schema type here (tools/e2e/.wire/, S5b); the entry module only re-exports them.
-const GENERATED_FOLDER = new URL('../.wire/curious-contraptions/wire/', import.meta.url);
-const GENERATED_FILES = readdirSync(GENERATED_FOLDER, { withFileTypes: true }).filter(entry => entry.isFile())
-    .map(entry => readFileSync(new URL(entry.name, GENERATED_FOLDER), 'utf8'));
-
-// ---- fixtures -------------------------------------------------------------------------------------------------------
-
-const BALL = 1n, RECEIVER = 2n;
+const BALL = 0x20000000000001n;
+const RECEIVER = 2n;
+const BENCH = { bodies: 2 } as const;
+const movedBody = { id: BALL, cell: { y: 1 }, local: { x: .25, y: 2.5 }, rotation: { w: 1 } };
+const bodies: NonNullable<MockResponseParams['bodies']> = [
+    { ...movedBody, local: { x: .25, y: 3 } },
+    { id: RECEIVER, cell: { x: -2 }, local: { y: .6 } },
+];
 
 function response(overrides: Partial<MockResponseParams> = {}): Uint8Array {
-    return new Uint8Array(encodeWorkshopResponse({
-        sequence: 7n, kind: 0, outcome: 0, reason: 0, phase: 2, epoch: 3n, tick: 0n, physicalRevision: 0n, revision: 11n,
+    return encodeWorkshopResponse({
+        sequence: 7n, kind: ResponseKind.Acknowledgement, outcome: CommandOutcome.Applied,
+        phase: SimulationPhase.Building, epoch: 3n, tick: 0n, physicalRevision: 5n, revision: 11n,
         publication: 0n, masterGeneration: 1n, cadence: 1n, projection: 2n, session: [1, 2, 3, 4],
-        bodies: [
-            { id: BALL, cell: { x: 0, y: 1, z: 0 }, local: { x: 0.25, y: 3, z: 0 }, rotation: { w: 1 }, velocity: { x: 0, y: 0, z: 0 } },
-            { id: RECEIVER, cell: { x: -2, y: 0, z: 0 }, local: { x: 0, y: 0.6, z: 0 }, rotation: { w: 1 } },
-        ],
-        captures: [{ sensor: 9n, target: BALL, phase: 0, eventOrdinal: 0, eventPhase: 0 }],
+        bodies,
+        captures: [{ sensor: 9n, target: BALL }],
         contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 0, store: 1n }],
         energyStores: [{ id: 1n, owner: RECEIVER, bulk: 32 }],
         ...overrides,
-    }));
+    });
 }
 
-interface SavedOptions { length?: number; toSocket?: number; revision?: bigint; goalTarget?: bigint; connections?: number }
-function saved(options: SavedOptions = {}): Uint8Array {
-    const builder = new flatbuffers.Builder(1024);
-    const instance = (id: bigint, part: string, length: number) => {
-        const name = builder.createString(part);
-        const key = builder.createString('length');
-        const parameter = ParameterRecord.createParameterRecord(builder, key, length);
-        const parameters = InstanceRecord.createParametersVector(builder, [parameter]);
-        InstanceRecord.startInstanceRecord(builder);
-        InstanceRecord.addId(builder, id);
-        InstanceRecord.addPartId(builder, name);
-        InstanceRecord.addLocked(builder, true);
-        InstanceRecord.addCell(builder, Vec3i.createVec3i(builder, 0, 1, 0));
-        InstanceRecord.addLocal(builder, Vec3f.createVec3f(builder, 0.25, 3, 0));
-        InstanceRecord.addRotation(builder, Quat4f.createQuat4f(builder, 0, 0, 0, 1));
-        InstanceRecord.addParameters(builder, parameters);
-        return InstanceRecord.endInstanceRecord(builder);
-    };
-    const instances = [instance(BALL, 'basketball', options.length ?? 0), instance(RECEIVER, 'receiver', 0)];
-    const instancesVector = ConstructionRecord.createInstancesVector(builder, instances);
-    const connectionCount = options.connections ?? 1;
-    ConstructionRecord.startConnectionsVector(builder, connectionCount);
-    for (let i = connectionCount - 1; i >= 0; i--)
-        ConnectionRecord.createConnectionRecord(builder, BALL, RECEIVER, 1, 2, options.toSocket ?? 3, false, 0);
-    const connectionsVector = builder.endVector();
-    const inventory = builder.createString('pipe');
-    PuzzleRecord.startPuzzleRecord(builder);
-    PuzzleRecord.addId(builder, 4);
-    PuzzleRecord.addInventoryPart(builder, inventory);
-    PuzzleRecord.addInventoryCount(builder, 1);
-    PuzzleRecord.addGoalKind(builder, 1);
-    PuzzleRecord.addGoalBody(builder, BALL);
-    PuzzleRecord.addGoalTarget(builder, options.goalTarget ?? RECEIVER);
-    const puzzle = PuzzleRecord.endPuzzleRecord(builder);
-    ConstructionRecord.startConstructionRecord(builder);
-    ConstructionRecord.addRevision(builder, options.revision ?? 5n);
-    ConstructionRecord.addPuzzle(builder, puzzle);
-    ConstructionRecord.addInstances(builder, instancesVector);
-    ConstructionRecord.addConnections(builder, connectionsVector);
-    const construction = ConstructionRecord.endConstructionRecord(builder);
-    SavedConstruction.startSavedConstruction(builder);
-    SavedConstruction.addNextBodyId(builder, 3n);
-    SavedConstruction.addConstruction(builder, construction);
-    builder.finishSizePrefixed(SavedConstruction.endSavedConstruction(builder), 'CCWS');
-    return builder.asUint8Array().slice();
+interface SaveOptions {
+    revision?: bigint;
+    pipeId?: bigint;
+    length?: number | null;
+    toSocket?: number;
+    goalTarget?: bigint;
+    connections?: number;
+    atmosphere?: number;
+    physical?: number;
+    nextBodyId?: bigint;
+    assistanceBlend?: number;
 }
 
-const BENCH = { bodies: 2 } as const;
-
-// The byte position of the ball's local.y inside a response buffer, taken from the generated accessor.
-function ballLocalY(bytes: Uint8Array): number {
-    const body = decodeWorkshopResponse(bytes).bodies(0)!;
-    return body.local()!.bb_pos + 4;
-}
-function withU32(bytes: Uint8Array, position: number, value: number): Uint8Array {
-    const copy = bytes.slice();
-    new DataView(copy.buffer, copy.byteOffset, copy.byteLength).setUint32(position, value, true);
-    return copy;
-}
-function failureOf(work: () => void): string {
-    try { work(); } catch (error) { return error instanceof Error ? error.message : String(error); }
-    assert.fail('expected the snapshot assertion to fail');
-}
-
-// ---- schema listing ---------------------------------------------------------------------------------------------------
-
-// A minimal reader of schemas/workshop_wire.fbs: struct and table bodies as [field, type] lists, and enum underlying types.
-function parseSchema(source: string): { types: Map<string, { kind: 'struct' | 'table'; fields: [string, string][] }>; enums: Map<string, string> } {
-    const types = new Map<string, { kind: 'struct' | 'table'; fields: [string, string][] }>();
-    const enums = new Map<string, string>();
-    const stripped = source.replace(/\/\/.*$/gm, '');
-    for (const match of stripped.matchAll(/\b(struct|table|enum)\s+(\w+)\s*(?::\s*(\w+))?\s*\{([^}]*)\}/g)) {
-        const [, kind, name, underlying, body] = match;
-        if (kind === 'enum') { enums.set(name, underlying); continue; }
-        const fields = [...body.matchAll(/(\w+)\s*:\s*([\w\[\]]+)\s*(?:=\s*\w+\s*)?(?:\(required\)\s*)?;/g)].map(field => [field[1], field[2]] as [string, string]);
-        types.set(name, { kind: kind as 'struct' | 'table', fields });
-    }
-    return { types, enums };
+function saved(options: SaveOptions = {}): Uint8Array {
+    const pipeId = options.pipeId ?? BALL;
+    const pipe = Object.assign(new InstanceRecordT(), {
+        id: pipeId, partId: 'pipe', cell: new Vec3iT(), local: new Vec3fT(), rotation: new Quat4fT(0, 0, 0, 1),
+        parameters: options.length === null ? [] : [
+            Object.assign(new ParameterRecordT(), { key: 'other', value: 12 }),
+            Object.assign(new ParameterRecordT(), { key: 'length', value: options.length ?? 3.6 }),
+        ],
+    });
+    const receiver = Object.assign(new InstanceRecordT(), { id: RECEIVER, partId: 'basket', locked: true });
+    const puzzle = Object.assign(new PuzzleRecordT(), {
+        id: 'snapshot-fixture', inventoryPart: 'pipe', inventoryCount: 1, goalKind: 1, goalBody: pipeId,
+        goalTarget: options.goalTarget ?? RECEIVER,
+        assistance: [Object.assign(new AssistanceKnotRecordT(), { blend: options.assistanceBlend ?? .25 })],
+    });
+    const settings = Object.assign(new CadenceSettingsRecordT(), {
+        simulation: 2, physical: options.physical ?? 1, animation: 2, presentation: 2, presentationRateNumerator: 60, presentationRateDenominator: 1,
+    });
+    const construction = Object.assign(new ConstructionRecordT(), {
+        revision: options.revision ?? 5n, settings, atmosphere: options.atmosphere ?? 1, puzzle, instances: [pipe, receiver],
+        connections: Array.from({ length: options.connections ?? 1 }, () => Object.assign(new ConnectionRecordT(), {
+            source: pipeId, target: RECEIVER, domain: 1, fromSocket: 2, toSocket: options.toSocket ?? 3,
+        })),
+    });
+    const builder = new flatbuffers.Builder(512);
+    const root = Object.assign(new SavedConstructionT(), { nextBodyId: options.nextBodyId ?? BALL + 1n, construction });
+    SavedConstruction.finishSizePrefixedSavedConstructionBuffer(builder, root.pack(builder));
+    return builder.asUint8Array();
 }
 
-// Offsets the generated TypeScript accessors read: struct fields at `this.bb_pos + N`, table fields at vtable slot N.
-function generatedOffsets(className: string): Map<string, number> {
-    const source = GENERATED_FILES.find(text => text.includes(`export class ${className} {`));
-    assert.ok(source !== undefined, `generated class ${className}`);
-    const body = source.slice(source.indexOf(`export class ${className} {`));
-    const offsets = new Map<string, number>();
-    for (const match of body.matchAll(/^(\w+)\([^)]*\)[^{\n]*\{\n\s*(?:const offset = this\.bb!\.__offset\(this\.bb_pos, (\d+)\);|return [^\n]*?this\.bb_pos(?: \+ (\d+))?[,)])/gm)) {
-        const [, accessor, slot, position] = match;
-        if (accessor.endsWith('Length') || accessor.endsWith('Array')) continue;
-        if (!offsets.has(accessor)) offsets.set(accessor, Number(slot ?? position ?? 0));
-    }
-    return offsets;
+function snapshot(read = response(), save = saved()) {
+    return snapshotFrom(read, save, BENCH);
 }
-const camel = (name: string) => name.replace(/_(\w)/g, (_, letter: string) => letter.toUpperCase());
 
-describe('Run/Reset snapshot: the explicit schema listing', () => {
-    const { types, enums } = parseSchema(SCHEMA_SOURCE);
+function packedResponse(decoded: WorkshopResponseT): Uint8Array {
+    const builder = new flatbuffers.Builder(512);
+    builder.finishSizePrefixed(decoded.pack(builder), rootIdentifier(WireRootIdentifier.WorkshopResponse));
+    return builder.asUint8Array();
+}
 
-    test('every listed struct and table has exactly the fields, types and order of schemas/workshop_wire.fbs', () => {
-        for (const [name, listed] of Object.entries(SNAPSHOT_SCHEMA.types)) {
-            const declared = types.get(name);
-            assert.ok(declared, `${name} is declared in the schema`);
-            assert.equal(listed.kind, declared.kind, `${name} kind`);
-            assert.equal(listed.fields.length, declared.fields.length, `${name} field count`);
-            assert.deepEqual(listed.fields, declared.fields, `${name} fields`);
-        }
-        for (const [name, underlying] of Object.entries(SNAPSHOT_SCHEMA.enums)) assert.equal(underlying, enums.get(name), `enum ${name}`);
+describe('Run/Reset snapshot decoded fields and identity', () => {
+    test('canonical values include booleans, strings, bigint IDs, f32 metres and vector lengths', () => {
+        const decoded = snapshot();
+        assert.equal(snapshotValue(decoded, `read.bodies[id=${BALL}].id`), BALL);
+        assert.equal(snapshotValue(decoded, 'saved.construction.instances[id=2].locked'), true);
+        assert.equal(snapshotValue(decoded, `saved.construction.instances[id=${BALL}].partId`), 'pipe');
+        assert.equal(snapshotValue(decoded, 'read.ropes.length'), 0);
+        assert.equal(snapshotValue(decoded, 'read.scene'), null);
+        assert.throws(() => pipeLength(decoded, Number(RECEIVER)), /expected pipe/);
     });
 
-    test('every type reachable from WorkshopResponse and SavedConstruction is listed', () => {
-        const pending = ['WorkshopResponse', 'SavedConstruction'];
-        const seen = new Set<string>();
-        while (pending.length > 0) {
-            const name = pending.pop()!;
-            if (seen.has(name)) continue;
-            seen.add(name);
-            assert.ok(name in SNAPSHOT_SCHEMA.types, `${name} is listed`);
-            for (const [, type] of types.get(name)!.fields) {
-                const element = type.replace(/^\[|\]$/g, '');
-                if (types.has(element)) pending.push(element);
-                else if (enums.has(element)) assert.ok(element in SNAPSHOT_SCHEMA.enums, `enum ${element} is listed`);
-            }
-        }
+    test('Pipe length selects its parameter key even when another parameter precedes it', () => {
+        const pipeId = 1;
+        const pipeSnapshot = (length?: number | null) => snapshot(response(), saved({ pipeId: BigInt(pipeId), length }));
+        assert.equal(pipeLength(pipeSnapshot(), pipeId), Math.fround(3.6));
+        assert.throws(() => pipeLength(pipeSnapshot(null), pipeId), /saved no length/);
     });
 
-    test('computed struct offsets and sizes equal the generated accessors', () => {
-        for (const [name, listed] of Object.entries(SNAPSHOT_SCHEMA.types)) {
-            if (listed.kind !== 'struct') continue;
-            const layout = structLayout(name);
-            const generatedClass = (generated as unknown as Record<string, { sizeOf(): number }>)[name];
-            assert.equal(layout.size, generatedClass.sizeOf(), `${name} size`);
-            const offsets = generatedOffsets(name);
-            for (const field of layout.fields) assert.equal(field.offset, offsets.get(camel(field.name)), `${name}.${field.name} offset`);
-        }
+    test('a changed decoded physical value names the field and both values', () => {
+        const moved = response({ bodies: [movedBody, bodies[1]] });
+        assert.throws(() => assertSnapshotEqual(snapshot(), snapshot(moved)), /read\.bodies\[id=9007199254740993\]\.local\.y 3≠2\.5/);
     });
 
-    test('table fields use the generated vtable slots', () => {
-        for (const [name, listed] of Object.entries(SNAPSHOT_SCHEMA.types)) {
-            if (listed.kind !== 'table') continue;
-            const offsets = generatedOffsets(name);
-            listed.fields.forEach(([field], index) => assert.equal(tableSlot(index), offsets.get(camel(field)), `${name}.${field} slot`));
+    test('negative zero differs from positive zero and decoded NaNs compare equal', () => {
+        const atX = (x: number) => snapshot(response({ bodies: [{ ...bodies[0], velocity: { x } }, bodies[1]] }));
+        assert.throws(() => assertSnapshotEqual(atX(0), atX(-0)), /velocity\.x 0≠-0/);
+        assertSnapshotEqual(atX(Number.NaN), atX(Number.NaN));
+    });
+
+    test('an omitted and explicitly encoded scalar default compare equally', () => {
+        function atZero(writeDefault: boolean): Uint8Array {
+            const builder = new flatbuffers.Builder(128);
+            WorkshopResponse.startWorkshopResponse(builder);
+            builder.forceDefaults(writeDefault);
+            WorkshopResponse.addTick(builder, 0n);
+            builder.forceDefaults(false);
+            WorkshopResponse.addPhysicalCommit(builder, new PhysicalCommitRevisionRecordT().pack(builder));
+            builder.finishSizePrefixed(WorkshopResponse.endWorkshopResponse(builder), rootIdentifier(WireRootIdentifier.WorkshopResponse));
+            return builder.asUint8Array();
         }
+        assert.equal(snapshotValue(readSnapshot(atZero(false)), 'read.tick'), 0n);
+        assertSnapshotEqual(readSnapshot(atZero(false)), readSnapshot(atZero(true)));
+    });
+
+    test('identity-led rows can reorder but duplicate bigint IDs fail', () => {
+        assertSnapshotEqual(snapshot(), snapshot(response({ bodies: [bodies[1], bodies[0]] })));
+        assert.throws(() => snapshot(response({ bodies: [bodies[0], { ...bodies[1], id: BALL }] })), /duplicate path.*bodies\[id=9007199254740993\]/);
+    });
+
+    test('rows beginning with source stay indexed even with a bigint id field', () => {
+        const decoded = decodeWorkshopResponse(response()).unpack();
+        const setting = Object.assign(new CapabilityWorkshopCadenceSettingsRecordT(), {
+            presentationRate: new CapabilityPulseRateRecordT(60, 1),
+        });
+        const first = Object.assign(new RunControlRecordT(), { source: 5n, id: BALL });
+        const second = Object.assign(new RunControlRecordT(), { source: 6n, id: BALL });
+        decoded.scene = Object.assign(new CompiledSceneRecordT(), { settings: setting, runControls: [first, second] });
+        const before = readSnapshot(packedResponse(decoded));
+        assert.equal(snapshotValue(before, 'read.scene.runControls[1].id'), BALL);
+        decoded.scene.runControls.reverse();
+        assert.throws(() => assertSnapshotEqual(before, readSnapshot(packedResponse(decoded))), /runControls\[0\]\.source/);
+    });
+
+    test('a changed authored link, parameter or goal fails at its decoded path', () => {
+        for (const [options, path] of [
+            [{ toSocket: 4 }, /connections\[0\]\.toSocket 3≠4/],
+            [{ length: 4 }, /parameters\[1\]\.value/],
+            [{ goalTarget: 9n }, /puzzle\.goalTarget 2n≠9n/],
+        ] as const)
+            assert.throws(() => assertSnapshotEqual(snapshot(), snapshot(response(), saved(options))), path);
+    });
+
+    test('differences in path sets fail in either direction even when existing values agree', () => {
+        const one = snapshot();
+        const extra = { ...one, entries: [...one.entries, ['read.extra', 0] as const] };
+        assert.throws(() => assertSnapshotEqual(one, extra), /path set differs: read\.extra is after Reset only/);
+        assert.throws(() => assertSnapshotEqual(extra, one), /path set differs: read\.extra is in S0 only/);
+        const last = one.entries.at(-1);
+        assert.ok(last);
+        const changedValue = last[1] === false;
+        const changed = { ...one, entries: [...one.entries.slice(0, -1), [last[0], changedValue] as const] };
+        assert.throws(() => assertSnapshotEqual(one, changed),
+            (error: unknown) => error instanceof Error && error.message.startsWith(`Reset: ${last[0]} `));
+        assert.throws(() => assertSnapshotEqual(one, snapshot(response(), saved({ connections: 2 }))), /connections\.length 1≠2/);
+    });
+
+    test('Reset catches a residual tick even when every other value matches', () => {
+        assert.throws(() => assertSnapshotEqual(snapshot(), snapshot(response({ tick: 1n }))), /Reset: read\.tick 0n≠1n/);
+    });
+
+    test('Reset catches a changed committed contact occurrence count', () => {
+        const changed = response({ contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 1, store: 1n }] });
+        assert.throws(() => assertSnapshotEqual(snapshot(), snapshot(changed)), /Reset: read\.contactWorks\[id=1\]\.occurrenceCount 0≠1/);
+    });
+
+    test('advancing transport fields and encoded motion are excluded by exact response path', () => {
+        const original = snapshot();
+        const updated = response({ sequence: 99n, revision: 98n, publication: 77n, epoch: 97n, masterGeneration: 96n,
+            cadence: 95n, projection: 94n, session: [9, 9, 9, 9] });
+        const decoded = decodeWorkshopResponse(updated).unpack();
+        decoded.motion = [2, 17];
+        decoded.capture = Object.assign(new ClockStampT(), { time: 22n });
+        assertSnapshotEqual(original, snapshot(packedResponse(decoded)));
+        assert.throws(() => snapshotValue(original, 'read.motion.length'), /no path/);
+        assert.throws(() => assertSnapshotEqual(original, snapshot(response(), saved({ revision: 6n }))),
+            /saved\.construction\.revision 5n≠6n/);
+    });
+
+    test('Load ignores only the value of construction revision and still compares admission identity and body values', () => {
+        const original = snapshot();
+        assertLoadRestores(original, snapshot(response(), saved({ revision: 3n })));
+        assert.throws(() => assertLoadRestores(original, snapshot(response({ physicalRevision: 6n }), saved({ revision: 3n }))),
+            /Load: read\.physicalCommit\.value 5n≠6n/);
+        assert.throws(() => assertSnapshotEqual(original, snapshot(response({ physicalRevision: 6n }))), /Reset: read\.physicalCommit\.value/);
+        assert.throws(() => assertLoadRestores(original, snapshot(response({ bodies: [movedBody, bodies[1]] }), saved())), /Load: read\.bodies.*local\.y/);
+        assert.throws(() => assertLoadRestores(original, snapshot(response(), saved({ revision: 3n, length: 4 }))), /Load: saved.*parameters/);
+        const missing = { ...original, entries: original.entries.filter(([path]) => path !== 'saved.construction.revision') };
+        assert.throws(() => assertLoadRestores(original, missing), /saved\.construction\.revision is in S0 only/);
+    });
+
+    test('the save decoder and authored projection require current construction settings', () => {
+        const fixture = new URL('../../../CuriousContraptions.tests/Fixtures/pre-versionless/retired-versioned-construction.save.base64', import.meta.url);
+        const retired = Buffer.from(readFileSync(fixture, 'utf8'), 'base64');
+        assert.throws(() => decodeSavedConstruction(retired), /without its cadence settings/);
+        assert.throws(() => authoredState(retired), /without its cadence settings/);
+
+        const current = saved();
+        assert.equal(decodeSavedConstruction(current).construction()?.settings()?.physical(), 1);
+        assert.equal(authoredState(current).construction.settings?.physical, 1);
+    });
+
+    test('authored projection retains settings, atmosphere, next identity and full puzzle data', () => {
+        const original = authoredState(saved());
+        assert.deepEqual(original, authoredState(saved({ revision: 3n })));
+        assert.equal(original.nextBodyId, BALL + 1n);
+        assert.equal(original.construction.puzzle?.id, 'snapshot-fixture');
+        assert.equal(original.construction.puzzle?.assistance[0]?.blend, .25);
+        assert.equal(original.construction.settings?.physical, 1);
+        assert.equal(original.construction.atmosphere, 1);
+        for (const change of [{ length: 4 }, { physical: 2 }, { atmosphere: 2 }, { nextBodyId: BALL + 2n }, { assistanceBlend: .5 }])
+            assert.notDeepEqual(authoredState(saved(change)), original);
+    });
+
+    test('the mock response keeps motion absent and resolves optional defaults without overriding zero or false', () => {
+        const read = decodeWorkshopResponse(response({
+            bodies: [{ id: BALL, rotation: { w: undefined } }, { id: RECEIVER, rotation: { w: 0 } }],
+            electrical: [{ id: undefined, enabled: undefined, available: undefined }, { id: 2n, enabled: ElectricalEnable.Disabled, available: false }],
+        }));
+        assert.equal(read.motionArray(), null);
+        assert.equal(read.bodies(0)?.rotation()?.w(), 1);
+        assert.equal(read.bodies(1)?.rotation()?.w(), 0);
+        assert.deepEqual([read.electrical(0)?.id(), read.electrical(0)?.enabled(), read.electrical(0)?.available()], [1n, ElectricalEnable.Enabled, true]);
+        assert.deepEqual([read.electrical(1)?.id(), read.electrical(1)?.enabled(), read.electrical(1)?.available()], [2n, ElectricalEnable.Disabled, false]);
+    });
+
+    test('committed electrical enable selects the exact bigint owner and refuses a missing owner', () => {
+        const other = BALL - 1n;
+        const read = snapshot(response({
+            electrical: [
+                { id: 11n, owner: BALL, enabled: ElectricalEnable.Disabled },
+                { id: 12n, owner: other, enabled: ElectricalEnable.Enabled },
+            ],
+        }));
+        assert.equal(committedEnable(read, BALL), ElectricalEnable.Disabled);
+        assert.equal(committedEnable(read, other), ElectricalEnable.Enabled);
+        assert.throws(() => committedEnable(read, 11n), /no electrical source owned by 11/);
+    });
+
+    test('committed enable refuses opposite source states for the same owner', () => {
+        const read = snapshot(response({
+            electrical: [
+                { id: 11n, owner: BALL, enabled: ElectricalEnable.Disabled },
+                { id: 12n, owner: BALL, enabled: ElectricalEnable.Enabled },
+            ],
+        }));
+        assert.throws(() => committedEnable(read, BALL), /multiple electrical sources owned by 9007199254740993/);
+    });
+
+    test('committed enable refuses an undefined decoded electrical byte', () => {
+        const decoded = decodeWorkshopResponse(response({ electrical: [{ owner: BALL }] })).unpack();
+        decoded.electrical[0].enabled = 255; // The generated scalar carries the malformed wire value.
+        const read = snapshot(packedResponse(decoded));
+        assert.throws(() => committedEnable(read, BALL), /invalid enable value 255/);
+    });
+
+    test('compared activation memory keeps counter and clock state in generated value types', () => {
+        const clock = { node: 2n, kind: 7, count: 0 };
+        const counter = { node: 3n, kind: 6, count: 0 };
+        const before = snapshot(response({ activationMemory: [clock, counter] }));
+        const changedClock = snapshot(response({ activationMemory: [{ ...clock, phase: 1, dueTick: 120n }, counter] }));
+        const changedCounter = snapshot(response({ activationMemory: [clock, { ...counter, count: 2, lastOrdinal: 480, lastPhase: .5 }] }));
+        assert.equal(changedClock.activationMemory[0].dueTick, 120n);
+        assert.equal(changedCounter.activationMemory[1].lastOrdinal, 480);
+        assert.equal(changedCounter.activationMemory[1].lastPhase, .5);
+        assert.throws(() => assertSnapshotEqual(before, changedClock), /read\.activationMemory\[0\]\.phase 0≠1/);
+        assert.throws(() => assertSnapshotEqual(before, changedCounter), /read\.activationMemory\[1\]\.count 0≠2/);
     });
 });
 
-describe('Run/Reset snapshot: bit-exact comparison', () => {
-    test('identical snapshots pass', () => {
-        assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH), snapshotFrom(response(), saved(), BENCH));
+describe('Run/Reset admission checks and physical change', () => {
+    test('a static bench admits exactly zero bodies and retains the saved revision', () => {
+        const noBodies = response({ bodies: [] });
+        const original = snapshotFrom(noBodies, saved(), { bodies: 0 });
+        const restarted = snapshotFrom(noBodies, saved({ revision: 3n }), { bodies: 0 });
+        assert.equal(original.bodies, 0);
+        assert.equal(snapshotValue(original, 'saved.construction.revision'), 5n);
+        assert.throws(() => assertSnapshotEqual(original, restarted), /saved\.construction\.revision 5n≠3n/);
+        assertLoadRestores(original, restarted);
+        assert.throws(() => snapshotFrom(response(), saved(), { bodies: 0 }), /2 bodies, the bench has 0/);
     });
 
-    test('a flipped f32 bit fails and names the field path with both bit patterns', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        const bytes = response();
-        const flipped = withU32(bytes, ballLocalY(bytes), 0x40400001);
-        const message = failureOf(() => assertSnapshotEqual(s0, snapshotFrom(flipped, saved(), BENCH)));
-        assert.match(message, /read\.bodies\[id=1\]\.local\.y 0x40400000≠0x40400001/);
-    });
-
-    test('-0 against +0 in a body field fails', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        const negative = response({ bodies: [
-            { id: BALL, cell: { x: 0, y: 1, z: 0 }, local: { x: 0.25, y: 3, z: 0 }, rotation: { w: 1 }, velocity: { x: -0, y: 0, z: 0 } },
-            { id: RECEIVER, cell: { x: -2, y: 0, z: 0 }, local: { x: 0, y: 0.6, z: 0 }, rotation: { w: 1 } },
-        ] });
-        assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(negative, saved(), BENCH))),
-            /read\.bodies\[id=1\]\.velocity\.x 0x00000000≠0x80000000/);
-    });
-
-    test('two different NaN payloads differ', () => {
-        const bytes = response();
-        const quiet = withU32(bytes, ballLocalY(bytes), 0x7fc00000);
-        const payload = withU32(bytes, ballLocalY(bytes), 0x7fc00001);
-        assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(quiet, saved(), BENCH), snapshotFrom(payload, saved(), BENCH))),
-            /read\.bodies\[id=1\]\.local\.y 0x7fc00000≠0x7fc00001/);
-    });
-
-    test('a differing connection fails', () => {
-        assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH),
-            snapshotFrom(response(), saved({ toSocket: 4 }), BENCH))), /saved\.construction\.connections\[0\]\.to_socket 3≠4/);
-    });
-
-    test('a differing part parameter fails', () => {
-        assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH),
-            snapshotFrom(response(), saved({ length: 4 }), BENCH))), /saved\.construction\.instances\[id=1\]\.parameters\[0\]\.value absent≠0x40800000/);
-    });
-
-    test('a differing authored goal fails', () => {
-        assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH),
-            snapshotFrom(response(), saved({ goalTarget: 9n }), BENCH))), /saved\.construction\.puzzle\.goal_target 2≠9/);
-    });
-
-    test('a difference in only the last compared path fails', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        const last = s0.entries[s0.entries.length - 1]!;
-        const changed = { ...s0, entries: [...s0.entries.slice(0, -1), [last[0], `${last[1]}-changed`] as const] };
-        assert.match(failureOf(() => assertSnapshotEqual(s0, changed)), new RegExp(last[0].replace(/[[\].]/g, '\\$&')));
-    });
-
-    test('differing path sets fail, in either direction', () => {
-        const one = snapshotFrom(response(), saved({ connections: 1 }), BENCH);
-        const two = snapshotFrom(response(), saved({ connections: 2 }), BENCH);
-        assert.match(failureOf(() => assertSnapshotEqual(one, two)), /saved\.construction\.connections\.length 1≠2/);
-        // With equal lengths and values, a path present on one side only still fails.
-        const extra = { ...one, entries: [...one.entries, ['read.extra', '0'] as const] };
-        assert.match(failureOf(() => assertSnapshotEqual(one, extra)), /path set differs: read\.extra is after Reset only/);
-        assert.match(failureOf(() => assertSnapshotEqual(extra, one)), /path set differs: read\.extra is in S0 only/);
-    });
-
-    test('only the named top-level identity paths are excluded', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        const advanced = response({ sequence: 99n, revision: 98n, publication: 0n, epoch: 97n, masterGeneration: 96n, cadence: 95n,
-            projection: 94n, session: [9, 9, 9, 9] });
-        assertSnapshotEqual(s0, snapshotFrom(advanced, saved(), BENCH));
-        assert.ok(!s0.entries.some(([path]) => /^read\.(sequence|revision|publication|epoch|capture|session|master_generation|cadence|projection)\b/.test(path)));
-    });
-
-    test('a nested field that shares an excluded name is still compared', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        // The stores' own count is compared too (a nested field of a compared vector).
-        assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            contactWorks: [{ id: 1n, owner: RECEIVER, occurrenceCount: 1, store: 1n }] }), saved(), BENCH))),
-        /read\.contact_works\[id=1\]\.occurrence_count 0≠1/);
-        assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response(), saved({ revision: 6n }), BENCH))),
-            /saved\.construction\.revision 5≠6/);
-    });
-
-    test('a Load comparison ignores only the restarted construction revision', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        assertLoadRestores(s0, snapshotFrom(response(), saved({ revision: 3n }), BENCH));
-        assert.match(failureOf(() => assertLoadRestores(s0, snapshotFrom(response(), saved({ revision: 3n, length: 4 }), BENCH))),
-            /Load: saved\.construction\.instances\[id=1\]\.parameters/);
-        const bytes = response();
-        assert.match(failureOf(() => assertLoadRestores(s0, snapshotFrom(withU32(bytes, ballLocalY(bytes), 0x40400001), saved(), BENCH))),
-            /Load: read\.bodies\[id=1\]\.local\.y/);
-    });
-
-    test('committed counter and clock memory is compared', () => {
-        const clearCursor = { passageSequence: 0n, dispatchedKind: 0, dispatchedEmitter: 0n, dispatchedOrdinal: 0, dispatchedPhase: 0,
-            causeSource: 0n, causeBody: 0n, causeCollider: 0n, causeOrdinal: 0, causePhase: 0, causeSpeed: 0, causeKind: 0 };
-        const clockRunning = { ...clearCursor, node: 2n, kind: 7, count: 0, phase: 1, dueTick: 120n };
-        const s0 = snapshotFrom(response({ activationMemory: [{ ...clearCursor, node: 2n, kind: 7 }, { ...clearCursor, node: 3n, kind: 6 }] }), saved(), BENCH);
-        assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            activationMemory: [clockRunning, { ...clearCursor, node: 3n, kind: 6 }] }), saved(), BENCH))), /read\.activation_memory\[0\]\.phase 0≠1/);
-        assert.match(failureOf(() => assertSnapshotEqual(s0, snapshotFrom(response({
-            activationMemory: [{ ...clearCursor, node: 2n, kind: 7 }, { ...clearCursor, node: 3n, kind: 6, count: 2 }] }), saved(), BENCH))), /read\.activation_memory\[1\]\.count 0≠2/);
-    });
-
-    test('the tick is compared', () => {
-        assert.match(failureOf(() => assertSnapshotEqual(snapshotFrom(response(), saved(), BENCH),
-            snapshotFrom(response({ tick: 1n }), saved(), BENCH))), /read\.tick absent≠1/); // tick 0 is the omitted default
-    });
-});
-
-describe('Run/Reset snapshot: no vacuous pass', () => {
-    test('empty bodies are rejected', () => {
-        assert.throws(() => snapshotFrom(response({ bodies: [] }), saved(), BENCH), /no bodies/);
-    });
-
-    test('a body count other than the bench is rejected', () => {
+    test('snapshot refuses missing expected bodies or wrong body populations, non-Applied acknowledgements and invalid save frames', () => {
+        assert.throws(() => snapshot(response({ bodies: [] })), /no bodies/);
         assert.throws(() => snapshotFrom(response(), saved(), { bodies: 3 }), /2 bodies, the bench has 3/);
+        assert.throws(() => snapshot(response({ outcome: CommandOutcome.Rejected })), /Applied/);
+        assert.throws(() => snapshot(response(), new Uint8Array()), /not a SavedConstruction/);
     });
 
-    test('a non-Applied acknowledgement is rejected', () => {
-        assert.throws(() => snapshotFrom(response({ outcome: 1 }), saved(), BENCH), /Applied/);
+    test('Run rejects a zero tick and commits that only change tick, phase and physical identity', () => {
+        const before = snapshot();
+        const running = { phase: SimulationPhase.Running, physicalRevision: 7n };
+        assert.throws(() => assertRunAdvanced(before, readSnapshot(response(running))), /tick 0/);
+        assert.throws(() => assertRunAdvanced(before, readSnapshot(response({ ...running, tick: 1n }))), /no compared path differs/);
+        const handshake = readSnapshot(response({ ...running, tick: 1n, kind: ResponseKind.Read, reason: 1 }));
+        assert.throws(() => assertRunAdvanced(before, handshake), /no compared path differs/);
+        assertRunAdvanced(before, readSnapshot(response({ ...running, tick: 1n, bodies: [movedBody, bodies[1]] })));
     });
 
-    test('an advanced read must have tick > 0', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        assert.throws(() => assertRunAdvanced(s0, readSnapshot(response({ phase: 6 }))), /tick 0/);
+    test('a signed-zero-only change does not witness Run and still differs for Reset and Load', () => {
+        const bodiesWithNegativeZero = [{ ...bodies[0], velocity: { x: -0 } }, bodies[1]];
+        const before = snapshot();
+        const during = readSnapshot(response({ tick: 1n, bodies: bodiesWithNegativeZero }));
+        assert.throws(() => assertRunAdvanced(before, during), /no compared path differs/);
+        const changed = snapshot(response({ bodies: bodiesWithNegativeZero }));
+        assert.throws(() => assertSnapshotEqual(before, changed), /Reset: .*velocity\.x 0≠-0/);
+        assert.throws(() => assertLoadRestores(before, changed), /Load: .*velocity\.x 0≠-0/);
     });
 
-    test('an advanced read must differ from S0 in a physical path', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        assert.throws(() => assertRunAdvanced(s0, readSnapshot(response({ tick: 40n, phase: 6 }))), /no compared path differs/);
+    test('a nonfinite-only change in either direction does not witness Run', () => {
+        function withVelocity(x: number, tick: bigint) {
+            return readSnapshot(response({ tick, bodies: [{ ...bodies[0], velocity: { x } }, bodies[1]] }));
+        }
+        for (const value of [NaN, Infinity, -Infinity]) {
+            assert.throws(() => assertRunAdvanced(withVelocity(1, 0n), withVelocity(value, 1n)), /no compared path differs/);
+            assert.throws(() => assertRunAdvanced(withVelocity(value, 0n), withVelocity(1, 1n)), /no compared path differs/);
+        }
     });
 
-    test('an advanced read with a moved body passes', () => {
-        const s0 = snapshotFrom(response(), saved(), BENCH);
-        const bytes = response({ tick: 40n, phase: 6 });
-        assertRunAdvanced(s0, readSnapshot(withU32(bytes, ballLocalY(bytes), 0x40200000)));
+    test('different decoded memory diagnostics do not witness Run and still differ for Reset and Load', () => {
+        function diagnostic(usedAfter: bigint, tick = 0n, count = 0) {
+            const decoded = decodeWorkshopResponse(response({
+                tick, activationMemory: [{ node: 3n, kind: 6, count }],
+            })).unpack();
+            decoded.memory = Object.assign(new MemoryObservationRecordT(), { usedBefore: 100n, usedAfter });
+            return snapshot(packedResponse(decoded));
+        }
+        const before = diagnostic(110n);
+        assert.throws(() => assertRunAdvanced(before, diagnostic(120n, 1n)), /no compared path differs/);
+        assert.throws(() => assertSnapshotEqual(before, diagnostic(120n)), /Reset: read\.memory\.usedAfter 110n≠120n/);
+        assert.throws(() => assertLoadRestores(before, diagnostic(120n)), /Load: read\.memory\.usedAfter 110n≠120n/);
+        assertRunAdvanced(before, diagnostic(120n, 1n, 1));
     });
 });

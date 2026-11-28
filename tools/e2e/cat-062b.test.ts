@@ -34,18 +34,6 @@ function rotate(v: V, q: Q): V {
     const tx=2*(y*c-z*b),ty=2*(z*a-x*c),tz=2*(x*b-y*a);
     return [a+w*tx+y*tz-z*ty,b+w*ty+z*tx-x*tz,c+w*tz+x*ty-y*tx];
 }
-async function saved(d: WorkshopDriver): Promise<Buffer> {
-    return Buffer.from(await d.page.evaluate(()=>new Promise<number[]>((resolve,reject)=>{
-        const request=indexedDB.open('curious-contraptions-workshop');
-        request.onsuccess=()=>{
-            const db=request.result,tx=db.transaction('construction','readonly'),value=tx.objectStore('construction').get(1);
-            tx.oncomplete=()=>{resolve(Array.from(value.result as Uint8Array));db.close();};
-            tx.onabort=()=>reject(new Error('Save read aborted'));
-        };
-        request.onerror=()=>reject(new Error('Save unavailable'));
-    })));
-}
-const authored = (bytes: Buffer) => authoredState(bytes);
 function body(read: WorkshopResponse,id: bigint): BodyRead {
     for(let i=0;i<read.bodiesLength();i++){
         const slot=read.bodies(i)!;
@@ -53,7 +41,7 @@ function body(read: WorkshopResponse,id: bigint): BodyRead {
     }
     throw new Error('Missing physical body '+id);
 }
-function assertInitial(read: WorkshopResponse, save: Buffer, boardIndex: number, compression: number) {
+function assertInitial(read: WorkshopResponse, save: Uint8Array, boardIndex: number, compression: number) {
     assert.equal(read.tick(),0n);
     const savedFb=decodeSavedConstruction(save);
     const board=savedFb.construction()!.instances(boardIndex)!;
@@ -76,7 +64,7 @@ function assertInitial(read: WorkshopResponse, save: Buffer, boardIndex: number,
     assert.equal(plate.angularVelocity()!.z(),0,'Initial plate velocity/spin is zero');
     return energy;
 }
-function clearances(save: Buffer, boardIndex: number) {
+function clearances(save: Uint8Array, boardIndex: number) {
     const savedFb=decodeSavedConstruction(save);
     const board=savedFb.construction()!.instances(boardIndex)!;
     const ball=savedFb.construction()!.instances(0)!;
@@ -140,8 +128,7 @@ async function construct(d: WorkshopDriver, route: Route) {
             await d.page.mouse.wheel(0,-2000);await d.page.waitForTimeout(550);await d.closeMenu();
         }
     }
-    await d.page.keyboard.press('Escape');await d.save();
-    const bytes=await saved(d);
+    await d.page.keyboard.press('Escape');const { slot: bytes } = await d.save();
     const savedFb=decodeSavedConstruction(bytes);
     const boardIndex=ready?1:2;
     assert.equal(savedFb.construction()!.puzzle()!.id(),ready?Lesson.ReadyToRebound:Lesson.SpringForward);
@@ -228,10 +215,10 @@ for(const route of [Route.Passive,Route.Charged,Route.Zero,Route.Away,Route.Read
                 for(let i=0;i<reset.bodiesLength();i++)assert.deepEqual(bodyState(reset.bodies(i)!),bodyState(initial.bodies(i)!),'Reset restores all physical poses and velocities exactly');
                 assert.equal(reset.capturesLength(),initial.capturesLength(),'Reset retains the exact capture population');
                 if(reset.capturesLength()>0){assert.equal(reset.captures(0)!.phase(),CapturePhase.Clear);assert.equal(reset.captures(0)!.eventOrdinal(),0);}
-                await d.save();assert.deepEqual(authored(await saved(d)),authored(configuration.bytes));
+                assert.deepEqual(authoredState((await d.save()).slot),authoredState(configuration.bytes));
                 const resetImage=await d.page.screenshot({path:evidence+'/'+Route[route]+'-reset'+replay+'.png'});
                 renderedRestoration(buildImage,resetImage,route);
-                if(replay===0){await d.load();await d.save();assert.deepEqual(authored(await saved(d)),authored(configuration.bytes));}
+                if(replay===0){await d.load();assert.deepEqual(authoredState((await d.save()).slot),authoredState(configuration.bytes));}
             }
             assert.deepEqual(errors,[]);console.log(JSON.stringify({route:Route[route],initialEnergy,results,errors}));
         }finally{await d.close();}
@@ -251,10 +238,8 @@ test('CAT062b Ready Receiver deletion and replacement rebind the saved capture g
         const ball=Array.from({length:originalFb.instancesLength()},(_,i)=>originalFb.instances(i)!).find(instance=>instance.partId()==='ball');
         assert.ok(ball,'The Ready lesson construction holds its ball');const ballId=ball.id();
         assert.equal(originalFb.puzzle()!.goalBody(),ballId,'Before replacement the captured ball is the goal body');
-        await d.selectPartAt(837,598);await d.page.keyboard.press('Delete');await d.page.waitForTimeout(300);await d.save();
-        assert.equal(decodeSavedConstruction(await saved(d)).construction()!.instancesLength(),2,'Receiver actually removed');
-        await d.clickAt(130,155);await d.placeOnCanvas(837,598);await d.page.keyboard.press('Escape');await d.save();
-        const replacementBytes=await saved(d);
+        await d.selectPartAt(837,598);await d.page.keyboard.press('Delete');await d.page.waitForTimeout(300);assert.equal(decodeSavedConstruction((await d.save()).slot).construction()!.instancesLength(),2,'Receiver actually removed');
+        await d.clickAt(130,155);await d.placeOnCanvas(837,598);await d.page.keyboard.press('Escape');const { slot: replacementBytes } = await d.save();
         const replacementFb=decodeSavedConstruction(replacementBytes);
         const newId=replacementFb.construction()!.instances(2)!.id();
         assert.ok(newId>oldId,'Replacement owns a new authored identity');
@@ -262,7 +247,7 @@ test('CAT062b Ready Receiver deletion and replacement rebind the saved capture g
         // A Captured goal declares Body = ball and Target = Receiver (SpringboardLessons.WithReceiver); the replacement rebinds the target.
         assert.equal(replacementFb.construction()!.puzzle()!.goalBody(),ballId,'The captured ball stays the goal body');
         assert.equal(replacementFb.construction()!.puzzle()!.goalTarget(),newId,'The replacement Receiver becomes the goal target');
-        await d.load();await d.save();assert.deepEqual(authoredState(await saved(d)),authoredState(replacementBytes));
+        await d.load();assert.deepEqual(authoredState((await d.save()).slot),authoredState(replacementBytes));
         const initial=reads.at(-1)!;
         assert.equal(initial.captures(0)!.sensor(),expectedSensor);
         assertInitial(initial,replacementBytes,1,.2);

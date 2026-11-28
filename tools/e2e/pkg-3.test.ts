@@ -6,25 +6,25 @@
 // - a Run drops the Basketball on the switch, the switch fires and the Delay lights the lamp after its 1 s duration; every Reset
 //   restores the exact Story 9R.1 snapshot (driver.captureSnapshot / expectResetMatches);
 // - control: without the switch → Delay wire the switch still fires but the lamp stays dark;
-// - Save, reload and Load restore that snapshot bit for bit (assertLoadRestores) and replay the same behaviour.
+// - Save, reload and Load restore that snapshot exactly (assertLoadRestores) and replay the same behaviour.
 // Layout (instance ids follow placement order): 1 Basketball lifted 150 px above 2 Impact switch (450,485), 3 Delay (600,420),
 // 4 Signal lamp (1000,610), the cat-037 placements.
 import assert from 'node:assert/strict';
+import { ActivationPhase } from '../../CuriousContraptions.web/wwwroot/workshop-observation.ts';
 import { after, before, describe, test } from 'node:test';
 import type { ConsoleMessage, Worker } from 'playwright';
 import { isWorkshopConsoleFailure } from '../workshop-console.ts';
-import { WorkshopDriver, type RunResetSnapshot } from './workshop-driver.ts';
+import { WorkshopDriver } from './workshop-driver.ts';
 import { decodeSavedConstruction } from './workshop-wire.ts';
-import { assertLoadRestores, snapshotValue } from './run-reset-snapshot.ts';
+import { assertLoadRestores, type RunResetSnapshot } from './run-reset-snapshot.ts';
 
 type Point = { x: number; y: number };
 const SWITCH: Point = { x: 450, y: 485 };
 const DELAY: Point = { x: 600, y: 420 };
 const LAMP: Point = { x: 1000, y: 610 };
 const BALL_LIFT_PX = 150; // the cat-037 drop: a lifted Basketball strikes the switch placed under it
-const SWITCH_NODE = '2';
-const LAMP_NODE = '4';
-const LATCHED = '1';
+const SWITCH_NODE = 2n;
+const LAMP_NODE = 4n;
 // Ball drop (about 0.8 s) plus the Delay's default 1 s duration, with margin.
 const RUN_WINDOW_MS = 3500;
 const Activation = 1;
@@ -103,19 +103,15 @@ describe('PKG-3: Delay Box and Impact Switch element packages E2E', () => {
     }
 
     /** The committed activation phase of every node in a read. */
-    function phases(read: RunResetSnapshot): Map<string, string> {
-        const result = new Map<string, string>();
-        const length = Number(snapshotValue(read, 'read.activations.length'));
-        for (let i = 0; i < length; i++)
-            result.set(snapshotValue(read, `read.activations[${i}].node`), snapshotValue(read, `read.activations[${i}].phase`));
-        return result;
+    function phases(read: RunResetSnapshot): Map<bigint, number> {
+        return new Map(read.activations.map(({ node, phase }) => [node, phase]));
     }
 
     /** Runs past the drop and the delay, pauses, checks the switch fired and returns the lamp's committed phase; then Resets exactly. */
-    async function runResetCycle(s0: RunResetSnapshot, label: string): Promise<string | undefined> {
+    async function runResetCycle(s0: RunResetSnapshot, label: string): Promise<number | undefined> {
         await driver.run(RUN_WINDOW_MS);
         const committed = phases(await driver.expectRunAdvanced(s0));
-        assert.equal(committed.get(SWITCH_NODE), LATCHED, `${label}: the Impact switch (2) fired on the ball's impact`);
+        assert.equal(committed.get(SWITCH_NODE), ActivationPhase.Latched, `${label}: the Impact switch (2) fired on the ball's impact`);
         await driver.reset();
         await driver.expectResetMatches(s0);
         assert.deepEqual(errors, [], `${label}: no console or worker error: ${errors.join('; ')}`);
@@ -125,12 +121,12 @@ describe('PKG-3: Delay Box and Impact Switch element packages E2E', () => {
     test('1. The switch fires, the Delay lights the lamp, and each of two Resets restores the exact snapshot', { timeout: 300000 }, async () => {
         const s0 = await build(true);
         for (const cycle of ['first run', 'second run'])
-            assert.equal(await runResetCycle(s0, cycle), LATCHED, `${cycle}: the lamp (4) is lit through the Delay`);
+            assert.equal(await runResetCycle(s0, cycle), ActivationPhase.Latched, `${cycle}: the lamp (4) is lit through the Delay`);
     });
 
     test('2. Control: without the switch → Delay wire the switch fires but the lamp stays dark', { timeout: 300000 }, async () => {
         const s0 = await build(false);
-        assert.notEqual(await runResetCycle(s0, 'unwired run'), LATCHED, 'unwired run: the lamp stays dark');
+        assert.notEqual(await runResetCycle(s0, 'unwired run'), ActivationPhase.Latched, 'unwired run: the lamp stays dark');
     });
 
     test('3. Save, reload and Load restore the packaged parts and their wires bit for bit, and replay the delayed lamp', { timeout: 300000 }, async () => {
@@ -140,6 +136,6 @@ describe('PKG-3: Delay Box and Impact Switch element packages E2E', () => {
         const loaded = await driver.captureSnapshot(BENCH_BODIES);
         assertLoadRestores(s0, loaded);
         assertSaved((await driver.save()).slot, true);
-        assert.equal(await runResetCycle(loaded, 'loaded run'), LATCHED, 'loaded run: the lamp is lit through the Delay');
+        assert.equal(await runResetCycle(loaded, 'loaded run'), ActivationPhase.Latched, 'loaded run: the lamp is lit through the Delay');
     });
 });
